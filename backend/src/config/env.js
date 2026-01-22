@@ -74,7 +74,16 @@ export const config = {
 
     // Rate Limiting
     rateLimitGeneral: parseInt(getOptional('RATE_LIMIT_GENERAL', '100'), 10),
-    rateLimitTiingo: parseInt(getOptional('RATE_LIMIT_TIINGO', '500'), 10)
+    rateLimitTiingo: parseInt(getOptional('RATE_LIMIT_TIINGO', '500'), 10),
+
+    // Email (SMTP)
+    smtp: {
+        host: getOptional('SMTP_HOST', 'smtp.turkticaret.net'),
+        port: parseInt(getOptional('SMTP_PORT', '587'), 10),
+        email: getOptional('SMTP_EMAIL', null),
+        password: getRequired('SMTP_PASSWORD', null),
+        from: getOptional('EMAIL_FROM', 'Finbot <destek@finbot.com.tr>')
+    }
 };
 
 // Log configuration in development
@@ -84,6 +93,7 @@ if (config.isDev) {
     console.log(`   Port: ${config.port}`);
     console.log(`   Tiingo Mock: ${config.tiingoMockMode}`);
     console.log(`   MongoDB: ${config.mongoUri ? '✅ Connected' : '❌ Missing'}`);
+    console.log(`   SMTP: ${config.smtp.host}:${config.smtp.port} (${config.smtp.email ? '✅ Configured' : '❌ Missing Email'})`);
 }
 
 export default config;

@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import { asyncHandler } from "../utils/errorHandler.js";
+import { sendWelcomeEmail } from "../services/emailService.js";
 
 // ==============================
 // Google OAuth Client
@@ -231,6 +232,13 @@ export const googleLogin = asyncHandler(async (req, res) => {
       subscriptionStatus: "INACTIVE",
     });
     console.log("✅ New Google user created:", email);
+
+    // Yeni kullanıcı için hoşgeldin maili gönder (Hata olsa bile giriş devam etsin)
+    try {
+      await sendWelcomeEmail(user.email, user.firstName || "Finbot Kullanıcısı");
+    } catch (emailErr) {
+      console.error("❌ Welcome email failed for Google user:", emailErr.message);
+    }
   }
 
   const accessToken = generateAccessToken(user._id);
