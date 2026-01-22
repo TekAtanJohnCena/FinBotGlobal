@@ -114,27 +114,46 @@ export default function ChatWithHistory() {
     }
   }
   // --------------------------- Send message ---------------------------------
+ // ... (Kodun geri kalanı aynı)
+
   async function sendMessage(e) {
     if (e) e.preventDefault();
     const t = input.trim();
     if (!t) return;
 
+    // 1. Önce kullanıcının mesajını ekrana bas
     setMessages((p) => [...p, { sender: "user", text: t }]);
     setInput("");
     setIsLoading(true);
 
     try {
+      // 2. Mesajı gönder
       const res = await api.post("/chat", {
         message: t,
         chatId: activeChatId || undefined
       });
 
+      let currentChatId = activeChatId;
+
+      // 3. Eğer yeni bir sohbet ise ID'yi güncelle
       if (!activeChatId && res.data?.chatId) {
-        setActiveChatId(res.data.chatId);
-        // Otomatik isimlendirme
-        await api.put(`/chat/${res.data.chatId}/rename`, { title: t.substring(0, 30) });
+        currentChatId = res.data.chatId;
+        setActiveChatId(currentChatId);
+        
+        // --- İYİLEŞTİRME BURADA ---
+        // İsimlendirme hatası, mesajın görünmesini engellememeli.
+        // Bu yüzden ayrı bir try-catch bloğuna alıyoruz.
+        try {
+           await api.put(`/chat/${currentChatId}/rename`, { title: t.substring(0, 30) });
+           // Sidebar'ı güncelle ki yeni isim görünsün
+           fetchHistory(); 
+        } catch (renameError) {
+           console.warn("Otomatik isimlendirme yapılamadı:", renameError);
+           // Kullanıcıya hata göstermeye gerek yok, varsayılan isim kalabilir.
+        }
       }
 
+      // 4. Botun cevabını ekrana bas
       if (Array.isArray(res.data?.messages)) {
         setMessages(res.data.messages);
       } else {
@@ -143,12 +162,11 @@ export default function ChatWithHistory() {
           { sender: "bot", text: res.data?.reply || "Yanıt alınamadı." }
         ]);
       }
-
-      fetchHistory();
+      
       scrollToBottom();
+
     } catch (err) {
       console.error("Mesaj gönderilemedi:", err);
-      // Token hatası kontrolü burada da yapılabilir
       if (err.response?.status === 401) {
         logout();
         navigate("/login");
@@ -156,12 +174,14 @@ export default function ChatWithHistory() {
       }
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: "Bağlantı hatası." }
+        { sender: "bot", text: "Bağlantı hatası. Lütfen tekrar deneyin." }
       ]);
     } finally {
       setIsLoading(false);
     }
   }
+
+// ...
 
   function scrollToBottom() {
     // Mobilde klavye açıldığında scroll'un tam oturması için timeout

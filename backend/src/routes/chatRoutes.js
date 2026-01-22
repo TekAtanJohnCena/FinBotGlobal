@@ -16,11 +16,16 @@ import { validate, chatMessageSchema } from "../middleware/validate.js";
 const router = express.Router();
 
 // All routes require authentication
-router.post("/chat", protect, aiRateLimiter, validate(chatMessageSchema), sendMessage);
-router.get("/chat/history", protect, getChatHistory);
-router.get("/chats", protect, getChatHistory);
-router.get("/chat/:id", protect, getChatById);
-router.put("/chat/:id/rename", protect, renameChat);
-router.delete("/chat/:id", protect, deleteChat);
+// Note: This router is mounted at "/api/chat" in index.js
+// POST /api/chat -> sendMessage (mesaj gönder)
+router.post("/", protect, aiRateLimiter, validate(chatMessageSchema), sendMessage);
+// GET /api/chat/history -> getChatHistory (geçmiş sohbetler)
+router.get("/history", protect, getChatHistory);
+// GET /api/chat/:chatId -> getChatById (tek sohbet detayı)
+router.get("/:chatId", protect, getChatById);
+// PUT /api/chat/:chatId/rename -> renameChat
+router.put("/:chatId/rename", protect, renameChat);
+// DELETE /api/chat/:chatId -> deleteChat
+router.delete("/:chatId", protect, deleteChat);
 
 export default router;

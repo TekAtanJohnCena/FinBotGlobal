@@ -272,11 +272,13 @@ Total Value: $${totalValue.toLocaleString()}
 
   try {
     // Fetch data from Tiingo services
+    console.log(`[askFinbot] Fetching data for ticker: ${ticker}`);
     const [priceData, profileData, fundamentalsData] = await Promise.all([
-      getPrice(ticker).catch(() => null),
-      getProfile(ticker).catch(() => null),
-      getFundamentals(ticker).catch(() => null)
+      getPrice(ticker).catch((e) => { console.error(`[Tiingo] Price error for ${ticker}:`, e.message); return null; }),
+      getProfile(ticker).catch((e) => { console.error(`[Tiingo] Profile error for ${ticker}:`, e.message); return null; }),
+      getFundamentals(ticker).catch((e) => { console.error(`[Tiingo] Fundamentals error for ${ticker}:`, e.message); return null; })
     ]);
+    console.log(`[askFinbot] Tiingo data fetch complete for ${ticker}.`);
 
     // Build fact block
     const factBlock = `
@@ -313,11 +315,13 @@ ${portfolioContextBlock}
       }
     ];
 
+    console.log("[askFinbot] Sending request to OpenAI...");
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.4,
       messages
     });
+    console.log("[askFinbot] OpenAI response received.");
 
     const replyText = completion.choices?.[0]?.message?.content?.trim() || "Analysis could not be generated.";
 
@@ -343,6 +347,7 @@ export const sendMessage = async (req, res) => {
   try {
     const { message, chatId } = req.body;
     const userId = req.user._id;
+    console.log(`[Chat] Incoming message from user ${userId}: "${message?.substring(0, 20)}..." (chatId: ${chatId || 'new'})`);
 
     // Create new chat if no message and no chatId
     if ((!message || message.trim() === "") && !chatId) {
@@ -388,8 +393,10 @@ export const sendMessage = async (req, res) => {
     }
 
     // Generate bot response
+    console.log("[Chat] Calling askFinbot...");
     const prevMsgs = chat.messages.filter(m => m.text?.trim()).slice(-10);
     const { reply: rawReply, chartData, params } = await askFinbot(message, prevMsgs, portfolioContext);
+    console.log("[Chat] askFinbot response received.");
 
     let reply = rawReply || "I couldn't generate a response.";
     chat.messages.push({ sender: "bot", type: "text", text: reply });
@@ -400,6 +407,7 @@ export const sendMessage = async (req, res) => {
     }
 
     await chat.save();
+    console.log("[Chat] Saved successfully.");
 
     res.json({
       reply,
@@ -411,7 +419,7 @@ export const sendMessage = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("sendMessage error:", err.message);
+    console.error("[Chat] CRITICAL ERROR in sendMessage:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

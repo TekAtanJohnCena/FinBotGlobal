@@ -26,6 +26,10 @@ import walletRoutes from "./routes/walletRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
+// ADDITIONAL IMPORTS for /api/chats endpoint
+import { protect } from "./middleware/auth.js";
+import { getChatHistory } from "./controllers/chatController.js";
+
 const app = express();
 app.set('trust proxy', 1);
 
@@ -36,7 +40,11 @@ app.use(morgan("combined", { stream: morganStream }));
 app.use(securityHeaders);
 
 // ===== Middleware =====
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 app.use(express.json());
 app.use(generalLimiter); // Apply global rate limit
 
@@ -50,12 +58,19 @@ app.use("/api/wallet", walletRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/user", userRoutes);
 
-// Health Check
+// Chats list endpoint (alias for /api/chat/history)
+app.get("/api/chats", protect, getChatHistory);
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });
 
-// ===== Error Handling =====
+// Root Route
+app.get("/", (req, res) => {
+  res.send("🚀 FinBot API is running correctly on port " + (process.env.PORT || 3000));
+});
+
+// ===== Error Handling (MUST BE LAST) =====
 app.use(notFoundHandler);
 app.use(errorHandler);
 
