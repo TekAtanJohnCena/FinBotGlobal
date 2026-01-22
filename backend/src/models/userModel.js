@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,8 +35,29 @@ const userSchema = new mongoose.Schema(
       enum: ["ACTIVE", "INACTIVE", "CANCELLED", "EXPIRED"],
       default: "INACTIVE"
     },
+
+    // Şifre Sıfırlama Bilgileri
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
+
+// Şifre sıfırlama token'ı oluşturma methodu
+userSchema.methods.getResetPasswordToken = function () {
+  // Rastgele token oluştur
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  // Token'ı hashle ve veritabanına ata
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Süreyi 10 dakika olarak ayarla (ms cinsinden)
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
 
 export default mongoose.model("User", userSchema);

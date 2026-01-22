@@ -4,9 +4,10 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import { asyncHandler } from "../utils/errorHandler.js";
-import { sendWelcomeEmail } from "../services/emailService.js";
+import { sendWelcomeEmail, sendPasswordResetEmail } from "../services/emailService.js";
 
 // ==============================
 // Google OAuth Client
@@ -257,5 +258,89 @@ export const googleLogin = asyncHandler(async (req, res) => {
       subscriptionTier: user.subscriptionTier || "FREE",
       subscriptionStatus: user.subscriptionStatus || "INACTIVE",
     },
+  });
+});
+
+/* =====================================================
+   4. FORGOT PASSWORD
+   ===================================================== */
+export const forgotPassword = asyncHandler(async (req, res) => {
+  console.log('🔔 Forgot Password isteği 5000 portuna ulaştı!');
+  const { email } = req.body;
+  console.log("🔍 Şifre sıfırlama isteği:", email);
+
+  if (!email) {
+    return res.status(400).json({ message: "E-posta adresi gerekli." });
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    console.log("❌ Kullanıcı bulunamadı:", email);
+    return res.status(404).json({ message: "Bu e-posta adresine sahip bir kullanıcı bulunamadı." });
+  }
+
+  console.log("✅ Kullanıcı bulundu:", user.email);
+
+  // Şifre sıfırlama token'ı al
+  const resetToken = user.getResetPasswordToken();
+  console.log("🎫 Token üretildi");
+
+  // validateBeforeSave: false ekledik çünkü diğer zorunlu alanlar (firstName vb.) 
+  // bu save işleminde hata verebilir
+  await user.save({ validateBeforeSave: false });
+  console.log("💾 Kullanıcı token ile kaydedildi");
+
+  // URL oluştur (Path segment olarak)
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+  console.log("🔗 Sıfırlama linki oluşturuldu");
+
+  try {
+    await sendPasswordResetEmail(user.email, resetToken);
+    console.log("📧 Mail gönderildi:", user.email);
+
+    res.status(200).json({
+      message: "Şifre sıfırlama e-postası gönderildi."
+    });
+  } catch (error) {
+    console.error("❌ Mail gönderme hatası:", error);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(500).json({ message: "E-posta gönderilemedi." });
+  }
+});
+
+/* =====================================================
+   5. RESET PASSWORD
+   ===================================================== */
+export const resetPassword = asyncHandler(async (req, res) => {
+  // Hashlenmiş token'ı parametreden alıp veritabanında ara
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(req.params.resetToken)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Geçersiz veya süresi dolmuş token." });
+  }
+
+  // Yeni şifreyi ayarla
+  const hashedPassword = await bcrypt.hash(req.body.password, 12);
+  user.password = hashedPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    message: "Şifre başarıyla güncellendi."
   });
 });

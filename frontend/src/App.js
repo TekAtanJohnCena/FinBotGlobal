@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import AcademyCourseView from "./pages/AcademyCourseView";
+import ResetPassword from "./pages/ResetPassword";
 import MobileApp from "./pages/MobileApp";
 import NotFound from "./pages/NotFound"; // 404 Sayfası
 
@@ -103,6 +104,10 @@ function App() {
       <Route
         path="/forgot-password"
         element={!user ? <ForgotPassword /> : <Navigate to="/chat" replace />}
+      />
+      <Route
+        path="/reset-password/:token"
+        element={!user ? <ResetPassword /> : <Navigate to="/chat" replace />}
       />
 
       {/* =================================================

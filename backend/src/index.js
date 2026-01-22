@@ -33,18 +33,18 @@ import { getChatHistory } from "./controllers/chatController.js";
 const app = express();
 app.set('trust proxy', 1);
 
-// ===== Logging =====
-app.use(morgan("combined", { stream: morganStream }));
-
-// ===== Security Headers =====
-app.use(securityHeaders);
-
-// ===== Middleware =====
+// ===== Middleware & CORS =====
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
+app.use((req, res, next) => {
+  console.log(`📡 İstek Geldi: ${req.method} ${req.url}`);
+  next();
+});
+app.use(morgan("combined", { stream: morganStream }));
+app.use(securityHeaders);
 app.use(express.json());
 app.use(generalLimiter); // Apply global rate limit
 

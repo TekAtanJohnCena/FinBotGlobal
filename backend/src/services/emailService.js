@@ -128,7 +128,7 @@ export const sendWelcomeEmail = async (userEmail, userName) => {
  * @param {string} resetToken - The tokens/link for password reset
  */
 export const sendPasswordResetEmail = async (userEmail, resetToken) => {
-    const resetLink = `${config.frontendUrl}/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     const html = emailLayout(`
         <h2>Şifre Sıfırlama İsteği</h2>
