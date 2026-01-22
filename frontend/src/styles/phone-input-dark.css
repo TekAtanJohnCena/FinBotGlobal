@@ -1,0 +1,204 @@
+/* 
+ * Phone Input Dark Theme - Finbot Premium Edition
+ * SOLID DROPDOWN + HIGH Z-INDEX + PERFECT LEGIBILITY
+ */
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+.react-tel-input {
+  width: 100% !important;
+  position: relative !important;
+  z-index: 100 !important;
+  font-family: inherit !important;
+}
+
+/* ============================================
+   MAIN INPUT FIELD
+   ============================================ */
+.react-tel-input .form-control {
+  width: 100% !important;
+  padding: 0.75rem 1rem 0.75rem 52px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-size: 0.9rem !important;
+  height: auto !important;
+  line-height: 1.5 !important;
+  transition: all 0.2s ease !important;
+}
+
+.react-tel-input .form-control:focus {
+  border-color: #3b82f6 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+  outline: none !important;
+}
+
+.react-tel-input .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ============================================
+   FLAG BUTTON
+   ============================================ */
+.react-tel-input .flag-dropdown {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: none !important;
+  border-radius: 10px 0 0 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+.react-tel-input .flag-dropdown:hover,
+.react-tel-input .flag-dropdown.open {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.react-tel-input .flag-dropdown.open {
+  z-index: 99999 !important;
+}
+
+.react-tel-input .selected-flag {
+  background: transparent !important;
+  border-radius: 10px 0 0 10px !important;
+  padding: 0 0 0 11px !important;
+  width: 46px !important;
+}
+
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag.open {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.react-tel-input .selected-flag .arrow {
+  border-top-color: rgba(255, 255, 255, 0.6) !important;
+  left: 26px !important;
+}
+
+.react-tel-input .selected-flag .arrow.up {
+  border-bottom-color: rgba(255, 255, 255, 0.6) !important;
+  border-top-color: transparent !important;
+}
+
+/* ============================================
+   DROPDOWN - SOLID OPAQUE BACKGROUND
+   ============================================ */
+.react-tel-input .country-list {
+  position: absolute !important;
+  z-index: 99999 !important;
+  top: 100% !important;
+  left: 0 !important;
+  /* SOLID OPAQUE BACKGROUND - NOT TRANSPARENT */
+  background: #141414 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    0 0 1px rgba(255, 255, 255, 0.1) !important;
+  margin-top: 6px !important;
+  max-height: 220px !important;
+  min-width: 280px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* ============================================
+   SEARCH BOX - SOLID BACKGROUND
+   ============================================ */
+.react-tel-input .country-list .search {
+  background: #1a1a1a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 12px !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  margin: 0 !important;
+}
+
+.react-tel-input .country-list .search-box {
+  width: 100% !important;
+  padding: 10px 14px !important;
+  background: #252525 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-size: 0.85rem !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.react-tel-input .country-list .search-box:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+}
+
+.react-tel-input .country-list .search-box::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ============================================
+   COUNTRY LIST ITEMS
+   ============================================ */
+.react-tel-input .country-list .country {
+  padding: 10px 14px !important;
+  color: #e0e0e0 !important;
+  background: transparent !important;
+  transition: background 0.15s ease !important;
+}
+
+.react-tel-input .country-list .country:hover {
+  background: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+.react-tel-input .country-list .country.highlight {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.react-tel-input .country-list .country .country-name {
+  color: #f0f0f0 !important;
+  font-size: 0.85rem !important;
+}
+
+.react-tel-input .country-list .country .dial-code {
+  color: #888888 !important;
+  font-size: 0.8rem !important;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+.react-tel-input .country-list::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.react-tel-input .country-list::-webkit-scrollbar-track {
+  background: #1a1a1a !important;
+}
+
+.react-tel-input .country-list::-webkit-scrollbar-thumb {
+  background: #404040 !important;
+  border-radius: 3px !important;
+}
+
+.react-tel-input .country-list::-webkit-scrollbar-thumb:hover {
+  background: #505050 !important;
+}
+
+/* Divider */
+.react-tel-input .country-list .divider {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  margin: 4px 0 !important;
+}
+
+/* No entries */
+.react-tel-input .country-list .no-entries-message {
+  color: #888888 !important;
+  padding: 20px !important;
+  text-align: center !important;
+}

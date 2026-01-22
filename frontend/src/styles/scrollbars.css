@@ -1,0 +1,38 @@
+/* ==== Modern dikey scrollbar (Chrome/Edge/Firefox/Safari) ==== */
+:root{
+  --sb-thumb:#2f2f35;
+  --sb-thumb-hover:#3a3a40;
+  --sb-track:transparent;
+}
+
+/* Bu sınıfları verdiğin yerlerde modern scrollbar görünecek */
+.scroll-vertical{
+  scrollbar-width: thin;                  /* Firefox */
+  scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
+.scroll-vertical::-webkit-scrollbar{      /* Chrome/Edge/Safari */
+  width: 10px;
+}
+.scroll-vertical::-webkit-scrollbar-track{
+  background: var(--sb-track);
+}
+.scroll-vertical::-webkit-scrollbar-thumb{
+  background-color: var(--sb-thumb);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.scroll-vertical:hover::-webkit-scrollbar-thumb{
+  background-color: var(--sb-thumb-hover);
+}
+
+/* ==== Yatay scrollbarı gizle ama kaydırmayı koru ==== */
+.scroll-x-hide{
+  overflow-x: auto;
+  -ms-overflow-style: none;   /* eski IE/Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+.scroll-x-hide::-webkit-scrollbar{
+  height: 0;                  /* Chrome/Edge/Safari – görünmez */
+  display: none;
+}

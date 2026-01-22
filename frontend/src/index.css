@@ -1,0 +1,314 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🎨 GLOBAL CSS CUSTOM PROPERTIES */
+:root {
+  --main-bg-color: #131314;
+}
+
+/* 🔥 GLOBAL BACKGROUND COLOR - Matches Chat Page */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--main-bg-color) !important;
+  color: #e4e4e7;
+  overflow-y: auto;
+}
+
+/* 🔥 EKSTRA GÜVENLİK: Sidebar kenar çizgisini CSS'ten de zorla kaldır */
+aside {
+  border-right: none !important;
+  border: none !important;
+}
+
+body {
+  font-family: 'Inter', 'Open Sans', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   GLOBAL CUSTOM SCROLLBAR (Premium Dark Theme)
+   ============================================ */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+/* Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3f3f46;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #52525b;
+}
+
+/* Hide scrollbar on very small elements */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* No scrollbar utility - hide scrollbar but keep scroll */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Chat scrollbar */
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 var(--main-bg-color);
+}
+
+.chat-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+  background: var(--main-bg-color);
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 8px;
+  border: 2px solid var(--main-bg-color);
+}
+
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
+
+/* Custom Scroll (Genel) */
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 var(--main-bg-color);
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;
+  background: var(--main-bg-color);
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Portföy ve Diğer Butonlar */
+button.bg-purple-600,
+button.bg-indigo-600,
+button.bg-indigo-700 {
+  background-color: #9333ea !important;
+  /* purple-600 */
+  color: #fff !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600;
+  text-align: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button.bg-purple-600:hover,
+button.bg-indigo-600:hover,
+button.bg-indigo-700:hover {
+  background-color: #7e22ce !important;
+  /* purple-700 */
+  transform: scale(1.05);
+}
+
+/* Modal arka plan tam opak */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content,
+div[role="dialog"],
+div.bg-\[\#141821\] {
+  background: #141821 !important;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+}
+
+/* Confetti CSS */
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  transform: translateY(-100vh) rotate(0deg);
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-100vh) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+/* --- Auth (Giriş/Kayıt) Sayfaları --- */
+.auth-page-wrapper {
+  min-height: 100vh;
+  background-color: var(--main-bg-color);
+  display: flex;
+  align-items: center;
+  color: #fff;
+  overflow-y: auto;
+}
+
+.auth-form-container {
+  padding: 3rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.auth-brand-logo {
+  width: auto;
+  height: 45px;
+  margin-bottom: 2.5rem;
+  display: block;
+}
+
+.modern-label {
+  color: #b0b3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.form-control-modern {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control-modern::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.form-control-modern:focus {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  outline: none;
+  color: #fff;
+}
+
+/* Chrome Auto-fill Düzeltmesi */
+.form-control-modern:-webkit-autofill,
+.form-control-modern:-webkit-autofill:hover,
+.form-control-modern:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.forgot-password-link {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: #fff;
+}
+
+.register-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+.btn-modern-primary {
+  background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+  border: none;
+  color: white;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-modern-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.5);
+  color: white;
+}
+
+.btn-modern-primary:disabled {
+  opacity: 0.7;
+  transform: none;
+}
+
+.auth-image-column {
+  display: none;
+  height: 100vh;
+  padding: 20px;
+  background-color: #050505;
+}
+
+@media (min-width: 768px) {
+  .auth-image-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.auth-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+  max-height: 95vh;
+  opacity: 0.9;
+}

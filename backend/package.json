@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "node --experimental-vm-modules -r dotenv/config node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@react-oauth/google": "^0.12.2",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.3",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "google-auth-library": "^10.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongod": "^2.0.0",
+    "mongodb": "^7.0.0",
+    "mongoose": "^8.20.1",
+    "morgan": "^1.10.1",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^3.3.2",
+    "openai": "^5.11.0",
+    "rss-parser": "^3.13.0",
+    "winston": "^3.19.0",
+    "ws": "^8.18.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.2.2"
+  }
+}
