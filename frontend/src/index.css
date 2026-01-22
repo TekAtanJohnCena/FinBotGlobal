@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* RTL Support */
+@import './styles/rtl.css';
+
 /* 🎨 GLOBAL CSS CUSTOM PROPERTIES */
 :root {
   --main-bg-color: #131314;

@@ -65,7 +65,7 @@ export default function ChatWithHistory() {
   const [renameValue, setRenameValue] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Always open
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -114,7 +114,7 @@ export default function ChatWithHistory() {
     }
   }
   // --------------------------- Send message ---------------------------------
- // ... (Kodun geri kalanı aynı)
+  // ... (Kodun geri kalanı aynı)
 
   async function sendMessage(e) {
     if (e) e.preventDefault();
@@ -139,17 +139,17 @@ export default function ChatWithHistory() {
       if (!activeChatId && res.data?.chatId) {
         currentChatId = res.data.chatId;
         setActiveChatId(currentChatId);
-        
+
         // --- İYİLEŞTİRME BURADA ---
         // İsimlendirme hatası, mesajın görünmesini engellememeli.
         // Bu yüzden ayrı bir try-catch bloğuna alıyoruz.
         try {
-           await api.put(`/chat/${currentChatId}/rename`, { title: t.substring(0, 30) });
-           // Sidebar'ı güncelle ki yeni isim görünsün
-           fetchHistory(); 
+          await api.put(`/chat/${currentChatId}/rename`, { title: t.substring(0, 30) });
+          // Sidebar'ı güncelle ki yeni isim görünsün
+          fetchHistory();
         } catch (renameError) {
-           console.warn("Otomatik isimlendirme yapılamadı:", renameError);
-           // Kullanıcıya hata göstermeye gerek yok, varsayılan isim kalabilir.
+          console.warn("Otomatik isimlendirme yapılamadı:", renameError);
+          // Kullanıcıya hata göstermeye gerek yok, varsayılan isim kalabilir.
         }
       }
 
@@ -162,7 +162,7 @@ export default function ChatWithHistory() {
           { sender: "bot", text: res.data?.reply || "Yanıt alınamadı." }
         ]);
       }
-      
+
       scrollToBottom();
 
     } catch (err) {
@@ -181,7 +181,7 @@ export default function ChatWithHistory() {
     }
   }
 
-// ...
+  // ...
 
   function scrollToBottom() {
     // Mobilde klavye açıldığında scroll'un tam oturması için timeout
@@ -274,6 +274,20 @@ export default function ChatWithHistory() {
         />
       )}
 
+      {/* Floating Toggle Button - Desktop Only (Mobile has header button) */}
+      {!isSidebarOpen && (
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="hidden md:block fixed left-24 top-4 md:left-22 z-40 p-3 bg-emerald-500 hover:bg-emerald-400 rounded-xl shadow-2xl transition-all duration-200 hover:scale-110 group"
+          title="Sohbetleri Aç"
+        >
+          <Bars3Icon className="w-5 h-5 text-white" />
+          <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-zinc-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Sohbetler
+          </span>
+        </button>
+      )}
+
       {/* ---------------- Chat History Sidebar ---------------- */}
       <aside
         style={{ backgroundColor: '#131314' }}
@@ -285,30 +299,33 @@ export default function ChatWithHistory() {
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        {/* Sidebar Header */}
-        <div className="px-4 py-4 flex items-center justify-between bg-[#131314]">
-          <div className="text-lg font-bold text-emerald-400">Sohbetler</div>
+        {/* Sidebar Header - Improved Design */}
+        <div className="px-4 py-4 flex items-center justify-between bg-gradient-to-r from-emerald-900/20 to-transparent border-b border-emerald-500/10">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            <div className="text-lg font-bold text-emerald-400">Sohbetler</div>
+          </div>
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="p-1.5 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800"
+            className="p-2 text-zinc-400 hover:text-white transition-all rounded-lg hover:bg-zinc-800 hover:rotate-90"
             title="Menüyü Kapat"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Yeni Sohbet Butonu */}
-        <div className="px-4 pb-3 flex items-center justify-between">
-          <div className="text-sm font-semibold text-zinc-200">Yeni Sohbet</div>
+        {/* Yeni Sohbet Butonu - Improved */}
+        <div className="px-4 pb-3 pt-2">
           <button
             onClick={() => {
               setActiveChatId(null);
-              setMessages([{ sender: "bot", text: "Merhaba! Yeni sohbete başlayabilirsin." }]);
+              setMessages([]);
               setIsSidebarOpen(false);
             }}
-            className="inline-flex items-center gap-1 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1 text-xs font-semibold"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white px-4 py-2.5 text-sm font-semibold transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.02]"
           >
-            <PlusIcon className="w-3.5 h-3.5" /> Yeni
+            <PlusIcon className="w-4 h-4" />
+            Yeni Sohbet
           </button>
         </div>
 
@@ -319,29 +336,42 @@ export default function ChatWithHistory() {
           />
         </div>
 
-        <div className="px-4 text-[11px] font-semibold tracking-wide text-zinc-500">SOHBETLER</div>
+        <div className="px-4 text-[11px] font-semibold tracking-wide text-zinc-500 mb-2">SOHBETLER</div>
 
-        <ul className="flex-1 overflow-y-auto no-scrollbar mt-2 px-2 space-y-1">
+        <ul className="flex-1 overflow-y-auto no-scrollbar mt-2 px-2 space-y-1.5">
           {(showAll ? history : history.slice(0, MAX_VISIBLE)).map((chat) => (
             <li
               key={chat._id}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer transition
-                ${chat._id === activeChatId ? "bg-[#1b1e26] ring-1 ring-zinc-700" : "hover:bg-[#141820]"}`}
+              className={`group flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-all duration-200
+                ${chat._id === activeChatId
+                  ? "bg-gradient-to-r from-emerald-900/30 to-emerald-800/20 ring-1 ring-emerald-500/30 shadow-lg"
+                  : "hover:bg-zinc-800/60 active:scale-[0.98]"}`}
               onClick={() => loadChat(chat._id)}
             >
-              <span className="flex-1 truncate">
-                {chat.title || chat.messages?.[0]?.text || "Sohbet"}
+              {/* Chat icon */}
+              <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm
+                ${chat._id === activeChatId ? "bg-emerald-500/20 text-emerald-400" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700"}`}>
+                💬
+              </div>
+
+              {/* Chat title */}
+              <span className="flex-1 truncate text-zinc-200 font-medium">
+                {chat.title || chat.messages?.[0]?.text || "Yeni Sohbet"}
               </span>
-              <span className="flex gap-1">
+
+              {/* Action buttons */}
+              <span className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
-                  className="p-1 hover:bg-zinc-700/60 rounded"
+                  className="p-1.5 hover:bg-emerald-500/20 text-zinc-400 hover:text-emerald-400 rounded-lg transition-all"
                   onClick={(e) => { e.stopPropagation(); setRenamingId(chat._id); setRenameValue(chat.title || ""); }}
+                  title="Yeniden Adlandır"
                 >
                   <PencilSquareIcon className="w-4 h-4" />
                 </button>
                 <button
-                  className="p-1 hover:bg-red-700/50 rounded"
+                  className="p-1.5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded-lg transition-all"
                   onClick={(e) => { e.stopPropagation(); handleDeleteChat(chat._id); }}
+                  title="Sil"
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>
@@ -350,30 +380,56 @@ export default function ChatWithHistory() {
           ))}
 
           {renamingId && (
-            <li className="mt-2 rounded-lg bg-[#141820] px-3 py-2 ring-1 ring-zinc-700">
+            <li className="mt-2 rounded-xl bg-zinc-800/80 px-3 py-3 ring-1 ring-emerald-500/30 shadow-lg">
               <div className="flex items-center gap-2">
                 <input
                   value={renameValue}
                   onChange={(e) => setRenameValue(e.target.value)}
                   autoFocus
-                  className="flex-1 rounded-md bg-[#0f1218] px-2 py-1 text-sm text-white focus:outline-none"
+                  placeholder="Sohbet adı girin..."
+                  className="flex-1 rounded-lg bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleRenameChat(renamingId);
                     if (e.key === "Escape") { setRenamingId(null); setRenameValue(""); }
                   }}
                 />
-                <button onClick={() => handleRenameChat(renamingId)} className="bg-emerald-500 px-2 py-1 text-xs rounded text-black font-bold">OK</button>
+                <button
+                  onClick={() => handleRenameChat(renamingId)}
+                  className="bg-emerald-500 hover:bg-emerald-400 px-3 py-2 text-xs rounded-lg text-black font-bold transition-colors shadow-lg"
+                >
+                  ✓
+                </button>
+                <button
+                  onClick={() => { setRenamingId(null); setRenameValue(""); }}
+                  className="bg-zinc-700 hover:bg-zinc-600 px-3 py-2 text-xs rounded-lg text-white font-bold transition-colors"
+                >
+                  ✕
+                </button>
               </div>
             </li>
           )}
 
           {history.length > MAX_VISIBLE && (
-            <li>
+            <li className="pt-2">
               <button
                 onClick={() => setShowAll(!showAll)}
-                className="w-full rounded-lg bg-[#1a1d24] px-3 py-2 text-sm text-zinc-300 hover:bg-[#242830]"
+                className="w-full rounded-xl bg-zinc-800/50 hover:bg-zinc-700/80 px-3 py-2.5 text-sm text-zinc-300 hover:text-white font-medium transition-all flex items-center justify-center gap-2"
               >
-                {showAll ? "Daha az" : "Daha fazla"}
+                {showAll ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                    Daha az göster
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    {history.length - MAX_VISIBLE} sohbet daha
+                  </>
+                )}
               </button>
             </li>
           )}

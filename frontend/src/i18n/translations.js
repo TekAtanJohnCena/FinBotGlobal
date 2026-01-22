@@ -251,6 +251,76 @@ export const translations = {
       privacyShort: "Gizlilik",
       cookiesShort: "Çerez",
       termsShort: "Şartlar"
+    },
+
+    // Authentication
+    auth: {
+      // Login
+      loginTitle: "Tekrar Hoş Geldiniz",
+      loginSubtitle: "Hesabınıza giriş yapın ve analize başlayın.",
+      email: "E-posta",
+      emailPlaceholder: "ornek@finbot.com",
+      password: "Şifre",
+      passwordPlaceholder: "••••••••",
+      rememberMe: "Beni Hatırla",
+      forgotPassword: "Şifremi Unuttum",
+      loginButton: "Giriş Yap",
+      loggingIn: "Giriş yapılıyor...",
+      orContinueWith: "veya",
+      googleLogin: "Google ile Giriş Yap",
+      noAccount: "Hesabınız yok mu?",
+      signUp: "Kayıt Ol",
+
+      // Register
+      registerTitle: "Aramıza Katılın",
+      registerSubtitle: "Finansal analizlerinizi bir üst seviyeye taşıyın.",
+      firstName: "Ad",
+      firstNamePlaceholder: "Adınız",
+      lastName: "Soyad",
+      lastNamePlaceholder: "Soyadınız",
+      phone: "Telefon",
+      phonePlaceholder: "5XX XXX XX XX",
+      birthDate: "Doğum Tarihi",
+      username: "Kullanıcı Adı",
+      usernamePlaceholder: "kullanici_adi",
+      usernameHint: "Harf, rakam ve alt çizgi kullanın",
+      passwordHint: "En az 6 karakter",
+      termsAcceptance: "Kabul ediyorum",
+      termsOfService: "Kullanıcı Sözleşmesi",
+      and: "ve",
+      privacyPolicy: "Gizlilik Politikası",
+      registerButton: "Kayıt Ol",
+      registering: "Kayıt yapılıyor...",
+      googleRegister: "Google ile Kayıt Ol",
+      haveAccount: "Zaten hesabınız var mı?",
+      signIn: "Giriş Yap",
+
+      // Validation Messages
+      fillAllFields: "Lütfen tüm zorunlu alanları doldurunuz.",
+      validEmail: "Geçerli bir e-posta adresi giriniz.",
+      validPhone: "Geçerli bir telefon numarası giriniz.",
+      ageRequirement: "18 yaşından büyük olmalısınız.",
+      passwordLength: "Şifre en az 6 karakter olmalıdır.",
+      usernameLength: "Kullanıcı adı en az 3 karakter olmalıdır.",
+      acceptTerms: "Devam etmek için Kullanıcı Sözleşmesi ve Gizlilik Politikası'nı kabul etmelisiniz.",
+      registerSuccess: "Kayıt başarılı! Şimdi giriş yapabilirsiniz.",
+      registerFailed: "Kayıt başarısız! Lütfen bilgilerinizi kontrol edin.",
+      googleSuccess: "Google ile kayıt başarılı! 🚀",
+      googleFailed: "Google kaydı sırasında bir hata oluştu."
+    },
+
+    // Navigation (Sidebar)
+    sidebar: {
+      finbot: "FinBot",
+      portfolio: "Portföy",
+      wallet: "Cüzdan",
+      market: "Piyasa",
+      academy: "Akademi",
+      screener: "Tarama",
+      kap: "KAP",
+      settings: "Ayarlar",
+      logout: "Çıkış Yap",
+      profile: "Profil"
     }
   },
 
@@ -504,6 +574,76 @@ export const translations = {
       privacyShort: "Privacy",
       cookiesShort: "Cookies",
       termsShort: "Terms"
+    },
+
+    // Authentication
+    auth: {
+      // Login
+      loginTitle: "Welcome Back",
+      loginSubtitle: "Sign in to your account and start analyzing.",
+      email: "Email",
+      emailPlaceholder: "example@finbot.com",
+      password: "Password",
+      passwordPlaceholder: "••••••••",
+      rememberMe: "Remember Me",
+      forgotPassword: "Forgot Password",
+      loginButton: "Sign In",
+      loggingIn: "Signing in...",
+      orContinueWith: "or",
+      googleLogin: "Sign in with Google",
+      noAccount: "Don't have an account?",
+      signUp: "Sign Up",
+
+      // Register
+      registerTitle: "Join Us",
+      registerSubtitle: "Take your financial analysis to the next level.",
+      firstName: "First Name",
+      firstNamePlaceholder: "Your first name",
+      lastName: "Last Name",
+      lastNamePlaceholder: "Your last name",
+      phone: "Phone",
+      phonePlaceholder: "5XX XXX XX XX",
+      birthDate: "Birth Date",
+      username: "Username",
+      usernamePlaceholder: "username",
+      usernameHint: "Use letters, numbers and underscores",
+      passwordHint: "At least 6 characters",
+      termsAcceptance: "I accept the",
+      termsOfService: "Terms of Service",
+      and: "and",
+      privacyPolicy: "Privacy Policy",
+      registerButton: "Sign Up",
+      registering: "Signing up...",
+      googleRegister: "Sign up with Google",
+      haveAccount: "Already have an account?",
+      signIn: "Sign In",
+
+      // Validation Messages
+      fillAllFields: "Please fill in all required fields.",
+      validEmail: "Please enter a valid email address.",
+      validPhone: "Please enter a valid phone number.",
+      ageRequirement: "You must be over 18 years old.",
+      passwordLength: "Password must be at least 6 characters.",
+      usernameLength: "Username must be at least 3 characters.",
+      acceptTerms: "You must accept the Terms of Service and Privacy Policy to continue.",
+      registerSuccess: "Registration successful! You can now sign in.",
+      registerFailed: "Registration failed! Please check your information.",
+      googleSuccess: "Successfully registered with Google! 🚀",
+      googleFailed: "An error occurred during Google registration."
+    },
+
+    // Navigation (Sidebar)
+    sidebar: {
+      finbot: "FinBot",
+      portfolio: "Portfolio",
+      wallet: "Wallet",
+      market: "Market",
+      academy: "Academy",
+      screener: "Screener",
+      kap: "KAP",
+      settings: "Settings",
+      logout: "Logout",
+      profile: "Profile"
     }
   },
 
@@ -757,6 +897,76 @@ export const translations = {
       privacyShort: "الخصوصية",
       cookiesShort: "ملفات تعريف الارتباط",
       termsShort: "الشروط"
+    },
+
+    // Authentication
+    auth: {
+      // Login
+      loginTitle: "مرحبًا بعودتك",
+      loginSubtitle: "قم بتسجيل الدخول إلى حسابك وابدأ التحليل.",
+      email: "البريد الإلكتروني",
+      emailPlaceholder: "example@finbot.com",
+      password: "كلمة المرور",
+      passwordPlaceholder: "••••••••",
+      rememberMe: "تذكرني",
+      forgotPassword: "نسيت كلمة المرور",
+      loginButton: "تسجيل الدخول",
+      loggingIn: "جارٍ تسجيل الدخول...",
+      orContinueWith: "أو",
+      googleLogin: "تسجيل الدخول بواسطة Google",
+      noAccount: "ليس لديك حساب؟",
+      signUp: "إنشاء حساب",
+
+      // Register
+      registerTitle: "انضم إلينا",
+      registerSubtitle: "ارتق بتحليلك المالي إلى المستوى التالي.",
+      firstName: "الاسم الأول",
+      firstNamePlaceholder: "اسمك الأول",
+      lastName: "اسم العائلة",
+      lastNamePlaceholder: "اسم عائلتك",
+      phone: "الهاتف",
+      phonePlaceholder: "5XX XXX XX XX",
+      birthDate: "تاريخ الميلاد",
+      username: "اسم المستخدم",
+      usernamePlaceholder: "اسم_المستخدم",
+      usernameHint: "استخدم الحروف والأرقام والشرطة السفلية",
+      passwordHint: "6 أحرف على الأقل",
+      termsAcceptance: "أوافق على",
+      termsOfService: "شروط الخدمة",
+      and: "و",
+      privacyPolicy: "سياسة الخصوصية",
+      registerButton: "إنشاء حساب",
+      registering: "جارٍ إنشاء الحساب...",
+      googleRegister: "التسجيل بواسطة Google",
+      haveAccount: "لديك حساب بالفعل؟",
+      signIn: "تسجيل الدخول",
+
+      // Validation Messages
+      fillAllFields: "يرجى ملء جميع الحقول المطلوبة.",
+      validEmail: "يرجى إدخال عنوان بريد إلكتروني صحيح.",
+      validPhone: "يرجى إدخال رقم هاتف صحيح.",
+      ageRequirement: "يجب أن تكون أكبر من 18 عامًا.",
+      passwordLength: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+      usernameLength: "يجب أن يتكون اسم المستخدم من 3 أحرف على الأقل.",
+      acceptTerms: "يجب عليك قبول شروط الخدمة وسياسة الخصوصية للمتابعة.",
+      registerSuccess: "تم التسجيل بنجاح! يمكنك الآن تسجيل الدخول.",
+      registerFailed: "فشل التسجيل! يرجى التحقق من معلوماتك.",
+      googleSuccess: "تم التسجيل بنجاح بواسطة Google! 🚀",
+      googleFailed: "حدث خطأ أثناء التسجيل بواسطة Google."
+    },
+
+    // Navigation (Sidebar)
+    sidebar: {
+      finbot: "FinBot",
+      portfolio: "المحفظة",
+      wallet: "المحفظة",
+      market: "السوق",
+      academy: "الأكاديمية",
+      screener: "الماسح",
+      kap: "KAP",
+      settings: "الإعدادات",
+      logout: "تسجيل الخروج",
+      profile: "الملف الشخصي"
     }
   }
 };

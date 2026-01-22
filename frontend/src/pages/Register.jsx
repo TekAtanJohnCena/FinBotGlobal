@@ -1,7 +1,9 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { LanguageContext } from "../context/LanguageContext";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from 'react-hot-toast';
+import LanguageSelector from "../components/LanguageSelector";
 
 // GOOGLE IMPORT
 import { GoogleLogin } from '@react-oauth/google';
@@ -23,26 +25,34 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { register, googleLogin } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!firstName.trim() || !lastName.trim() || !phoneNumber || !birthDate || !username.trim() || !email.trim() || !password.trim()) {
-      toast.error("Lütfen tüm zorunlu alanları doldurunuz.");
+      toast.error(t('auth.fillAllFields'));
+      return;
+    }
+
+    if (!termsAccepted || !privacyAccepted) {
+      toast.error(t('auth.acceptTerms'));
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Geçerli bir e-posta adresi giriniz.");
+      toast.error(t('auth.validEmail'));
       return;
     }
 
     if (phoneNumber.length < 10) {
-      toast.error("Geçerli bir telefon numarası giriniz.");
+      toast.error(t('auth.validPhone'));
       return;
     }
 
@@ -50,17 +60,17 @@ const Register = () => {
     const today = new Date();
     const age = today.getFullYear() - birthDateObj.getFullYear();
     if (age < 18 || age > 120) {
-      toast.error("18 yaşından büyük olmalısınız.");
+      toast.error(t('auth.ageRequirement'));
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Şifre en az 6 karakter olmalıdır.");
+      toast.error(t('auth.passwordLength'));
       return;
     }
 
     if (username.length < 3) {
-      toast.error("Kullanıcı adı en az 3 karakter olmalıdır.");
+      toast.error(t('auth.usernameLength'));
       return;
     }
 
@@ -76,12 +86,12 @@ const Register = () => {
         email: email.trim().toLowerCase(),
         password
       });
-      toast.success('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+      toast.success(t('auth.registerSuccess'));
       window.location.href = "/login";
     } catch (err) {
       const errorMessage = err.response?.data?.message
         || err.response?.data?.errors?.[0]?.message
-        || "Kayıt başarısız! Lütfen bilgilerinizi kontrol edin.";
+        || t('auth.registerFailed');
       toast.error(errorMessage);
       setLoading(false);
     }
@@ -91,11 +101,11 @@ const Register = () => {
     try {
       setLoading(true);
       await googleLogin(credentialResponse.credential);
-      toast.success("Google ile kayıt başarılı! 🚀");
+      toast.success(t('auth.googleSuccess'));
       window.location.href = "/chat";
     } catch (error) {
       console.error(error);
-      toast.error("Google kaydı sırasında bir hata oluştu.");
+      toast.error(t('auth.googleFailed'));
       setLoading(false);
     }
   };
@@ -457,38 +467,41 @@ const Register = () => {
       <div className="auth-wrapper">
         <div className="auth-form-side">
           <div className="auth-form-container">
-            <Link to="/">
-              <img src={logo} alt="Finbot" className="auth-logo" />
-            </Link>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <Link to="/">
+                <img src={logo} alt="Finbot" className="auth-logo" style={{ margin: 0 }} />
+              </Link>
+              <LanguageSelector />
+            </div>
 
-            <h1 className="auth-title">Aramıza Katılın</h1>
+            <h1 className="auth-title">{t('auth.registerTitle')}</h1>
             <p className="auth-subtitle">
-              Finansal analizlerinizi bir üst seviyeye taşıyın.
+              {t('auth.registerSubtitle')}
             </p>
 
             <form onSubmit={handleSubmit}>
               {/* Ad / Soyad - Stacks vertically on mobile */}
               <div className="form-row">
                 <div style={{ marginBottom: 0 }}>
-                  <label className="form-label">Ad</label>
+                  <label className="form-label">{t('auth.firstName')}</label>
                   <input
                     type="text"
                     className="glass-input"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
-                    placeholder="Adınız"
+                    placeholder={t('auth.firstNamePlaceholder')}
                   />
                 </div>
                 <div style={{ marginBottom: 0 }}>
-                  <label className="form-label">Soyad</label>
+                  <label className="form-label">{t('auth.lastName')}</label>
                   <input
                     type="text"
                     className="glass-input"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
-                    placeholder="Soyadınız"
+                    placeholder={t('auth.lastNamePlaceholder')}
                   />
                 </div>
               </div>
@@ -496,7 +509,7 @@ const Register = () => {
               {/* Telefon / Doğum Tarihi */}
               <div className="form-row">
                 <div className="phone-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Telefon</label>
+                  <label className="form-label">{t('auth.phone')}</label>
                   <PhoneInput
                     country={'tr'}
                     value={phoneNumber}
@@ -506,11 +519,11 @@ const Register = () => {
                     dropdownStyle={{ zIndex: 99999 }}
                     enableSearch={true}
                     searchPlaceholder="Ülke ara..."
-                    placeholder="5XX XXX XX XX"
+                    placeholder={t('auth.phonePlaceholder')}
                   />
                 </div>
                 <div style={{ marginBottom: 0 }}>
-                  <label className="form-label">Doğum Tarihi</label>
+                  <label className="form-label">{t('auth.birthDate')}</label>
                   <input
                     type="date"
                     className="glass-input"
@@ -524,60 +537,88 @@ const Register = () => {
 
               {/* Kullanıcı Adı */}
               <div className="form-group">
-                <label className="form-label">Kullanıcı Adı</label>
+                <label className="form-label">{t('auth.username')}</label>
                 <input
                   type="text"
                   className="glass-input"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  placeholder="kullanici_adi"
+                  placeholder={t('auth.usernamePlaceholder')}
                 />
-                <div className="form-hint">Harf, rakam ve alt çizgi kullanın</div>
+                <div className="form-hint">{t('auth.usernameHint')}</div>
               </div>
 
               {/* E-posta */}
               <div className="form-group">
-                <label className="form-label">E-posta</label>
+                <label className="form-label">{t('auth.email')}</label>
                 <input
                   type="email"
                   className="glass-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="ornek@finbot.com"
+                  placeholder={t('auth.emailPlaceholder')}
                 />
               </div>
 
               {/* Şifre */}
               <div className="form-group">
-                <label className="form-label">Şifre</label>
+                <label className="form-label">{t('auth.password')}</label>
                 <input
                   type="password"
                   className="glass-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                 />
-                <div className="form-hint">En az 6 karakter</div>
+                <div className="form-hint">{t('auth.passwordHint')}</div>
+              </div>
+
+              {/* Terms and Privacy Checkboxes */}
+              <div className="form-group" style={{ marginTop: '0.5rem' }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: '#ddd', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#3b82f6' }}
+                  />
+                  <span>
+                    {t('auth.termsAcceptance')}{' '}
+                    <Link to="/legal/terms" target="_blank" className="auth-link">{t('auth.termsOfService')}</Link>
+                  </span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: '#ddd', fontSize: '0.8rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={privacyAccepted}
+                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                    style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#3b82f6' }}
+                  />
+                  <span>
+                    {t('auth.termsAcceptance')}{' '}
+                    <Link to="/legal/privacy" target="_blank" className="auth-link">{t('auth.privacyPolicy')}</Link>
+                  </span>
+                </label>
               </div>
 
               <button type="submit" className="btn-primary" disabled={loading}>
                 {loading ? (
                   <>
                     <span className="spinner" />
-                    Kayıt yapılıyor...
+                    {t('auth.registering')}
                   </>
                 ) : (
-                  "Kayıt Ol"
+                  t('auth.registerButton')
                 )}
               </button>
             </form>
 
             <div className="divider">
               <div className="divider-line" />
-              <span className="divider-text">veya</span>
+              <span className="divider-text">{t('auth.orContinueWith')}</span>
               <div className="divider-line" />
             </div>
 
@@ -593,8 +634,8 @@ const Register = () => {
             </div>
 
             <p className="auth-footer">
-              Zaten hesabınız var mı?{" "}
-              <Link to="/login" className="auth-link">Giriş Yap</Link>
+              {t('auth.haveAccount')}{" "}
+              <Link to="/login" className="auth-link">{t('auth.signIn')}</Link>
             </p>
           </div>
         </div>

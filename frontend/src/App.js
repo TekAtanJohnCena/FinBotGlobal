@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 // --- SAYFALAR (Public) ---
 import Landing from "./pages/Landing";
@@ -62,60 +63,67 @@ function App() {
   }
 
   return (
-    <Routes>
-      {/* =================================================
+    <LanguageProvider>
+      <Routes>
+        {/* =================================================
           1. HERKESE AÇIK SAYFALAR (Public Routes)
       ================================================= */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/app" element={<MobileApp />} />
-      <Route
-        element={
-          <ProtectedRoute>
-            <AppLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/chat" element={<ChatWithHistory />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/wallet" element={<WalletPage />} />
-        <Route path="/screener" element={<ScreenerPage />} />
-        <Route path="/kap" element={<KapTerminal />} />
-        <Route path="/academy" element={<AcademyCourseView />} />
-      </Route>
+        <Route path="/" element={<Landing />} />
+        <Route path="/app" element={<MobileApp />} />
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/chat" element={<ChatWithHistory />} />
+          <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/wallet" element={<WalletPage />} />
+          <Route path="/screener" element={<ScreenerPage />} />
+          <Route path="/kap" element={<KapTerminal />} />
+          <Route path="/academy" element={<AcademyCourseView />} />
+        </Route>
 
-      {/* Yasal Metinler */}
-      <Route path="/kvkk-aydinlatma" element={<KVKKText />} />
-      <Route path="/gizlilik-politikasi" element={<PrivacyPolicy />} />
-      <Route path="/cerez-politikasi" element={<CookiePolicy />} />
-      <Route path="/kullanim-sartlari" element={<TermsOfUse />} />
+        {/* Legal Pages */}
+        <Route path="/legal/kvkk" element={<KVKKText />} />
+        <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+        <Route path="/legal/cookies" element={<CookiePolicy />} />
+        <Route path="/legal/terms" element={<TermsOfUse />} />
+        {/* Legacy redirects */}
+        <Route path="/kvkk-aydinlatma" element={<Navigate to="/legal/kvkk" replace />} />
+        <Route path="/gizlilik-politikasi" element={<Navigate to="/legal/privacy" replace />} />
+        <Route path="/cerez-politikasi" element={<Navigate to="/legal/cookies" replace />} />
+        <Route path="/kullanim-sartlari" element={<Navigate to="/legal/terms" replace />} />
 
-      {/* =================================================
+        {/* =================================================
           2. AUTH (Giriş / Kayıt)
           Zaten giriş yapmış kullanıcıyı Chat'e yönlendir.
       ================================================= */}
-      <Route
-        path="/login"
-        element={!user ? <Login /> : <Navigate to="/chat" replace />}
-      />
-      <Route
-        path="/register"
-        element={!user ? <Register /> : <Navigate to="/chat" replace />}
-      />
-      <Route
-        path="/forgot-password"
-        element={!user ? <ForgotPassword /> : <Navigate to="/chat" replace />}
-      />
-      <Route
-        path="/reset-password/:token"
-        element={!user ? <ResetPassword /> : <Navigate to="/chat" replace />}
-      />
+        <Route
+          path="/login"
+          element={!user ? <Login /> : <Navigate to="/chat" replace />}
+        />
+        <Route
+          path="/register"
+          element={!user ? <Register /> : <Navigate to="/chat" replace />}
+        />
+        <Route
+          path="/forgot-password"
+          element={!user ? <ForgotPassword /> : <Navigate to="/chat" replace />}
+        />
+        <Route
+          path="/reset-password/:token"
+          element={!user ? <ResetPassword /> : <Navigate to="/chat" replace />}
+        />
 
-      {/* =================================================
+        {/* =================================================
           4. 404 SAYFASI
           Bilinmeyen bir sayfaya gidilirse 404 sayfasını göster.
       ================================================= */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </LanguageProvider>
   );
 }
 
