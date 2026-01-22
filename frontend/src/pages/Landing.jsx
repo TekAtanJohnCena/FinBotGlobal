@@ -435,6 +435,9 @@ export default function Landing() {
                   {t('nav.contact')}
                 </a>
               </li>
+              <li>
+                <LanguageSelector />
+              </li>
             </ul>
           </div>
 
@@ -486,6 +489,9 @@ export default function Landing() {
                 >
                   {t('nav.contact')}
                 </a>
+              </li>
+              <li className="mt-3">
+                <LanguageSelector />
               </li>
             </ul>
           </div>
