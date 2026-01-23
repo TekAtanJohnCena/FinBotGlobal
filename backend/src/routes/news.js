@@ -7,11 +7,8 @@ import { protect } from '../middleware/auth.js';
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
 
-// 🔧 OPENAI INTEGRATION: Test için geçici API Key
-const API_KEY = "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";
-const openai = new OpenAI({ apiKey: API_KEY });
-
-console.log('🔑 OpenAI Client initialized (Debug Mode)');
+// 🔧 OPENAI INTEGRATION
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * GET /api/news/:symbol
