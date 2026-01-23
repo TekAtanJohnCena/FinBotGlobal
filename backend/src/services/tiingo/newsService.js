@@ -1,9 +1,4 @@
 // PATH: backend/src/services/tiingo/newsService.js
-/**
- * News Service - Tiingo News API
- * Provides US market news with sentiment analysis
- */
-
 import tiingoClient from './tiingoClient.js';
 import cache from '../cache/cacheService.js';
 
@@ -21,14 +16,6 @@ export async function getNews(ticker, limit = 20) {
     if (cached) {
         console.log(`📦 Cache hit: ${cacheKey}`);
         return cached;
-    }
-
-    // Mock mode
-    if (tiingoClient.isMockMode()) {
-        let news = tiingoClient.getMockNews(ticker);
-        news = news.slice(0, limit);
-        cache.set(cacheKey, news, NEWS_TTL);
-        return news;
     }
 
     // Real API call
@@ -57,10 +44,7 @@ export async function getNews(ticker, limit = 20) {
         return articles;
     } catch (error) {
         console.error(`❌ Tiingo news error:`, error.message);
-
-        // Fallback to mock
-        let news = tiingoClient.getMockNews(ticker);
-        return news.slice(0, limit);
+        throw error;
     }
 }
 

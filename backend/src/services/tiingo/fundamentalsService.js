@@ -1,9 +1,4 @@
 // PATH: backend/src/services/tiingo/fundamentalsService.js
-/**
- * Fundamentals Service - Tiingo Financial Statements
- * Provides 10-K, 10-Q, Income Statement, Balance Sheet data
- */
-
 import tiingoClient from './tiingoClient.js';
 import cache from '../cache/cacheService.js';
 
@@ -25,37 +20,6 @@ export async function getFundamentals(ticker) {
     if (cached) {
         console.log(`📦 Cache hit: ${cacheKey}`);
         return cached;
-    }
-
-    // Mock mode
-    if (tiingoClient.isMockMode()) {
-        const mockData = tiingoClient.getMockFundamentals(normalizedTicker);
-        if (mockData) {
-            cache.set(cacheKey, mockData, FUNDAMENTALS_TTL);
-            return mockData;
-        }
-
-        // Generate basic fundamentals for unknown tickers
-        const result = {
-            ticker: normalizedTicker,
-            period: 'Q4 2024',
-            reportType: '10-Q',
-            revenue: Math.floor(Math.random() * 50000000000),
-            netIncome: Math.floor(Math.random() * 10000000000),
-            grossProfit: Math.floor(Math.random() * 20000000000),
-            operatingIncome: Math.floor(Math.random() * 15000000000),
-            totalAssets: Math.floor(Math.random() * 100000000000),
-            totalLiabilities: Math.floor(Math.random() * 50000000000),
-            shareholderEquity: Math.floor(Math.random() * 50000000000),
-            operatingCashFlow: Math.floor(Math.random() * 15000000000),
-            eps: parseFloat((Math.random() * 5).toFixed(2)),
-            roe: parseFloat((Math.random() * 30).toFixed(1)),
-            roa: parseFloat((Math.random() * 15).toFixed(1)),
-            debtToEquity: parseFloat((Math.random() * 2).toFixed(2)),
-            source: 'mock-generated'
-        };
-        cache.set(cacheKey, result, FUNDAMENTALS_TTL);
-        return result;
     }
 
     // Real API call (requires premium Tiingo access)
@@ -102,13 +66,6 @@ export async function getFundamentals(ticker) {
         return result;
     } catch (error) {
         console.error(`❌ Tiingo fundamentals error for ${normalizedTicker}:`, error.message);
-
-        // Fallback to mock
-        const mockData = tiingoClient.getMockFundamentals(normalizedTicker);
-        if (mockData) {
-            return { ...mockData, source: 'mock-fallback' };
-        }
-
         throw error;
     }
 }

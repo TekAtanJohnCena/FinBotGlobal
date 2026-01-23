@@ -1,8 +1,5 @@
 // PATH: backend/src/routes/api.js
 import express from 'express';
-import tiingoClient from '../services/tiingo/tiingoClient.js';
-import { getPrice } from '../services/tiingo/stockService.js';
-import { getFundamentals } from '../services/tiingo/fundamentalsService.js';
 import axios from 'axios';
 
 const router = express.Router();
@@ -10,7 +7,7 @@ const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
 
 /**
  * A) GET /api/screener-fundamentals
- * Merges Daily Price and Fundamentals for major stocks
+ * Merges Daily Price and Fundamentals for major stocks directly from Tiingo
  */
 router.get('/screener-fundamentals', async (req, res) => {
     const tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'JPM', 'V', 'META'];
@@ -18,93 +15,70 @@ router.get('/screener-fundamentals', async (req, res) => {
     try {
         const results = await Promise.all(tickers.map(async (ticker) => {
             try {
-                // Fetch basic info and price
-                // Using Tiingo Daily endpoint for meta and stats if available, or combining services
-                const priceData = await getPrice(ticker);
+                // Real IEX Price
+                const priceRes = await axios.get(`https://api.tiingo.com/iex/?tickers=${ticker}&token=${TIINGO_API_KEY}`);
+                const p = priceRes.data[0] || {};
 
-                // Fetch fundamentals for P/E, Market Cap, etc.
-                // Note: Market cap might be available in daily meta or calculated
-                let marketCap = 0;
-                let peRatio = 0;
-                let dividendYield = 0;
-
-                try {
-                    // We'll try to get fundamentals for professional stats
-                    // If the user's Tiingo key doesn't have fundamentals access, we provide fallback/empty
-                    const fundamentals = await getFundamentals(ticker);
-                    // Extract or calculate required fields
-                    // This is a simplification, actual fields depend on Tiingo response structure
-                    marketCap = fundamentals.marketCap || 0;
-                    peRatio = fundamentals.peRatio || 0;
-                    dividendYield = fundamentals.dividendYield || 0;
-                } catch (fErr) {
-                    console.warn(`Could not fetch fundamentals for ${ticker}:`, fErr.message);
-                }
+                // Real Fundamentals
+                const fundRes = await axios.get(`https://api.tiingo.com/tiingo/fundamentals/${ticker}/daily?token=${TIINGO_API_KEY}`);
+                const latestFund = fundRes.data?.at(-1) || {};
 
                 return {
                     symbol: ticker,
-                    name: ticker, // Could be fetched from a profile service
-                    lastPrice: priceData.price,
-                    changePercent: priceData.changePercent,
-                    marketCap: marketCap,
-                    peRatio: peRatio,
-                    dividendYield: dividendYield
+                    name: ticker,
+                    lastPrice: p.last || 0,
+                    changePercent: p.prevClose ? ((p.last - p.prevClose) / p.prevClose) * 100 : 0,
+                    marketCap: latestFund.marketCap || 0,
+                    peRatio: latestFund.peRatio || 0,
+                    dividendYield: latestFund.dividendYield || 0
                 };
             } catch (err) {
-                console.error(`Error fetching data for ${ticker}:`, err.message);
+                console.error(`❌ Screener API Hata (${ticker}):`, err.message);
                 return null;
             }
         }));
 
-        const filteredResults = results.filter(r => r !== null);
-        res.json({ ok: true, data: filteredResults });
+        res.json({ ok: true, data: results.filter(r => r !== null) });
     } catch (error) {
-        res.status(500).json({ ok: false, error: error.message });
+        res.status(500).json({ ok: false, error: 'Screener verileri alınamadı.' });
     }
 });
 
 /**
  * B) GET /api/global-news
- * NASDAQ and NYSE focused news
  */
 router.get('/global-news', async (req, res) => {
     try {
         const response = await axios.get('https://api.tiingo.com/tiingo/news', {
-            params: {
-                tags: 'technology,finance,ipo',
-                limit: 20,
-                token: TIINGO_API_KEY
-            }
+            params: { tags: 'technology,finance', limit: 20, token: TIINGO_API_KEY }
         });
 
         const news = response.data.map(item => ({
             id: item.id,
             title: item.title,
-            summary: item.description,
             source: item.source,
             date: item.publishedDate,
-            url: item.url,
-            image: item.urlToImage // Tiingo might not provide images, depends on source
+            url: item.url
         }));
 
         res.json({ ok: true, data: news });
     } catch (error) {
-        res.status(500).json({ ok: false, error: error.message });
+        res.status(500).json({ ok: false, error: 'Haberler alınamadı.' });
     }
 });
 
 /**
  * D) GET /api/stock-analysis/:symbol
- * Aggregates daily profile, historical prices, fundamentals, financials, and news
+ * PRODUCTION READY: No mock data, Annual Filtering, Detailed Mapping
  */
 router.get('/stock-analysis/:symbol', async (req, res) => {
     const { symbol } = req.params;
     const normalizedSymbol = symbol.toUpperCase();
 
-    try {
-        console.log(`Starting analysis for: ${normalizedSymbol}`);
+    console.log(`\n--- 📡 ÜRETİM MODU İSTEK: ${normalizedSymbol} ---`);
 
-        // Fetch 5 Sources in parallel (Parallel Request)
+    try {
+        // Fetch 5 Sources in parallel
         const [metaRes, historyRes, fundamentalsRes, statementsRes, newsRes] = await Promise.allSettled([
             axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}?token=${TIINGO_API_KEY}`),
             axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}/prices?startDate=2024-01-01&token=${TIINGO_API_KEY}`),
@@ -113,68 +87,109 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             axios.get(`https://api.tiingo.com/tiingo/news?tickers=${normalizedSymbol}&limit=5&token=${TIINGO_API_KEY}`)
         ]);
 
+        // LOG STATUS
+        const log = (name, res) => console.log(res.status === 'fulfilled' ? `✅ ${name}` : `❌ ${name} [${res.reason?.response?.status || 'ERR'}]`);
+        log("META      ", metaRes);
+        log("HISTORY   ", historyRes);
+        log("Ratios    ", fundamentalsRes);
+        log("Statements", statementsRes);
+        log("News      ", newsRes);
+
         const meta = metaRes.status === 'fulfilled' ? metaRes.value.data : {};
         const history = historyRes.status === 'fulfilled' ? historyRes.value.data : [];
         const dailyFundamentals = fundamentalsRes.status === 'fulfilled' ? fundamentalsRes.value.data?.at(-1) : {};
-        const statementsData = statementsRes.status === 'fulfilled' ? statementsRes.value.data : [];
-        const news = newsRes.status === 'fulfilled' ? newsRes.value.data : [];
+        const rawStatements = statementsRes.status === 'fulfilled' ? statementsRes.value.data : [];
+        const newsData = newsRes.status === 'fulfilled' ? newsRes.value.data : [];
 
-        // Debug Log
-        console.log("Statements Verisi:", statementsData.length);
-
-        // Extract latest financials summary
-        const latestStatement = statementsData.length > 0 ? statementsData[0] : {};
-
-        // Calculate current price and change from history
-        let lastPrice = 0;
-        let changePercent = 0;
-        if (history.length > 0) {
-            const last = history[history.length - 1];
-            const prev = history.length > 1 ? history[history.length - 2] : last;
-            lastPrice = last.close;
-            changePercent = ((last.close - prev.close) / prev.close) * 100;
+        // 1. ANNUAL FILTERING & DEBUGGING
+        if (rawStatements.length > 0) {
+            console.log("🔍 Tiingo İçerik Örneği:", JSON.stringify(rawStatements[0].statementData, null, 2).slice(0, 500));
         }
 
-        const data = {
+        // Sadece 'quarter: 0' (Yıllık) olanları filtrele. Yoksa hepsini al.
+        let filteredStatements = rawStatements.filter(item => item.quarter === 0);
+        if (filteredStatements.length === 0) {
+            console.log("⚠️ Yıllık rapor (quarter=0) bulunamadı, tüm periyotlar kullanılıyor.");
+            filteredStatements = rawStatements;
+        } else {
+            console.log(`📊 Yıllık Filtreleme: ${filteredStatements.length} adet yıl bulundu.`);
+        }
+
+        // 2. ROBUST MAPPING (Kutuyu Aç)
+        const cleanFinancials = filteredStatements.map(item => {
+            const d = item.statementData || {};
+            return {
+                date: item.date,
+                year: item.year,
+                quarter: item.quarter,
+                // Revenue mapping
+                revenue: d.totalRevenue || d.revenue || 0,
+                costOfRevenue: d.costOfRevenue || 0,
+                grossProfit: d.grossProfit || 0,
+                // Expenses mapping
+                opExpenses: d.operatingExpenses || d.opExpenses || 0,
+                ebitda: d.ebitda || 0,
+                netIncome: d.netIncome || 0,
+                // Balance Sheet mapping
+                totalAssets: d.totalAssets || 0,
+                totalLiabilities: d.totalLiabilities || 0,
+                totalEquity: d.totalEquity || 0,
+                cashAndEquivalents: d.cashAndEquivalents || 0,
+                longTermDebt: d.longTermDebt || 0,
+                // Cash Flow mapping
+                netCashProvidedByOperatingActivities: d.netCashByOperatingActivities || d.netCashProvidedByOperatingActivities || 0,
+                netCashUsedForInvestingActivities: d.netCashByInvestingActivities || d.netCashUsedForInvestingActivities || 0,
+                netCashUsedProvidedByFinancingActivities: d.netCashByFinancingActivities || d.netCashUsedProvidedByFinancingActivities || 0,
+                netChangeInCash: d.netChangeInCash || 0
+            };
+        });
+
+        // PRICE CALCULATION
+        let currentPrice = 0;
+        let changePercent = 0;
+        if (history.length > 0) {
+            const last = history.at(-1);
+            const prev = history.length > 1 ? history.at(-2) : last;
+            currentPrice = last.close;
+            changePercent = prev.close ? ((last.close - prev.close) / prev.close) * 100 : 0;
+        }
+
+        const responseData = {
             symbol: normalizedSymbol,
             name: meta.name || normalizedSymbol,
-            price: lastPrice,
+            price: currentPrice,
             changePercent: changePercent,
-            history: history.map(item => ({
-                date: item.date,
-                price: item.close,
-                high: item.high,
-                low: item.low,
-                volume: item.volume
-            })),
+            history: history.map(h => ({ date: h.date, price: h.close })),
             fundamentals: {
-                marketCap: dailyFundamentals?.marketCap || 0,
-                peRatio: dailyFundamentals?.peRatio || 0,
-                dividendYield: dailyFundamentals?.dividendYield || 0,
-                roe: dailyFundamentals?.roe || 0,
-                beta: dailyFundamentals?.beta || 0,
-                description: meta.description
+                marketCap: dailyFundamentals.marketCap || meta.marketCap || 0,
+                peRatio: dailyFundamentals.peRatio || 0,
+                dividendYield: dailyFundamentals.dividendYield || 0,
+                roe: dailyFundamentals.roe || 0,
+                beta: dailyFundamentals.beta || 0,
+                description: meta.description || ""
             },
             financials: {
                 summary: {
-                    revenue: latestStatement.revenue || 0,
-                    netIncome: latestStatement.netIncome || 0,
+                    revenue: cleanFinancials[0]?.revenue || 0,
+                    netIncome: cleanFinancials[0]?.netIncome || 0
                 },
-                history: statementsData
+                history: cleanFinancials
             },
-            news: news.map(item => ({
-                id: item.id,
-                title: item.title,
-                source: item.source,
-                date: item.publishedDate,
-                url: item.url
+            news: newsData.map(n => ({
+                id: n.id,
+                title: n.title,
+                source: n.source,
+                date: n.publishedDate,
+                url: n.url
             }))
         };
 
-        res.json({ ok: true, data });
+        console.log(`--- ✅ ${normalizedSymbol} TAMAMLANDI ---\n`);
+        res.json({ ok: true, data: responseData });
+
     } catch (error) {
-        console.error(`Tiingo API Hatası (${normalizedSymbol}):`, error.response?.data || error.message);
-        res.status(500).json({ ok: false, error: 'Analiz verileri alınamadı.' });
+        console.error(`\n❌ KRİTİK HATA:`, error.message);
+        res.status(500).json({ ok: false, error: 'API hatası oluştu.' });
     }
 });
 
