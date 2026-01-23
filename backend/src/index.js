@@ -21,10 +21,11 @@ import authRoutes from "./routes/authRoutes.js";
 import priceRoutes from "./routes/priceRoutes.js";
 import financeRoutes from "./routes/finance.js";
 import financeChartRoutes from "./routes/financeChart.js";
-import portfolioRoutes from "./routes/portfolioRoutes.js";
+import portfolioRoutes from "./routes/portfolio.js";
 import walletRoutes from "./routes/walletRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import apiRoutes from "./routes/api.js";
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -57,6 +58,7 @@ app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api", apiRoutes);
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);

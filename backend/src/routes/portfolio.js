@@ -16,7 +16,6 @@ router.get("/search", protect, async (req, res) => {
 
     try {
         const response = await axios.get(`https://api.tiingo.com/tiingo/utilities/search?query=${query}&token=${TIINGO_API_KEY}`);
-        // Tiingo search returns [{ticker, name, assetType, ...}]
         res.json({ ok: true, data: response.data });
     } catch (error) {
         console.error("Search API Error:", error.message);
@@ -25,7 +24,7 @@ router.get("/search", protect, async (req, res) => {
 });
 
 /**
- * 2. GET PORTFOLIO (With Live Prices)
+ * 2. GET PORTFOLIO (With Real-Time IEX Prices & Fallbacks)
  * GET /api/portfolio
  */
 router.get("/", protect, async (req, res) => {
@@ -36,28 +35,49 @@ router.get("/", protect, async (req, res) => {
             return res.json({ ok: true, data: [], totals: { totalValue: 0, totalPnl: 0, totalPnlPercent: 0 } });
         }
 
-        // Fetch Real-time prices from Tiingo IEX (Standard for "Anlık Fiyat")
+        // A) Try Batch IEX Fetch First
         const symbols = assets.map(a => a.symbol).join(",");
         let livePrices = {};
 
         try {
             const priceRes = await axios.get(`https://api.tiingo.com/iex/?tickers=${symbols}&token=${TIINGO_API_KEY}`);
             priceRes.data.forEach(item => {
-                livePrices[item.ticker.toUpperCase()] = item.last;
+                livePrices[item.ticker.toUpperCase()] = item.tngoLast || item.last || 0;
             });
         } catch (pErr) {
-            console.error("Live Price Fetch Error:", pErr.message);
+            console.error("IEX Batch Fetch Error:", pErr.message);
         }
 
         let totalValue = 0;
         let totalCostBasis = 0;
 
-        const enrichedData = assets.map(asset => {
-            const currentPrice = livePrices[asset.symbol] || asset.avgCost; // Fallback to cost
-            const totalVal = currentPrice * asset.quantity;
-            const costBasis = asset.avgCost * asset.quantity;
+        const enrichedData = await Promise.all(assets.map(async (asset) => {
+            let currentPrice = livePrices[asset.symbol];
 
-            totalValue += totalVal;
+            // B) Fallback Mechanism: If IEX is 0 or missing, try Daily Prices
+            if (!currentPrice || currentPrice === 0) {
+                try {
+                    const dailyRes = await axios.get(`https://api.tiingo.com/tiingo/daily/${asset.symbol}/prices?token=${TIINGO_API_KEY}`);
+                    if (dailyRes.data && dailyRes.data.length > 0) {
+                        currentPrice = dailyRes.data[0].close;
+                        console.log(`Fallback Success for ${asset.symbol}: ${currentPrice}`);
+                    }
+                } catch (dErr) {
+                    console.error(`Fallback failed for ${asset.symbol}:`, dErr.message);
+                }
+            }
+
+            // Final fallback to avgCost to avoid 0s in UI
+            if (!currentPrice || currentPrice === 0) {
+                currentPrice = asset.avgCost;
+            }
+
+            const assetTotalValue = currentPrice * asset.quantity;
+            const costBasis = asset.avgCost * asset.quantity;
+            const profitValue = assetTotalValue - costBasis;
+            const profitPercent = costBasis > 0 ? (profitValue / costBasis) * 100 : 0;
+
+            totalValue += assetTotalValue;
             totalCostBasis += costBasis;
 
             return {
@@ -67,11 +87,11 @@ router.get("/", protect, async (req, res) => {
                 quantity: asset.quantity,
                 avgCost: asset.avgCost,
                 currentPrice: currentPrice,
-                totalValue: totalVal,
-                pnl: totalVal - costBasis,
-                pnlPercent: costBasis > 0 ? ((totalVal - costBasis) / costBasis) * 100 : 0
+                totalValue: assetTotalValue,
+                profit: profitValue,
+                profitPercent: profitPercent
             };
-        });
+        }));
 
         res.json({
             ok: true,
@@ -83,6 +103,7 @@ router.get("/", protect, async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("Get Portfolio Error:", error.message);
         res.status(500).json({ ok: false, error: "Portföy verileri alınamadı." });
     }
 });
@@ -103,7 +124,6 @@ router.post("/add", protect, async (req, res) => {
         let asset = await Portfolio.findOne({ user: userId, symbol: symbol.toUpperCase() });
 
         if (asset) {
-            // WEIGHTED AVERAGE COST LOGIC: (OldCost*OldQty + NewCost*NewQty) / (OldQty+NewQty)
             const oldQty = asset.quantity;
             const oldCost = asset.avgCost;
             const newQty = Number(quantity);

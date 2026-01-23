@@ -1,638 +1,413 @@
-import { useState, useEffect, useMemo } from "react";
-import api from "../lib/api"; // Axios instance
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import toast, { Toaster } from "react-hot-toast";
+import React, { useState, useEffect, useCallback } from 'react';
+import api from "../lib/api";
 import {
-  ChartBarIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  XMarkIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  TrashIcon,
-  PlusIcon,
-  MagnifyingGlassIcon,
-  WalletIcon,
-  BuildingLibraryIcon,
-  BanknotesIcon,
-  PencilSquareIcon
-} from "@heroicons/react/24/outline";
-import { ALL_US_STOCKS as ALL_BIST_STOCKS, getStockName } from "../data/allUSStocks.js";
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  Trash2,
+  Search,
+  X,
+  RefreshCw,
+  PieChart,
+  Activity,
+  DollarSign,
+  ArrowUpRight,
+  Briefcase,
+  AlertCircle
+} from 'lucide-react';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-export default function PortfolioPage() {
-  // --- STATE ---
-  const [portfolio, setPortfolio] = useState([]); // Hisse Senetleri
-  const [cashBalance, setCashBalance] = useState(0); // Nakit Bakiye
-  const [prices, setPrices] = useState({});       // Canlı Fiyatlar
-  const [search, setSearch] = useState("");
-
-  // Modallar
-  const [modalOpen, setModalOpen] = useState(false);
-  const [cashModalOpen, setCashModalOpen] = useState(false);
-
-  const [showValues, setShowValues] = useState(true);
+const Portfolio = () => {
+  const [portfolioData, setPortfolioData] = useState([]);
+  const [totals, setTotals] = useState({ totalValue: 0, totalPnl: 0, totalPnlPercent: 0 });
   const [loading, setLoading] = useState(true);
 
-  // DÜZENLEME İÇİN ID (Null ise yeni ekleme, Dolu ise düzenleme)
-  const [editingId, setEditingId] = useState(null);
+  // Search State
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  // Form State (Hisse)
-  const [formData, setFormData] = useState({
-    ticker: "",
-    shares: "",
-    avgPrice: "",
-  });
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [addQty, setAddQty] = useState("");
+  const [addCost, setAddCost] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Form State (Nakit)
-  const [cashFormValue, setCashFormValue] = useState("");
+  // Default Popular Stocks
+  const popularStocks = [
+    { ticker: 'AAPL', name: 'Apple Inc.' },
+    { ticker: 'TSLA', name: 'Tesla, Inc.' },
+    { ticker: 'NVDA', name: 'NVIDIA Corp.' },
+    { ticker: 'MSFT', name: 'Microsoft' },
+    { ticker: 'AMZN', name: 'Amazon.com Inc.' },
+    { ticker: 'GOOGL', name: 'Alphabet Inc.' },
+    { ticker: 'META', name: 'Meta Platforms' },
+    { ticker: 'NFLX', name: 'Netflix, Inc.' }
+  ];
 
-  // --- 1. VERİ ÇEKME ---
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line
-  }, []);
-
-  async function fetchData() {
+  const fetchPortfolio = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-
-      // A. Kullanıcının Portföyünü Çek
-      const portfolioRes = await api.get("/portfolio");
-      const portfolioData = Array.isArray(portfolioRes.data) ? portfolioRes.data : portfolioRes.data.stocks || [];
-      setPortfolio(portfolioData);
-
-      // Nakit Bakiyesi (Demo için localStorage, gerçekte API'den gelmeli)
-      const savedCash = parseFloat(localStorage.getItem('finbot_cash')) || 0;
-      setCashBalance(savedCash);
-
-      // B. Portföydeki hisselerin fiyatlarını çek (dinamik)
-      const portfolioTickers = portfolioData.map(asset => asset.ticker).filter(Boolean);
-      if (portfolioTickers.length > 0) {
-        try {
-          const tickersString = portfolioTickers.join(",");
-          const priceRes = await api.get(`/price/bulk/list?tickers=${tickersString}`);
-
-          const priceMap = {};
-          const results = priceRes.data?.results || priceRes.data || [];
-          if (Array.isArray(results)) {
-            results.forEach(item => {
-              if (item.ok !== false && item.price) {
-                priceMap[item.ticker] = item.price;
-              }
-            });
-          }
-          setPrices(prev => ({ ...prev, ...priceMap }));
-        } catch (priceErr) {
-          console.error("Fiyat çekme hatası:", priceErr);
-        }
+      const res = await api.get('/portfolio');
+      if (res.data.ok) {
+        setPortfolioData(res.data.data);
+        setTotals(res.data.totals);
       }
-
     } catch (err) {
-      console.error("Veri çekme hatası:", err);
+      console.error("Portfolio fetch error:", err);
     } finally {
       setLoading(false);
     }
-  }
-
-  // Dinamik fiyat çekme fonksiyonu (arama sonuçları için)
-  async function fetchPricesForTickers(tickers) {
-    if (!tickers || tickers.length === 0) return;
-
-    // Zaten fiyatı olanları filtrele
-    const missingTickers = tickers.filter(t => !prices[t]);
-    if (missingTickers.length === 0) return;
-
-    try {
-      const tickersString = missingTickers.join(",");
-      const priceRes = await api.get(`/price/bulk/list?tickers=${tickersString}`);
-
-      const priceMap = {};
-      const results = priceRes.data?.results || priceRes.data || [];
-      if (Array.isArray(results)) {
-        results.forEach(item => {
-          if (item.ok !== false && item.price) {
-            priceMap[item.ticker] = item.price;
-          }
-        });
-      }
-      setPrices(prev => ({ ...prev, ...priceMap }));
-    } catch (err) {
-      console.error("Fiyat çekme hatası:", err);
-    }
-  }
-
-  // --- 2. HESAPLAMALAR ---
-  const holdings = useMemo(() => {
-    return portfolio.map(asset => {
-      const currentPrice = prices[asset.ticker] || 0;
-      const totalCost = asset.quantity * asset.avgCost;
-      const totalValue = asset.quantity * currentPrice;
-      const profit = totalValue - totalCost;
-      const profitPct = totalCost > 0 ? (profit / totalCost) * 100 : 0;
-
-      return {
-        ...asset,
-        currentPrice,
-        totalCost,
-        totalValue,
-        profit,
-        profitPct
-      };
-    });
-  }, [portfolio, prices]);
-
-  const stocksTotalValue = holdings.reduce((a, h) => a + h.totalValue, 0);
-  const stocksTotalCost = holdings.reduce((a, h) => a + h.totalCost, 0);
-  const grandTotalValue = stocksTotalValue + cashBalance;
-  const grandProfit = stocksTotalValue - stocksTotalCost;
-  const grandProfitPct = stocksTotalCost > 0 ? (grandProfit / stocksTotalCost) * 100 : 0;
-
-  // --- 3. İŞLEMLER (HİSSE - EKLE / SİL / DÜZENLE) ---
-
-  // Modal'ı Aç (Hem Ekleme Hem Düzenleme İçin)
-  function openModal(ticker = "", currentPrice = "", existingAsset = null) {
-    if (existingAsset) {
-      // DÜZENLEME MODU: Mevcut verileri forma doldur
-      setEditingId(existingAsset._id);
-      setFormData({
-        ticker: existingAsset.ticker,
-        shares: existingAsset.quantity,
-        avgPrice: existingAsset.avgCost
-      });
-    } else {
-      // EKLEME MODU: Formu sıfırla
-      setEditingId(null);
-      setFormData({
-        ticker,
-        shares: "",
-        avgPrice: currentPrice || ""
-      });
-    }
-    setModalOpen(true);
-  }
-
-  // Kaydet (Ekle veya Güncelle)
-  // Kaydet (Ekle veya Güncelle)
-  async function saveHolding() {
-    // 1. Girdileri Temizle (Virgül -> Nokta)
-    const sharesStr = formData.shares.toString().replace(",", ".");
-    const avgPriceStr = formData.avgPrice.toString().replace(",", ".");
-
-    const shares = parseFloat(sharesStr);
-    const avgPrice = parseFloat(avgPriceStr);
-
-    if (isNaN(shares) || isNaN(avgPrice) || shares <= 0 || avgPrice <= 0) {
-      toast.error("Lütfen geçerli sayısal değerler girin!");
-      return;
-    }
-
-    try {
-      if (editingId) {
-        // --- DÜZENLEME İŞLEMİ (PUT) ---
-        await api.put(`/portfolio/${editingId}`, {
-          ticker: formData.ticker,
-          quantity: shares,
-          avgCost: avgPrice
-        });
-        toast.success(`${formData.ticker} güncellendi!`);
-
-        // State'i anlık güncelle
-        setPortfolio(prev => prev.map(p =>
-          p._id === editingId ? { ...p, quantity: shares, avgCost: avgPrice } : p
-        ));
-
-      } else {
-        // --- EKLEME İŞLEMİ (POST) ---
-        const res = await api.post("/portfolio/add", {
-          ticker: formData.ticker,
-          quantity: shares,
-          avgCost: avgPrice
-        });
-        toast.success(`${formData.ticker} eklendi!`);
-
-        if (res.data) setPortfolio(prev => [...prev, res.data]);
-        else fetchData();
-
-        if (!prices[formData.ticker]) {
-          fetchPricesForTickers([formData.ticker]);
-        }
-      }
-
-      setModalOpen(false);
-    } catch (err) {
-      console.error(err);
-      // Hata mesajını detaylı göster
-      const msg = err.response?.data?.message || err.message || "İşlem başarısız!";
-      toast.error(msg);
-    }
-  }
-
-  // Silme İşlemi
-  async function removeHolding(id, ticker) {
-    if (!window.confirm(`${ticker} hissesini portföyden tamamen silmek istiyor musun?`)) return;
-
-    try {
-      // Backend'de DELETE /portfolio/:id endpoint'i olmalı
-      await api.delete(`/portfolio/${id}`);
-
-      toast.success("Hisse silindi.");
-      // Listeden çıkar
-      setPortfolio(prev => prev.filter(p => p._id !== id));
-    } catch (err) {
-      console.error(err);
-      toast.error("Silme işlemi başarısız.");
-    }
-  }
-
-  // --- 4. İŞLEMLER (NAKİT) ---
-  function openCashModal() {
-    setCashFormValue(cashBalance.toString());
-    setCashModalOpen(true);
-  }
-
-  function saveCash() {
-    const val = parseFloat(cashFormValue);
-    if (isNaN(val) || val < 0) {
-      toast.error("Geçersiz tutar.");
-      return;
-    }
-    setCashBalance(val);
-    localStorage.setItem('finbot_cash', val);
-    toast.success("Nakit bakiyesi güncellendi.");
-    setCashModalOpen(false);
-  }
-
-  // --- RENDER YARDIMCILARI ---
-  // Turkish-aware text normalization using toLocaleLowerCase
-  const normalizeText = (text) => {
-    if (!text) return "";
-    return text.toLocaleLowerCase('tr');
   };
 
-  // Remove duplicates from ALL_BIST_STOCKS and create unique list
-  const uniqueBistStocks = useMemo(() => {
-    const seen = new Set();
-    return ALL_BIST_STOCKS.filter((stock) => {
-      const tickerUpper = stock.ticker.toUpperCase();
-      if (seen.has(tickerUpper)) {
-        return false; // Duplicate, skip
+  const handleSearch = useCallback(async (val) => {
+    setSearchTerm(val);
+    if (!val || val.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const res = await api.get(`/portfolio/search?query=${val}`);
+      if (res.data.ok) {
+        setSearchResults(res.data.data);
       }
-      seen.add(tickerUpper);
-      return true;
-    });
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setSearchLoading(false);
+    }
   }, []);
 
-  const filteredCompanies = useMemo(() => {
-    if (!search || search.trim() === "") {
-      return uniqueBistStocks.slice(0, 100); // İlk 100 sonucu göster (performans için)
-    }
-
-    const searchTerm = normalizeText(search.trim());
-    const filtered = uniqueBistStocks.filter((c) => {
-      const tickerNormalized = normalizeText(c.ticker);
-      const nameNormalized = normalizeText(c.name);
-      return tickerNormalized.includes(searchTerm) || nameNormalized.includes(searchTerm);
-    });
-
-    return filtered.slice(0, 100); // İlk 100 sonucu göster (performans için)
-  }, [search, uniqueBistStocks]);
-
-  // Arama sonuçları için fiyatları çek (lazy loading)
   useEffect(() => {
-    if (filteredCompanies.length > 0 && filteredCompanies.length <= 100) {
-      const tickersToFetch = filteredCompanies.map(c => c.ticker);
-      fetchPricesForTickers(tickersToFetch);
+    fetchPortfolio();
+    const interval = setInterval(fetchPortfolio, 300000); // 5 min interval
+    return () => clearInterval(interval);
+  }, []);
+
+  const openAddModal = (stock) => {
+    setSelectedStock(stock);
+    setIsModalOpen(true);
+  };
+
+  const saveAsset = async () => {
+    if (!addQty || !addCost) return;
+    setIsSaving(true);
+    try {
+      const res = await api.post('/portfolio/add', {
+        symbol: selectedStock.ticker || selectedStock.symbol,
+        name: selectedStock.name,
+        quantity: Number(addQty),
+        avgCost: Number(addCost)
+      });
+      if (res.data.ok) {
+        setIsModalOpen(false);
+        setAddQty("");
+        setAddCost("");
+        fetchPortfolio();
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+    } finally {
+      setIsSaving(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredCompanies]); // filteredCompanies değiştiğinde (ilk yükleme dahil) fiyatları çek
+  };
 
-
-  // Grafik Verileri
-  const chartLabels = [...holdings.map(h => h.ticker)];
-  const chartValues = [...holdings.map(h => h.totalValue)];
-  const chartColors = ["#10b981", "#3b82f6", "#facc15", "#ef4444", "#8b5cf6", "#f97316", "#14b8a6", "#ec4899"];
-
-  if (cashBalance > 0) {
-    chartLabels.push("NAKİT");
-    chartValues.push(cashBalance);
-    chartColors.push("#6b7280");
-  }
-
-  const chartData = {
-    labels: chartLabels,
-    datasets: [{ data: chartValues, backgroundColor: chartColors, borderWidth: 0 }],
+  const deleteAsset = async (id) => {
+    if (!window.confirm("Bu hisseyi portföyünüzden silmek istediğinize emin misiniz?")) return;
+    try {
+      const res = await api.delete(`/portfolio/${id}`);
+      if (res.data.ok) {
+        fetchPortfolio();
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#131314] font-sans pb-20">
-      <Toaster position="top-right" toastOptions={{ style: { background: '#1f2937', color: '#fff' } }} />
+    <div className="flex h-screen bg-[#0a0f1c] text-white overflow-hidden font-sans">
+      {/* LEFT SIDEBAR: DYNAMIC SEARCH */}
+      <div className="w-80 md:w-1/4 flex-shrink-0 bg-[#1e222d] border-r border-slate-800 flex flex-col">
+        <div className="p-6 border-b border-slate-800 bg-[#1e222d]/50">
+          <h1 className="text-xl font-bold flex items-center gap-2 text-emerald-400 mb-6 uppercase tracking-tighter">
+            <Plus className="w-6 h-6" />
+            Varlık Yönetimi
+          </h1>
 
-      <main className="flex-1 w-full p-4 md:p-10 text-zinc-100 flex flex-col items-center">
-
-        {/* === HERO SECTION (Compact Mobile) === */}
-        <div className="w-full max-w-7xl mb-6 md:mb-10">
-          {/* Mobile: Compact Header */}
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <div className="flex items-center gap-2">
-              <ChartBarIcon className="h-5 w-5 md:h-8 md:w-8 text-indigo-500" />
-              <h1 className="text-lg md:text-3xl font-bold text-white">Portföy</h1>
-            </div>
-            <button onClick={() => setShowValues(!showValues)} className="p-2 text-zinc-400 hover:text-white">
-              {showValues ? <EyeIcon className="w-5 h-5" /> : <EyeSlashIcon className="w-5 h-5" />}
-            </button>
-          </div>
-
-          {/* Hero Card - Compact on Mobile */}
-          <div className="bg-gradient-to-r from-gray-900 to-[#111827] border border-zinc-800 rounded-2xl md:rounded-3xl p-4 md:p-8 relative overflow-hidden">
-            {/* Total Value */}
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-[10px] md:text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1">
-                  Toplam Portföy Değeri
-                </p>
-                <h2 className="text-2xl md:text-5xl font-extrabold text-white tracking-tight">
-                  {showValues ? `$${grandTotalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••••"}
-                </h2>
-                {/* Daily P/L - Neon Green */}
-                <div className={`flex items-center gap-1 mt-1 md:mt-2 ${grandProfit >= 0 ? "text-green-500" : "text-rose-400"}`}>
-                  {grandProfit >= 0 ? (
-                    <ArrowTrendingUpIcon className="w-4 h-4" />
-                  ) : (
-                    <ArrowTrendingDownIcon className="w-4 h-4" />
-                  )}
-                  <span className="text-sm md:text-base font-bold">
-                    {showValues ? `${grandProfit >= 0 ? '+' : ''}$${Math.abs(grandProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "•••"}
-                  </span>
-                  <span className="text-xs md:text-sm opacity-80">
-                    ({showValues ? `${grandProfit >= 0 ? '+' : ''}${grandProfitPct.toFixed(2)}%` : "•"})
-                  </span>
-                </div>
-              </div>
-              {/* Mini Chart - Hidden on very small screens */}
-              {(holdings.length > 0 || cashBalance > 0) && (
-                <div className="w-16 h-16 md:w-24 md:h-24 hidden sm:block">
-                  <Doughnut data={chartData} options={{ maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }} />
-                </div>
-              )}
-            </div>
-
-            {/* Quick Stats Row */}
-            <div className="mt-4 md:mt-6 flex gap-3 md:gap-4">
-              <div className="flex-1 bg-black/30 p-2 md:p-3 rounded-lg md:rounded-xl">
-                <p className="text-[9px] md:text-xs text-zinc-500 mb-0.5">Maliyet</p>
-                <p className="text-xs md:text-sm font-bold text-zinc-300">
-                  {showValues ? `$${stocksTotalCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : "••"}
-                </p>
-              </div>
-              <div className="flex-1 bg-black/30 p-2 md:p-3 rounded-lg md:rounded-xl">
-                <p className="text-[9px] md:text-xs text-zinc-500 mb-0.5">Hisse</p>
-                <p className="text-xs md:text-sm font-bold text-zinc-300">{holdings.length} Adet</p>
-              </div>
-              <div
-                onClick={openCashModal}
-                className="flex-1 bg-emerald-900/20 p-2 md:p-3 rounded-lg md:rounded-xl cursor-pointer hover:bg-emerald-900/30 transition border border-transparent hover:border-emerald-500/30"
-              >
-                <p className="text-[9px] md:text-xs text-emerald-500/70 mb-0.5">Nakit</p>
-                <p className="text-xs md:text-sm font-bold text-emerald-400">
-                  {showValues ? `$${cashBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : "••"}
-                </p>
-              </div>
-            </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Hisse Ara (Nasdaq/Nyse)..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="bg-[#2a2e39] border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 w-full transition-all text-slate-200"
+            />
           </div>
         </div>
 
-        {/* === HOLDINGS LIST (Compact Mobile) === */}
-        {holdings.length > 0 && (
-          <div className="w-full max-w-7xl mb-6 md:mb-12">
-            <h2 className="text-sm md:text-xl font-bold text-white mb-3 md:mb-5 flex items-center gap-2">
-              <WalletIcon className="w-4 h-4 md:w-5 md:h-5 text-emerald-500" />
-              Varlıklarım
-            </h2>
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#131722]/50">
+          {searchLoading ? (
+            <div className="flex flex-col items-center justify-center p-12 gap-3 text-slate-500">
+              <RefreshCw className="w-6 h-6 animate-spin text-emerald-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest leading-loose">Piyasalar Taranıyor...</span>
+            </div>
+          ) : (
+            <div className="p-4 space-y-2">
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 ml-2 flex items-center gap-2">
+                {searchTerm ? 'Arama Sonuçları' : 'Popüler Hisseler'}
+                {!searchTerm && <Activity size={12} className="text-emerald-500" />}
+              </h3>
 
-            {/* Mobile: Compact List | Desktop: Grid */}
-            <div className="bg-[#161b22] border border-zinc-800 rounded-xl md:rounded-2xl overflow-hidden">
-              {holdings.map((asset, idx) => (
+              {(searchTerm ? searchResults : popularStocks).map(s => (
                 <div
-                  key={asset._id}
-                  className={`flex items-center justify-between p-3 md:p-4 ${idx !== holdings.length - 1 ? 'border-b border-zinc-800/60' : ''}`}
+                  key={s.ticker || s.symbol}
+                  className="flex items-center justify-between p-4 rounded-2xl hover:bg-emerald-500/5 transition-all group border border-transparent hover:border-emerald-500/20"
                 >
-                  {/* Left: Ticker Info */}
-                  <div className="flex items-center gap-3">
-                    {/* Logo Placeholder */}
-                    <div className="w-9 h-9 md:w-10 md:h-10 bg-zinc-800 rounded-lg flex items-center justify-center shrink-0">
-                      <span className="text-[10px] md:text-xs font-bold text-zinc-400">{asset.ticker.slice(0, 2)}</span>
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-sm md:text-base font-bold text-white">{asset.ticker}</h3>
-                      <p className="text-[10px] md:text-xs text-zinc-500 truncate">
-                        {asset.quantity} Lot • Ort. ${asset.avgCost.toFixed(0)}
-                      </p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono font-black text-sm text-white group-hover:text-emerald-400 transition-colors uppercase">{s.ticker || s.symbol}</div>
+                    <div className="text-[10px] text-slate-500 line-clamp-1 font-bold">{s.name}</div>
                   </div>
-
-                  {/* Right: Prices */}
-                  <div className="text-right flex items-center gap-3 md:gap-4">
-                    <div>
-                      {/* Current Price - Green Mono */}
-                      <p className="text-sm font-mono font-bold text-green-500">
-                        {showValues ? `$${asset.currentPrice.toFixed(2)}` : "•••"}
-                      </p>
-                      {/* Total Value */}
-                      <p className="text-[10px] md:text-xs text-zinc-400 font-medium">
-                        {showValues ? `$${asset.totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : "••"}
-                      </p>
-                    </div>
-                    {/* P/L Badge */}
-                    <div className={`text-right px-2 py-1 rounded ${asset.profit >= 0 ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`}>
-                      <p className={`text-xs font-bold ${asset.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {asset.profit >= 0 ? '+' : ''}{showValues ? asset.profitPct.toFixed(1) : '•'}%
-                      </p>
-                    </div>
-                    {/* Actions - Always visible (with stopPropagation) */}
-                    <div className="flex gap-0.5 md:gap-1 relative z-10">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openModal("", "", asset);
-                        }}
-                        className="p-1.5 md:p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-lg transition"
-                      >
-                        <PencilSquareIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeHolding(asset._id, asset.ticker);
-                        }}
-                        className="p-1.5 md:p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-900/10 rounded-lg transition"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => openAddModal(s)}
+                    className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/0 hover:shadow-emerald-500/20 ml-2"
+                  >
+                    <Plus size={20} />
+                  </button>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
 
-        {/* === ADD ASSET SECTION (Mobile Compact) === */}
-        <div className="w-full max-w-7xl">
-          <div className="bg-[#161b22] border border-zinc-800 rounded-xl md:rounded-3xl p-4 md:p-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm md:text-xl font-bold text-white flex items-center gap-2">
-                <PlusIcon className="w-4 h-4 md:w-5 md:h-5 text-indigo-500" />
-                Hisse Ekle
-              </h2>
-              {search && (
-                <span className="text-xs text-zinc-500">
-                  {filteredCompanies.length} sonuç
-                </span>
+              {searchTerm && searchResults.length === 0 && (
+                <div className="p-10 text-center text-slate-600">
+                  <AlertCircle className="mx-auto mb-2 opacity-20" size={32} />
+                  <p className="text-xs font-bold uppercase tracking-widest">Eşleşme Bulunamadı</p>
+                </div>
               )}
             </div>
+          )}
+        </div>
+      </div>
 
-            {/* Search Bar - Compact */}
-            <div className="relative w-full mb-4">
-              <input
-                type="text"
-                placeholder="Hisse ara (AAPL, TSLA, NVDA...)"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-10 bg-[#0d1117] border border-zinc-700 rounded-lg pl-9 pr-4 text-sm text-white outline-none focus:border-indigo-500"
-              />
-              <MagnifyingGlassIcon className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            </div>
-
-            {/* Stock List - Compact Rows */}
-            <div className="space-y-0 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-3 md:space-y-0">
-              {filteredCompanies.length > 0 ? (
-                filteredCompanies.slice(0, 20).map((c, idx) => {
-                  const price = prices[c.ticker];
-                  const formattedPrice = price ? Number(price).toFixed(2) : null;
-                  return (
-                    <div
-                      key={c.ticker}
-                      onClick={() => openModal(c.ticker, formattedPrice || "")}
-                      className={`flex items-center justify-between p-3 cursor-pointer hover:bg-zinc-800/50 transition md:bg-[#0d1117] md:border md:border-zinc-800/50 md:rounded-lg md:flex-col md:items-start ${idx !== filteredCompanies.slice(0, 20).length - 1 ? 'border-b border-zinc-800/40 md:border-b-0' : ''}`}
-                    >
-                      <div className="flex items-center gap-3 md:w-full md:mb-2">
-                        <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center shrink-0 md:hidden">
-                          <span className="text-[9px] font-bold text-zinc-400">{c.ticker.slice(0, 2)}</span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-sm font-bold text-white">{c.ticker}</h3>
-                          <p className="text-[10px] text-zinc-500 truncate">{c.name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {formattedPrice && (
-                          <span className="text-xs font-mono text-green-500">${formattedPrice}</span>
-                        )}
-                        <div className="w-6 h-6 bg-indigo-600/20 rounded flex items-center justify-center text-indigo-400 hover:bg-indigo-600 hover:text-white transition">
-                          <PlusIcon className="w-3.5 h-3.5" />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : search.trim() !== "" ? (
-                <div className="col-span-full text-center py-6 text-zinc-500 text-sm">
-                  Sonuç bulunamadı.
-                </div>
-              ) : null}
-            </div>
-            {filteredCompanies.length > 20 && (
-              <div className="mt-3 text-center text-[10px] text-zinc-600">
-                İlk 20 sonuç gösteriliyor. Daha spesifik arama yapın.
+      {/* RIGHT PANEL: ASSET DASHBOARD */}
+      <div className="flex-1 flex flex-col overflow-y-auto bg-[#0a0f1c] custom-scrollbar">
+        <div className="p-8 space-y-10 max-w-[1400px] mx-auto w-full">
+          {/* HEADER SECTION */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-emerald-500/20">
+                <Briefcase size={32} />
               </div>
-            )}
-          </div>
-        </div>
-
-      </main>
-
-      {/* --- MODALLAR --- */}
-
-      {/* 1. HİSSE MODAL (EKLE / DÜZENLE) */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in">
-          <div className="bg-[#161b22] p-8 rounded-3xl w-full max-w-sm shadow-2xl border border-zinc-700 relative">
-            <button onClick={() => setModalOpen(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
-            <h2 className="text-2xl font-bold mb-1 text-white">{editingId ? "Hisse Düzenle" : "Hisse Ekle"}</h2>
-
-            <div className="space-y-4 mt-6">
-              {!editingId && (
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Hisse Kodu (Örn: AAPL, TSLA, NVDA)"
-                    value={formData.ticker}
-                    onChange={(e) => {
-                      const ticker = e.target.value.toUpperCase().trim();
-                      setFormData({ ...formData, ticker });
-                      // Eğer geçerli bir ticker girildiyse fiyatını çek
-                      if (ticker && uniqueBistStocks.some(s => s.ticker === ticker)) {
-                        fetchPricesForTickers([ticker]);
-                      }
-                    }}
-                    className="w-full px-4 py-3 rounded-xl bg-[#0d1117] text-white border border-zinc-700 focus:border-indigo-500 outline-none"
-                    list="us-tickers"
-                  />
-                  <datalist id="us-tickers">
-                    {uniqueBistStocks.slice(0, 200).map(stock => (
-                      <option key={stock.ticker} value={stock.ticker}>{stock.name}</option>
-                    ))}
-                  </datalist>
-                  {formData.ticker && (
-                    <div className="mt-2 text-sm text-zinc-400">
-                      {getStockName(formData.ticker) !== formData.ticker ? (
-                        <span>{getStockName(formData.ticker)}</span>
-                      ) : (
-                        <span className="text-yellow-500">Bu ticker listede bulunamadı, ancak ekleyebilirsiniz.</span>
-                      )}
-                    </div>
-                  )}
+              <div>
+                <h2 className="text-4xl font-black tracking-tighter text-white">Canlı Portföyüm</h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                  <p className="text-slate-500 font-black text-xs uppercase tracking-widest">Tiingo Real-Time Market Feed</p>
                 </div>
-              )}
-              {editingId && (
-                <div className="text-indigo-400 font-bold text-lg">{formData.ticker}</div>
-              )}
-
-              <input type="number" placeholder="Lot Sayısı" value={formData.shares} onChange={(e) => setFormData({ ...formData, shares: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-[#0d1117] text-white border border-zinc-700 focus:border-indigo-500 outline-none" />
-              <input type="number" placeholder="Maliyet ($)" value={formData.avgPrice} onChange={(e) => setFormData({ ...formData, avgPrice: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-[#0d1117] text-white border border-zinc-700 focus:border-indigo-500 outline-none" />
-              {formData.ticker && prices[formData.ticker] && (
-                <div className="text-xs text-zinc-500">
-                  Güncel fiyat: ${prices[formData.ticker].toFixed(2)}
-                </div>
-              )}
+              </div>
             </div>
 
-            <button onClick={saveHolding} className="w-full mt-8 px-4 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">
-              {editingId ? "Güncelle" : "Portföye Ekle"}
+            <button
+              onClick={fetchPortfolio}
+              className="flex items-center gap-3 px-6 py-3 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 transition-all font-black text-xs uppercase tracking-widest shadow-xl"
+            >
+              <RefreshCw size={16} className={loading && portfolioData.length > 0 ? 'animate-spin' : ''} />
+              Verileri Güncelle
             </button>
+          </div>
+
+          {/* DASHBOARD CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-[#1e222d] border border-slate-800 rounded-[40px] p-8 shadow-2xl relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Toplam Varlık Değeri</span>
+                  <DollarSign size={20} className="text-emerald-500" />
+                </div>
+                <div className="text-5xl font-mono font-black text-white tracking-tighter">
+                  ${totals.totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </div>
+                <div className="flex items-center gap-4 mt-6">
+                  <div className={`px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-2 ${totals.totalPnl >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                    {totals.totalPnl >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                    ${Math.abs(totals.totalPnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  </div>
+                  <div className={`font-black text-lg ${totals.totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {totals.totalPnlPercent.toFixed(2)}%
+                  </div>
+                </div>
+              </div>
+              <Activity className="absolute -right-8 -bottom-8 w-48 h-48 opacity-[0.03] text-emerald-500" />
+            </div>
+
+            <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[40px] p-8 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-2">Varlık Dağılımı</div>
+                <div className="text-5xl font-black text-white tracking-tighter">{portfolioData.length}</div>
+                <div className="mt-auto pt-6 flex items-center justify-between">
+                  <span className="text-sm font-bold text-indigo-100 opacity-80 uppercase tracking-wider">Aktif Pozisyon</span>
+                  <div className="flex -space-x-2">
+                    {portfolioData.slice(0, 4).map((a, i) => (
+                      <div key={i} className="w-8 h-8 rounded-full bg-indigo-400 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">
+                        {a.symbol.slice(0, 1)}
+                      </div>
+                    ))}
+                    {portfolioData.length > 4 && <div className="w-8 h-8 rounded-full bg-indigo-300 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">+{portfolioData.length - 4}</div>}
+                  </div>
+                </div>
+              </div>
+              <PieChart className="absolute -right-8 -bottom-8 w-48 h-48 opacity-10 text-white" />
+            </div>
+          </div>
+
+          {/* ASSET TABLE */}
+          <div className="bg-[#1e222d] border border-slate-800 rounded-[40px] overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-[#131722] border-b border-slate-800">
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500">Sembol / Şirket</th>
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500 text-right">Adet</th>
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500 text-right">Ort. Maliyet</th>
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500 text-right font-bold text-emerald-500/80">Anlık Fiyat</th>
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500 text-right">Toplam Değer</th>
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500 text-right">Kâr/Zarar (%)</th>
+                    <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-500 text-center">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/40">
+                  {portfolioData.map((asset) => (
+                    <tr key={asset.id} className="hover:bg-emerald-500/[0.02] transition-colors group">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white font-black text-sm border border-white/10 group-hover:border-emerald-500/30 transition-all shadow-inner">
+                            {asset.symbol.slice(0, 1)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-black text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight">{asset.symbol}</div>
+                            <div className="text-[10px] font-bold text-slate-500 line-clamp-1">{asset.name}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right font-mono font-bold text-slate-300">
+                        {asset.quantity.toLocaleString()}
+                      </td>
+                      <td className="px-8 py-6 text-right font-mono text-slate-500">
+                        ${asset.avgCost.toFixed(2)}
+                      </td>
+                      <td className="px-8 py-6 text-right font-mono font-black text-emerald-400 bg-emerald-500/[0.01]">
+                        ${asset.currentPrice.toFixed(2)}
+                      </td>
+                      <td className="px-8 py-6 text-right font-mono font-black text-indigo-300">
+                        ${asset.totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <div className={`font-black flex items-center justify-end gap-1 ${asset.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {asset.profitPercent.toFixed(2)}%
+                        </div>
+                        <div className={`text-[10px] font-bold ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
+                          {asset.profit >= 0 ? '+' : '-'}${Math.abs(asset.profit).toLocaleString()}
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <button
+                          onClick={() => deleteAsset(asset.id)}
+                          className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl transition-all"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {loading && portfolioData.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="px-8 py-24 text-center">
+                        <RefreshCw className="w-12 h-12 mx-auto mb-4 text-emerald-500 animate-spin opacity-20" />
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-500">Portföy Yükleniyor...</span>
+                      </td>
+                    </tr>
+                  ) : portfolioData.length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="px-8 py-24 text-center">
+                        <Activity className="w-16 h-16 mx-auto mb-6 text-emerald-500 opacity-20" />
+                        <h4 className="text-lg font-black text-white mb-2">Henüz Dijital Varlığınız Yok</h4>
+                        <p className="text-slate-500 text-sm font-medium">Sol paneldeki arama motorunu kullanarak ilk hissenizi ekleyin.</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ADD MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-[#0a0f1c]/90 backdrop-blur-xl" onClick={() => setIsModalOpen(false)}></div>
+          <div className="relative bg-[#1e222d] border border-white/5 rounded-[50px] w-full max-w-lg p-10 shadow-[0_0_100px_rgba(16,185,129,0.1)] animate-in zoom-in duration-300">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-8 right-8 p-3 text-slate-500 hover:text-white transition-colors hover:bg-white/5 rounded-2xl"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex items-center gap-6 mb-10">
+              <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-emerald-500/20 text-white font-black text-3xl">
+                {(selectedStock?.ticker || selectedStock?.symbol || "?").slice(0, 1)}
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-3xl font-black tracking-tighter text-white uppercase">{selectedStock?.ticker || selectedStock?.symbol}</h3>
+                <p className="text-emerald-500 text-sm font-bold uppercase tracking-widest line-clamp-1">{selectedStock?.name}</p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 block ml-1">Miktar (Adet)</label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={addQty}
+                    onChange={(e) => setAddQty(e.target.value)}
+                    className="w-full bg-[#131722] border border-slate-700/50 rounded-[25px] px-8 py-5 focus:outline-none focus:border-emerald-500 font-mono text-white text-xl transition-all shadow-inner"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 block ml-1">Alış Fiyatı ($)</label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={addCost}
+                    onChange={(e) => setAddCost(e.target.value)}
+                    className="w-full bg-[#131722] border border-slate-700/50 rounded-[25px] px-8 py-5 focus:outline-none focus:border-emerald-500 font-mono text-white text-xl transition-all shadow-inner"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={saveAsset}
+                disabled={!addQty || !addCost || isSaving}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black py-6 rounded-[30px] transition-all shadow-2xl shadow-emerald-600/20 flex items-center justify-center gap-3 text-lg group"
+              >
+                {isSaving ? <RefreshCw className="animate-spin" size={24} /> : <Plus size={24} className="group-hover:rotate-90 transition-transform" />}
+                Portföye Güvenle Kaydet
+              </button>
+
+              <p className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">Kayıt işlemi Tiingo Market Feed ile senkronize edilir</p>
+            </div>
           </div>
         </div>
       )}
-
-      {/* 2. NAKİT MODAL */}
-      {cashModalOpen && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in">
-          <div className="bg-[#161b22] p-8 rounded-3xl w-full max-w-sm shadow-2xl border border-zinc-700 relative">
-            <button onClick={() => setCashModalOpen(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
-            <div className="flex items-center gap-2 mb-4 text-emerald-500"><BanknotesIcon className="w-6 h-6" /> <h2 className="text-2xl font-bold text-white">Nakit</h2></div>
-
-            <input type="number" placeholder="Toplam Nakit" value={cashFormValue} onChange={(e) => setCashFormValue(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-[#0d1117] text-white border border-zinc-700 focus:border-emerald-500 outline-none text-lg" />
-
-            <button onClick={saveCash} className="w-full mt-8 px-4 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">
-              Bakiyeyi Güncelle
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
-}
+};
+
+export default Portfolio;

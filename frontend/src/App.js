@@ -25,6 +25,7 @@ import PortfolioPage from "./pages/Portfolio";
 import ScreenerPage from "./pages/Screener";
 import KapTerminal from "./pages/Kap"; // KAP Haberleri
 import WalletPage from "./pages/Wallet"; // Yeni eklenen Cüzdan sayfası
+import FinancialsPage from "./pages/Financials"; // Detaylı Mali Tablolar
 
 // --- LAYOUT ---
 import AppLayout from "./layouts/AppLayout";
@@ -80,7 +81,9 @@ function App() {
           <Route path="/chat" element={<ChatWithHistory />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/wallet" element={<WalletPage />} />
-          <Route path="/screener" element={<ScreenerPage />} />
+          <Route path="/screener" element={<Navigate to="/screener/AAPL" replace />} />
+          <Route path="/screener/:symbol" element={<ScreenerPage />} />
+          <Route path="/financials/:symbol" element={<FinancialsPage />} />
           <Route path="/kap" element={<KapTerminal />} />
           <Route path="/academy" element={<AcademyCourseView />} />
         </Route>
