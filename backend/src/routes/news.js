@@ -1,15 +1,17 @@
 // PATH: backend/src/routes/news.js
 import express from 'express';
 import axios from 'axios';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { OpenAI } from 'openai';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// Google Gemini AI istemcisini başlat
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// 🔧 OPENAI INTEGRATION: Test için geçici API Key
+const API_KEY = "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";
+const openai = new OpenAI({ apiKey: API_KEY });
+
+console.log('🔑 OpenAI Client initialized (Debug Mode)');
 
 /**
  * GET /api/news/:symbol
@@ -47,7 +49,7 @@ router.get('/:symbol', async (req, res) => {
 
 /**
  * POST /api/news/analyze
- * AI-powered sentiment analysis using Google Gemini
+ * AI-powered sentiment analysis using OpenAI
  */
 router.post('/analyze', protect, async (req, res) => {
     const { title, description, symbol } = req.body;
@@ -62,23 +64,27 @@ router.post('/analyze', protect, async (req, res) => {
     try {
         const newsText = `${title}\n\n${description || ''}`.trim();
 
-        const systemPrompt = `Sen uzman bir finansal analistsin ve haber analizi konusunda deneyimlisin. 
-Verilen haberi oku ve bu haberin ${symbol || 'ilgili hisse senedi'} için kısa vadede (1-7 gün) nasıl bir etki yaratacağını analiz et.
+        console.log('🤖 OpenAI Analizi Başlıyor...');
+        console.log(`📊 Sembol: ${symbol || 'Genel'}`);
 
-Cevabını şu formatta ver:
-SENTIMENT: [POSITIVE/NEGATIVE/NEUTRAL]
-ANALYSIS: [2-3 cümle ile açıklama]
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: "Sen uzman bir finansal analistsin. Verilen haberi oku ve bu haberin ilgili hisse senedi üzerindeki kısa vadeli etkisini analiz et. Cevabını şu formatta ver:\nSENTIMENT: [POSITIVE/NEGATIVE/NEUTRAL]\nANALYSIS: [2-3 cümle ile açıklama]\nCevabını Türkçe ver ve profesyonel bir ton kullan."
+                },
+                {
+                    role: "user",
+                    content: `Hisse: ${symbol || 'Belirtilmedi'}\nHaber: ${newsText}`
+                }
+            ],
+            temperature: 0.3,
+            max_tokens: 200
+        });
 
-Önemli: Cevabını Türkçe ver ve profesyonel bir ton kullan.`;
-
-        // Gemini modelini al (gemini-pro stable ve geniş destek)
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-        const prompt = `${systemPrompt}\n\nHaber: ${newsText}`;
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const aiResponse = response.text();
+        const aiResponse = completion.choices[0].message.content;
+        console.log('✅ OpenAI yanıtı alındı.');
 
         // Parse the response
         const sentimentMatch = aiResponse.match(/SENTIMENT:\s*(POSITIVE|NEGATIVE|NEUTRAL)/i);
@@ -97,10 +103,10 @@ ANALYSIS: [2-3 cümle ile açıklama]
         });
 
     } catch (error) {
-        console.error('AI Analysis error:', error.message);
+        console.error('❌ OpenAI Analysis error:', error.message);
         res.status(500).json({
             ok: false,
-            error: 'AI analysis failed. Please try again.'
+            error: `AI analizi başarısız oldu: ${error.message}`
         });
     }
 });
