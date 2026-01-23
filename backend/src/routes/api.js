@@ -1,6 +1,6 @@
-// PATH: backend/src/routes/api.js
 import express from 'express';
 import axios from 'axios';
+import { getBatchPrices } from '../services/tiingo/stockService.js';
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
@@ -156,6 +156,30 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
         res.json({ ok: true, data: responseData });
     } catch (error) {
         res.status(500).json({ ok: false, error: 'Failed to analyze asset.' });
+    }
+});
+
+/**
+ * D) GET /api/prices/batch
+ * Fetch multiple prices in one call
+ */
+router.get('/prices/batch', async (req, res) => {
+    const { tickers } = req.query;
+    if (!tickers) return res.status(400).json({ ok: false, error: 'Tickers are required.' });
+
+    try {
+        const tickerArray = tickers.split(',').map(t => t.trim().toUpperCase());
+        const data = await getBatchPrices(tickerArray);
+
+        // Transform to simple format as requested: { "AAPL": 150.20 }
+        const simpleFormat = {};
+        Object.keys(data).forEach(ticker => {
+            simpleFormat[ticker] = data[ticker].price;
+        });
+
+        res.json({ ok: true, data: simpleFormat });
+    } catch (error) {
+        res.status(500).json({ ok: false, error: 'Batch price fetch failed.' });
     }
 });
 

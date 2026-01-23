@@ -169,9 +169,38 @@ export async function getHistoricalPrices(ticker, startDate, endDate) {
     }
 }
 
+/**
+ * Get batch stock prices
+ * @param {string[]} tickers - Array of stock tickers
+ * @returns {Promise<Object>} - Map of ticker to price data
+ */
+export async function getBatchPrices(tickers) {
+    if (!tickers || !tickers.length) return {};
+
+    try {
+        const tickerString = tickers.map(t => t.toUpperCase()).join(',');
+        const client = tiingoClient.getClient();
+        const response = await client.get(`/iex/${tickerString}`);
+
+        const results = {};
+        response.data.forEach(item => {
+            results[item.ticker.toUpperCase()] = {
+                price: item.last || item.tngoLast || item.prevClose,
+                change: (item.last || item.tngoLast) - item.prevClose,
+                changePercent: item.prevClose ? (((item.last || item.tngoLast) - item.prevClose) / item.prevClose * 100) : 0
+            };
+        });
+        return results;
+    } catch (error) {
+        logger.error(`❌ Tiingo batch price error: ${error.message}`);
+        return {};
+    }
+}
+
 export default {
     getPrice,
     getProfile,
     searchTicker,
-    getHistoricalPrices
+    getHistoricalPrices,
+    getBatchPrices
 };

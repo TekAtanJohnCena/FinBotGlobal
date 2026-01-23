@@ -1,6 +1,6 @@
-// PATH: backend/src/routes/priceRoutes.js
 import express from "express";
 import { getCurrentPrice, searchTickers } from "../services/polygonService.js";
+import { getBatchPrices } from "../services/tiingo/stockService.js";
 
 const router = express.Router();
 
@@ -45,6 +45,27 @@ router.get("/bulk/list", async (req, res) => {
     res.json({ ok: true, results });
   } catch (err) {
     res.status(500).json({ ok: false, error: "Bulk price fetch failed", details: err.message });
+  }
+});
+
+// Batch prices (Tiingo based for live feed)
+router.get("/batch", async (req, res) => {
+  const { tickers } = req.query;
+  if (!tickers) return res.status(400).json({ ok: false, error: "Tickers are required" });
+
+  try {
+    const tickerArray = tickers.split(',').map(t => t.trim().toUpperCase());
+    const data = await getBatchPrices(tickerArray);
+
+    // Transform to simple format: { "AAPL": 150.20 }
+    const simpleFormat = {};
+    Object.keys(data).forEach(ticker => {
+      simpleFormat[ticker] = data[ticker].price;
+    });
+
+    res.json({ ok: true, data: simpleFormat });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: "Batch fetch failed" });
   }
 });
 

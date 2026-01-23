@@ -63,17 +63,12 @@ const Portfolio = () => {
 
   const fetchPopularPrices = async () => {
     try {
-      // Use the search endpoint with a known ticker to "trigger" price bundle logic 
-      // or just search specifically for these popular ones.
-      const res = await api.get(`/portfolio/search?query=AAPL`);
+      const tickers = popularStocks.map(s => s.ticker).join(",");
+      const res = await api.get(`/prices/batch?tickers=${tickers}`);
       if (res.data.ok) {
-        // Map current popular list with prices from search results if there's overlap
-        const priceMap = {};
-        res.data.data.forEach(item => priceMap[item.ticker] = item.price);
-
         setPopularStocks(prev => prev.map(s => ({
           ...s,
-          price: priceMap[s.ticker] || s.price
+          price: res.data.data[s.ticker] || s.price
         })));
       }
     } catch (e) { }
@@ -190,7 +185,7 @@ const Portfolio = () => {
                     <div className="flex items-center justify-between pr-4">
                       <div className="font-mono font-black text-sm text-white group-hover:text-emerald-400 transition-colors uppercase">{s.ticker || s.symbol}</div>
                       {s.price > 0 && (
-                        <div className="font-mono font-bold text-[11px] text-emerald-500">${s.price.toFixed(2)}</div>
+                        <div className="font-mono font-black text-lg text-emerald-500 ml-auto mr-2">${s.price.toFixed(2)}</div>
                       )}
                     </div>
                     <div className="text-[10px] text-slate-500 line-clamp-1 font-bold">{s.name}</div>
