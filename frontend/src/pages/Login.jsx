@@ -43,12 +43,6 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    // Google login için de terms/privacy kontrolü
-    if (!termsAccepted || !privacyAccepted) {
-      toast.error("Devam etmek için Kullanıcı Sözleşmesi ve Gizlilik Politikası'nı kabul etmelisiniz.");
-      return;
-    }
-
     try {
       setLoading(true);
       await googleLogin(credentialResponse.credential);
@@ -430,8 +424,27 @@ const Login = () => {
               </button>
             </form>
 
+            {/* Divider */}
+            <div className="divider">
+              <div className="divider-line" />
+              <span className="divider-text">veya</span>
+              <div className="divider-line" />
+            </div>
+
+            {/* Google Login */}
+            <div className="google-container">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => toast.error("Google bağlantısı başarısız.")}
+                theme="filled_black"
+                shape="pill"
+                width="100%"
+                text="continue_with"
+              />
+            </div>
+
             {/* Terms and Privacy Checkboxes */}
-            <div className="form-group" style={{ marginTop: '1rem' }}>
+            <div className="form-group" style={{ marginTop: '1.25rem' }}>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', marginBottom: '0.6rem' }}>
                 <input
                   type="checkbox"
@@ -456,25 +469,6 @@ const Login = () => {
                   <Link to="/legal/privacy" target="_blank" className="auth-link" style={{ fontSize: '0.85rem' }}>Gizlilik Politikası</Link>
                 </span>
               </label>
-            </div>
-
-            {/* Divider */}
-            <div className="divider">
-              <div className="divider-line" />
-              <span className="divider-text">veya</span>
-              <div className="divider-line" />
-            </div>
-
-            {/* Google Login */}
-            <div className="google-container">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => toast.error("Google bağlantısı başarısız.")}
-                theme="filled_black"
-                shape="pill"
-                width="100%"
-                text="continue_with"
-              />
             </div>
 
             {/* Footer */}
