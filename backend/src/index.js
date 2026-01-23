@@ -26,6 +26,7 @@ import walletRoutes from "./routes/walletRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import apiRoutes from "./routes/api.js";
+import newsRoutes from "./routes/news.js";
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -59,6 +60,7 @@ app.use("/api/wallet", walletRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api", apiRoutes);
+app.use("/api/news", newsRoutes);
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);

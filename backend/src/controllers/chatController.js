@@ -27,10 +27,6 @@ import {
   getKeyMetrics,
   formatNumber
 } from "../services/tiingo/fundamentalsService.js";
-import { isMockMode, MOCK_STOCKS } from "../services/tiingo/tiingoClient.js";
-
-// Screening Data
-import { MOCK_DIVIDEND_STOCKS, MOCK_AGGRESSIVE_STOCKS, MOCK_DEFENSIVE_STOCKS } from "../data/mockScreeningData.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -217,30 +213,6 @@ USER PORTFOLIO:
 ${portfolioContext.map(h => `- ${h.symbol}: ${h.qty} shares @ $${h.avg_cost.toFixed(2)}`).join("\n")}
 Total Value: $${totalValue.toLocaleString()}
 `;
-  }
-
-  // PORTFOLIO STRATEGY MODE
-  const portfolioStrategy = detectPortfolioStrategy(question);
-  if (portfolioStrategy && portfolioStrategy !== 'general') {
-    let mockStocks = [];
-    if (portfolioStrategy === 'dividend') mockStocks = MOCK_DIVIDEND_STOCKS;
-    else if (portfolioStrategy === 'aggressive') mockStocks = MOCK_AGGRESSIVE_STOCKS;
-    else if (portfolioStrategy === 'defensive') mockStocks = MOCK_DEFENSIVE_STOCKS;
-
-    if (mockStocks.length > 0) {
-      const strategyNames = { dividend: 'Dividend Income', aggressive: 'Growth/Aggressive', defensive: 'Defensive/Low Risk' };
-      let reply = `=== 📊 ${strategyNames[portfolioStrategy]} Portfolio Suggestions ===\n\n`;
-
-      mockStocks.forEach((stock, i) => {
-        reply += `${i + 1}. **${stock.ticker}** (${stock.sector})\n`;
-        reply += `   Score: ${stock.composite_score}/100\n`;
-        reply += `   ${stock.highlights.join(' | ')}\n\n`;
-      });
-
-      reply += `\n💡 Would you like a detailed analysis of any of these stocks?`;
-
-      return { reply, params: { strategy: portfolioStrategy }, chartData: null };
-    }
   }
 
   // CONCEPT MODE (no tickers detected)

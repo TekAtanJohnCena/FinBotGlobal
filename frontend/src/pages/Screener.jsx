@@ -191,9 +191,17 @@ const Screener = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-mono font-bold text-sm text-slate-200">${stock.lastPrice?.toFixed(2)}</div>
+                    <div className="font-mono font-black text-sm text-slate-200">
+                      {stock.lastPrice > 0 ? `$${stock.lastPrice.toFixed(2)}` : '—'}
+                    </div>
                     <div className={`text-[11px] font-bold flex items-center justify-end gap-1 ${stock.changePercent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent?.toFixed(2)}%
+                      {stock.lastPrice > 0 ? (
+                        <>
+                          {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent?.toFixed(2)}%
+                        </>
+                      ) : (
+                        'N/A'
+                      )}
                     </div>
                   </div>
                 </div>

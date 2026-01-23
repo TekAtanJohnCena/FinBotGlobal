@@ -6,21 +6,47 @@ import {
   ExternalLink,
   Clock,
   Globe,
+  Sparkles,
   TrendingUp,
   TrendingDown,
-  Minus
+  Minus,
+  Loader2,
+  ChevronRight,
+  Filter,
+  Building2,
+  Calendar
 } from 'lucide-react';
 
-const MarketNews = () => {
+const NewsPage = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [analyzingId, setAnalyzingId] = useState(null);
+  const [analyses, setAnalyses] = useState({});
+
+  const popularStocks = [
+    { symbol: 'ALL', name: 'Tüm Haberler' },
+    { symbol: 'AAPL', name: 'Apple' },
+    { symbol: 'TSLA', name: 'Tesla' },
+    { symbol: 'NVDA', name: 'NVIDIA' },
+    { symbol: 'MSFT', name: 'Microsoft' },
+    { symbol: 'GOOGL', name: 'Google' },
+    { symbol: 'META', name: 'Meta' },
+    { symbol: 'AMZN', name: 'Amazon' }
+  ];
 
   const fetchNews = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get('/global-news');
+      let response;
+      if (!selectedStock || selectedStock === 'ALL') {
+        response = await api.get('/global-news');
+      } else {
+        response = await api.get(`/news/${selectedStock}`);
+      }
+
       if (response.data.ok) {
         setNews(response.data.data);
       } else {
@@ -36,7 +62,102 @@ const MarketNews = () => {
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [selectedStock]);
+
+  const analyzeNews = async (newsItem) => {
+    // Token kontrolü
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAnalyses(prev => ({
+        ...prev,
+        [newsItem.id]: {
+          sentiment: 'ERROR',
+          analysis: '⚠️ Lütfen giriş yapın. Haber analizi için oturum açmanız gerekmektedir.'
+        }
+      }));
+      return;
+    }
+
+    setAnalyzingId(newsItem.id);
+    try {
+      const res = await api.post('/news/analyze', {
+        title: newsItem.title,
+        description: newsItem.description || newsItem.summary,
+        symbol: selectedStock === 'ALL' ? '' : selectedStock
+      });
+
+      if (res.data.ok) {
+        setAnalyses(prev => ({
+          ...prev,
+          [newsItem.id]: res.data.data
+        }));
+      }
+    } catch (err) {
+      console.error('Analysis error:', err);
+
+      // 401 hatası için özel mesaj
+      if (err.response?.status === 401) {
+        setAnalyses(prev => ({
+          ...prev,
+          [newsItem.id]: {
+            sentiment: 'ERROR',
+            analysis: '🔒 Oturumunuz sona ermiş. Lütfen yeniden giriş yapın.'
+          }
+        }));
+        // Token'ı temizle
+        localStorage.removeItem('token');
+      } else {
+        setAnalyses(prev => ({
+          ...prev,
+          [newsItem.id]: {
+            sentiment: 'ERROR',
+            analysis: 'Analiz sırasında bir hata oluştu. Lütfen tekrar deneyin.'
+          }
+        }));
+      }
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
+
+  const getSentimentColor = (sentiment) => {
+    switch (sentiment) {
+      case 'POSITIVE':
+        return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+      case 'NEGATIVE':
+        return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+      case 'NEUTRAL':
+        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+      default:
+        return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+    }
+  };
+
+  const getSentimentIcon = (sentiment) => {
+    switch (sentiment) {
+      case 'POSITIVE':
+        return <TrendingUp size={16} />;
+      case 'NEGATIVE':
+        return <TrendingDown size={16} />;
+      case 'NEUTRAL':
+        return <Minus size={16} />;
+      default:
+        return <Sparkles size={16} />;
+    }
+  };
+
+  const getSentimentLabel = (sentiment) => {
+    switch (sentiment) {
+      case 'POSITIVE':
+        return 'Yükseliş Beklentisi';
+      case 'NEGATIVE':
+        return 'Düşüş Riski';
+      case 'NEUTRAL':
+        return 'Nötr Etki';
+      default:
+        return 'Hata';
+    }
+  };
 
   const timeAgo = (dateStr) => {
     const date = new Date(dateStr);
@@ -58,10 +179,10 @@ const MarketNews = () => {
               <Globe className="w-8 h-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Global Piyasa Haberleri</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Haberler & AI Analizi</h1>
               <p className="text-slate-400 mt-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                NASDAQ & NYSE Canlı Haber Akışı
+                FinBot AI ile Piyasa Haberleri
               </p>
             </div>
           </div>
@@ -74,6 +195,32 @@ const MarketNews = () => {
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
             Yenile
           </button>
+        </div>
+
+        {/* Stock Filter Chips */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Filter size={16} className="text-slate-500" />
+            <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+              Hisse Filtresi
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {popularStocks.map((stock) => (
+              <button
+                key={stock.symbol}
+                onClick={() => setSelectedStock(stock.symbol === 'ALL' ? null : stock.symbol)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all ${(selectedStock === stock.symbol || (!selectedStock && stock.symbol === 'ALL'))
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 border border-indigo-500'
+                  : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600'
+                  }`}
+              >
+                {stock.symbol !== 'ALL' && <Building2 size={16} />}
+                {stock.symbol}
+                <span className="text-xs opacity-70">({stock.name})</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {error && (
@@ -95,43 +242,86 @@ const MarketNews = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-6">
             {news.map((item) => (
               <div
                 key={item.id}
-                className="group bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-3xl overflow-hidden shadow-xl transition-all flex flex-col hover:-translate-y-1"
+                className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-3xl p-6 shadow-xl transition-all"
               >
-                <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-lg border border-indigo-500/20">
-                      {item.source}
-                    </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {timeAgo(item.date)}
-                    </span>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-lg border border-indigo-500/20">
+                        {item.source}
+                      </span>
+                      <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {timeAgo(item.publishedDate || item.date)}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 leading-tight">
+                      {item.title}
+                    </h3>
+                    {(item.description || item.summary) && (
+                      <p className="text-sm text-slate-400 leading-relaxed mb-4 line-clamp-3">
+                        {item.description || item.summary}
+                      </p>
+                    )}
                   </div>
-
-                  <h3 className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors mb-3 line-clamp-2">
-                    {item.title}
-                  </h3>
-
-                  <p className="text-slate-400 text-sm line-clamp-4 mb-6 leading-relaxed">
-                    {item.summary || "Bu haber için açıklama bulunmuyor."}
-                  </p>
-
-                  <div className="mt-auto">
+                  {item.url && (
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-indigo-400 font-bold hover:text-white transition-colors group/link"
+                      className="p-2 hover:bg-indigo-500/10 rounded-xl transition-colors text-slate-500 hover:text-indigo-400"
                     >
-                      Haberi Oku
-                      <ExternalLink className="w-4 h-4 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
+                      <ExternalLink size={20} />
                     </a>
-                  </div>
+                  )}
                 </div>
+
+                {/* AI Analysis Button */}
+                <button
+                  onClick={() => analyzeNews(item)}
+                  disabled={analyzingId === item.id}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-600/20"
+                >
+                  {analyzingId === item.id ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      FinBot Analiz Ediyor...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} />
+                      FinBot ile Analiz Et
+                      <ChevronRight size={14} />
+                    </>
+                  )}
+                </button>
+
+                {/* AI Analysis Result */}
+                {analyses[item.id] && (
+                  <div className="mt-4 p-5 bg-[#0f172a] rounded-2xl border border-slate-700/50 animate-in fade-in duration-500">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs uppercase border ${getSentimentColor(
+                          analyses[item.id].sentiment
+                        )}`}
+                      >
+                        {getSentimentIcon(analyses[item.id].sentiment)}
+                        {getSentimentLabel(analyses[item.id].sentiment)}
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] text-slate-600 font-bold">
+                        <Sparkles size={12} />
+                        FinBot AI
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                      {analyses[item.id].analysis}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -141,4 +331,4 @@ const MarketNews = () => {
   );
 };
 
-export default MarketNews;
+export default NewsPage;

@@ -34,17 +34,17 @@ const Portfolio = () => {
   const [addCost, setAddCost] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Default Popular Stocks
-  const popularStocks = [
-    { ticker: 'AAPL', name: 'Apple Inc.' },
-    { ticker: 'TSLA', name: 'Tesla, Inc.' },
-    { ticker: 'NVDA', name: 'NVIDIA Corp.' },
-    { ticker: 'MSFT', name: 'Microsoft' },
-    { ticker: 'AMZN', name: 'Amazon.com Inc.' },
-    { ticker: 'GOOGL', name: 'Alphabet Inc.' },
-    { ticker: 'META', name: 'Meta Platforms' },
-    { ticker: 'NFLX', name: 'Netflix, Inc.' }
-  ];
+  // Default Popular Stocks (Hardcoded, but we will fetch prices)
+  const [popularStocks, setPopularStocks] = useState([
+    { ticker: 'AAPL', name: 'Apple Inc.', price: 0 },
+    { ticker: 'TSLA', name: 'Tesla, Inc.', price: 0 },
+    { ticker: 'NVDA', name: 'NVIDIA Corp.', price: 0 },
+    { ticker: 'MSFT', name: 'Microsoft', price: 0 },
+    { ticker: 'AMZN', name: 'Amazon.com Inc.', price: 0 },
+    { ticker: 'GOOGL', name: 'Alphabet Inc.', price: 0 },
+    { ticker: 'META', name: 'Meta Platforms', price: 0 },
+    { ticker: 'NFLX', name: 'Netflix, Inc.', price: 0 }
+  ]);
 
   const fetchPortfolio = async () => {
     setLoading(true);
@@ -59,6 +59,24 @@ const Portfolio = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPopularPrices = async () => {
+    try {
+      // Use the search endpoint with a known ticker to "trigger" price bundle logic 
+      // or just search specifically for these popular ones.
+      const res = await api.get(`/portfolio/search?query=AAPL`);
+      if (res.data.ok) {
+        // Map current popular list with prices from search results if there's overlap
+        const priceMap = {};
+        res.data.data.forEach(item => priceMap[item.ticker] = item.price);
+
+        setPopularStocks(prev => prev.map(s => ({
+          ...s,
+          price: priceMap[s.ticker] || s.price
+        })));
+      }
+    } catch (e) { }
   };
 
   const handleSearch = useCallback(async (val) => {
@@ -83,6 +101,7 @@ const Portfolio = () => {
 
   useEffect(() => {
     fetchPortfolio();
+    fetchPopularPrices();
     const interval = setInterval(fetchPortfolio, 300000); // 5 min interval
     return () => clearInterval(interval);
   }, []);
@@ -168,12 +187,17 @@ const Portfolio = () => {
                   className="flex items-center justify-between p-4 rounded-2xl hover:bg-emerald-500/5 transition-all group border border-transparent hover:border-emerald-500/20"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="font-mono font-black text-sm text-white group-hover:text-emerald-400 transition-colors uppercase">{s.ticker || s.symbol}</div>
+                    <div className="flex items-center justify-between pr-4">
+                      <div className="font-mono font-black text-sm text-white group-hover:text-emerald-400 transition-colors uppercase">{s.ticker || s.symbol}</div>
+                      {s.price > 0 && (
+                        <div className="font-mono font-bold text-[11px] text-emerald-500">${s.price.toFixed(2)}</div>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-500 line-clamp-1 font-bold">{s.name}</div>
                   </div>
                   <button
                     onClick={() => openAddModal(s)}
-                    className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/0 hover:shadow-emerald-500/20 ml-2"
+                    className="w-10 h-10 flex-shrink-0 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/0 hover:shadow-emerald-500/20 ml-2"
                   >
                     <Plus size={20} />
                   </button>
