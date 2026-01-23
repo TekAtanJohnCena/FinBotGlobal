@@ -1,12 +1,15 @@
 // PATH: backend/src/routes/news.js
 import express from 'express';
 import axios from 'axios';
-import { OpenAI } from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Google Gemini AI istemcisini başlat
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 /**
  * GET /api/news/:symbol
@@ -44,7 +47,7 @@ router.get('/:symbol', async (req, res) => {
 
 /**
  * POST /api/news/analyze
- * AI-powered sentiment analysis of news articles
+ * AI-powered sentiment analysis using Google Gemini
  */
 router.post('/analyze', protect, async (req, res) => {
     const { title, description, symbol } = req.body;
@@ -68,16 +71,14 @@ ANALYSIS: [2-3 cümle ile açıklama]
 
 Önemli: Cevabını Türkçe ver ve profesyonel bir ton kullan.`;
 
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            temperature: 0.3,
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: `Haber: ${newsText}` }
-            ]
-        });
+        // Gemini modelini al (gemini-pro stable ve geniş destek)
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-        const aiResponse = completion.choices[0].message.content;
+        const prompt = `${systemPrompt}\n\nHaber: ${newsText}`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const aiResponse = response.text();
 
         // Parse the response
         const sentimentMatch = aiResponse.match(/SENTIMENT:\s*(POSITIVE|NEGATIVE|NEUTRAL)/i);
