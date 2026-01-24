@@ -136,8 +136,8 @@ const NotFound = () => {
                         <Link to="/portfolio" className="text-decoration-none" style={{ color: '#10b981', fontSize: '0.9rem' }}>
                             📊 Portföy
                         </Link>
-                        <Link to="/kap" className="text-decoration-none" style={{ color: '#10b981', fontSize: '0.9rem' }}>
-                            📰 KAP
+                        <Link to="/news" className="text-decoration-none" style={{ color: '#10b981', fontSize: '0.9rem' }}>
+                            📰 Haberler
                         </Link>
                         <Link to="/screener" className="text-decoration-none" style={{ color: '#10b981', fontSize: '0.9rem' }}>
                             🔍 Tarayıcı

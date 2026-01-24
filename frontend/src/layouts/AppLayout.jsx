@@ -82,8 +82,8 @@ export default function AppLayout() {
             IconActive={RectSolid}
           />
           <BottomNavItem
-            to="/kap"
-            label="KAP"
+            to="/news"
+            label="Haberler"
             Icon={Newspaper}
             IconActive={Newspaper}
           />

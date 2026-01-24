@@ -24,9 +24,9 @@ const Financials = () => {
             try {
                 const response = await api.get(`/stock-analysis/${symbol}`);
                 if (response.data.ok) {
-                    // Sort history by date ascending (Oldest -> Newest) for the table
+                    // Sort history by date DESCENDING (Newest -> Oldest) for the table
                     const sortedHistory = (response.data.data.financials.history || []).sort((a, b) =>
-                        new Date(a.date) - new Date(b.date)
+                        new Date(b.date) - new Date(a.date)
                     );
                     setData({ ...response.data.data, financials: { ...response.data.data.financials, history: sortedHistory } });
                 } else {

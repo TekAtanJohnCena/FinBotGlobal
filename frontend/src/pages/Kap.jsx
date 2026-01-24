@@ -14,7 +14,9 @@ import {
   ChevronRight,
   Filter,
   Building2,
-  Calendar
+  Calendar,
+  Search,
+  X
 } from 'lucide-react';
 
 const NewsPage = () => {
@@ -25,21 +27,15 @@ const NewsPage = () => {
   const [analyzingId, setAnalyzingId] = useState(null);
   const [analyses, setAnalyses] = useState({});
 
-  const popularStocks = [
-    { symbol: 'ALL', name: 'Tüm Haberler' },
-    { symbol: 'AAPL', name: 'Apple' },
-    { symbol: 'TSLA', name: 'Tesla' },
-    { symbol: 'NVDA', name: 'NVIDIA' },
-    { symbol: 'MSFT', name: 'Microsoft' },
-    { symbol: 'GOOGL', name: 'Google' },
-    { symbol: 'META', name: 'Meta' },
-    { symbol: 'AMZN', name: 'Amazon' }
-  ];
+  // Filter Modal State
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [tickerSearch, setTickerSearch] = useState("");
 
   const fetchNews = async () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('📰 Haberler çekiliyor...', selectedStock || 'Tüm Haberler');
       let response;
       if (!selectedStock || selectedStock === 'ALL') {
         response = await api.get('/global-news');
@@ -47,14 +43,19 @@ const NewsPage = () => {
         response = await api.get(`/news/${selectedStock}`);
       }
 
+      console.log('📊 API Response:', response.data);
+
       if (response.data.ok) {
         setNews(response.data.data);
+        if (response.data.data.length === 0) {
+          setError(`${selectedStock} için haber bulunamadı. Farklı bir ticker deneyin.`);
+        }
       } else {
         setError("Haberler yüklenemedi.");
       }
     } catch (err) {
-      setError("Sunucu hatası: Haberler alınamadı.");
-      console.error(err);
+      console.error('❌ Haber fetch hatası:', err);
+      setError(`Sunucu hatası: ${err.response?.data?.error || err.message || 'Haberler alınamadı'}`);
     } finally {
       setLoading(false);
     }
@@ -197,31 +198,111 @@ const NewsPage = () => {
           </button>
         </div>
 
-        {/* Stock Filter Chips */}
+        {/* Stock Filter Button */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Filter size={16} className="text-slate-500" />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-500">
-              Hisse Filtresi
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="flex items-center gap-3 px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700 font-bold w-full md:w-auto"
+          >
+            <Filter size={18} className="text-indigo-400" />
+            <span>
+              {selectedStock ? `${selectedStock} Haberleri` : 'Şirket Ara'}
             </span>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {popularStocks.map((stock) => (
+            {selectedStock && (
               <button
-                key={stock.symbol}
-                onClick={() => setSelectedStock(stock.symbol === 'ALL' ? null : stock.symbol)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all ${(selectedStock === stock.symbol || (!selectedStock && stock.symbol === 'ALL'))
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 border border-indigo-500'
-                  : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600'
-                  }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedStock(null);
+                }}
+                className="ml-2 p-1 hover:bg-rose-500/20 rounded-lg transition-colors"
               >
-                {stock.symbol !== 'ALL' && <Building2 size={16} />}
-                {stock.symbol}
-                <span className="text-xs opacity-70">({stock.name})</span>
+                <X size={16} className="text-rose-400" />
               </button>
-            ))}
-          </div>
+            )}
+          </button>
         </div>
+
+        {/* Filter Modal */}
+        {isFilterOpen && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setIsFilterOpen(false)}
+            />
+            <div className="relative bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in duration-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Filter size={20} className="text-indigo-400" />
+                  Hisse Ara
+                </h3>
+                <button
+                  onClick={() => setIsFilterOpen(false)}
+                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                >
+                  <X size={20} className="text-slate-400" />
+                </button>
+              </div>
+
+              <div className="relative mb-4">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Ticker yazın (örn: AAPL, TSLA)"
+                  value={tickerSearch}
+                  onChange={(e) => setTickerSearch(e.target.value.toUpperCase())}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all font-mono"
+                  autoFocus
+                />
+              </div>
+
+              {/* Popular Tickers */}
+              <div className="mb-4">
+                <p className="text-xs text-slate-500 mb-2">Popüler:</p>
+                <div className="flex flex-wrap gap-2">
+                  {['AAPL', 'TSLA', 'NVDA', 'MSFT', 'GOOGL', 'META', 'AMZN'].map((ticker) => (
+                    <button
+                      key={ticker}
+                      onClick={() => setTickerSearch(ticker)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-bold transition-all border border-slate-700 hover:border-indigo-500"
+                    >
+                      {ticker}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedStock(null);
+                    setTickerSearch("");
+                    setIsFilterOpen(false);
+                  }}
+                  className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all font-bold"
+                >
+                  Tüm Haberler
+                </button>
+                <button
+                  onClick={() => {
+                    if (tickerSearch.trim()) {
+                      setSelectedStock(tickerSearch.trim());
+                      setIsFilterOpen(false);
+                    }
+                  }}
+                  disabled={!tickerSearch.trim()}
+                  className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-all font-bold flex items-center justify-center gap-2"
+                >
+                  <Search size={18} />
+                  Ara
+                </button>
+              </div>
+
+              <p className="mt-4 text-xs text-slate-500 text-center">
+                ⚠️ Tam ticker yazın (GOOGL, AAPL, TSLA gibi)
+              </p>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="bg-rose-500/10 border border-rose-500/50 text-rose-500 p-5 rounded-2xl mb-8 flex items-center gap-3">

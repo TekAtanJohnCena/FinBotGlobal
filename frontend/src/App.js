@@ -88,7 +88,8 @@ function App() {
           <Route path="/financials/:symbol" element={<FinancialsPage />} />
           <Route path="/markets" element={<MarketsPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/kap" element={<NewsPage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/kap" element={<Navigate to="/news" replace />} />
           <Route path="/academy" element={<AcademyCourseView />} />
         </Route>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from "../lib/api";
+import CashBalanceCard from '../components/CashBalanceCard';
 import {
   Wallet,
   TrendingUp,
@@ -33,6 +34,14 @@ const Portfolio = () => {
   const [addQty, setAddQty] = useState("");
   const [addCost, setAddCost] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Mobile Sidebar State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Cash Balance State
+  const [cashBalance, setCashBalance] = useState(0);
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
+  const [cashInput, setCashInput] = useState("");
 
   // Default Popular Stocks (Hardcoded, but we will fetch prices)
   const [popularStocks, setPopularStocks] = useState([
@@ -97,9 +106,34 @@ const Portfolio = () => {
   useEffect(() => {
     fetchPortfolio();
     fetchPopularPrices();
-    const interval = setInterval(fetchPortfolio, 300000); // 5 min interval
+    fetchCashBalance();
+    const interval = setInterval(fetchPortfolio, 300000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchCashBalance = async () => {
+    try {
+      const res = await api.get('/portfolio/cash');
+      if (res.data.ok) {
+        setCashBalance(res.data.balance || 0);
+      }
+    } catch (err) {
+      console.error('Cash fetch error:', err);
+    }
+  };
+
+  const saveCashBalance = async () => {
+    try {
+      const res = await api.post('/portfolio/cash', { amount: Number(cashInput) });
+      if (res.data.ok) {
+        setCashBalance(Number(cashInput));
+        setIsCashModalOpen(false);
+        setCashInput("");
+      }
+    } catch (err) {
+      console.error('Cash save error:', err);
+    }
+  };
 
   const openAddModal = (stock) => {
     setSelectedStock(stock);
@@ -107,23 +141,40 @@ const Portfolio = () => {
   };
 
   const saveAsset = async () => {
-    if (!addQty || !addCost) return;
+    if (!addQty || !addCost) {
+      alert('Lütfen adet ve maliyet girin!');
+      return;
+    }
+    if (!selectedStock) {
+      alert('Hisse seçilmedi!');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const res = await api.post('/portfolio/add', {
+      const payload = {
         symbol: selectedStock.ticker || selectedStock.symbol,
-        name: selectedStock.name,
+        name: selectedStock.name || selectedStock.ticker || selectedStock.symbol,
         quantity: Number(addQty),
         avgCost: Number(addCost)
-      });
+      };
+      console.log('📤 Sending to portfolio:', payload);
+
+      const res = await api.post('/portfolio/add', payload);
+      console.log('📥 Response:', res.data);
+
       if (res.data.ok) {
+        alert('✅ Hisse başarıyla eklendi!');
         setIsModalOpen(false);
         setAddQty("");
         setAddCost("");
         fetchPortfolio();
+      } else {
+        alert('❌ Hata: ' + (res.data.error || 'Bilinmeyen hata'));
       }
     } catch (err) {
       console.error("Save error:", err);
+      alert('❌ Hata: ' + (err.response?.data?.error || err.message || 'Bağlantı hatası'));
     } finally {
       setIsSaving(false);
     }
@@ -143,8 +194,30 @@ const Portfolio = () => {
 
   return (
     <div className="flex h-screen bg-[#0a0f1c] text-white overflow-hidden font-sans">
+      {/* Mobile Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden p-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-lg transition-all"
+      >
+        {isSidebarOpen ? <X size={20} /> : <Search size={20} />}
+      </button>
+
+      {/* Sidebar Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* LEFT SIDEBAR: DYNAMIC SEARCH */}
-      <div className="w-80 md:w-1/4 flex-shrink-0 bg-[#1e222d] border-r border-slate-800 flex flex-col">
+      <div className={`
+        fixed lg:relative inset-y-0 left-0 z-40
+        w-80 lg:w-1/4 flex-shrink-0 
+        bg-[#1e222d] border-r border-slate-800 flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         <div className="p-6 border-b border-slate-800 bg-[#1e222d]/50">
           <h1 className="text-xl font-bold flex items-center gap-2 text-emerald-400 mb-6 uppercase tracking-tighter">
             <Plus className="w-6 h-6" />
@@ -191,7 +264,10 @@ const Portfolio = () => {
                     <div className="text-[10px] text-slate-500 line-clamp-1 font-bold">{s.name}</div>
                   </div>
                   <button
-                    onClick={() => openAddModal(s)}
+                    onClick={() => {
+                      openAddModal(s);
+                      setIsSidebarOpen(false);
+                    }}
                     className="w-10 h-10 flex-shrink-0 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/0 hover:shadow-emerald-500/20 ml-2"
                   >
                     <Plus size={20} />
@@ -200,9 +276,20 @@ const Portfolio = () => {
               ))}
 
               {searchTerm && searchResults.length === 0 && (
-                <div className="p-10 text-center text-slate-600">
-                  <AlertCircle className="mx-auto mb-2 opacity-20" size={32} />
-                  <p className="text-xs font-bold uppercase tracking-widest">Eşleşme Bulunamadı</p>
+                <div className="p-6 text-center">
+                  <AlertCircle className="mx-auto mb-2 opacity-20 text-slate-500" size={32} />
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Eşleşme Bulunamadı</p>
+                  <button
+                    onClick={() => {
+                      openAddModal({ ticker: searchTerm.toUpperCase(), name: searchTerm.toUpperCase() });
+                      setIsSidebarOpen(false);
+                    }}
+                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                  >
+                    <Plus size={18} />
+                    "{searchTerm.toUpperCase()}" Manuel Ekle
+                  </button>
+                  <p className="text-xs text-slate-600 mt-2">Tiingo'dan fiyat çekilecek</p>
                 </div>
               )}
             </div>
@@ -212,25 +299,25 @@ const Portfolio = () => {
 
       {/* RIGHT PANEL: ASSET DASHBOARD */}
       <div className="flex-1 flex flex-col overflow-y-auto bg-[#0a0f1c] custom-scrollbar">
-        <div className="p-8 space-y-10 max-w-[1400px] mx-auto w-full">
+        <div className="p-4 md:p-8 space-y-6 md:space-y-10 max-w-[1400px] mx-auto w-full">
           {/* HEADER SECTION */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-emerald-500/20">
-                <Briefcase size={32} />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mt-12 lg:mt-0">
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl md:rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-emerald-500/20">
+                <Briefcase className="w-6 h-6 md:w-8 md:h-8" />
               </div>
               <div>
-                <h2 className="text-4xl font-black tracking-tighter text-white">Canlı Portföyüm</h2>
+                <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-white">Canlı Portföyüm</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                  <p className="text-slate-500 font-black text-xs uppercase tracking-widest">Tiingo Real-Time Market Feed</p>
+                  <p className="text-slate-500 font-black text-[10px] md:text-xs uppercase tracking-widest">Tiingo Real-Time Market Feed</p>
                 </div>
               </div>
             </div>
 
             <button
               onClick={fetchPortfolio}
-              className="flex items-center gap-3 px-6 py-3 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 transition-all font-black text-xs uppercase tracking-widest shadow-xl"
+              className="flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-[#1e222d] border border-slate-700 rounded-xl md:rounded-2xl text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 transition-all font-black text-xs uppercase tracking-widest shadow-xl w-full md:w-auto justify-center"
             >
               <RefreshCw size={16} className={loading && portfolioData.length > 0 ? 'animate-spin' : ''} />
               Verileri Güncelle
@@ -238,52 +325,76 @@ const Portfolio = () => {
           </div>
 
           {/* DASHBOARD CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-[#1e222d] border border-slate-800 rounded-[40px] p-8 shadow-2xl relative overflow-hidden group">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+            <div className="bg-[#1e222d] border border-slate-800 rounded-3xl md:rounded-[40px] p-6 md:p-8 shadow-2xl relative overflow-hidden group">
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Toplam Varlık Değeri</span>
-                  <DollarSign size={20} className="text-emerald-500" />
+                  <DollarSign size={18} className="text-emerald-500 md:w-5 md:h-5" />
                 </div>
-                <div className="text-5xl font-mono font-black text-white tracking-tighter">
+                <div className="text-3xl md:text-5xl font-mono font-black text-white tracking-tighter">
                   ${totals.totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                 </div>
-                <div className="flex items-center gap-4 mt-6">
-                  <div className={`px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-2 ${totals.totalPnl >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                    {totals.totalPnl >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                <div className="flex items-center gap-3 md:gap-4 mt-4 md:mt-6">
+                  <div className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-xs font-black flex items-center gap-2 ${totals.totalPnl >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                    {totals.totalPnl >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                     ${Math.abs(totals.totalPnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
-                  <div className={`font-black text-lg ${totals.totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <div className={`font-black text-base md:text-lg ${totals.totalPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {totals.totalPnlPercent.toFixed(2)}%
                   </div>
                 </div>
               </div>
-              <Activity className="absolute -right-8 -bottom-8 w-48 h-48 opacity-[0.03] text-emerald-500" />
+              <Activity className="absolute -right-8 -bottom-8 w-32 h-32 md:w-48 md:h-48 opacity-[0.03] text-emerald-500" />
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[40px] p-8 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl md:rounded-[40px] p-6 md:p-8 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
               <div className="relative z-10 flex flex-col h-full">
                 <div className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-2">Varlık Dağılımı</div>
-                <div className="text-5xl font-black text-white tracking-tighter">{portfolioData.length}</div>
-                <div className="mt-auto pt-6 flex items-center justify-between">
-                  <span className="text-sm font-bold text-indigo-100 opacity-80 uppercase tracking-wider">Aktif Pozisyon</span>
+                <div className="text-3xl md:text-5xl font-black text-white tracking-tighter">{portfolioData.length}</div>
+                <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between">
+                  <span className="text-xs md:text-sm font-bold text-indigo-100 opacity-80 uppercase tracking-wider">Aktif Pozisyon</span>
                   <div className="flex -space-x-2">
                     {portfolioData.slice(0, 4).map((a, i) => (
-                      <div key={i} className="w-8 h-8 rounded-full bg-indigo-400 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">
+                      <div key={i} className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-indigo-400 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">
                         {a.symbol.slice(0, 1)}
                       </div>
                     ))}
-                    {portfolioData.length > 4 && <div className="w-8 h-8 rounded-full bg-indigo-300 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">+{portfolioData.length - 4}</div>}
+                    {portfolioData.length > 4 && <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-indigo-300 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">+{portfolioData.length - 4}</div>}
                   </div>
                 </div>
               </div>
-              <PieChart className="absolute -right-8 -bottom-8 w-48 h-48 opacity-10 text-white" />
+              <PieChart className="absolute -right-8 -bottom-8 w-32 h-32 md:w-48 md:h-48 opacity-10 text-white" />
             </div>
           </div>
 
-          {/* ASSET TABLE */}
-          <div className="bg-[#1e222d] border border-slate-800 rounded-[40px] overflow-hidden shadow-2xl">
-            <div className="overflow-x-auto custom-scrollbar">
+          {/* Cash Balance Card - Inline */}
+          <div className="mb-8">
+            <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border border-emerald-500/30 rounded-2xl p-5 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-emerald-500/20 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-300">Nakit Bakiye</h3>
+                </div>
+                <button
+                  onClick={() => { setCashInput(cashBalance.toString()); setIsCashModalOpen(true); }}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all"
+                >
+                  Düzenle
+                </button>
+              </div>
+              <div className="text-3xl font-black text-emerald-400">
+                ${cashBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+
+          {/* ASSET TABLE/CARDS */}
+          <div className="bg-[#1e222d] border border-slate-800 rounded-2xl md:rounded-[40px] overflow-hidden shadow-2xl">
+            {/* DESKTOP: Table View */}
+            <div className="hidden md:block overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-[#131722] border-b border-slate-800">
@@ -305,25 +416,25 @@ const Portfolio = () => {
                             {asset.symbol.slice(0, 1)}
                           </div>
                           <div className="min-w-0">
-                            <div className="font-black text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight">{asset.symbol}</div>
+                            <div className="font-black text-base text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight">{asset.symbol}</div>
                             <div className="text-[10px] font-bold text-slate-500 line-clamp-1">{asset.name}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-right font-mono font-bold text-slate-300">
+                      <td className="px-8 py-6 text-right font-mono font-bold text-base text-slate-300">
                         {asset.quantity.toLocaleString()}
                       </td>
-                      <td className="px-8 py-6 text-right font-mono text-slate-500">
+                      <td className="px-8 py-6 text-right font-mono text-sm text-slate-500">
                         ${asset.avgCost.toFixed(2)}
                       </td>
-                      <td className="px-8 py-6 text-right font-mono font-black text-emerald-400 bg-emerald-500/[0.01]">
+                      <td className="px-8 py-6 text-right font-mono font-black text-base text-emerald-400 bg-emerald-500/[0.01]">
                         ${asset.currentPrice.toFixed(2)}
                       </td>
-                      <td className="px-8 py-6 text-right font-mono font-black text-indigo-300">
+                      <td className="px-8 py-6 text-right font-mono font-black text-base text-indigo-300">
                         ${asset.totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <div className={`font-black flex items-center justify-end gap-1 ${asset.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <div className={`font-black text-base flex items-center justify-end gap-1 ${asset.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {asset.profitPercent.toFixed(2)}%
                         </div>
                         <div className={`text-[10px] font-bold ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
@@ -335,7 +446,7 @@ const Portfolio = () => {
                           onClick={() => deleteAsset(asset.id)}
                           className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl transition-all"
                         >
-                          <Trash2 size={20} />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </td>
                     </tr>
@@ -359,6 +470,68 @@ const Portfolio = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* MOBILE: Card View */}
+            <div className="md:hidden divide-y divide-slate-800/40">
+              {portfolioData.map((asset) => (
+                <div key={asset.id} className="p-4 hover:bg-emerald-500/[0.02] transition-colors">
+                  <div className="flex items-center justify-between gap-4">
+                    {/* LEFT: Symbol + Current Price */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white font-black text-xs border border-white/10 shadow-inner">
+                          {asset.symbol.slice(0, 1)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-black text-base text-white uppercase tracking-tight">{asset.symbol}</div>
+                          <div className="text-[10px] font-bold text-slate-500 line-clamp-1">{asset.name}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-13">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Anlık:</span>
+                        <span className="font-mono font-black text-lg text-emerald-400">${asset.currentPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* RIGHT: Total Value + P/L */}
+                    <div className="text-right flex-shrink-0">
+                      <div className="font-mono font-black text-lg text-indigo-300 mb-1">
+                        ${asset.totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </div>
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg font-black text-xs ${asset.profit >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                        {asset.profit >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                        {asset.profitPercent.toFixed(2)}%
+                      </div>
+                      <div className={`text-[10px] font-bold mt-1 ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
+                        {asset.profit >= 0 ? '+' : '-'}${Math.abs(asset.profit).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => deleteAsset(asset.id)}
+                    className="w-full mt-3 flex items-center justify-center gap-2 py-2 text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all text-xs font-bold uppercase tracking-wider"
+                  >
+                    <Trash2 size={14} />
+                    Sil
+                  </button>
+                </div>
+              ))}
+
+              {loading && portfolioData.length === 0 ? (
+                <div className="px-4 py-24 text-center">
+                  <RefreshCw className="w-12 h-12 mx-auto mb-4 text-emerald-500 animate-spin opacity-20" />
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-500">Portföy Yükleniyor...</span>
+                </div>
+              ) : portfolioData.length === 0 && (
+                <div className="px-4 py-24 text-center">
+                  <Activity className="w-16 h-16 mx-auto mb-6 text-emerald-500 opacity-20" />
+                  <h4 className="text-base font-black text-white mb-2">Henüz Dijital Varlığınız Yok</h4>
+                  <p className="text-slate-500 text-sm font-medium">Üstteki arama butonuna tıklayarak ilk hissenizi ekleyin.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -421,6 +594,45 @@ const Portfolio = () => {
               </button>
 
               <p className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">Kayıt işlemi Tiingo Market Feed ile senkronize edilir</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CASH BALANCE MODAL */}
+      {isCashModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4">
+          <div className="bg-[#1a1d2e] p-6 rounded-xl shadow-2xl w-full max-w-md border border-slate-700">
+            <h2 className="text-xl font-bold text-white mb-5 flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-emerald-400" />
+              Nakit Bakiye Düzenle
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Nakit Miktar ($)</label>
+                <input
+                  type="number"
+                  value={cashInput}
+                  onChange={(e) => setCashInput(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full rounded-lg border border-slate-600 px-4 py-2.5 bg-[#0f1117] text-white placeholder-slate-500 focus:border-emerald-500"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setIsCashModalOpen(false)}
+                className="flex-1 px-5 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold"
+              >
+                Vazgeç
+              </button>
+              <button
+                onClick={saveCashBalance}
+                className="flex-1 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
+              >
+                Kaydet
+              </button>
             </div>
           </div>
         </div>

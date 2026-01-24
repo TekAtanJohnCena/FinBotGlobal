@@ -72,7 +72,7 @@ export default function Sidebar() {
         <NavItem to="/portfolio" label="Portföy" Icon={ChartBarIcon} />
         <NavItem to="/wallet" label="Cüzdan" Icon={WalletIcon} />
         <NavItem to="/screener" label="Piyasa" Icon={RectangleStackIcon} />
-        <NavItem to="/kap" label="Haberler" Icon={NewspaperIcon} />
+        <NavItem to="/news" label="Haberler" Icon={NewspaperIcon} />
         <NavItem to="/academy" label="Akademi" Icon={AcademicCapIcon} />
       </nav>
 

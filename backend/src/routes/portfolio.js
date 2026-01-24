@@ -9,6 +9,7 @@ const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
 
 // Helper: Determine Asset Type
 const getAssetType = (symbol) => {
+    if (!symbol) return 'STOCK'; // Default fallback
     const s = symbol.toLowerCase();
     const cryptoTickers = ['btcusd', 'ethusd', 'solusd', 'dogeusd', 'xrpusd', 'bnbusd', 'ltcusd', 'adausd', 'matikusd'];
     const forexTickers = ['eurusd', 'gbpusd', 'usdjpy', 'usdtry', 'audusd', 'usdcad', 'gbpjpy', 'xauusd'];
@@ -23,12 +24,16 @@ const getAssetType = (symbol) => {
  */
 router.get("/", protect, async (req, res) => {
     try {
-        const assets = await Portfolio.find({ user: req.user._id }).sort({ createdAt: -1 });
-        if (assets.length === 0) {
+        const allAssets = await Portfolio.find({ user: req.user._id }).sort({ createdAt: -1 });
+
+        // Filter out CASH entries for stock processing
+        const stockAssets = allAssets.filter(a => a.symbol && a.symbol !== 'CASH');
+
+        if (stockAssets.length === 0) {
             return res.json({ ok: true, data: [], totals: { totalValue: 0, totalPnl: 0, totalPnlPercent: 0 } });
         }
 
-        const enrichedData = await Promise.all(assets.map(async (asset) => {
+        const enrichedData = await Promise.all(stockAssets.map(async (asset) => {
             const type = getAssetType(asset.symbol);
             let currentPrice = 0;
             try {
@@ -43,10 +48,10 @@ router.get("/", protect, async (req, res) => {
                     currentPrice = priceRes.data[0]?.last || priceRes.data[0]?.tngoLast || priceRes.data[0]?.prevClose || 0;
                 }
             } catch (err) {
-                currentPrice = asset.avgCost;
+                currentPrice = asset.avgCost || 0;
             }
             return {
-                id: asset._id, symbol: asset.symbol, name: asset.name, type: type,
+                id: asset._id, symbol: asset.symbol, name: asset.name || asset.symbol, type: type,
                 quantity: asset.quantity, avgCost: asset.avgCost, currentPrice: currentPrice,
                 totalValue: currentPrice * asset.quantity, profit: (currentPrice - asset.avgCost) * asset.quantity,
                 profitPercent: asset.avgCost > 0 ? ((currentPrice - asset.avgCost) / asset.avgCost) * 100 : 0
@@ -67,7 +72,9 @@ router.get("/", protect, async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ ok: false, error: "Portfolio fetch failed." });
+        console.error('❌ Portfolio GET error:', error.message);
+        console.error('Stack:', error.stack);
+        res.status(500).json({ ok: false, error: "Portfolio fetch failed: " + error.message });
     }
 });
 
@@ -111,11 +118,9 @@ router.get("/search", protect, async (req, res) => {
     if (!query) return res.json({ ok: true, data: [] });
 
     try {
-        // Search metadata
         const searchRes = await axios.get(`https://api.tiingo.com/tiingo/utilities/search?query=${query}&token=${TIINGO_API_KEY}`);
-        const results = searchRes.data.slice(0, 8); // Limit to top 8
+        const results = searchRes.data.slice(0, 8);
 
-        // Batch fetch prices for stocks
         const tickers = results.map(r => r.ticker).join(",");
         let livePrices = {};
         try {
@@ -124,7 +129,7 @@ router.get("/search", protect, async (req, res) => {
                 livePrices[p.ticker.toUpperCase()] = p.last || p.tngoLast || p.prevClose || 0;
             });
         } catch (pErr) {
-            console.error("Batch price fetch failed in search:", pErr.message);
+            console.error("Batch price fetch failed:", pErr.message);
         }
 
         const dataWithPrices = results.map(r => ({
@@ -148,6 +153,49 @@ router.delete("/:id", protect, async (req, res) => {
         res.json({ ok: true, message: "Deleted." });
     } catch (error) {
         res.status(500).json({ ok: false, error: "Delete failed." });
+    }
+});
+
+/**
+ * 5. SET CASH BALANCE
+ */
+router.post("/cash", protect, async (req, res) => {
+    try {
+        const { amount } = req.body;
+        if (amount === undefined || amount < 0) {
+            return res.status(400).json({ ok: false, error: "Invalid amount." });
+        }
+
+        let cashEntry = await Portfolio.findOne({ user: req.user._id, symbol: 'CASH' });
+
+        if (cashEntry) {
+            cashEntry.quantity = Number(amount);
+            await cashEntry.save();
+        } else {
+            cashEntry = await Portfolio.create({
+                user: req.user._id,
+                symbol: 'CASH',
+                name: 'Nakit',
+                quantity: Number(amount),
+                avgCost: 1
+            });
+        }
+
+        res.json({ ok: true, data: cashEntry });
+    } catch (error) {
+        res.status(500).json({ ok: false, error: "Failed to update cash." });
+    }
+});
+
+/**
+ * 6. GET CASH BALANCE
+ */
+router.get("/cash", protect, async (req, res) => {
+    try {
+        const cashEntry = await Portfolio.findOne({ user: req.user._id, symbol: 'CASH' });
+        res.json({ ok: true, balance: cashEntry ? cashEntry.quantity : 0 });
+    } catch (error) {
+        res.status(500).json({ ok: false, error: "Failed to fetch cash." });
     }
 });
 
