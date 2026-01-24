@@ -1,799 +1,347 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
-import PageGuide from "../components/PageGuide";
 import {
-  WalletIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  SparklesIcon,
-  CheckCircleIcon,
-  ChartBarIcon,
-  CpuChipIcon,
-  ArrowRightIcon,
-  PlusIcon,
-  PencilSquareIcon,
-  TrashIcon,
-  XMarkIcon,
-  BanknotesIcon
-} from "@heroicons/react/24/outline";
-import { CheckCircleIcon as CheckCircleIconSolid } from "@heroicons/react/24/solid";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Sparkles,
+  Send,
+  Clock,
+  DollarSign,
+  Coffee,
+  ShoppingBag,
+  Zap,
+  Gift,
+  Car,
+  Home,
+  Plane,
+  CreditCard,
+  PlusCircle,
+  Trash2,
+  RefreshCw,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Timer,
+  LineChart,
+  ArrowUpRight,
+  ArrowDownRight,
+  HandCoins,
+  Banknote
+} from "lucide-react";
 
-// Harcama kategorileri için renkler
-const expenseColors = {
-  "Market": "#14b8a6",
-  "Faturalar": "#06b6d4",
-  "Eğlence": "#8b5cf6",
-  "Ulaşım": "#ec4899",
-  "Diğer": "#64748b"
+// Category detection and icons
+const CATEGORIES = {
+  income: { label: "Gelir", color: "emerald", icon: TrendingUp, keywords: ["maaş", "harçlık", "bayram", "hediye", "ödeme aldım", "kazandım", "gelir"] },
+  expense: { label: "Gider", color: "rose", icon: TrendingDown, keywords: ["market", "fatura", "yemek", "kahve", "kira", "alışveriş", "aldım", "ödedim", "harcadım"] },
+  debt_out: { label: "Borç Verdim", color: "amber", icon: HandCoins, keywords: ["borç verdim", "arkadaşa", "verdiğim"] },
+  debt_in: { label: "Borç Aldım", color: "purple", icon: CreditCard, keywords: ["borç aldım", "aldığım borç", "ödeyeceğim"] }
 };
 
-// Hedef ikonları
-const goalIcons = ["💰", "🏖️", "🚗", "🏠", "✈️", "💍", "📱", "💻", "🎓", "🎁"];
+// Smart text parser
+const parseEntry = (text) => {
+  const lowerText = text.toLowerCase().trim();
+  let type = "expense";
+  let amount = 0;
+  let description = text;
 
-// Demo/Örnek veriler (ilk açılışta gösterilecek)
-const demoData = {
-  totalAssets: 125000,
-  monthlyIncome: 35000,
-  monthlyExpense: 21000,
-  savings: 14000,
-  healthScore: 78,
-  expenses: [
-    { name: "Market", value: 8500, category: "Market" },
-    { name: "Faturalar", value: 5200, category: "Faturalar" },
-    { name: "Eğlence", value: 3300, category: "Eğlence" },
-    { name: "Ulaşım", value: 2500, category: "Ulaşım" },
-    { name: "Diğer", value: 1500, category: "Diğer" }
-  ],
-  tasks: [
-    {
-      id: "1",
-      title: "Kahve Detoksu",
-      description: "Bu hafta dışarıdan kahve içme",
-      reward: "+50 Puan",
-      completed: false,
-      icon: "☕"
-    },
-    {
-      id: "2",
-      title: "İlk Bilanço Analizi",
-      description: "Aylık harcama raporunu görüntüle",
-      reward: "+30 Puan",
-      completed: true,
-      icon: "📊"
-    },
-    {
-      id: "3",
-      title: "Hedef Belirle",
-      description: "Yeni bir birikim hedefi oluştur",
-      reward: "+25 Puan",
-      completed: false,
-      icon: "🎯"
-    },
-    {
-      id: "4",
-      title: "Otomatik Ödeme Kur",
-      description: "Faturaları otomatik ödemeye al",
-      reward: "+40 Puan",
-      completed: false,
-      icon: "⚡"
-    }
-  ],
-  goals: [
-    {
-      id: "1",
-      title: "Yaz Tatili",
-      target: 20000,
-      saved: 8500,
-      icon: "🏖️"
-    },
-    {
-      id: "2",
-      title: "Araba",
-      target: 150000,
-      saved: 45000,
-      icon: "🚗"
-    },
-    {
-      id: "3",
-      title: "Acil Durum Fonu",
-      target: 50000,
-      saved: 32000,
-      icon: "💰"
-    }
-  ]
-};
-
-// Guide adımları
-const guideSteps = [
-  {
-    title: "Hoş Geldin! 👋",
-    description: "FinBot Cüzdan sayfasına hoş geldin. Bu sayfa ile gelir ve giderlerini takip edebilir, birikim hedefleri belirleyebilirsin.",
-    icon: "👋"
-  },
-  {
-    title: "Finansal Özet",
-    description: "Üst panelde gelir, gider ve toplam varlıklarını görebilir, düzenle butonu ile güncelleyebilirsin.",
-    icon: "📊"
-  },
-  {
-    title: "Harcama Analizi",
-    description: "Harcamalarını kategorilere göre görüntüleyebilir, hangi alanda daha çok harcama yaptığını takip edebilirsin.",
-    icon: "📈"
-  },
-  {
-    title: "Birikim Hedefleri",
-    description: "Yeni Hedef butonu ile birikim hedefleri oluşturabilir, ilerlemeni takip edebilirsin.",
-    icon: "🎯"
-  },
-  {
-    title: "Görevler",
-    description: "FinBot görevlerini tamamlayarak puan kazanabilir ve finansal sağlığını artırabilirsin.",
-    icon: "✅"
+  const amountMatch = text.match(/(\d+[\.,]?\d*)\s*(tl|₺)?/i);
+  if (amountMatch) {
+    amount = parseFloat(amountMatch[1].replace(",", "."));
+    description = text.replace(amountMatch[0], "").trim();
   }
-];
+
+  for (const [key, cat] of Object.entries(CATEGORIES)) {
+    if (cat.keywords.some(kw => lowerText.includes(kw))) {
+      type = key;
+      break;
+    }
+  }
+
+  return { type, amount, description: description || type, rawText: text };
+};
 
 export default function WalletPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const inputRef = useRef(null);
 
-  // State
-  const [wallet, setWallet] = useState(null);
-  const [isDemo, setIsDemo] = useState(false);
-  const [goalModalOpen, setGoalModalOpen] = useState(false);
-  const [financeModalOpen, setFinanceModalOpen] = useState(false);
-  const [editingGoal, setEditingGoal] = useState(null);
-  const [showAiBanner, setShowAiBanner] = useState(true);
+  const [entries, setEntries] = useState([]);
+  const [inputText, setInputText] = useState("");
+  const [isTimeMachine, setIsTimeMachine] = useState(false);
+  const [showBalance, setShowBalance] = useState(true);
+  const [totalBalance, setTotalBalance] = useState(0);
+  const [projectedWealth, setProjectedWealth] = useState(0);
 
-  // Form states
-  const [goalForm, setGoalForm] = useState({ title: "", target: "", icon: "💰" });
-  const [financeForm, setFinanceForm] = useState({ monthlyIncome: "", monthlyExpense: "", totalAssets: "" });
+  useEffect(() => { loadData(); }, []);
 
-  // İlk yüklemede verileri çek
   useEffect(() => {
-    loadWalletData();
-  }, []);
+    const total = entries.reduce((acc, e) => {
+      if (e.type === "income" || e.type === "debt_in") return acc + e.amount;
+      if (e.type === "expense" || e.type === "debt_out") return acc - e.amount;
+      return acc;
+    }, 0);
+    setTotalBalance(total);
+    const avgMonthlyNet = total / Math.max(1, getMonthsOfData());
+    setProjectedWealth(total + (avgMonthlyNet * 60 * 1.08));
+  }, [entries]);
 
-  const getUserKey = () => {
-    if (user?.email) return `finbot_wallet_${user.email}`;
-    if (user?._id) return `finbot_wallet_${user._id}`;
-    if (user?.id) return `finbot_wallet_${user.id}`;
-    return "finbot_wallet_guest";
+  const getMonthsOfData = () => {
+    if (entries.length === 0) return 1;
+    const oldest = new Date(Math.min(...entries.map(e => new Date(e.date))));
+    return Math.max(1, (new Date() - oldest) / (1000 * 60 * 60 * 24 * 30));
   };
 
-  const loadWalletData = () => {
-    const userKey = getUserKey();
-    const savedData = localStorage.getItem(userKey);
+  const getUserKey = () => user?.email || user?._id || "guest";
 
-    if (savedData) {
-      // Kullanıcının kendi verileri var
-      setWallet(JSON.parse(savedData));
-      setIsDemo(false);
+  const loadData = () => {
+    const saved = localStorage.getItem(`finbot_wallet_v2_${getUserKey()}`);
+    if (saved) {
+      setEntries(JSON.parse(saved).entries || []);
     } else {
-      // İlk açılış - demo veriler göster
-      setWallet(demoData);
-      setIsDemo(true);
+      setEntries([
+        { id: "1", type: "income", amount: 35000, description: "Maaş", date: new Date().toISOString(), rawText: "Maaş 35000TL" },
+        { id: "2", type: "expense", amount: 2500, description: "Market alışverişi", date: new Date(Date.now() - 86400000).toISOString(), rawText: "Market 2500TL" },
+        { id: "3", type: "expense", amount: 450, description: "Elektrik faturası", date: new Date(Date.now() - 172800000).toISOString(), rawText: "Elektrik faturası 450" },
+        { id: "4", type: "debt_out", amount: 500, description: "Arkadaşa borç", date: new Date(Date.now() - 259200000).toISOString(), rawText: "Arkadaşa borç 500TL" },
+        { id: "ai_insight", type: "ai_insight", message: "Bu ayki tasarrufunla 5 yıl önceki Apple hissesinden +$2,450 kârdaydın! 📈", date: new Date(Date.now() - 345600000).toISOString() }
+      ]);
     }
   };
 
-  const saveWalletData = (data) => {
-    const userKey = getUserKey();
-    localStorage.setItem(userKey, JSON.stringify(data));
-    setWallet(data);
-    setIsDemo(false);
+  const saveData = (newEntries) => {
+    localStorage.setItem(`finbot_wallet_v2_${getUserKey()}`, JSON.stringify({ entries: newEntries }));
+    setEntries(newEntries);
   };
 
-  // Sağlık skoru hesapla
-  const calculateHealthScore = (data) => {
-    let score = 50;
-
-    if (data.monthlyIncome > 0) {
-      const savingsRate = (data.savings / data.monthlyIncome) * 100;
-      if (savingsRate >= 40) score += 30;
-      else if (savingsRate >= 30) score += 20;
-      else if (savingsRate >= 20) score += 10;
-      else if (savingsRate >= 10) score += 5;
-    }
-
-    if (data.goals && data.goals.length > 0) {
-      const completedGoals = data.goals.filter(g => g.saved >= g.target).length;
-      score += (completedGoals / data.goals.length) * 10;
-    }
-
-    if (data.tasks && data.tasks.length > 0) {
-      const completedTasks = data.tasks.filter(t => t.completed).length;
-      score += (completedTasks / data.tasks.length) * 10;
-    }
-
-    return Math.min(100, Math.max(0, score));
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+    if (!inputText.trim()) return;
+    const parsed = parseEntry(inputText);
+    if (parsed.amount <= 0) { toast.error("Lütfen geçerli bir tutar girin"); return; }
+    const newEntry = { id: Date.now().toString(), ...parsed, date: new Date().toISOString() };
+    saveData([newEntry, ...entries]);
+    setInputText("");
+    toast.success(`${CATEGORIES[parsed.type].label}: ₺${parsed.amount.toLocaleString('tr-TR')}`);
   };
 
-  // Finansal özeti güncelle
-  const handleUpdateFinance = () => {
-    const newWallet = { ...wallet };
+  const deleteEntry = (id) => { saveData(entries.filter(e => e.id !== id)); toast.success("Silindi"); };
 
-    if (financeForm.monthlyIncome) newWallet.monthlyIncome = parseFloat(financeForm.monthlyIncome);
-    if (financeForm.monthlyExpense) newWallet.monthlyExpense = parseFloat(financeForm.monthlyExpense);
-    if (financeForm.totalAssets) newWallet.totalAssets = parseFloat(financeForm.totalAssets);
+  const getCategoryColor = (type) => ({
+    income: "from-emerald-500/20 to-emerald-500/5 border-emerald-500/40",
+    expense: "from-rose-500/20 to-rose-500/5 border-rose-500/40",
+    debt_out: "from-amber-500/20 to-amber-500/5 border-amber-500/40",
+    debt_in: "from-purple-500/20 to-purple-500/5 border-purple-500/40",
+    ai_insight: "from-indigo-500/20 to-purple-500/5 border-indigo-500/40"
+  }[type] || "from-rose-500/20 to-rose-500/5 border-rose-500/40");
 
-    newWallet.savings = newWallet.monthlyIncome - newWallet.monthlyExpense;
-    newWallet.healthScore = calculateHealthScore(newWallet);
+  const getTextColor = (type) => ({ income: "text-emerald-400", expense: "text-rose-400", debt_out: "text-amber-400", debt_in: "text-purple-400" }[type] || "text-slate-300");
 
-    saveWalletData(newWallet);
-    setFinanceModalOpen(false);
-    setFinanceForm({ monthlyIncome: "", monthlyExpense: "", totalAssets: "" });
-    toast.success("Finansal bilgiler güncellendi!");
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const diff = new Date() - date;
+    if (diff < 86400000) return "Bugün";
+    if (diff < 172800000) return "Dün";
+    if (diff < 604800000) return date.toLocaleDateString('tr-TR', { weekday: 'long' });
+    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
   };
 
-  // Hedef ekle
-  const handleAddGoal = () => {
-    if (!goalForm.title || !goalForm.target) {
-      toast.error("Lütfen tüm alanları doldurun.");
-      return;
-    }
-
-    const newWallet = { ...wallet };
-    const newGoal = {
-      id: editingGoal?.id || Date.now().toString(),
-      title: goalForm.title,
-      target: parseFloat(goalForm.target),
-      saved: editingGoal?.saved || 0,
-      icon: goalForm.icon
-    };
-
-    if (editingGoal) {
-      const index = newWallet.goals.findIndex(g => g.id === editingGoal.id);
-      if (index !== -1) {
-        newWallet.goals[index] = newGoal;
-      }
-      toast.success("Hedef güncellendi!");
-    } else {
-      newWallet.goals.push(newGoal);
-      toast.success("Hedef eklendi!");
-    }
-
-    newWallet.healthScore = calculateHealthScore(newWallet);
-    saveWalletData(newWallet);
-    setGoalModalOpen(false);
-    setGoalForm({ title: "", target: "", icon: "💰" });
-    setEditingGoal(null);
-  };
-
-  // Hedef sil
-  const handleDeleteGoal = (goalId) => {
-    if (!window.confirm("Bu hedefi silmek istediğinize emin misiniz?")) return;
-
-    const newWallet = { ...wallet };
-    newWallet.goals = newWallet.goals.filter(g => g.id !== goalId);
-    newWallet.healthScore = calculateHealthScore(newWallet);
-
-    saveWalletData(newWallet);
-    toast.success("Hedef silindi!");
-  };
-
-  // Hedef düzenle
-  const handleEditGoal = (goal) => {
-    setEditingGoal(goal);
-    setGoalForm({ title: goal.title, target: goal.target.toString(), icon: goal.icon });
-    setGoalModalOpen(true);
-  };
-
-  // Hedef birikimi güncelle
-  const handleUpdateGoalSaved = (goalId, newSaved) => {
-    const newWallet = { ...wallet };
-    const goal = newWallet.goals.find(g => g.id === goalId);
-    if (goal) {
-      goal.saved = Math.max(0, parseFloat(newSaved) || 0);
-      newWallet.healthScore = calculateHealthScore(newWallet);
-      saveWalletData(newWallet);
-    }
-  };
-
-  // Görev tamamla
-  const handleToggleTask = (taskId) => {
-    const newWallet = { ...wallet };
-    const task = newWallet.tasks.find(t => t.id === taskId);
-    if (task) {
-      task.completed = !task.completed;
-      newWallet.healthScore = calculateHealthScore(newWallet);
-      saveWalletData(newWallet);
-      toast.success("Görev durumu güncellendi!");
-    }
-  };
-
-  // Finansal modal aç
-  const handleOpenFinanceModal = () => {
-    setFinanceForm({
-      monthlyIncome: wallet.monthlyIncome?.toString() || "",
-      monthlyExpense: wallet.monthlyExpense?.toString() || "",
-      totalAssets: wallet.totalAssets?.toString() || ""
+  const groupEntriesByDate = () => {
+    const groups = {};
+    entries.forEach(entry => {
+      const dateKey = formatDate(entry.date);
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(entry);
     });
-    setFinanceModalOpen(true);
+    return groups;
   };
 
-
-  // Yardımcı fonksiyonlar
-  const getHealthScoreColor = (score) => {
-    if (score >= 80) return "text-emerald-400";
-    if (score >= 60) return "text-teal-400";
-    if (score >= 40) return "text-yellow-400";
-    return "text-red-400";
-  };
-
-  const getHealthScoreLabel = (score) => {
-    if (score >= 80) return "Mükemmel";
-    if (score >= 60) return "İyi";
-    if (score >= 40) return "Orta";
-    return "Düşük";
-  };
-
-  // Harcama grafiği için veri
-  const expenseChartData = wallet?.expenses
-    ?.filter((e) => e.value > 0)
-    .map((item) => ({
-      name: item.name,
-      value: item.value,
-      color: expenseColors[item.name] || expenseColors["Diğer"]
-    })) || [];
-
-  // AI Insight
-  const aiInsight = wallet?.savings > 0 ? {
-    savings: wallet.savings,
-    suggestion: `Tebrikler! Aylık ${wallet.savings.toLocaleString('tr-TR')} TL tasarruf ediyorsun. Bu tutarı yatırıma dönüştürmek ister misin?`,
-  } : null;
-
-  if (!wallet) {
-    return (
-      <div className="min-h-screen bg-[#131314] text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#14b8a6]"></div>
-      </div>
-    );
-  }
-
-  const userName = user?.username || "Kullanıcı";
-  const healthScore = wallet.healthScore || calculateHealthScore(wallet);
+  const monthlyIncome = entries.filter(e => e.type === "income").reduce((a, e) => a + e.amount, 0);
+  const monthlyExpense = entries.filter(e => e.type === "expense").reduce((a, e) => a + e.amount, 0);
+  const groupedEntries = groupEntriesByDate();
 
   return (
-    <div className="min-h-screen bg-[#131314] text-white pb-20">
-      <Toaster position="top-right" toastOptions={{ style: { background: '#1f2937', color: '#fff' } }} />
+    <div className="min-h-screen bg-gradient-to-b from-[#0a0e1a] via-[#0d1321] to-[#0a0e1a] text-white">
+      <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#fff', borderRadius: '16px' } }} />
 
-      {/* GUIDE */}
-      <PageGuide
-        guideKey="finbot_wallet_guide"
-        steps={guideSteps}
-      />
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-32">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-
-        {/* === HEADER (Compact Mobile) === */}
-        <div className="flex items-center justify-between mb-6 md:mb-8">
-          <div>
-            <h1 className="text-lg md:text-3xl font-bold text-white">
-              Hoş geldin, {userName.split(' ')[0]} 👋
-            </h1>
-          </div>
-          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#151921] border border-gray-800 ${getHealthScoreColor(healthScore)}`}>
-            <span>Skor: {healthScore}</span>
-            <div className="w-2 h-2 rounded-full bg-current animate-pulse" />
-          </div>
-        </div>
-
-        {/* --- Demo Badge (Smaller on Mobile) --- */}
-        {isDemo && (
-          <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 flex items-center gap-3">
-            <SparklesIcon className="w-5 h-5 text-emerald-400 shrink-0" />
-            <p className="text-[11px] md:text-sm text-gray-400">
-              <span className="text-emerald-400 font-bold">Örnek Modu:</span> Kendi verilerini eklemek için düzenleyebilirsin.
-            </p>
-          </div>
-        )}
-
-        {/* === FINANCIAL SUMMARY (2x2 Compact) === */}
-        <div className="bg-[#151921] rounded-2xl p-5 md:p-8 border border-gray-800 mb-6 md:mb-8 hover:border-[#14b8a6]/20 transition-all">
+        {/* HEADER */}
+        <div className="pt-6 pb-4">
           <div className="flex items-center justify-between mb-6">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-wider text-gray-500 font-medium">Toplam Varlık</p>
-              <p className="text-2xl md:text-4xl font-black text-white">
-                ₺{wallet.totalAssets?.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || "0"}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <Wallet className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg lg:text-2xl font-bold text-white">Hibrit Cüzdan</h1>
+                <p className="text-[10px] lg:text-xs text-slate-500 uppercase tracking-wider font-medium">Akıllı Finans Takibi</p>
+              </div>
             </div>
             <button
-              onClick={handleOpenFinanceModal}
-              className="p-2.5 bg-gray-800/50 text-gray-400 hover:text-[#14b8a6] rounded-xl transition"
+              onClick={() => setIsTimeMachine(!isTimeMachine)}
+              className={`flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-[10px] lg:text-xs font-bold uppercase tracking-wide transition-all ${isTimeMachine ? "bg-purple-500/20 text-purple-400 border border-purple-500/40" : "bg-slate-800/50 text-slate-400 border border-slate-700"}`}
             >
-              <PencilSquareIcon className="w-5 h-5" />
+              <Timer className="w-3 h-3 lg:w-4 lg:h-4" />
+              {isTimeMachine ? "Zaman Makinesi" : "Güncel"}
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-[#0f1218] rounded-xl p-3 border border-gray-800/50">
-              <div className="flex items-center gap-2 mb-1">
-                <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-400" />
-                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Gelir</p>
-              </div>
-              <p className="text-sm md:text-base font-bold text-emerald-400">
-                ₺{wallet.monthlyIncome?.toLocaleString('tr-TR') || "0"}
-              </p>
-            </div>
-            <div className="bg-[#0f1218] rounded-xl p-3 border border-gray-800/50">
-              <div className="flex items-center gap-2 mb-1">
-                <ArrowTrendingDownIcon className="w-4 h-4 text-rose-400" />
-                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Gider</p>
-              </div>
-              <p className="text-sm md:text-base font-bold text-rose-400">
-                ₺{wallet.monthlyExpense?.toLocaleString('tr-TR') || "0"}
-              </p>
-            </div>
-          </div>
+          {/* Desktop: 3-Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+            {/* Balance Card - 2 columns */}
+            <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 lg:p-8 border border-slate-700/50 shadow-2xl">
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
 
-          <div className="mt-4 flex items-center gap-2 justify-center">
-            <div className="h-1 w-1 rounded-full bg-emerald-500" />
-            <p className="text-[10px] text-gray-500">Aylık Tasarruf: <span className="text-emerald-400 font-medium">₺{wallet.savings?.toLocaleString('tr-TR')}</span></p>
-          </div>
-        </div>
-
-        {/* === MAIN CONTENT GRID (Summary + Analysis) === */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Financial Summary is already above or we can move it back in if needed. 
-               The prompt asked for a Slim top bar and a Single Compact Card. 
-               I'll keep them as blocks. */}
-
-          {/* Harcama Analizi (Refactored to Donut) */}
-          <div className="lg:col-span-1 bg-[#151921] rounded-2xl p-6 border border-gray-800 hover:border-[#14b8a6]/20 transition-all">
-            <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
-              <ChartBarIcon className="w-4 h-4 text-[#14b8a6]" />
-              Harcama Analizi
-            </h3>
-            {expenseChartData.length > 0 ? (
-              <div className="flex flex-col items-center">
-                <div className="h-40 w-full mb-6">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={expenseChartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {expenseChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value) => `₺${value.toLocaleString('tr-TR')}`}
-                        contentStyle={{
-                          backgroundColor: '#151921',
-                          border: '1px solid #374151',
-                          borderRadius: '12px',
-                          fontSize: '12px'
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs lg:text-sm text-slate-400 uppercase tracking-wider font-medium">
+                    {isTimeMachine ? "5 Yıllık Projeksiyon" : "Mevcut Bakiye"}
+                  </p>
+                  <button onClick={() => setShowBalance(!showBalance)} className="text-slate-500 hover:text-white transition">
+                    {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
                 </div>
 
-                {/* Compact 2-Column Legend */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full">
-                  {expenseChartData.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between text-[11px]">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="text-gray-400 truncate">{item.name}</span>
-                      </div>
-                      <span className="text-gray-200 font-medium ml-1">
-                        %{((item.value / wallet.monthlyExpense) * 100).toFixed(0)}
-                      </span>
-                    </div>
+                <div className="flex items-baseline gap-2 mb-4 lg:mb-6">
+                  <span className="text-4xl lg:text-6xl font-black text-white tracking-tight">
+                    {showBalance ? `₺${(isTimeMachine ? projectedWealth : totalBalance).toLocaleString('tr-TR', { maximumFractionDigits: 0 })}` : "••••••"}
+                  </span>
+                  {isTimeMachine && (
+                    <span className="text-emerald-400 text-sm lg:text-base font-bold flex items-center gap-1">
+                      <ArrowUpRight className="w-4 h-4" /> +{((projectedWealth / Math.max(1, totalBalance) - 1) * 100).toFixed(0)}%
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="bg-emerald-500/10 rounded-xl px-3 py-2 border border-emerald-500/20">
+                    <div className="flex items-center gap-1.5 mb-0.5"><ArrowUpRight className="w-3 h-3 text-emerald-400" /><span className="text-[10px] text-emerald-300/80 uppercase font-bold">Gelir</span></div>
+                    <p className="text-sm lg:text-base font-bold text-emerald-400">₺{monthlyIncome.toLocaleString('tr-TR')}</p>
+                  </div>
+                  <div className="bg-rose-500/10 rounded-xl px-3 py-2 border border-rose-500/20">
+                    <div className="flex items-center gap-1.5 mb-0.5"><ArrowDownRight className="w-3 h-3 text-rose-400" /><span className="text-[10px] text-rose-300/80 uppercase font-bold">Gider</span></div>
+                    <p className="text-sm lg:text-base font-bold text-rose-400">₺{monthlyExpense.toLocaleString('tr-TR')}</p>
+                  </div>
+                  <div className="hidden lg:block bg-amber-500/10 rounded-xl px-3 py-2 border border-amber-500/20">
+                    <div className="flex items-center gap-1.5 mb-0.5"><HandCoins className="w-3 h-3 text-amber-400" /><span className="text-[10px] text-amber-300/80 uppercase font-bold">Net</span></div>
+                    <p className="text-sm lg:text-base font-bold text-amber-400">₺{(monthlyIncome - monthlyExpense).toLocaleString('tr-TR')}</p>
+                  </div>
+                  <div className="hidden lg:block bg-purple-500/10 rounded-xl px-3 py-2 border border-purple-500/20">
+                    <div className="flex items-center gap-1.5 mb-0.5"><LineChart className="w-3 h-3 text-purple-400" /><span className="text-[10px] text-purple-300/80 uppercase font-bold">İşlem</span></div>
+                    <p className="text-sm lg:text-base font-bold text-purple-400">{entries.filter(e => e.type !== 'ai_insight').length}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions Panel - Desktop */}
+            <div className="hidden lg:flex flex-col gap-4">
+              <div className="flex-1 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-2xl p-5 border border-slate-700/50">
+                <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" />Hızlı Eylemler</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ label: "Market", emoji: "🛒", text: "Market " }, { label: "Fatura", emoji: "⚡", text: "Fatura " }, { label: "Maaş", emoji: "💰", text: "Maaş " }, { label: "Borç", emoji: "💳", text: "Borç verdim " }].map((action) => (
+                    <button key={action.label} onClick={() => { setInputText(action.text); inputRef.current?.focus(); }} className="p-3 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 rounded-xl text-left transition group">
+                      <span className="text-xl mb-1 block">{action.emoji}</span>
+                      <span className="text-xs font-medium text-slate-400 group-hover:text-white">{action.label}</span>
+                    </button>
                   ))}
                 </div>
               </div>
-            ) : (
-              <div className="h-40 flex items-center justify-center text-gray-500 text-xs text-center border border-dashed border-gray-800 rounded-xl">
-                <p>Henüz harcama verisi yok</p>
+              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl p-4 border border-indigo-500/30">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center"><Sparkles className="w-4 h-4 text-white" /></div>
+                  <div><p className="text-[10px] text-indigo-400 font-bold uppercase mb-1">AI İpucu</p><p className="text-xs text-slate-400 leading-relaxed">Sadece yaz: "Market 500TL" veya "Maaş 35000"</p></div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* === TASKS (Horizontal Carousel) === */}
-        <div className="mb-8 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base md:text-xl font-bold text-white flex items-center gap-2">
-              <SparklesIcon className="w-5 h-5 text-[#14b8a6]" />
-              FinBot Görevleri
-            </h2>
-          </div>
-
-          {/* Horizontal Swipe Carousel */}
-          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory">
-            {wallet.tasks?.map((task) => (
-              <div
-                key={task.id}
-                onClick={() => handleToggleTask(task.id)}
-                className={`flex-none w-40 h-44 bg-[#151921] rounded-2xl p-4 border snap-start cursor-pointer transition-all ${task.completed
-                  ? "border-emerald-500/50 bg-emerald-500/5 opacity-80"
-                  : "border-gray-800 hover:border-[#14b8a6]/30"
-                  }`}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="text-3xl filter grayscale-[0.5] group-hover:grayscale-0">{task.icon}</div>
-                  {task.completed && <CheckCircleIconSolid className="w-5 h-5 text-emerald-400" />}
-                </div>
-                <div className="h-16 flex flex-col justify-center">
-                  <h3 className="text-sm font-bold text-white line-clamp-2 leading-tight mb-1">{task.title}</h3>
-                  <p className="text-[10px] text-gray-500 line-clamp-1">{task.description}</p>
-                </div>
-                <div className="mt-4">
-                  <span className="text-[10px] font-bold bg-[#14b8a6]/10 text-[#14b8a6] px-2 py-1 rounded-lg">
-                    {task.reward}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* === SAVINGS GOALS (Stack Vertical) === */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base md:text-xl font-bold text-white flex items-center gap-2">
-              <WalletIcon className="w-5 h-5 text-[#14b8a6]" />
-              Birikim Hedeflerim
-            </h2>
-            <button
-              onClick={() => {
-                setEditingGoal(null);
-                setGoalForm({ title: "", target: "", icon: "💰" });
-                setGoalModalOpen(true);
-              }}
-              className="p-2 md:px-4 md:py-2 bg-[#14b8a6] hover:bg-[#0d9488] text-white rounded-xl transition"
-            >
-              <PlusIcon className="w-5 h-5" />
-            </button>
-          </div>
-
-          {wallet.goals && wallet.goals.length > 0 ? (
-            <div className="space-y-4">
-              {wallet.goals.map((goal) => {
-                const percentage = goal.target > 0 ? (goal.saved / goal.target) * 100 : 0;
+        {/* SMART FEED - 2 Columns on Desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          {Object.entries(groupedEntries).map(([dateLabel, dayEntries]) => (
+            <div key={dateLabel} className="lg:contents">
+              {dayEntries.map((entry) => {
+                if (entry.type === "ai_insight") {
+                  return (
+                    <div key={entry.id} className="relative bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-4 border border-indigo-500/30 shadow-lg shadow-indigo-500/5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg"><Sparkles className="w-4 h-4 text-white" /></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-1">Zaman Makinesi İçgörüsü</p>
+                          <p className="text-sm text-slate-200 leading-relaxed">{entry.message}</p>
+                        </div>
+                      </div>
+                      <button onClick={() => navigate("/portfolio")} className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-xl text-indigo-300 text-xs font-bold transition">
+                        Simülasyonu Keşfet <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                }
+                const IconComponent = CATEGORIES[entry.type]?.icon || DollarSign;
                 return (
-                  <div
-                    key={goal.id}
-                    className="bg-[#151921] rounded-2xl p-4 border border-gray-800 hover:border-[#14b8a6]/20 transition-all group"
-                  >
-                    <div className="flex items-center justify-between mb-3 text-white">
+                  <div key={entry.id} className={`relative bg-gradient-to-r ${getCategoryColor(entry.type)} backdrop-blur-sm rounded-2xl p-4 border shadow-lg group`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${entry.type === "income" ? "bg-emerald-500/20" : entry.type === "expense" ? "bg-rose-500/20" : entry.type === "debt_out" ? "bg-amber-500/20" : "bg-purple-500/20"}`}>
+                          <IconComponent className={`w-5 h-5 ${getTextColor(entry.type)}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{entry.description}</p>
+                          <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatDate(entry.date)} • {new Date(entry.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                            <span className={`ml-1 px-1.5 py-0.5 rounded ${entry.type === "income" ? "bg-emerald-500/20 text-emerald-400" : entry.type === "expense" ? "bg-rose-500/20 text-rose-400" : entry.type === "debt_out" ? "bg-amber-500/20 text-amber-400" : "bg-purple-500/20 text-purple-400"}`}>
+                              {CATEGORIES[entry.type]?.label}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{goal.icon}</span>
-                        <h3 className="text-sm font-bold truncate max-w-[150px]">{goal.title}</h3>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-gray-500">Hedef: <span className="text-gray-300 font-bold">₺{goal.target.toLocaleString('tr-TR')}</span></p>
-                      </div>
-                    </div>
-
-                    {/* Thin Progress Bar */}
-                    <div className="w-full bg-[#0f1218] rounded-full h-1.5 overflow-hidden mb-3">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#14b8a6] to-[#06b6d4] rounded-full transition-all duration-700"
-                        style={{ width: `${Math.min(percentage, 100)}%` }}
-                      />
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] text-[#14b8a6] font-bold">₺{goal.saved.toLocaleString('tr-TR')} birikti</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditGoal(goal)}
-                          className="text-gray-500 hover:text-white transition p-1"
-                        >
-                          <PencilSquareIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteGoal(goal.id)}
-                          className="text-gray-500 hover:text-rose-400 transition p-1"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                        <span className={`text-lg font-bold ${getTextColor(entry.type)}`}>
+                          {entry.type === "income" || entry.type === "debt_in" ? "+" : "-"}₺{entry.amount.toLocaleString('tr-TR')}
+                        </span>
+                        <button onClick={() => deleteEntry(entry.id)} className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-slate-700/50 rounded-lg transition"><Trash2 className="w-4 h-4 text-slate-500" /></button>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-          ) : (
-            <div className="bg-[#151921] rounded-2xl p-10 border border-dashed border-gray-800 text-center">
-              <p className="text-gray-500 text-sm mb-4">Henüz birikim hedefiniz yok.</p>
-              <button
-                onClick={() => {
-                  setEditingGoal(null);
-                  setGoalForm({ title: "", target: "", icon: "💰" });
-                  setGoalModalOpen(true);
-                }}
-                className="px-6 py-2 bg-gray-800 text-white rounded-xl text-sm font-bold hover:bg-gray-700 transition"
-              >
-                Hedef Oluştur
-              </button>
-            </div>
-          )}
+          ))}
         </div>
 
-        {/* === STICKY AI INSIGHT (Bottom Banner) === */}
-        {aiInsight && showAiBanner && (
-          <div className="fixed bottom-20 left-4 right-4 md:relative md:bottom-0 md:left-0 md:right-0 z-40 mb-4">
-            <div className="bg-[#151921] rounded-2xl p-4 border border-purple-500/30 shadow-2xl shadow-purple-500/10 backdrop-blur-md relative">
-              <button
-                onClick={() => setShowAiBanner(false)}
-                className="absolute -top-2 -right-2 bg-gray-800 text-gray-400 p-1 rounded-full border border-gray-700 hover:text-white transition"
-              >
-                <XMarkIcon className="w-3 h-3" />
-              </button>
-              <div className="flex items-start gap-4">
-                <div className="bg-purple-500/10 p-2 rounded-xl mt-1">
-                  <SparklesIcon className="w-5 h-5 text-purple-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Akıllı Öneri</h3>
-                    <button onClick={() => navigate("/portfolio")} className="text-[10px] font-bold text-white flex items-center gap-1 shrink-0">
-                      Portföy'e Git <ArrowRightIcon className="w-3 h-3 text-purple-400" />
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-gray-300 leading-tight line-clamp-2">
-                    {aiInsight.suggestion}
-                  </p>
-                </div>
-              </div>
-            </div>
+        {entries.length === 0 && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto mb-4 bg-slate-800 rounded-2xl flex items-center justify-center"><Banknote className="w-8 h-8 text-slate-600" /></div>
+            <p className="text-slate-500 text-sm">Henüz işlem yok</p>
+            <p className="text-slate-600 text-xs mt-1">Aşağıdan harcama veya gelir ekle</p>
           </div>
         )}
-
       </div>
 
-      {/* HEDEF MODAL */}
-      {
-        goalModalOpen && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1e293b] p-8 rounded-3xl w-full max-w-md shadow-2xl border border-gray-700 relative">
-              <button
-                onClick={() => {
-                  setGoalModalOpen(false);
-                  setEditingGoal(null);
-                  setGoalForm({ title: "", target: "", icon: "💰" });
-                }}
-                className="absolute top-6 right-6 text-gray-400 hover:text-white transition"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-              <h2 className="text-2xl font-bold mb-6 text-white">
-                {editingGoal ? "Hedefi Düzenle" : "Yeni Hedef Ekle"}
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Başlık</label>
-                  <input
-                    type="text"
-                    placeholder="Örn: Yaz Tatili"
-                    value={goalForm.title}
-                    onChange={(e) => setGoalForm({ ...goalForm, title: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-[#0f172a] text-white border border-gray-700 focus:border-[#14b8a6] outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Hedef Tutar (₺)</label>
-                  <input
-                    type="number"
-                    placeholder="20000"
-                    value={goalForm.target}
-                    onChange={(e) => setGoalForm({ ...goalForm, target: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-[#0f172a] text-white border border-gray-700 focus:border-[#14b8a6] outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">İkon</label>
-                  <div className="flex flex-wrap gap-2">
-                    {goalIcons.map((icon) => (
-                      <button
-                        key={icon}
-                        onClick={() => setGoalForm({ ...goalForm, icon })}
-                        className={`w-12 h-12 text-2xl rounded-xl border-2 transition ${goalForm.icon === icon
-                          ? "border-[#14b8a6] bg-[#14b8a6]/20"
-                          : "border-gray-700 hover:border-gray-600"
-                          }`}
-                      >
-                        {icon}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={handleAddGoal}
-                className="w-full mt-8 px-4 py-3.5 rounded-xl bg-[#14b8a6] hover:bg-[#0d9488] text-white font-bold transition"
-              >
-                {editingGoal ? "Güncelle" : "Ekle"}
-              </button>
-            </div>
+      {/* FLOATING INPUT BAR */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0e1a] via-[#0a0e1a]/95 to-transparent pt-16">
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+          <div className="relative bg-slate-800/90 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl shadow-black/50">
+            <input ref={inputRef} type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="Borç, harçlık veya gider yaz..." className="w-full bg-transparent px-5 py-4 pr-14 text-white placeholder:text-slate-500 focus:outline-none text-sm lg:text-base" />
+            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all active:scale-95">
+              <Send className="w-5 h-5" />
+            </button>
           </div>
-        )
-      }
-
-      {/* FİNANSAL MODAL */}
-      {
-        financeModalOpen && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1e293b] p-8 rounded-3xl w-full max-w-md shadow-2xl border border-gray-700 relative">
-              <button
-                onClick={() => {
-                  setFinanceModalOpen(false);
-                  setFinanceForm({ monthlyIncome: "", monthlyExpense: "", totalAssets: "" });
-                }}
-                className="absolute top-6 right-6 text-gray-400 hover:text-white transition"
-              >
-                <XMarkIcon className="w-6 h-6" />
+          <div className="flex justify-center gap-2 mt-3 lg:hidden">
+            {[{ label: "Market", emoji: "🛒" }, { label: "Fatura", emoji: "⚡" }, { label: "Borç", emoji: "💳" }, { label: "Harçlık", emoji: "🎁" }].map((tag) => (
+              <button key={tag.label} type="button" onClick={() => setInputText(tag.label + " ")} className="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-full text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1">
+                <span>{tag.emoji}</span><span>{tag.label}</span>
               </button>
-              <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-2">
-                <BanknotesIcon className="w-6 h-6 text-[#14b8a6]" />
-                Finansal Özeti Güncelle
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Aylık Gelir (₺)</label>
-                  <input
-                    type="number"
-                    placeholder="35000"
-                    value={financeForm.monthlyIncome}
-                    onChange={(e) => setFinanceForm({ ...financeForm, monthlyIncome: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-[#0f172a] text-white border border-gray-700 focus:border-[#14b8a6] outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Aylık Gider (₺)</label>
-                  <input
-                    type="number"
-                    placeholder="21000"
-                    value={financeForm.monthlyExpense}
-                    onChange={(e) => setFinanceForm({ ...financeForm, monthlyExpense: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-[#0f172a] text-white border border-gray-700 focus:border-[#14b8a6] outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Toplam Varlık (₺)</label>
-                  <input
-                    type="number"
-                    placeholder="125000"
-                    value={financeForm.totalAssets}
-                    onChange={(e) => setFinanceForm({ ...financeForm, totalAssets: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-[#0f172a] text-white border border-gray-700 focus:border-[#14b8a6] outline-none transition"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={handleUpdateFinance}
-                className="w-full mt-8 px-4 py-3.5 rounded-xl bg-[#14b8a6] hover:bg-[#0d9488] text-white font-bold transition"
-              >
-                Güncelle
-              </button>
-            </div>
+            ))}
           </div>
-        )
-      }
-
-    </div >
+        </form>
+      </div>
+    </div>
   );
 }
