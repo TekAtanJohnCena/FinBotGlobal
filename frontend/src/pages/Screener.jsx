@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from "../lib/api";
 import {
@@ -13,7 +13,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Newspaper,
-  BookOpen
+  BookOpen,
+  PenTool,
+  Trash2
 } from 'lucide-react';
 import {
   AreaChart,
@@ -24,6 +26,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import ReactApexChart from 'react-apexcharts';
 
 const Screener = () => {
   const { symbol } = useParams();
@@ -39,6 +42,206 @@ const Screener = () => {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [activeRange, setActiveRange] = useState("1 Ay");
   const [periodPerformances, setPeriodPerformances] = useState({});
+  const [chartType, setChartType] = useState('area');
+
+  // Trendline Tool State (Hybrid: Series for Line, Annotations for Markers)
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawStart, setDrawStart] = useState(null); // { x, y }
+  const [trendLines, setTrendLines] = useState([]); // Series for lines
+  const [annotations, setAnnotations] = useState({ xaxis: [], points: [] });
+
+  // Prepare Series Data (Filtered & Mapped)
+  const series = useMemo(() => {
+    if (!historyData || historyData.length === 0) return [];
+
+    // 1. Client-Side Filtering based on Active Range (Fix Sorun 1)
+    const ranges = {
+      "Gün içi": 2,
+      "1 Hafta": 7,
+      "1 Ay": 30,
+      "3 Ay": 90,
+      "6 Ay": 180,
+      "1 Yıl": 365,
+      "3 Yıl": 365 * 3,
+      "5 Yıl": 365 * 5,
+      "Tümü": historyData.length
+    };
+
+    // Fallback: If no match, show all (backend handles specific API calls anyway)
+    // But slicing guarantees visual update if backend data is accumulating
+    const limit = ranges[activeRange] || historyData.length;
+    const filteredData = historyData.slice(-limit);
+
+    // 2. Mapping
+    const seriesData = filteredData
+      .filter(item => item && item.date)
+      .map(item => {
+        const dateStr = item.date;
+        const timestamp = new Date(dateStr).getTime();
+
+        // Strict Check
+        if (isNaN(timestamp)) return null;
+
+        // Robust Value Extraction
+        const c = parseFloat(item.price || item.close || item.adjClose || 0);
+        // Fallbacks for OHLC
+        const o = parseFloat(item.open || item.adjOpen || c);
+        const h = parseFloat(item.high || item.adjHigh || c);
+        const l = parseFloat(item.low || item.adjLow || c);
+
+        // Ensure no NaNs
+        if (isNaN(c)) return null;
+
+        if (chartType === 'candlestick') {
+          return { x: timestamp, y: [o, h, l, c] };
+        } else {
+          return { x: timestamp, y: c };
+        }
+      })
+      .filter(item => item !== null)
+      .sort((a, b) => a.x - b.x);
+
+    return [{ name: 'Fiyat', data: seriesData }];
+  }, [historyData, chartType, activeRange]); // Added activeRange dependency
+
+  // ApexCharts Options (Fixed Dark Mode & TradingView Colors)
+  const isCandle = chartType === 'candlestick';
+  const chartOptions = {
+    chart: {
+      type: chartType,
+      height: 350,
+      toolbar: { show: true, tools: { download: false, selection: true, zoom: true, pan: true } },
+      background: 'transparent', // Always Transparent (Sorun 2)
+      animations: { enabled: true },
+      foreColor: isCandle ? '#333' : '#cbd5e1', // Always Light Text
+      events: {
+        click: function (event, chartContext, config) {
+          // Drawing Logic
+          if (!isDrawing) return;
+
+          const seriesIndex = config.seriesIndex;
+          const dataPointIndex = config.dataPointIndex;
+
+          if (seriesIndex === undefined || dataPointIndex === undefined || seriesIndex < 0 || dataPointIndex < 0) return;
+
+          // Get Coordinates
+          const timestamp = config.globals.seriesX[seriesIndex][dataPointIndex];
+          let price = config.globals.series[seriesIndex][dataPointIndex];
+
+          // Handle Candlestick Array [o,h,l,c] -> take Close
+          if (Array.isArray(price)) {
+            price = price[3];
+          }
+
+          if (!drawStart) {
+            // 1. First Click: Set Start & Add Temporary Marker
+            setDrawStart({ x: timestamp, y: price });
+            setAnnotations(prev => ({
+              ...prev,
+              points: [
+                ...prev.points,
+                {
+                  x: timestamp,
+                  y: price,
+                  marker: {
+                    size: 5, fillColor: '#fff', strokeColor: '#FFD700', strokeWidth: 2, radius: 2, cssClass: 'cursor-pointer'
+                  }
+                }
+              ]
+            }));
+          } else {
+            // 2. Second Click: Draw Line Series & Finalize Rings
+
+            const startPoint = {
+              x: drawStart.x,
+              y: drawStart.y,
+              marker: { size: 6, fillColor: 'transparent', strokeColor: '#FFD700', strokeWidth: 3, radius: 2 }
+            };
+
+            const endPoint = {
+              x: timestamp,
+              y: price,
+              marker: { size: 6, fillColor: 'transparent', strokeColor: '#FFD700', strokeWidth: 3, radius: 2 }
+            };
+
+            // Create new Line Series
+            const newTrendLine = {
+              name: `Trend Çizgisi ${trendLines.length + 1}`,
+              type: 'line',
+              data: [
+                { x: drawStart.x, y: drawStart.y },
+                { x: timestamp, y: price }
+              ],
+              color: '#FFD700' // Gold Color
+            };
+
+            setTrendLines(prev => [...prev, newTrendLine]);
+
+            // Keep Points in Annotations
+            setAnnotations(prev => ({
+              ...prev,
+              points: [...prev.points.slice(0, -1), startPoint, endPoint]
+            }));
+
+            setDrawStart(null);
+            setIsDrawing(false);
+          }
+        }
+      }
+    },
+    annotations: annotations, // Pass Dynamic Annotations (Fix Sorun)
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: 'smooth',
+      width: 2, // Default width
+      colors: undefined // Dynamic arrays handled by ApexCharts default or series specific
+    },
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        datetimeFormatter: { year: 'yyyy', month: "MMM 'yy", day: 'dd MMM', hour: 'HH:mm' },
+        style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 600 }
+      },
+      tooltip: { enabled: false },
+      axisBorder: { show: true, color: '#334155' },
+      axisTicks: { show: true, color: '#334155' }
+    },
+    yaxis: {
+      labels: {
+        style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'monospace' },
+        formatter: (val) => `$${val.toFixed(2)}`
+      },
+      tooltip: { enabled: true }
+    },
+    theme: { mode: 'dark' }, // Always Dark (Sorun 2)
+    grid: {
+      show: true,
+      borderColor: '#2B2B43', // Dark Grid
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: true } }
+    },
+    fill: {
+      type: chartType === 'area' ? 'gradient' : 'solid',
+      gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1, stops: [0, 90, 100] }
+    },
+    tooltip: {
+      theme: 'dark', // Always Dark Tooltip
+      style: { fontSize: '12px' },
+      x: { format: 'dd MMM yyyy' },
+      y: { formatter: (val) => `$${val.toFixed(2)}` }
+    },
+    plotOptions: {
+      candlestick: {
+        colors: {
+          upward: '#26a69a',   // TradingView Green
+          downward: '#ef5350'  // TradingView Red
+        },
+        wick: { useFillColor: true }
+      }
+    },
+    colors: ['#6366f1']
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -247,23 +450,73 @@ const Screener = () => {
                   <span className="text-xs font-black uppercase tracking-widest text-slate-400">Teknik Analiz Görünümü</span>
                 </div>
 
-                <div className="flex flex-wrap gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
-                  {["Gün içi", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl"].map((range) => {
-                    const perf = periodPerformances[range] || 0;
-                    const isActive = activeRange === range;
-                    return (
+                <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center">
+                  {/* Chart Type Toggle */}
+                  <div className="flex gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
+                    <button
+                      onClick={() => setChartType('area')}
+                      className={`p-2 rounded-lg transition-all ${chartType === 'area' ? 'bg-[#1e222d] text-indigo-400 border border-slate-700 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      title="Alan Grafiği"
+                    >
+                      <TrendingUp size={16} />
+                    </button>
+                    <button
+                      onClick={() => setChartType('candlestick')}
+                      className={`p-2 rounded-lg transition-all ${chartType === 'candlestick' ? 'bg-[#1e222d] text-indigo-400 border border-slate-700 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      title="Mum Grafiği"
+                    >
+                      <BarChart2 size={16} />
+                    </button>
+                  </div>
+
+                  {/* Drawing Tools (NEW) */}
+                  <div className="flex gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
+                    <button
+                      onClick={() => {
+                        setIsDrawing(!isDrawing);
+                        setDrawStart(null); // Reset partial line
+                      }}
+                      className={`p-2 rounded-lg transition-all ${isDrawing ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      title={isDrawing ? "Çizimi İptal Et" : "Trend Çizgisi Çek"}
+                    >
+                      <PenTool size={16} />
+                    </button>
+                    {(trendLines.length > 0 || annotations.points.length > 0) && (
                       <button
-                        key={range}
-                        onClick={() => setActiveRange(range)}
-                        className={`flex flex-col items-center px-4 py-1.5 rounded-lg transition-all min-w-[70px] ${isActive ? 'bg-[#1e222d] border border-slate-700 shadow-xl text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                        onClick={() => {
+                          setTrendLines([]);
+                          setAnnotations({ xaxis: [], points: [] });
+                        }}
+                        className="p-2 rounded-lg transition-all text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 border border-transparent"
+                        title="Çizgileri Temizle"
                       >
-                        <span className="text-[10px] font-black uppercase">{range}</span>
-                        <span className={`text-[11px] font-bold ${perf >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                          {perf >= 0 ? '+' : ''}{perf.toFixed(1)}%
-                        </span>
+                        <Trash2 size={16} />
                       </button>
-                    );
-                  })}
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="hidden sm:block w-px h-8 bg-slate-800 mx-1"></div>
+
+                  {/* Range Buttons */}
+                  <div className="flex flex-wrap gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
+                    {["Gün içi", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl"].map((range) => {
+                      const perf = periodPerformances[range] || 0;
+                      const isActive = activeRange === range;
+                      return (
+                        <button
+                          key={range}
+                          onClick={() => setActiveRange(range)}
+                          className={`flex flex-col items-center px-4 py-1.5 rounded-lg transition-all min-w-[70px] ${isActive ? 'bg-[#1e222d] border border-slate-700 shadow-xl text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                          <span className="text-[10px] font-black uppercase">{range}</span>
+                          <span className={`text-[11px] font-bold ${perf >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            {perf >= 0 ? '+' : ''}{perf.toFixed(1)}%
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -273,38 +526,14 @@ const Screener = () => {
                     <RefreshCw className="w-10 h-10 animate-spin text-indigo-500" />
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={getFilteredData()} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={periodPerformances[activeRange] >= 0 ? "#22c55e" : "#ef4444"} stopOpacity={0.3} />
-                          <stop offset="95%" stopColor={periodPerformances[activeRange] >= 0 ? "#22c55e" : "#ef4444"} stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
-                      <XAxis
-                        dataKey="dateFormatted"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
-                        minTickGap={40}
-                      />
-                      <YAxis hide domain={['auto', 'auto']} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: '#131722', border: '1px solid #334155', borderRadius: '12px', fontSize: '13px' }}
-                        cursor={{ stroke: '#475569', strokeWidth: 2, strokeDasharray: '4 4' }}
-                        formatter={(val) => [`$${val.toFixed(2)}`, 'Fiyat']}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="price"
-                        stroke={periodPerformances[activeRange] >= 0 ? "#22c55e" : "#ef4444"}
-                        strokeWidth={3}
-                        fill="url(#colorGradient)"
-                        animationDuration={1000}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <ReactApexChart
+                    key={chartType + (symbol || '') + trendLines.length}
+                    options={chartOptions}
+                    series={[...series, ...trendLines]}
+                    type={chartType}
+                    height="100%"
+                    width="100%"
+                  />
                 )}
               </div>
             </div>

@@ -209,10 +209,53 @@ router.get('/global-news', async (req, res) => {
  */
 router.get('/stock-analysis/:symbol', async (req, res) => {
     const { symbol } = req.params;
+    const { range = '1y' } = req.query; // Default to '1y' as requested
     const normalizedSymbol = symbol.toLowerCase();
     const type = getAssetType(normalizedSymbol);
-    const startDate = '2024-01-01';
     const now = Date.now();
+
+    // Calculate Start Date based on Range
+    let startDate = '2024-01-01'; // Default Fallback, but we will overwrite it
+    const today = new Date();
+
+    // Simple helper to subtract years/months
+    const subtractTime = (years = 0, months = 0) => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - years);
+        d.setMonth(d.getMonth() - months);
+        return d.toISOString().split('T')[0];
+    };
+
+    switch (range) {
+        case '5y':
+            startDate = subtractTime(5, 0);
+            break;
+        case '3y':
+            startDate = subtractTime(3, 0);
+            break;
+        case '1y':
+            startDate = subtractTime(1, 0);
+            break;
+        case '6m':
+            startDate = subtractTime(0, 6);
+            break;
+        case '3m':
+            startDate = subtractTime(0, 3);
+            break;
+        case '1m':
+            startDate = subtractTime(0, 1);
+            break;
+        case 'all':
+        case 'max':
+            startDate = '1980-01-01'; // Fetch all available history
+            break;
+        default:
+            // Default to 1 year if logic fails or range not provided
+            startDate = subtractTime(1, 0);
+            break;
+    }
+
+    console.log(`📊 Analysis Request: ${symbol} | Requested Range: ${range} | Calculated StartDate: ${startDate}`);
 
     try {
         let responseData = {
@@ -234,7 +277,15 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             const cryptoPriceData = priceRes.data[0]?.priceData?.at(-1) || {};
             const cryptoHistoryRaw = historyRes.data[0]?.priceData || [];
             responseData.price = cryptoPriceData.last || 0;
-            responseData.history = cryptoHistoryRaw.map(h => ({ date: h.date, price: h.close }));
+            // Map full OHLC for Crypto
+            responseData.history = cryptoHistoryRaw.map(h => ({
+                date: h.date,
+                open: h.open,
+                high: h.high,
+                low: h.low,
+                close: h.close || h.price, // fallback
+                price: h.close // compatibility
+            }));
         } else if (type === 'FOREX') {
             const [priceRes, historyRes] = await Promise.all([
                 axios.get(`https://api.tiingo.com/tiingo/fx/top?tickers=${normalizedSymbol}&token=${TIINGO_API_KEY}`),
@@ -242,54 +293,61 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             ]);
             const fxPriceData = priceRes.data[0] || {};
             const fxHistoryRaw = historyRes.data || [];
+            // FX Mapping
             responseData.price = fxPriceData.lastPrice || fxPriceData.midPrice || fxPriceData.last || 0;
-            responseData.history = fxHistoryRaw.map(h => ({ date: h.date, price: h.close || h.mid }));
+            responseData.history = fxHistoryRaw.map(h => ({
+                date: h.date,
+                open: h.open,
+                high: h.high,
+                low: h.low,
+            }));
         } else {
             // STOCK - Check statements cache first
-            const cacheKey = normalizedSymbol;
+            // Cache keys must differ by startDate (range) to avoid serving 1-month data for a 5-year request
+            const cacheKey = `${normalizedSymbol}_${startDate}`;
+            /* 
             const hasValidCache = statementsCache[cacheKey] &&
                 statementsCacheTimestamp[cacheKey] &&
                 (now - statementsCacheTimestamp[cacheKey]) < STATEMENTS_CACHE_DURATION;
+             */
 
-            let statementsData;
-            if (hasValidCache) {
-                console.log(`📦 Statements cache hit: ${symbol}`);
-                statementsData = statementsCache[cacheKey];
-            } else {
-                console.log(`🔄 Fetching statements for ${symbol}...`);
-                const currentYear = new Date().getFullYear();
-                const statementsStartDate = `${currentYear - 30}-01-01`;
+            // FETCH STOCK DATA (Missing Logic Restored)
+            const [historyRes, metaRes, statementsRes, newsRes] = await Promise.all([
+                axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}/prices?startDate=${startDate}&resampleFreq=daily&token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}?token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${normalizedSymbol}/statements?token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${normalizedSymbol}&token=${TIINGO_API_KEY}`)
+            ]);
 
-                const [metaRes, priceHistoryRes, dailyFundRes, statementsRes, newsRes] = await Promise.allSettled([
-                    axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}?token=${TIINGO_API_KEY}`),
-                    axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}/prices?startDate=${startDate}&token=${TIINGO_API_KEY}`),
-                    axios.get(`https://api.tiingo.com/tiingo/fundamentals/${normalizedSymbol}/daily?token=${TIINGO_API_KEY}`),
-                    axios.get(`https://api.tiingo.com/tiingo/fundamentals/${normalizedSymbol}/statements?startDate=${statementsStartDate}&sort=-date&token=${TIINGO_API_KEY}`),
-                    axios.get(`https://api.tiingo.com/tiingo/news?tickers=${normalizedSymbol}&limit=5&token=${TIINGO_API_KEY}`)
-                ]);
+            const historyRaw = historyRes.data || [];
+            const meta = metaRes.data || {};
+            const rawStatements = statementsRes.data || [];
+            const newsData = newsRes.data || [];
 
-                statementsData = {
-                    meta: metaRes.status === 'fulfilled' ? metaRes.value.data : {},
-                    historyRaw: priceHistoryRes.status === 'fulfilled' ? priceHistoryRes.value.data : [],
-                    dailyFundArray: dailyFundRes.status === 'fulfilled' ? dailyFundRes.value.data : [],
-                    rawStatements: statementsRes.status === 'fulfilled' ? statementsRes.value.data : [],
-                    newsData: newsRes.status === 'fulfilled' ? newsRes.value.data : []
-                };
+            // Latest Daily for Fundamentals
+            const latestDaily = historyRaw.length > 0 ? historyRaw[historyRaw.length - 1] : {};
 
-                // Cache the data
-                statementsCache[cacheKey] = statementsData;
-                statementsCacheTimestamp[cacheKey] = now;
-                console.log(`✅ Cached statements for ${symbol}`);
-            }
-
-            const { meta, historyRaw, dailyFundArray, rawStatements, newsData } = statementsData;
-            const latestDaily = dailyFundArray[dailyFundArray.length - 1] || {};
+            // Need to locate where responseData.history is populated for STOCK
 
             if (historyRaw.length > 0) {
                 const last = historyRaw.at(-1);
-                responseData.price = last.close;
-                responseData.history = historyRaw.map(h => ({ date: h.date, price: h.close }));
+                responseData.price = last.close || last.adjClose;
+                responseData.history = historyRaw.map(h => ({
+                    date: h.date,
+                    // Pass everything available to let frontend handle fallbacks
+                    open: h.open,
+                    adjOpen: h.adjOpen,
+                    high: h.high,
+                    adjHigh: h.adjHigh,
+                    low: h.low,
+                    adjLow: h.adjLow,
+                    close: h.close,
+                    adjClose: h.adjClose,
+                    price: h.close || h.adjClose,
+                    volume: h.volume
+                }));
             }
+
 
             responseData.fundamentals = {
                 marketCap: latestDaily.marketCap || meta.marketCap || 0,
