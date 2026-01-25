@@ -1,478 +1,655 @@
 // PATH: backend/src/controllers/chatController.js
-/**
- * FinBot Chat Controller - US Market Edition
- * Powered by Tiingo API for stock data, news, and fundamentals
- */
+// Finansal Analist Chatbot - FULL STACK DEBUG MODE
+// Tiingo API + OpenAI + Frontend Data Mapping
 
 import "dotenv/config";
-import { OpenAI } from "openai";
+import axios from "axios";
+import OpenAI from "openai";
 
-// Models
+// MODELS
 import Chat from "../models/Chat.js";
 import Portfolio from "../models/Portfolio.js";
 
-// Tiingo Services
-import {
-  getPrice,
-  getProfile,
-  searchTicker,
-  getHistoricalPrices
-} from "../services/tiingo/stockService.js";
-import {
-  getNews,
-  analyzeSentiment
-} from "../services/tiingo/newsService.js";
-import {
-  getFundamentals,
-  getKeyMetrics,
-  formatNumber
-} from "../services/tiingo/fundamentalsService.js";
-
+// OpenAI Client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// ============== HELPER FUNCTIONS ==============
+/* =========================
+   CONSOLE LOG HELPER
+   ========================= */
 
-function fmtNum(n) {
-  if (n === null || n === undefined || !isFinite(n)) return "—";
+const log = {
+  info: (tag, msg, data = "") => console.log(`✅ [${tag}] ${msg}`, data),
+  warn: (tag, msg, data = "") => console.warn(`⚠️ [${tag}] ${msg}`, data),
+  error: (tag, msg, data = "") => console.error(`❌ [${tag}] ${msg}`, data),
+  debug: (tag, msg, data = "") => console.log(`🔍 [${tag}] ${msg}`, data),
+  divider: () => console.log("\n" + "=".repeat(70) + "\n")
+};
+
+/* =========================
+   YARDIMCI FONKSİYONLAR
+   ========================= */
+
+function formatNumber(n) {
+  if (n === null || n === undefined || !isFinite(n)) return null;
   if (Math.abs(n) >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + "B";
   if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(2) + "M";
   if (Math.abs(n) >= 1_000) return (n / 1_000).toFixed(2) + "K";
   return Number(n).toFixed(2);
 }
 
-// US Stock ticker detection - common US stocks
-const US_STOCK_ALIASES = {
-  apple: 'AAPL', aapl: 'AAPL',
-  tesla: 'TSLA', tsla: 'TSLA',
-  nvidia: 'NVDA', nvda: 'NVDA',
-  microsoft: 'MSFT', msft: 'MSFT',
-  google: 'GOOGL', googl: 'GOOGL', alphabet: 'GOOGL',
-  amazon: 'AMZN', amzn: 'AMZN',
-  meta: 'META', facebook: 'META',
-  netflix: 'NFLX', nflx: 'NFLX',
-  disney: 'DIS', dis: 'DIS',
-  'berkshire': 'BRK.B', 'brk': 'BRK.B',
-  jpmorgan: 'JPM', jpm: 'JPM',
-  'bank of america': 'BAC', bac: 'BAC',
-  visa: 'V',
-  mastercard: 'MA',
-  intel: 'INTC', intc: 'INTC',
-  amd: 'AMD',
-  coca: 'KO', 'coca-cola': 'KO', ko: 'KO',
-  pepsi: 'PEP', pepsico: 'PEP', pep: 'PEP',
-  walmart: 'WMT', wmt: 'WMT',
-  costco: 'COST', cost: 'COST',
-  boeing: 'BA', ba: 'BA',
-  exxon: 'XOM', xom: 'XOM',
-  chevron: 'CVX', cvx: 'CVX'
+function formatNumberDisplay(n) {
+  const formatted = formatNumber(n);
+  return formatted || "—";
+}
+
+export function withDisclaimer(text) {
+  if (!text) return text;
+  const hasNote = /bilgilendirme amaçlıdır|yatırım tavsiyesi/i.test(text);
+  const note = "Bu bilgi bilgilendirme amaçlıdır ve yatırım tavsiyesi değildir.";
+  return hasNote ? text : `${text}\n\n${note}`;
+}
+
+/* =========================
+   TICKER TESPİTİ & TEMİZLİĞİ
+   ========================= */
+
+const COMPANY_ALIASES = {
+  apple: "AAPL", microsoft: "MSFT", google: "GOOGL", alphabet: "GOOGL",
+  amazon: "AMZN", meta: "META", facebook: "META", nvidia: "NVDA",
+  tesla: "TSLA", netflix: "NFLX", adobe: "ADBE", salesforce: "CRM",
+  oracle: "ORCL", intel: "INTC", amd: "AMD", ibm: "IBM", cisco: "CSCO",
+  paypal: "PYPL", uber: "UBER", airbnb: "ABNB", shopify: "SHOP",
+  spotify: "SPOT", zoom: "ZM", jpmorgan: "JPM", visa: "V",
+  mastercard: "MA", walmart: "WMT", nike: "NKE", starbucks: "SBUX",
+  disney: "DIS", pfizer: "PFE", boeing: "BA", coinbase: "COIN",
+  berkshire: "BRK.B", cocacola: "KO", pepsi: "PEP", johnson: "JNJ"
 };
 
-function normalizeUSTicker(input) {
-  if (!input) return null;
-  const n = input.trim().toLowerCase().replace(/\s+/g, "");
-  if (!n) return null;
+/**
+ * Ticker'ı temizler - .IS uzantısını kaldırır
+ * @param {string} rawTicker 
+ * @returns {string} Temiz ticker
+ */
+function cleanTicker(rawTicker) {
+  if (!rawTicker) return "AAPL";
 
-  // Check aliases
-  if (US_STOCK_ALIASES[n]) return US_STOCK_ALIASES[n];
+  let ticker = rawTicker.toUpperCase().trim();
 
-  // Check if it's already a ticker format (2-5 uppercase letters)
-  const upper = input.trim().toUpperCase();
-  if (/^[A-Z]{1,5}$/.test(upper)) return upper;
+  // .IS uzantısını kaldır (örn: AAPL.IS -> AAPL)
+  if (ticker.endsWith(".IS")) {
+    const baseTicker = ticker.replace(".IS", "");
+    log.debug("TICKER", `".IS" uzantısı kaldırıldı: ${ticker} -> ${baseTicker}`);
+    ticker = baseTicker;
+  }
+
+  // Diğer borsa uzantılarını da temizle
+  ticker = ticker.replace(/\.(NS|BO|L|T|SS|SZ|HK|AX|TO|SA)$/i, "");
+
+  return ticker;
+}
+
+/**
+ * Mesajdan ticker çıkarır ve temizler
+ */
+function extractTickerFromMessage(text) {
+  log.debug("EXTRACT", "Mesaj analiz ediliyor:", text);
+
+  if (!text) {
+    log.warn("EXTRACT", "Mesaj boş, varsayılan: AAPL");
+    return "AAPL";
+  }
+
+  const lowerText = text.toLowerCase();
+
+  // 1. Şirket isimlerinden ara
+  for (const [alias, ticker] of Object.entries(COMPANY_ALIASES)) {
+    if (lowerText.includes(alias)) {
+      log.info("EXTRACT", `Şirket ismi bulundu: "${alias}" -> ${ticker}`);
+      return cleanTicker(ticker);
+    }
+  }
+
+  // 2. Büyük harfli ticker ara (AAPL, TSLA, AAPL.IS gibi)
+  const tickerMatch = text.match(/\b([A-Z]{1,5}(?:\.[A-Z]{1,2})?)\b/);
+  if (tickerMatch) {
+    const rawTicker = tickerMatch[1];
+    const exclude = ["API", "USD", "EUR", "TRY", "THE", "AND", "FOR", "AI", "UI", "UX"];
+    if (!exclude.includes(rawTicker.replace(/\..+$/, ""))) {
+      const cleanedTicker = cleanTicker(rawTicker);
+      log.info("EXTRACT", `Ticker bulundu: ${rawTicker} -> ${cleanedTicker}`);
+      return cleanedTicker;
+    }
+  }
+
+  log.warn("EXTRACT", "Ticker bulunamadı, varsayılan: AAPL");
+  return "AAPL";
+}
+
+/* =========================
+   TİİNGO API
+   ========================= */
+
+async function fetchTiingoFundamentals(ticker) {
+  log.divider();
+  log.info("TIINGO", `Veri çekiliyor: ${ticker}`);
+
+  const apiKey = process.env.TIINGO_API_KEY;
+  if (!apiKey) {
+    log.error("TIINGO", "TIINGO_API_KEY bulunamadı! .env dosyasını kontrol edin.");
+    return null;
+  }
+
+  // Ticker'ı tekrar temizle (garanti olsun)
+  const cleanedTicker = cleanTicker(ticker);
+  const url = `https://api.tiingo.com/tiingo/fundamentals/${cleanedTicker}/statements`;
+
+  log.debug("TIINGO", "API URL:", url);
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Token ${apiKey}`
+      },
+      timeout: 20000
+    });
+
+    const data = response.data;
+
+    // HAM VERİYİ LOG'LA (DEBUG)
+    log.divider();
+    log.info("TIINGO", `HAM VERİ (Kayıt sayısı: ${data?.length || 0})`);
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      log.warn("TIINGO", `${cleanedTicker} için veri boş döndü.`);
+      return null;
+    }
+
+    const latest = data[0];
+    log.info("TIINGO", `Veri başarıyla alındı. Dönem: ${latest.date}`);
+
+    // Tiingo API yapısı:
+    // latest.statementData.incomeStatement -> Array of { dataCode, value }
+    // latest.statementData.balanceSheet -> Array of { dataCode, value }
+    // latest.statementData.cashFlow -> Array of { dataCode, value }
+    // VEYA bazen direkt latest.statementData içinde overview olabilir.
+
+    // Debug için statementData yapısını logla
+    if (latest.statementData) {
+      log.debug("TIINGO", "StatementData Keys:", Object.keys(latest.statementData));
+      if (latest.statementData.incomeStatement) {
+        log.debug("TIINGO", "IncomeStatement Length:", latest.statementData.incomeStatement.length);
+      }
+    }
+
+    return {
+      ticker: cleanedTicker,
+      date: latest.date,
+      statementData: latest.statementData
+    };
+
+  } catch (error) {
+    if (error.response) {
+      log.error("TIINGO", `API Hatası: ${error.response.status}`, error.response.data);
+    } else if (error.request) {
+      log.error("TIINGO", "Sunucuya ulaşılamadı (Timeout)");
+    } else {
+      log.error("TIINGO", "Beklenmeyen hata:", error.message);
+    }
+    return null;
+  }
+}
+
+/**
+ * Helper to traverse Tiingo array structure
+ */
+function getValue(tiingoData, searchCodes) {
+  if (!tiingoData?.statementData) return null;
+
+  const codes = Array.isArray(searchCodes) ? searchCodes : [searchCodes];
+  const categories = ['incomeStatement', 'balanceSheet', 'cashFlow', 'overview'];
+
+  // 1. Önce, statementData'nın kendisi bir array mi diye bak (Eski API yapısı)
+  if (Array.isArray(tiingoData.statementData)) {
+    const found = tiingoData.statementData.find(item => codes.includes(item.dataCode));
+    if (found) return found.value;
+  }
+
+  // 2. Yeni API yapısı: incomeStatement, balanceSheet vs. içindeki arraylerde ara
+  for (const cat of categories) {
+    const categoryArray = tiingoData.statementData[cat];
+    if (Array.isArray(categoryArray)) {
+      const found = categoryArray.find(item => codes.includes(item.dataCode));
+      if (found && found.value !== undefined) {
+        return found.value;
+      }
+    }
+  }
+
+  // 3. Fallback: statementData objesinin direkt property'si mi?
+  for (const code of codes) {
+    if (tiingoData.statementData[code] !== undefined) {
+      return tiingoData.statementData[code];
+    }
+  }
 
   return null;
 }
 
-function extractTickersFromMessage(text) {
-  if (!text) return [];
-  const normalized = text.toLowerCase().replace(/[^a-z0-9\s]/gi, " ");
-  const words = normalized.split(/\s+/);
-  const out = [];
+/**
+ * Tiingo verisinden metrikleri parse et
+ */
+function parseMetrics(tiingoData) {
+  log.info("PARSE", "Metrikler parse ediliyor...");
 
-  for (const w of words) {
-    const t = normalizeUSTicker(w);
-    if (t && !out.includes(t)) out.push(t);
-  }
+  if (!tiingoData) return null;
 
-  return out;
+  // Metrikleri çıkar - ÖNEMLİ: net_val kullanılıyor
+  const rawMetrics = {
+    // Gelir Tablosu
+    revenue: getValue(tiingoData, ["revenue", "totalRevenue", "salesRevenue"]),
+    grossProfit: getValue(tiingoData, ["grossProfit", "grossMargin"]),
+    operatingIncome: getValue(tiingoData, ["operatingIncome", "ebit", "operatingProfit"]),
+    netIncome: getValue(tiingoData, ["net_val", "netinc", "netIncome", "netIncomeCommon", "netIncCommon"]),
+    ebitda: getValue(tiingoData, ["ebitda", "EBITDA"]),
+
+    // Bilanço
+    totalAssets: getValue(tiingoData, ["totalAssets", "assets", "assetsTotal"]),
+    totalLiabilities: getValue(tiingoData, ["totalLiabilities", "liabilities", "liabilitiesTotal"]),
+    totalEquity: getValue(tiingoData, ["totalEquity", "equity", "shareholderEquity", "stockholderEquity"]),
+    totalDebt: getValue(tiingoData, ["totalDebt", "debt", "longTermDebt"]),
+    cash: getValue(tiingoData, ["cashAndEq", "cash", "cashAndShortTermInvestments"]),
+
+    // Nakit Akışı
+    operatingCashFlow: getValue(tiingoData, ["cashFromOps", "operatingCashFlow", "cfFromOperating"]),
+    freeCashFlow: getValue(tiingoData, ["freeCashFlow", "fcf"]),
+
+    // Meta
+    date: tiingoData.date,
+    ticker: tiingoData.ticker
+  };
+
+  log.info("PARSE", "Ham Değerler:");
+  console.log("   - Revenue:", rawMetrics.revenue);
+  console.log("   - Net Income (net_val):", rawMetrics.netIncome);
+  console.log("   - Total Assets:", rawMetrics.totalAssets);
+  console.log("   - Total Equity:", rawMetrics.totalEquity);
+
+  return rawMetrics;
 }
 
-function detectQuestionType(text) {
-  if (!text) return 'unknown';
-  const lowerText = text.toLowerCase();
+/**
+ * Frontend için data mapping
+ */
+function createFinancialDataForFrontend(ticker, metrics) {
+  log.info("MAPPING", "Frontend için veri hazırlanıyor...");
 
-  const financialKeywords = [
-    'stock', 'share', 'price', 'market', 'invest', 'portfolio', 'trade',
-    'earnings', 'revenue', 'profit', 'loss', 'dividend', 'pe ratio', 'p/e',
-    'roe', 'roa', 'eps', 'ebitda', 'margin', 'growth', 'valuation',
-    'bull', 'bear', 'sector', 'nasdaq', 'nyse', 's&p', 'dow',
-    'analysis', 'fundamental', 'technical', 'chart', 'trend',
-    'buy', 'sell', 'hold', 'long', 'short', 'option', 'call', 'put',
-    // Turkish keywords
-    'hisse', 'yatırım', 'portföy', 'piyasa', 'borsa', 'analiz', 'fiyat'
-  ];
+  const financialData = {
+    // Temel Bilgiler
+    symbol: ticker,
+    ticker: ticker,
+    date: metrics?.date || null,
 
-  const irrelevantKeywords = [
-    'recipe', 'cook', 'movie', 'song', 'game', 'sport', 'weather',
-    'tarif', 'yemek', 'film', 'şarkı', 'oyun', 'spor', 'hava'
-  ];
+    // Gelir Tablosu (Frontend Keys)
+    revenue: metrics?.revenue || null,
+    revenueFormatted: formatNumberDisplay(metrics?.revenue),
 
-  const hasFinancial = financialKeywords.some(kw => lowerText.includes(kw));
-  const hasIrrelevant = irrelevantKeywords.some(kw => lowerText.includes(kw));
+    grossProfit: metrics?.grossProfit || null,
+    grossProfitFormatted: formatNumberDisplay(metrics?.grossProfit),
 
-  if (hasIrrelevant && !hasFinancial) return 'irrelevant';
-  if (hasFinancial) return 'financial';
-  return 'general';
+    netProfit: metrics?.netIncome || null,  // Frontend "netProfit" bekliyor
+    netProfitFormatted: formatNumberDisplay(metrics?.netIncome),
+
+    netIncome: metrics?.netIncome || null,
+    netIncomeFormatted: formatNumberDisplay(metrics?.netIncome),
+
+    ebitda: metrics?.ebitda || null,
+    ebitdaFormatted: formatNumberDisplay(metrics?.ebitda),
+
+    // Bilanço (Frontend Keys)
+    totalAssets: metrics?.totalAssets || null,
+    totalAssetsFormatted: formatNumberDisplay(metrics?.totalAssets),
+    assets: metrics?.totalAssets || null,  // Alternatif key
+
+    totalLiabilities: metrics?.totalLiabilities || null,
+    totalLiabilitiesFormatted: formatNumberDisplay(metrics?.totalLiabilities),
+
+    equity: metrics?.totalEquity || null,  // Frontend "equity" bekliyor
+    equityFormatted: formatNumberDisplay(metrics?.totalEquity),
+
+    totalEquity: metrics?.totalEquity || null,
+    totalEquityFormatted: formatNumberDisplay(metrics?.totalEquity),
+
+    totalDebt: metrics?.totalDebt || null,
+    totalDebtFormatted: formatNumberDisplay(metrics?.totalDebt),
+    debt: metrics?.totalDebt || null,  // Alternatif key
+
+    cash: metrics?.cash || null,
+    cashFormatted: formatNumberDisplay(metrics?.cash),
+
+    // Nakit Akışı
+    operatingCashFlow: metrics?.operatingCashFlow || null,
+    operatingCashFlowFormatted: formatNumberDisplay(metrics?.operatingCashFlow),
+
+    freeCashFlow: metrics?.freeCashFlow || null,
+    freeCashFlowFormatted: formatNumberDisplay(metrics?.freeCashFlow),
+
+    // Oranlar (hesaplanabilir)
+    profitMargin: (metrics?.netIncome && metrics?.revenue)
+      ? ((metrics.netIncome / metrics.revenue) * 100).toFixed(2) + "%"
+      : null,
+
+    debtToEquity: (metrics?.totalDebt && metrics?.totalEquity && metrics.totalEquity !== 0)
+      ? (metrics.totalDebt / metrics.totalEquity).toFixed(2)
+      : null
+  };
+
+  return financialData;
 }
 
-function detectPortfolioStrategy(text) {
-  if (!text) return null;
-  const lowerText = text.toLowerCase();
+/* =========================
+   OPENAI ENTEGRASYONU & FALLBACK
+   ========================= */
 
-  const portfolioKeywords = ['portfolio', 'portföy', 'allocation', 'dağılım', 'build', 'create', 'suggest'];
-  const hasPortfolioRequest = portfolioKeywords.some(kw => lowerText.includes(kw));
-  if (!hasPortfolioRequest) return null;
+function getFallbackAnalysis(ticker, metrics) {
+  log.warn("FALLBACK", "OpenAI kullanılamıyor, statik analiz oluşturuluyor.");
 
-  const dividendKeywords = ['dividend', 'income', 'yield', 'temettü', 'gelir'];
-  if (dividendKeywords.some(kw => lowerText.includes(kw))) return 'dividend';
+  const isProfit = (metrics.netIncome || 0) > 0;
+  const isGrowing = true; // Yeterli veri yok varsayılan
 
-  const aggressiveKeywords = ['aggressive', 'growth', 'risk', 'agresif', 'büyüme'];
-  if (aggressiveKeywords.some(kw => lowerText.includes(kw))) return 'aggressive';
+  return `
+=== 💡 FinBot Özeti (Otomatik) ===
+${ticker} için finansal veriler incelendi. Şirket son dönemde ${formatNumberDisplay(metrics.netIncome)} net kâr açıklamıştır. Toplam varlıkları ${formatNumberDisplay(metrics.totalAssets)} seviyesindedir. NOT: Şu an yapay zeka servisine erişilemediği için bu otomatik bir özettir.
 
-  const defensiveKeywords = ['safe', 'defensive', 'low risk', 'güvenli', 'düşük risk'];
-  if (defensiveKeywords.some(kw => lowerText.includes(kw))) return 'defensive';
+=== 📊 Temel Göstergeler ===
+• Gelir: ${formatNumberDisplay(metrics.revenue)}
+• Net Kâr: ${formatNumberDisplay(metrics.netIncome)}
+• Özkaynak: ${formatNumberDisplay(metrics.totalEquity)}
+• Borç: ${formatNumberDisplay(metrics.totalDebt)}
 
-  return 'general';
+=== 🔍 Analiz ===
+Şirketin finansal durumu veriler ışığında değerlendirilmelidir. ${isProfit ? "Şirket kârlı bir dönem geçirmiştir." : "Şirket bu dönem zarar açıklamıştır."} Yatırım kararı alırken sektörel karşılaştırma yapmanız önerilir.
+
+=== ❓ Proaktif Soru ===
+Bu şirketin son 5 yıllık gelir büyümesini görmek ister misiniz?
+    `.trim();
 }
 
-// ============== SYSTEM PROMPTS ==============
+async function getAIAnalysis(ticker, metrics, question, history = []) {
+  log.divider();
+  log.info("OPENAI", `${ticker} için AI analizi başlıyor...`);
 
-const WALL_STREET_ANALYST_PROMPT = `You are FinBot, a sophisticated Wall Street financial analyst with expertise in US stock markets. You have access to real-time data from Tiingo API.
+  const systemPrompt = `Sen "FinBot" adında profesyonel bir finansal analistsın.
 
-CORE BEHAVIORS:
-1. Provide data-driven analysis based on the financial data provided
-2. Use professional but accessible language
-3. Always cite specific metrics (P/E, ROE, EPS, etc.)
-4. Never give direct buy/sell recommendations - provide objective analysis
-5. Use emojis sparingly for better readability
-6. Format responses with clear sections using markdown
+GÖREV: Finansal verileri analiz et, Türkçe kısa yatırımcı özeti oluştur.
 
-RESPONSE FORMAT:
-=== 💡 Executive Summary ===
-(2-3 sentence overview)
+KURALLAR:
+1. Yanıtlar Türkçe olmalı
+2. AL/SAT tavsiyesi VERME, objektif ol
+3. Rakamları B (milyar), M (milyon) formatında göster
+4. Her yanıtın sonunda kullanıcıya proaktif bir soru sor
 
-=== 📊 Key Metrics ===
-(Table or bullet points of important financials)
+FORMAT:
+=== 💡 Özet ===
+(2-3 cümle genel değerlendirme)
 
-=== 🔍 Analysis ===
-(Detailed analysis with comparisons)
+=== 📊 Temel Göstergeler ===
+(Önemli metrikler liste halinde)
 
-=== ⚠️ Risk Factors ===
-(Potential concerns or risks)
+=== 🔍 Analiz ===
+(Güçlü ve zayıf yönler)
 
-=== ❓ Follow-up ===
-(Proactive question to continue the conversation)
+=== ❓ Proaktif Soru ===
+(Kullanıcıya yönlendirici soru)`;
 
-LANGUAGE: Respond in the same language as the user's question (Turkish or English).`;
+  const financialBlock = `
+FİNANSAL VERİLER (Kaynak: Tiingo API)
+Hisse: ${ticker}
+Dönem: ${metrics?.date || "Son Dönem"}
 
-const CONCEPT_PROMPT = `You are FinBot, a Wall Street financial educator. Explain financial concepts clearly and concisely.
+📈 GELİR TABLOSU:
+- Gelir (Revenue): ${formatNumberDisplay(metrics?.revenue)} USD
+- Brüt Kâr (Gross Profit): ${formatNumberDisplay(metrics?.grossProfit)} USD
+- Net Kâr (Net Income): ${formatNumberDisplay(metrics?.netIncome)} USD
+- EBITDA: ${formatNumberDisplay(metrics?.ebitda)} USD
 
-For concept questions, respond with:
-=== Definition ===
-(Clear, simple explanation)
+📋 BİLANÇO:
+- Toplam Varlık (Total Assets): ${formatNumberDisplay(metrics?.totalAssets)} USD
+- Toplam Yükümlülük (Total Liabilities): ${formatNumberDisplay(metrics?.totalLiabilities)} USD
+- Özkaynak (Equity): ${formatNumberDisplay(metrics?.totalEquity)} USD
+- Toplam Borç (Total Debt): ${formatNumberDisplay(metrics?.totalDebt)} USD
+- Nakit (Cash): ${formatNumberDisplay(metrics?.cash)} USD
 
-=== Example ===
-(Real-world example using US stocks)
-
-=== Why It Matters ===
-(Why investors should care)
-
-Keep explanations simple enough for a beginner but accurate enough for an expert.
-LANGUAGE: Match the user's language (Turkish or English).`;
-
-// ============== MAIN CHAT LOGIC ==============
-
-async function askFinbot(question, history = [], portfolioContext = null) {
-  const tickers = extractTickersFromMessage(question);
-  const questionType = detectQuestionType(question);
-
-  // Reject irrelevant questions
-  if (questionType === 'irrelevant') {
-    return {
-      reply: "I'm FinBot, your US stock market analyst. I can help with stock analysis, market trends, portfolio strategies, and financial concepts. What would you like to know about the markets today?",
-      params: null,
-      chartData: null
-    };
-  }
-
-  // Portfolio context formatting
-  let portfolioContextBlock = "";
-  if (portfolioContext && portfolioContext.length > 0) {
-    const totalValue = portfolioContext.reduce((sum, h) => sum + (h.qty * h.avg_cost), 0);
-    portfolioContextBlock = `
-USER PORTFOLIO:
-${portfolioContext.map(h => `- ${h.symbol}: ${h.qty} shares @ $${h.avg_cost.toFixed(2)}`).join("\n")}
-Total Value: $${totalValue.toLocaleString()}
-`;
-  }
-
-  // CONCEPT MODE (no tickers detected)
-  if (!tickers.length) {
-    const messages = [
-      { role: "system", content: CONCEPT_PROMPT },
-      ...history.filter(m => m.text?.trim()).slice(-10).map(m => ({
-        role: m.sender === "user" ? "user" : "assistant",
-        content: m.text.trim()
-      })),
-      { role: "user", content: question }
-    ];
-
-    try {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        temperature: 0.3,
-        messages
-      });
-      return { reply: completion.choices?.[0]?.message?.content?.trim() || "I couldn't generate a response.", params: null, chartData: null };
-    } catch (err) {
-      console.error("OpenAI error:", err.message);
-      return { reply: "I encountered an error. Please try again.", params: null, chartData: null };
-    }
-  }
-
-  // STOCK ANALYSIS MODE
-  const ticker = tickers[0];
+💵 NAKİT AKIŞI:
+- Faaliyetlerden Nakit: ${formatNumberDisplay(metrics?.operatingCashFlow)} USD
+- Serbest Nakit Akışı: ${formatNumberDisplay(metrics?.freeCashFlow)} USD`;
 
   try {
-    // Fetch data from Tiingo services
-    console.log(`[askFinbot] Fetching data for ticker: ${ticker}`);
-    const [priceData, profileData, fundamentalsData] = await Promise.all([
-      getPrice(ticker).catch((e) => { console.error(`[Tiingo] Price error for ${ticker}:`, e.message); return null; }),
-      getProfile(ticker).catch((e) => { console.error(`[Tiingo] Profile error for ${ticker}:`, e.message); return null; }),
-      getFundamentals(ticker).catch((e) => { console.error(`[Tiingo] Fundamentals error for ${ticker}:`, e.message); return null; })
-    ]);
-    console.log(`[askFinbot] Tiingo data fetch complete for ${ticker}.`);
+    log.info("OPENAI", "API çağrısı yapılıyor (gpt-4o)...");
 
-    // Build fact block
-    const factBlock = `
-STOCK: ${ticker}
-Company: ${profileData?.name || ticker}
-Sector: ${profileData?.sector || 'N/A'}
-Industry: ${profileData?.industry || 'N/A'}
-
-PRICE DATA:
-- Current Price: $${priceData?.price || 'N/A'}
-- Change: ${priceData?.change > 0 ? '+' : ''}${priceData?.change?.toFixed(2) || 'N/A'} (${priceData?.changePercent?.toFixed(2) || 'N/A'}%)
-- Volume: ${fmtNum(priceData?.volume)}
-
-FUNDAMENTALS (${fundamentalsData?.period || 'Latest'}):
-- Revenue: $${fmtNum(fundamentalsData?.revenue)}
-- Net Income: $${fmtNum(fundamentalsData?.netIncome)}
-- EPS: $${fundamentalsData?.eps?.toFixed(2) || 'N/A'}
-- ROE: ${fundamentalsData?.roe?.toFixed(1) || 'N/A'}%
-- ROA: ${fundamentalsData?.roa?.toFixed(1) || 'N/A'}%
-- Debt/Equity: ${fundamentalsData?.debtToEquity?.toFixed(2) || 'N/A'}
-
-${portfolioContextBlock}
-`.trim();
-
-    const messages = [
-      { role: "system", content: WALL_STREET_ANALYST_PROMPT },
-      ...history.filter(m => m.text?.trim()).slice(-10).map(m => ({
-        role: m.sender === "user" ? "user" : "assistant",
-        content: m.text.trim()
-      })),
-      {
-        role: "user",
-        content: `User Question: "${question}"\n\nMARKET DATA:\n${factBlock}\n\nProvide a comprehensive analysis based on this data.`
-      }
-    ];
-
-    console.log("[askFinbot] Sending request to OpenAI...");
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.4,
-      messages
+      max_tokens: 1200,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...history.filter(m => m.text?.trim()).slice(-6).map(m => ({
+          role: m.sender === "user" ? "user" : "assistant",
+          content: m.text.trim()
+        })),
+        { role: "user", content: `Soru: "${question}"\n\n${financialBlock}\n\nTürkçe analiz yap.` }
+      ]
     });
-    console.log("[askFinbot] OpenAI response received.");
 
-    const replyText = completion.choices?.[0]?.message?.content?.trim() || "Analysis could not be generated.";
+    const reply = completion.choices?.[0]?.message?.content?.trim();
+    log.info("OPENAI", `Yanıt alındı (${reply?.length || 0} karakter)`);
 
-    return {
-      reply: replyText,
-      params: { ticker, priceData, fundamentalsData },
-      chartData: null
-    };
+    return reply || getFallbackAnalysis(ticker, metrics);
 
   } catch (error) {
-    console.error("Stock analysis error:", error.message);
-    return {
-      reply: `I'm having trouble fetching data for ${ticker}. Please try again or ask about another stock.`,
-      params: { ticker },
-      chartData: null
-    };
+    log.error("OPENAI", "API Hatası:", error.message);
+
+    // QUOTA (429) veya diğer hatalarda Fallback kullan
+    return getFallbackAnalysis(ticker, metrics);
   }
 }
 
-// ============== MAIN ENDPOINT ==============
+/* =========================
+   ANA BOT FONKSİYONU
+   ========================= */
+
+async function getChatResponse(question, history = []) {
+  log.divider();
+  console.log("🤖🤖🤖 [FINBOT] YENİ SORGU BAŞLADI 🤖🤖🤖");
+  log.info("FINBOT", "Kullanıcı sorusu:", question);
+  log.divider();
+
+  // AŞAMA 1: Ticker Tespiti ve Temizliği
+  log.info("AŞAMA 1", "Ticker tespit ediliyor...");
+  const ticker = extractTickerFromMessage(question);
+  log.info("AŞAMA 1", `Temizlenmiş Ticker: ${ticker}`);
+
+  // AŞAMA 2: Tiingo'dan Veri Çek
+  log.info("AŞAMA 2", "Tiingo API'dan veri çekiliyor...");
+  const tiingoData = await fetchTiingoFundamentals(ticker);
+
+  if (!tiingoData) {
+    log.error("AŞAMA 2", "Tiingo'dan veri alınamadı!");
+    return {
+      reply: `Üzgünüm, ${ticker} için finansal veri elde edemedim. Lütfen geçerli bir ABD hissesi deneyin (örn: Apple, Microsoft, Tesla).`,
+      params: { ticker },
+      financialData: null
+    };
+  }
+
+  // AŞAMA 3: Metrikleri Parse Et
+  log.info("AŞAMA 3", "Metrikler parse ediliyor...");
+  const metrics = parseMetrics(tiingoData);
+
+  if (!metrics) {
+    log.error("AŞAMA 3", "Metrikler okunamadı!");
+    return {
+      reply: `${ticker} verisi işlenemedi. Lütfen tekrar deneyin.`,
+      params: { ticker },
+      financialData: null
+    };
+  }
+
+  // AŞAMA 4: Frontend İçin Data Mapping
+  log.info("AŞAMA 4", "Frontend için veri hazırlanıyor...");
+  const financialData = createFinancialDataForFrontend(ticker, metrics);
+
+  // AŞAMA 5: AI Analizi (Fallback Korumalı)
+  log.info("AŞAMA 5", "OpenAI analizi...");
+  const aiReply = await getAIAnalysis(ticker, metrics, question, history);
+
+  log.divider();
+  console.log("✅✅✅ [FINBOT] SORGU TAMAMLANDI ✅✅✅");
+  log.divider();
+
+  return {
+    reply: aiReply,
+    params: { ticker, date: metrics.date },
+    financialData: financialData,  // Frontend için
+    analysis: financialData        // Alternatif key
+  };
+}
+
+/* =========================
+   ENDPOINT: sendMessage
+   ========================= */
 
 export const sendMessage = async (req, res) => {
+  log.divider();
+  console.log("📥📥📥 [ENDPOINT] /api/chat ÇAĞRILDI 📥📥📥");
+  log.divider();
+
   try {
     const { message, chatId } = req.body;
     const userId = req.user._id;
-    console.log(`[Chat] Incoming message from user ${userId}: "${message?.substring(0, 20)}..." (chatId: ${chatId || 'new'})`);
 
-    // Create new chat if no message and no chatId
-    if ((!message || message.trim() === "") && !chatId) {
-      const chat = new Chat({
-        user: userId,
-        messages: [],
-        title: "New Chat"
-      });
+    log.info("ENDPOINT", "User ID:", userId);
+
+    // Boş mesaj + chatId yok = yeni sohbet oluştur
+    if ((!message || !message.trim()) && !chatId) {
+      const chat = new Chat({ user: userId, messages: [], title: "Yeni Sohbet" });
       await chat.save();
-      return res.json({ reply: null, chatId: chat._id, messages: [], title: "New Chat" });
+      return res.json({ reply: null, chatId: chat._id, messages: [], title: "Yeni Sohbet" });
     }
 
-    if (!message) return res.status(400).json({ message: "Message cannot be empty" });
+    if (!message) {
+      return res.status(400).json({ message: "Mesaj boş olamaz" });
+    }
 
     let chat;
     if (chatId) {
       chat = await Chat.findOne({ _id: chatId, user: userId });
-      if (!chat) return res.status(404).json({ message: "Chat not found" });
+      if (!chat) {
+        return res.status(404).json({ message: "Sohbet bulunamadı." });
+      }
     } else {
-      chat = new Chat({
-        user: userId,
-        messages: [],
-        title: "New Chat"
-      });
+      chat = new Chat({ user: userId, messages: [], title: "Yeni Sohbet" });
     }
 
-    // Add user message
+    // Kullanıcı mesajını ekle
     chat.messages.push({ sender: "user", text: message });
 
-    // Get portfolio context
-    let portfolioContext = null;
-    try {
-      const portfolioItems = await Portfolio.find({ user: userId }).select("ticker quantity avgCost -_id");
-      if (portfolioItems && portfolioItems.length > 0) {
-        portfolioContext = portfolioItems.map(item => ({
-          symbol: item.ticker,
-          qty: item.quantity,
-          avg_cost: item.avgCost
-        }));
-      }
-    } catch (err) {
-      console.error("Portfolio fetch error:", err.message);
-    }
-
-    // Generate bot response
-    console.log("[Chat] Calling askFinbot...");
+    // Bot yanıtı al
     const prevMsgs = chat.messages.filter(m => m.text?.trim()).slice(-10);
-    const { reply: rawReply, chartData, params } = await askFinbot(message, prevMsgs, portfolioContext);
-    console.log("[Chat] askFinbot response received.");
+    const { reply: rawReply, params, financialData, analysis } = await getChatResponse(message, prevMsgs);
 
-    let reply = rawReply || "I couldn't generate a response.";
+    // Yanıtı ekle
+    const reply = withDisclaimer(rawReply || "Yanıt alınamadı.");
     chat.messages.push({ sender: "bot", type: "text", text: reply });
 
-    // Update chat title from first message
-    if (chat.messages.filter(m => m.sender === 'user').length === 1) {
-      chat.title = message.substring(0, 50) + (message.length > 50 ? "..." : "");
+    // Finansal veriyi ekle
+    if (financialData) {
+      chat.messages.push({ sender: "bot", type: "analysis", analysis: financialData, financialData: financialData });
     }
 
+    chat.updatedAt = new Date();
     await chat.save();
-    console.log("[Chat] Saved successfully.");
 
-    res.json({
+    return res.json({
       reply,
       chatId: chat._id,
       messages: chat.messages,
       title: chat.title,
-      chartData,
-      params
+      financialData: financialData, // Frontend için
+      analysis: financialData
     });
 
-  } catch (err) {
-    console.error("[Chat] CRITICAL ERROR in sendMessage:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+  } catch (error) {
+    log.error("ENDPOINT", "SUNUCU HATASI:", error.message);
+    return res.status(500).json({ message: "Sunucu hatası." });
   }
 };
 
-export const getChatHistory = async (req, res) => {
+/* =========================
+   ENDPOINT: getChats (Tüm Sohbetler)
+   ========================= */
+
+export const getChats = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const chats = await Chat.find({ user: userId })
-      .select("_id title messages createdAt updatedAt")
+    const chats = await Chat.find({ user: req.user._id })
       .sort({ updatedAt: -1 })
-      .limit(50);
-
-    res.json(chats);
-  } catch (err) {
-    console.error("getChatHistory error:", err.message);
-    res.status(500).json({ message: "Server error" });
+      .limit(20)
+      .select("_id title createdAt updatedAt");
+    res.json({ chats });
+  } catch (e) {
+    res.status(500).json({ message: "Sunucu hatası", error: e.message });
   }
 };
 
-export const getChatById = async (req, res) => {
+/* =========================
+   ENDPOINT: getChat (Tek Sohbet)
+   ========================= */
+
+export const getChat = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { chatId } = req.params;
-
-    const chat = await Chat.findOne({ _id: chatId, user: userId });
-    if (!chat) return res.status(404).json({ message: "Chat not found" });
-
-    res.json(chat);
-  } catch (err) {
-    console.error("getChatById error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    const chat = await Chat.findOne({ _id: req.params.id, user: req.user._id });
+    if (!chat) return res.status(404).json({ message: "Chat bulunamadı" });
+    res.json({ messages: chat.messages, title: chat.title });
+  } catch (e) {
+    res.status(500).json({ message: "Sunucu hatası", error: e.message });
   }
 };
 
-export const deleteChat = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { chatId } = req.params;
-
-    const result = await Chat.deleteOne({ _id: chatId, user: userId });
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Chat not found" });
-    }
-
-    res.json({ message: "Chat deleted" });
-  } catch (err) {
-    console.error("deleteChat error:", err.message);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+/* =========================
+   ENDPOINT: renameChat
+   ========================= */
 
 export const renameChat = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { chatId } = req.params;
-    const { title } = req.body;
-
     const chat = await Chat.findOneAndUpdate(
-      { _id: chatId, user: userId },
-      { title },
+      { _id: req.params.id, user: req.user._id },
+      { title: req.body.title },
       { new: true }
     );
-
-    if (!chat) return res.status(404).json({ message: "Chat not found" });
-
-    res.json(chat);
-  } catch (err) {
-    console.error("renameChat error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    if (!chat) return res.status(404).json({ ok: false, message: "Chat bulunamadı" });
+    res.json({ ok: true, title: chat.title });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: "Sunucu hatası" });
   }
 };
 
-export function withDisclaimer(text) {
-  return text;
-}
+/* =========================
+   ENDPOINT: deleteChat
+   ========================= */
 
-export default {
-  sendMessage,
-  getChatHistory,
-  getChatById,
-  deleteChat,
-  renameChat,
-  withDisclaimer
+export const deleteChat = async (req, res) => {
+  try {
+    const result = await Chat.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    if (!result) return res.status(404).json({ ok: false, message: "Chat bulunamadı" });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: "Sunucu hatası" });
+  }
 };
+
+/* =========================
+   ALIAS EXPORTS
+   ========================= */
+
+export const getChatHistory = getChats;
+export const getChatById = getChat;
