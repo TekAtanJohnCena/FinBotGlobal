@@ -438,7 +438,7 @@ const Login = () => {
                 onError={() => toast.error("Google bağlantısı başarısız.")}
                 theme="filled_black"
                 shape="pill"
-                width="100%"
+                width={300}
                 text="continue_with"
               />
             </div>
