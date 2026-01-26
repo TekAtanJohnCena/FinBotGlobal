@@ -117,22 +117,22 @@ const Financials = () => {
         <div className="min-h-screen bg-[#0f111a] text-white font-sans selection:bg-indigo-500/30">
             {/* HEADER */}
             <div className="border-b border-slate-800/60 bg-[#0f111a]/80 backdrop-blur-xl sticky top-0 z-50">
-                <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-6">
+                <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-3 md:py-0 md:h-20 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0">
+                    <div className="flex items-center gap-3 md:gap-6">
                         <button
                             onClick={() => navigate(`/screener/${symbol}`)}
-                            className="flex items-center gap-2 text-slate-500 hover:text-white transition-all group px-3 py-2 rounded-xl hover:bg-slate-800/50"
+                            className="flex items-center gap-1.5 md:gap-2 text-slate-500 hover:text-white transition-all group px-2 md:px-3 py-1.5 md:py-2 rounded-xl hover:bg-slate-800/50"
                         >
-                            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                            <span className="font-bold text-xs uppercase tracking-wider">Back to Screener</span>
+                            <ArrowLeft size={16} className="md:w-[18px] md:h-[18px] group-hover:-translate-x-1 transition-transform" />
+                            <span className="font-bold text-[10px] md:text-xs uppercase tracking-wider hidden sm:inline">Geri</span>
                         </button>
-                        <div className="h-6 w-[1px] bg-slate-800"></div>
+                        <div className="hidden md:block h-6 w-[1px] bg-slate-800"></div>
                         <div>
-                            <div className="flex items-center gap-2">
-                                <h1 className="text-xl font-black tracking-tight">{symbol} Financial Statements</h1>
-                                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] font-black rounded uppercase border border-indigo-500/20">Annual Consolidated</span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h1 className="text-base md:text-xl font-black tracking-tight">{symbol} Mali Tablolar</h1>
+                                <span className="hidden sm:inline px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[8px] md:text-[9px] font-black rounded uppercase border border-indigo-500/20">Yıllık</span>
                             </div>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Report Currency: USD</p>
+                            <p className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Para Birimi: USD</p>
                         </div>
                     </div>
 
@@ -152,7 +152,7 @@ const Financials = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-4">
                         <button className="hidden sm:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl transition-all font-bold text-xs border border-slate-700">
                             <Download size={16} /> Export
                         </button>
@@ -160,42 +160,44 @@ const Financials = () => {
                 </div>
             </div>
 
-            <main className="max-w-[1600px] mx-auto p-8">
+            <main className="max-w-[1600px] mx-auto p-4 md:p-8">
                 {/* NAVIGATION / TABS */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                    <div className="flex p-1.5 bg-[#1e222d] border border-slate-800/50 rounded-2xl shadow-inner overflow-x-auto no-scrollbar">
-                        {["Income Statement", "Balance Sheet", "Cash Flow"].map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === tab
-                                    ? 'bg-[#0f111a] text-white shadow-lg border border-slate-700/50'
-                                    : 'text-slate-500 hover:text-slate-300'
-                                    }`}
-                            >
-                                {tab}
-                            </button>
-                        ))}
+                <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-10">
+                    <div className="overflow-x-auto pb-2 md:pb-0">
+                        <div className="flex p-1 md:p-1.5 bg-[#1e222d] border border-slate-800/50 rounded-xl md:rounded-2xl shadow-inner w-fit min-w-full md:min-w-0">
+                            {["Income Statement", "Balance Sheet", "Cash Flow"].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`flex-1 md:flex-none px-3 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl font-black text-[10px] md:text-xs uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === tab
+                                        ? 'bg-[#0f111a] text-white shadow-lg border border-slate-700/50'
+                                        : 'text-slate-500 hover:text-slate-300'
+                                        }`}
+                                >
+                                    {tab === "Income Statement" ? "Gelir" : tab === "Balance Sheet" ? "Bilanço" : "Nakit Akışı"}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl">
+                    <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl w-fit">
                         <Info size={14} className="text-indigo-400/80" />
                         <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest">Historical Data Provided by Tiingo</span>
                     </div>
                 </div>
 
                 {/* DATA TABLE */}
-                <div className="bg-[#1e222d] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="bg-[#1e222d] border border-slate-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
                     <div className="overflow-x-auto custom-scrollbar">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse min-w-[600px]">
                             <thead>
-                                <tr className="bg-[#242835]/50 border-b border-slate-800">
-                                    <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-500 sticky left-0 bg-[#212530] z-20 min-w-[320px]">
+                                <tr className="bg-[#242835] border-b border-slate-800">
+                                    <th className="px-4 md:px-8 py-4 md:py-6 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 sticky left-0 bg-[#242835] z-20 min-w-[160px] md:min-w-[280px] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]">
                                         Financial Line Items (USD)
                                     </th>
                                     {history.map((stmt) => (
-                                        <th key={stmt.date} className="px-10 py-6 text-right text-xs font-black text-slate-300 min-w-[160px] uppercase tracking-tighter">
-                                            Year {stmt.year || new Date(stmt.date).getFullYear()}
+                                        <th key={stmt.date} className="px-4 md:px-10 py-4 md:py-6 text-right text-[10px] md:text-xs font-black text-slate-300 min-w-[100px] md:min-w-[160px] uppercase tracking-tighter">
+                                            {stmt.year || new Date(stmt.date).getFullYear()}
                                         </th>
                                     ))}
                                 </tr>
@@ -204,13 +206,13 @@ const Financials = () => {
                                 {rows.map((row, idx) => (
                                     <tr
                                         key={row.key}
-                                        className={`group transition-colors ${idx % 2 === 0 ? 'bg-transparent' : 'bg-[#141822]/30'} hover:bg-indigo-500/5`}
+                                        className={`group transition-colors ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} hover:bg-indigo-500/5`}
                                     >
-                                        <td className={`px-8 py-5 text-sm sticky left-0 z-10 font-bold transition-all ${row.color || 'text-slate-300'} 
-                                            ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} group-hover:bg-[#202534]`}>
-                                            <div className="flex items-center gap-3">
+                                        <td className={`px-4 md:px-8 py-3 md:py-5 text-xs md:text-sm sticky left-0 z-10 font-bold transition-all ${row.color || 'text-slate-300'} 
+                                            ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} group-hover:bg-[#202534] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]`}>
+                                            <div className="flex items-center gap-2 md:gap-3">
                                                 <div className={`w-1 h-1 rounded-full ${row.bold ? 'bg-indigo-500 scale-125' : 'bg-slate-700'}`}></div>
-                                                <span className={row.bold ? 'font-black' : 'font-semibold'}>{row.label}</span>
+                                                <span className={`${row.bold ? 'font-black' : 'font-semibold'} line-clamp-1`}>{row.label}</span>
                                             </div>
                                         </td>
                                         {history.map((stmt) => {
@@ -219,7 +221,7 @@ const Financials = () => {
                                             return (
                                                 <td
                                                     key={stmt.date}
-                                                    className={`px-10 py-5 text-right font-mono text-sm ${row.bold ? 'text-slate-100 font-bold' : 'text-slate-400'} 
+                                                    className={`px-4 md:px-10 py-3 md:py-5 text-right font-mono text-xs md:text-sm ${row.bold ? 'text-slate-100 font-bold' : 'text-slate-400'} 
                                                         ${isNeg ? 'text-rose-400' : ''}`}
                                                 >
                                                     {formatNumber(val)}

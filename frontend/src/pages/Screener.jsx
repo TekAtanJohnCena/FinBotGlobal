@@ -15,7 +15,8 @@ import {
   Newspaper,
   BookOpen,
   PenTool,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
 import {
   AreaChart,
@@ -35,6 +36,9 @@ const Screener = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Mobile Sidebar State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Chart & Analysis State
   const [historyData, setHistoryData] = useState([]);
@@ -209,7 +213,7 @@ const Screener = () => {
     yaxis: {
       labels: {
         style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'monospace' },
-        formatter: (val) => `$${val.toFixed(2)}`
+        formatter: (val) => val != null ? `$${Number(val).toFixed(2)}` : ''
       },
       tooltip: { enabled: true }
     },
@@ -229,7 +233,7 @@ const Screener = () => {
       theme: 'dark', // Always Dark Tooltip
       style: { fontSize: '12px' },
       x: { format: 'dd MMM yyyy' },
-      y: { formatter: (val) => `$${val.toFixed(2)}` }
+      y: { formatter: (val) => val != null ? `$${Number(val).toFixed(2)}` : '' }
     },
     plotOptions: {
       candlestick: {
@@ -342,8 +346,30 @@ const Screener = () => {
 
   return (
     <div className="flex h-screen bg-[#0a0f1c] text-white overflow-hidden font-sans">
+      {/* Mobile Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden p-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg transition-all"
+      >
+        {isSidebarOpen ? <X size={20} /> : <Search size={20} />}
+      </button>
+
+      {/* Sidebar Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* LEFT SIDEBAR: STOCK LIST */}
-      <div className="w-80 md:w-1/4 flex-shrink-0 bg-[#1e222d] border-r border-slate-800 flex flex-col">
+      <div className={`
+        fixed lg:relative inset-y-0 left-0 z-40
+        w-80 lg:w-1/4 flex-shrink-0 
+        bg-[#1e222d] border-r border-slate-800 flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         <div className="p-4 border-b border-slate-800">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold flex items-center gap-2 text-indigo-400">
@@ -384,7 +410,10 @@ const Screener = () => {
               {filteredStocks.map((stock) => (
                 <div
                   key={stock.symbol}
-                  onClick={() => navigate(`/screener/${stock.symbol}`)}
+                  onClick={() => {
+                    navigate(`/screener/${stock.symbol}`);
+                    setIsSidebarOpen(false);
+                  }}
                   className={`p-4 cursor-pointer border-b border-slate-800/40 transition-all flex items-center justify-between group ${symbol === stock.symbol ? 'bg-indigo-600/10 border-l-4 border-l-indigo-500 shadow-inner' : 'hover:bg-[#1e222d] border-l-4 border-l-transparent'}`}
                 >
                   <div className="flex items-center gap-3">
@@ -417,69 +446,69 @@ const Screener = () => {
       {/* RIGHT CONTENT: ANALYSIS & CHART */}
       <div className="flex-1 flex flex-col overflow-y-auto bg-[#0a0f1c] custom-scrollbar">
         {symbol ? (
-          <div className="p-6 space-y-8 animate-in fade-in duration-700">
+          <div className="p-4 md:p-6 space-y-6 md:space-y-8 animate-in fade-in duration-700 mt-14 lg:mt-0">
             {/* TOP HEADER INFO */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-[#1e222d] border border-slate-800 rounded-2xl shadow-xl">
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-500/20">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 bg-[#1e222d] border border-slate-800 rounded-2xl shadow-xl gap-4">
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl md:rounded-2xl flex items-center justify-center text-white text-xl md:text-2xl font-black shadow-lg shadow-indigo-500/20">
                   {symbol.slice(0, 1)}
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-4xl font-black tracking-tighter">{symbol}</h2>
-                    <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-black rounded-lg border border-indigo-500/20 uppercase">Stock</span>
+                  <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                    <h2 className="text-2xl md:text-4xl font-black tracking-tighter">{symbol}</h2>
+                    <span className="px-2 md:px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] md:text-xs font-black rounded-lg border border-indigo-500/20 uppercase">Stock</span>
                   </div>
-                  <p className="text-slate-400 text-sm font-medium mt-1">{analysisData?.name || 'Company Name'}</p>
+                  <p className="text-slate-400 text-xs md:text-sm font-medium mt-1">{analysisData?.name || 'Company Name'}</p>
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-0 text-right">
-                <div className="text-4xl font-mono font-black text-white">${analysisData?.price?.toFixed(2) || '0.00'}</div>
-                <div className={`text-sm font-bold flex items-center justify-end gap-1 mt-1 ${analysisData?.changePercent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {analysisData?.changePercent >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+              <div className="text-left md:text-right w-full md:w-auto">
+                <div className="text-2xl md:text-4xl font-mono font-black text-white">${analysisData?.price?.toFixed(2) || '0.00'}</div>
+                <div className={`text-xs md:text-sm font-bold flex items-center md:justify-end gap-1 mt-1 ${analysisData?.changePercent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {analysisData?.changePercent >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                   {analysisData?.changePercent?.toFixed(2)}% Bugün
                 </div>
               </div>
             </div>
 
-            {/* 1. CHART SECTION (h-[400px]) */}
-            <div className="bg-[#1e222d] border border-slate-800 rounded-2xl p-6 shadow-2xl relative">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+            {/* 1. CHART SECTION */}
+            <div className="bg-[#1e222d] border border-slate-800 rounded-2xl p-3 md:p-6 shadow-2xl relative">
+              <div className="flex flex-col gap-4 mb-4 md:mb-8">
                 <div className="flex items-center gap-2">
-                  <Activity className="text-indigo-400 w-5 h-5" />
-                  <span className="text-xs font-black uppercase tracking-widest text-slate-400">Teknik Analiz Görünümü</span>
+                  <Activity className="text-indigo-400 w-4 h-4 md:w-5 md:h-5" />
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-400">Teknik Analiz Görünümü</span>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center">
+                <div className="flex flex-wrap gap-2 md:gap-4 items-center">
                   {/* Chart Type Toggle */}
                   <div className="flex gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
                     <button
                       onClick={() => setChartType('area')}
-                      className={`p-2 rounded-lg transition-all ${chartType === 'area' ? 'bg-[#1e222d] text-indigo-400 border border-slate-700 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      className={`p-1.5 md:p-2 rounded-lg transition-all ${chartType === 'area' ? 'bg-[#1e222d] text-indigo-400 border border-slate-700 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                       title="Alan Grafiği"
                     >
-                      <TrendingUp size={16} />
+                      <TrendingUp size={14} className="md:w-4 md:h-4" />
                     </button>
                     <button
                       onClick={() => setChartType('candlestick')}
-                      className={`p-2 rounded-lg transition-all ${chartType === 'candlestick' ? 'bg-[#1e222d] text-indigo-400 border border-slate-700 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      className={`p-1.5 md:p-2 rounded-lg transition-all ${chartType === 'candlestick' ? 'bg-[#1e222d] text-indigo-400 border border-slate-700 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                       title="Mum Grafiği"
                     >
-                      <BarChart2 size={16} />
+                      <BarChart2 size={14} className="md:w-4 md:h-4" />
                     </button>
                   </div>
 
-                  {/* Drawing Tools (NEW) */}
+                  {/* Drawing Tools */}
                   <div className="flex gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
                     <button
                       onClick={() => {
                         setIsDrawing(!isDrawing);
-                        setDrawStart(null); // Reset partial line
+                        setDrawStart(null);
                       }}
-                      className={`p-2 rounded-lg transition-all ${isDrawing ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      className={`p-1.5 md:p-2 rounded-lg transition-all ${isDrawing ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                       title={isDrawing ? "Çizimi İptal Et" : "Trend Çizgisi Çek"}
                     >
-                      <PenTool size={16} />
+                      <PenTool size={14} className="md:w-4 md:h-4" />
                     </button>
                     {(trendLines.length > 0 || annotations.points.length > 0) && (
                       <button
@@ -487,40 +516,39 @@ const Screener = () => {
                           setTrendLines([]);
                           setAnnotations({ xaxis: [], points: [] });
                         }}
-                        className="p-2 rounded-lg transition-all text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 border border-transparent"
+                        className="p-1.5 md:p-2 rounded-lg transition-all text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 border border-transparent"
                         title="Çizgileri Temizle"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} className="md:w-4 md:h-4" />
                       </button>
                     )}
                   </div>
 
-                  {/* Divider */}
-                  <div className="hidden sm:block w-px h-8 bg-slate-800 mx-1"></div>
-
-                  {/* Range Buttons */}
-                  <div className="flex flex-wrap gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner">
-                    {["Gün içi", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl"].map((range) => {
-                      const perf = periodPerformances[range] || 0;
-                      const isActive = activeRange === range;
-                      return (
-                        <button
-                          key={range}
-                          onClick={() => setActiveRange(range)}
-                          className={`flex flex-col items-center px-4 py-1.5 rounded-lg transition-all min-w-[70px] ${isActive ? 'bg-[#1e222d] border border-slate-700 shadow-xl text-white' : 'text-slate-500 hover:text-slate-300'}`}
-                        >
-                          <span className="text-[10px] font-black uppercase">{range}</span>
-                          <span className={`text-[11px] font-bold ${perf >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {perf >= 0 ? '+' : ''}{perf.toFixed(1)}%
-                          </span>
-                        </button>
-                      );
-                    })}
+                  {/* Range Buttons - Scrollable on Mobile */}
+                  <div className="w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                    <div className="flex gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner w-fit">
+                      {["Gün içi", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl"].map((range) => {
+                        const perf = periodPerformances[range] || 0;
+                        const isActive = activeRange === range;
+                        return (
+                          <button
+                            key={range}
+                            onClick={() => setActiveRange(range)}
+                            className={`flex flex-col items-center px-2 md:px-4 py-1 md:py-1.5 rounded-lg transition-all min-w-[50px] md:min-w-[70px] ${isActive ? 'bg-[#1e222d] border border-slate-700 shadow-xl text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                          >
+                            <span className="text-[8px] md:text-[10px] font-black uppercase whitespace-nowrap">{range}</span>
+                            <span className={`text-[9px] md:text-[11px] font-bold ${perf >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                              {perf >= 0 ? '+' : ''}{perf.toFixed(1)}%
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="h-[400px] w-full relative">
+              <div className="h-[280px] md:h-[400px] w-full relative">
                 {analysisLoading ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-[#1e222d]/80 z-20 backdrop-blur-sm rounded-xl">
                     <RefreshCw className="w-10 h-10 animate-spin text-indigo-500" />
@@ -540,37 +568,37 @@ const Screener = () => {
 
             {/* 2. COMPANY PROFILE (Description) */}
             {analysisData?.fundamentals?.description && (
-              <div className="bg-[#131722] p-6 rounded-2xl border border-slate-800/50 shadow-inner">
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
-                  <BookOpen size={14} className="text-indigo-400" /> Şirket Hakkında
+              <div className="bg-[#131722] p-4 md:p-6 rounded-2xl border border-slate-800/50 shadow-inner">
+                <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 mb-3 md:mb-4 flex items-center gap-2">
+                  <BookOpen size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Şirket Hakkında
                 </h3>
-                <p className="text-sm text-gray-400 leading-relaxed font-medium">{analysisData.fundamentals.description}</p>
+                <p className="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">{analysisData.fundamentals.description}</p>
               </div>
             )}
 
             {/* 3. SUMMARY FINANCIALS */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
               {/* FUNDAMENTALS */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                  <PieChart size={14} className="text-indigo-400" /> Temel Veriler
+              <div className="space-y-3 md:space-y-4">
+                <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                  <PieChart size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Temel Veriler
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#1e222d] p-4 rounded-2xl border border-slate-800 shadow-lg">
-                    <div className="text-[10px] font-black text-slate-500 uppercase mb-1">Piyasa Değeri</div>
-                    <div className="text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.marketCap ? formatMoney(analysisData.fundamentals.marketCap) : '—'}</div>
+                <div className="grid grid-cols-2 gap-2 md:gap-4">
+                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">Piyasa Değeri</div>
+                    <div className="text-sm md:text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.marketCap ? formatMoney(analysisData.fundamentals.marketCap) : '—'}</div>
                   </div>
-                  <div className="bg-[#1e222d] p-4 rounded-2xl border border-slate-800 shadow-lg">
-                    <div className="text-[10px] font-black text-slate-500 uppercase mb-1">F/K Oranı</div>
-                    <div className="text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.peRatio ? analysisData.fundamentals.peRatio.toFixed(2) : '—'}</div>
+                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">F/K Oranı</div>
+                    <div className="text-sm md:text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.peRatio ? analysisData.fundamentals.peRatio.toFixed(2) : '—'}</div>
                   </div>
-                  <div className="bg-[#1e222d] p-4 rounded-2xl border border-slate-800 shadow-lg">
-                    <div className="text-[10px] font-black text-slate-500 uppercase mb-1">Temettü Verimi</div>
-                    <div className="text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.dividendYield ? `%${(analysisData.fundamentals.dividendYield * 100).toFixed(2)}` : '—'}</div>
+                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">Temetü Verimi</div>
+                    <div className="text-sm md:text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.dividendYield ? `%${(analysisData.fundamentals.dividendYield * 100).toFixed(2)}` : '—'}</div>
                   </div>
-                  <div className="bg-[#1e222d] p-4 rounded-2xl border border-slate-800 shadow-lg">
-                    <div className="text-[10px] font-black text-slate-500 uppercase mb-1">Beta / ROE</div>
-                    <div className="text-lg font-mono font-black text-slate-100">
+                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">Beta / ROE</div>
+                    <div className="text-sm md:text-lg font-mono font-black text-slate-100">
                       {analysisData?.fundamentals?.beta ? analysisData.fundamentals.beta.toFixed(2) : '—'}
                       <span className="text-slate-600 mx-1">/</span>
                       <span className="text-indigo-400">{analysisData?.fundamentals?.roe ? `%${(analysisData.fundamentals.roe * 100).toFixed(1)}` : '—'}</span>
@@ -580,29 +608,29 @@ const Screener = () => {
               </div>
 
               {/* FINANCIALS */}
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <DollarSign size={14} className="text-indigo-400" /> Mali Performans (Yıllık)
+                  <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <DollarSign size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Mali Performans (Yıllık)
                   </h3>
                   <Link
                     to={`/financials/${symbol}`}
-                    className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 transition-colors uppercase flex items-center gap-1 group"
+                    className="text-[9px] md:text-[10px] font-black text-indigo-400 hover:text-indigo-300 transition-colors uppercase flex items-center gap-1 group"
                   >
                     Detaylı Tablolar
-                    <ArrowUpRight size={12} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <ArrowUpRight size={10} className="md:w-3 md:h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </Link>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#1e222d] p-4 rounded-2xl border border-slate-800 shadow-lg flex flex-col justify-center h-[104px]">
-                    <div className="text-[10px] font-black text-slate-500 uppercase mb-1 text-indigo-400">Toplam Gelir</div>
-                    <div className="text-2xl font-mono font-black text-white">{analysisData?.financials?.summary?.revenue ? formatMoney(analysisData.financials.summary.revenue) : '—'}</div>
-                    <div className="text-[9px] text-slate-500 mt-1 font-bold">Son Bilanço Verisi</div>
+                <div className="grid grid-cols-2 gap-2 md:gap-4">
+                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg flex flex-col justify-center h-[80px] md:h-[104px]">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1 text-indigo-400">Toplam Gelir</div>
+                    <div className="text-lg md:text-2xl font-mono font-black text-white">{analysisData?.financials?.summary?.revenue ? formatMoney(analysisData.financials.summary.revenue) : '—'}</div>
+                    <div className="text-[8px] md:text-[9px] text-slate-500 mt-1 font-bold">Son Bilanço Verisi</div>
                   </div>
-                  <div className="bg-[#1e222d] p-4 rounded-2xl border border-slate-800 shadow-lg flex flex-col justify-center h-[104px]">
-                    <div className="text-[10px] font-black text-slate-500 uppercase mb-1 text-emerald-400">Net Kâr</div>
-                    <div className="text-2xl font-mono font-black text-white">{analysisData?.financials?.summary?.netIncome ? formatMoney(analysisData.financials.summary.netIncome) : '—'}</div>
-                    <div className={`text-[9px] font-bold mt-1 ${analysisData?.financials?.summary?.netIncome > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg flex flex-col justify-center h-[80px] md:h-[104px]">
+                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1 text-emerald-400">Net Kâr</div>
+                    <div className="text-lg md:text-2xl font-mono font-black text-white">{analysisData?.financials?.summary?.netIncome ? formatMoney(analysisData.financials.summary.netIncome) : '—'}</div>
+                    <div className={`text-[8px] md:text-[9px] font-bold mt-1 ${analysisData?.financials?.summary?.netIncome > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                       Kârlılık Ratio: %{analysisData?.financials?.summary?.revenue ? ((analysisData.financials.summary.netIncome / analysisData.financials.summary.revenue) * 100).toFixed(1) : '0'}
                     </div>
                   </div>
@@ -611,11 +639,11 @@ const Screener = () => {
             </div>
 
             {/* 4. NEWS SECTION (Bottom) */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                <Newspaper size={14} className="text-indigo-400" /> Son Haberler: {symbol}
+            <div className="space-y-3 md:space-y-4">
+              <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                <Newspaper size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Son Haberler: {symbol}
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 {analysisData?.news?.length > 0 ? (
                   analysisData.news.map((item) => (
                     <a
@@ -623,17 +651,17 @@ const Screener = () => {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-[#1e222d] border border-slate-800 rounded-xl hover:bg-slate-800 transition-all group"
+                      className="flex items-center justify-between p-3 md:p-4 bg-[#1e222d] border border-slate-800 rounded-xl hover:bg-slate-800 transition-all group"
                     >
-                      <div className="flex-1">
-                        <div className="text-xs font-black text-indigo-400 mb-1">{item.source} • {new Date(item.date).toLocaleDateString('tr-TR')}</div>
-                        <h4 className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors line-clamp-1">{item.title}</h4>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[10px] md:text-xs font-black text-indigo-400 mb-1">{item.source} • {new Date(item.date).toLocaleDateString('tr-TR')}</div>
+                        <h4 className="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white transition-colors line-clamp-2 md:line-clamp-1">{item.title}</h4>
                       </div>
-                      <ArrowUpRight className="text-slate-600 group-hover:text-indigo-400 transition-colors ml-4 shrink-0" size={18} />
+                      <ArrowUpRight className="text-slate-600 group-hover:text-indigo-400 transition-colors ml-3 md:ml-4 shrink-0 w-4 h-4 md:w-[18px] md:h-[18px]" />
                     </a>
                   ))
                 ) : (
-                  <div className="p-8 text-center text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl">
+                  <div className="p-6 md:p-8 text-center text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl text-xs md:text-sm">
                     Bu hisse için yakın zamanda haber bulunamadı.
                   </div>
                 )}
@@ -641,12 +669,12 @@ const Screener = () => {
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center opacity-40">
-            <div className="w-32 h-32 bg-[#131722] rounded-[40px] shadow-2xl flex items-center justify-center mb-8 border border-slate-800">
-              <BarChart2 size={64} className="text-indigo-500 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
+          <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-20 text-center opacity-40 mt-14 lg:mt-0">
+            <div className="w-20 h-20 md:w-32 md:h-32 bg-[#131722] rounded-3xl md:rounded-[40px] shadow-2xl flex items-center justify-center mb-6 md:mb-8 border border-slate-800">
+              <BarChart2 size={40} className="md:w-16 md:h-16 text-indigo-500 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
             </div>
-            <h2 className="text-4xl font-black tracking-tighter mb-4">Analiz Dashboard</h2>
-            <p className="text-slate-500 max-w-sm font-medium leading-relaxed">Sol panelden bir şirket seçerek devasa teknik grafikleri, mali tabloları ve son haberleri anlık olarak görüntüleyin.</p>
+            <h2 className="text-2xl md:text-4xl font-black tracking-tighter mb-3 md:mb-4">Analiz Dashboard</h2>
+            <p className="text-slate-500 max-w-sm font-medium leading-relaxed text-sm md:text-base">Sol panelden (veya üstteki arama butonundan) bir şirket seçerek teknik grafikleri, mali tabloları ve son haberleri görüntüleyin.</p>
           </div>
         )}
       </div>
