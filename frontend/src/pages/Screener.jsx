@@ -18,6 +18,15 @@ import {
   Trash2,
   X
 } from 'lucide-react';
+import {
+  AreaChart,
+  Area,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 import ReactApexChart from 'react-apexcharts';
 
 const Screener = () => {
@@ -406,6 +415,46 @@ const Screener = () => {
     return value.toLocaleString();
   };
 
+  // Recharts için filtrelenmiş veri (eski alan grafiği için)
+  const getFilteredData = () => {
+    if (!historyData || historyData.length === 0) return [];
+
+    const ranges = {
+      "Gün içi": 2,
+      "1 Hafta": 7,
+      "1 Ay": 30,
+      "3 Ay": 90,
+      "6 Ay": 180,
+      "1 Yıl": 365,
+      "3 Yıl": 365 * 3,
+      "5 Yıl": 365 * 5,
+      "Tümü": historyData.length
+    };
+
+    const limit = ranges[activeRange] || historyData.length;
+    let filteredData = historyData.slice(-limit);
+
+    // Downsampling for performance (max 200 points for Recharts)
+    const MAX_POINTS = 200;
+    if (filteredData.length > MAX_POINTS) {
+      const step = Math.ceil(filteredData.length / MAX_POINTS);
+      const downsampled = [];
+      for (let i = 0; i < filteredData.length; i += step) {
+        downsampled.push(filteredData[i]);
+      }
+      if (downsampled[downsampled.length - 1] !== filteredData[filteredData.length - 1]) {
+        downsampled.push(filteredData[filteredData.length - 1]);
+      }
+      filteredData = downsampled;
+    }
+
+    return filteredData.map(item => ({
+      ...item,
+      price: item.price || item.close || item.adjClose,
+      dateFormatted: new Date(item.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
+    }));
+  };
+
   const filteredStocks = stocks.filter(stock =>
     stock.symbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -619,7 +668,8 @@ const Screener = () => {
                   <div className="absolute inset-0 flex items-center justify-center bg-[#1e222d]/80 z-20 backdrop-blur-sm rounded-xl">
                     <RefreshCw className="w-10 h-10 animate-spin text-indigo-500" />
                   </div>
-                ) : (
+                ) : chartType === 'candlestick' ? (
+                  /* ApexCharts for Candlestick */
                   <ReactApexChart
                     key={chartType + (symbol || '') + trendLines.length}
                     options={chartOptions}
@@ -628,6 +678,40 @@ const Screener = () => {
                     height="100%"
                     width="100%"
                   />
+                ) : (
+                  /* Recharts for Area Chart (Eski Güzel Görünüm) */
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={getFilteredData()} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={periodPerformances[activeRange] >= 0 ? "#22c55e" : "#ef4444"} stopOpacity={0.3} />
+                          <stop offset="95%" stopColor={periodPerformances[activeRange] >= 0 ? "#22c55e" : "#ef4444"} stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
+                      <XAxis
+                        dataKey="dateFormatted"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }}
+                        minTickGap={40}
+                      />
+                      <YAxis hide domain={['auto', 'auto']} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#131722', border: '1px solid #334155', borderRadius: '12px', fontSize: '13px' }}
+                        cursor={{ stroke: '#475569', strokeWidth: 2, strokeDasharray: '4 4' }}
+                        formatter={(val) => [`$${val.toFixed(2)}`, 'Fiyat']}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="price"
+                        stroke={periodPerformances[activeRange] >= 0 ? "#22c55e" : "#ef4444"}
+                        strokeWidth={3}
+                        fill="url(#colorGradient)"
+                        animationDuration={1000}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 )}
               </div>
             </div>

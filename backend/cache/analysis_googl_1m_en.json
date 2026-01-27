@@ -1,0 +1,3045 @@
+{
+  "data": {
+    "symbol": "GOOGL",
+    "type": "STOCK",
+    "price": 333.26,
+    "changePercent": 1.6253468728082163,
+    "history": [
+      {
+        "date": "2025-12-29T00:00:00.000Z",
+        "open": 311.365,
+        "adjOpen": 311.365,
+        "high": 314.02,
+        "adjHigh": 314.02,
+        "low": 310.62,
+        "adjLow": 310.62,
+        "close": 313.56,
+        "adjClose": 313.56,
+        "price": 313.56,
+        "volume": 19621777
+      },
+      {
+        "date": "2025-12-30T00:00:00.000Z",
+        "open": 312.5,
+        "adjOpen": 312.5,
+        "high": 316.95,
+        "adjHigh": 316.95,
+        "low": 312.46,
+        "adjLow": 312.46,
+        "close": 313.85,
+        "adjClose": 313.85,
+        "price": 313.85,
+        "volume": 17380888
+      },
+      {
+        "date": "2025-12-31T00:00:00.000Z",
+        "open": 312.845,
+        "adjOpen": 312.845,
+        "high": 314.58,
+        "adjHigh": 314.58,
+        "low": 311.44,
+        "adjLow": 311.44,
+        "close": 313,
+        "adjClose": 313,
+        "price": 313,
+        "volume": 16377689
+      },
+      {
+        "date": "2026-01-02T00:00:00.000Z",
+        "open": 316.9,
+        "adjOpen": 316.9,
+        "high": 322.5,
+        "adjHigh": 322.5,
+        "low": 310.33,
+        "adjLow": 310.33,
+        "close": 315.15,
+        "adjClose": 315.15,
+        "price": 315.15,
+        "volume": 32009385
+      },
+      {
+        "date": "2026-01-05T00:00:00.000Z",
+        "open": 317.655,
+        "adjOpen": 317.655,
+        "high": 319.015,
+        "adjHigh": 319.015,
+        "low": 314.63,
+        "adjLow": 314.63,
+        "close": 316.54,
+        "adjClose": 316.54,
+        "price": 316.54,
+        "volume": 30195597
+      },
+      {
+        "date": "2026-01-06T00:00:00.000Z",
+        "open": 316.4,
+        "adjOpen": 316.4,
+        "high": 320.94,
+        "adjHigh": 320.94,
+        "low": 311.78,
+        "adjLow": 311.78,
+        "close": 314.34,
+        "adjClose": 314.34,
+        "price": 314.34,
+        "volume": 31212101
+      },
+      {
+        "date": "2026-01-07T00:00:00.000Z",
+        "open": 314.36,
+        "adjOpen": 314.36,
+        "high": 326.15,
+        "adjHigh": 326.15,
+        "low": 314.19,
+        "adjLow": 314.19,
+        "close": 321.98,
+        "adjClose": 321.98,
+        "price": 321.98,
+        "volume": 35104425
+      },
+      {
+        "date": "2026-01-08T00:00:00.000Z",
+        "open": 328.965,
+        "adjOpen": 328.965,
+        "high": 330.3196,
+        "adjHigh": 330.3196,
+        "low": 321.5,
+        "adjLow": 321.5,
+        "close": 325.44,
+        "adjClose": 325.44,
+        "price": 325.44,
+        "volume": 31896101
+      },
+      {
+        "date": "2026-01-09T00:00:00.000Z",
+        "open": 327.09,
+        "adjOpen": 327.09,
+        "high": 330.83,
+        "adjHigh": 330.83,
+        "low": 325.8,
+        "adjLow": 325.8,
+        "close": 328.57,
+        "adjClose": 328.57,
+        "price": 328.57,
+        "volume": 26214166
+      },
+      {
+        "date": "2026-01-12T00:00:00.000Z",
+        "open": 325.8,
+        "adjOpen": 325.8,
+        "high": 334.04,
+        "adjHigh": 334.04,
+        "low": 325,
+        "adjLow": 325,
+        "close": 331.86,
+        "adjClose": 331.86,
+        "price": 331.86,
+        "volume": 33923928
+      },
+      {
+        "date": "2026-01-13T00:00:00.000Z",
+        "open": 334.95,
+        "adjOpen": 334.95,
+        "high": 340.49,
+        "adjHigh": 340.49,
+        "low": 333.62,
+        "adjLow": 333.62,
+        "close": 335.97,
+        "adjClose": 335.97,
+        "price": 335.97,
+        "volume": 33517607
+      },
+      {
+        "date": "2026-01-14T00:00:00.000Z",
+        "open": 335.06,
+        "adjOpen": 335.06,
+        "high": 336.52,
+        "adjHigh": 336.52,
+        "low": 330.48,
+        "adjLow": 330.48,
+        "close": 335.84,
+        "adjClose": 335.84,
+        "price": 335.84,
+        "volume": 28525571
+      },
+      {
+        "date": "2026-01-15T00:00:00.000Z",
+        "open": 337.65,
+        "adjOpen": 337.65,
+        "high": 337.69,
+        "adjHigh": 337.69,
+        "low": 330.74,
+        "adjLow": 330.74,
+        "close": 332.78,
+        "adjClose": 332.78,
+        "price": 332.78,
+        "volume": 28442406
+      },
+      {
+        "date": "2026-01-16T00:00:00.000Z",
+        "open": 334.41,
+        "adjOpen": 334.41,
+        "high": 334.65,
+        "adjHigh": 334.65,
+        "low": 327.7,
+        "adjLow": 327.7,
+        "close": 330,
+        "adjClose": 330,
+        "price": 330,
+        "volume": 40341637
+      },
+      {
+        "date": "2026-01-20T00:00:00.000Z",
+        "open": 320.87,
+        "adjOpen": 320.87,
+        "high": 327.73,
+        "adjHigh": 327.73,
+        "low": 320.43,
+        "adjLow": 320.43,
+        "close": 322,
+        "adjClose": 322,
+        "price": 322,
+        "volume": 34808916
+      },
+      {
+        "date": "2026-01-21T00:00:00.000Z",
+        "open": 320.92,
+        "adjOpen": 320.92,
+        "high": 332.4799,
+        "adjHigh": 332.4799,
+        "low": 319.3518,
+        "adjLow": 319.3518,
+        "close": 328.38,
+        "adjClose": 328.38,
+        "price": 328.38,
+        "volume": 35386603
+      },
+      {
+        "date": "2026-01-22T00:00:00.000Z",
+        "open": 334.45,
+        "adjOpen": 334.45,
+        "high": 335.15,
+        "adjHigh": 335.15,
+        "low": 328.75,
+        "adjLow": 328.75,
+        "close": 330.54,
+        "adjClose": 330.54,
+        "price": 330.54,
+        "volume": 26253640
+      },
+      {
+        "date": "2026-01-23T00:00:00.000Z",
+        "open": 332.485,
+        "adjOpen": 332.485,
+        "high": 333.6889,
+        "adjHigh": 333.6889,
+        "low": 327.45,
+        "adjLow": 327.45,
+        "close": 327.93,
+        "adjClose": 327.93,
+        "price": 327.93,
+        "volume": 27279974
+      },
+      {
+        "date": "2026-01-26T00:00:00.000Z",
+        "open": 327.805,
+        "adjOpen": 327.805,
+        "high": 335.84,
+        "adjHigh": 335.84,
+        "low": 327,
+        "adjLow": 327,
+        "close": 333.26,
+        "adjClose": 333.26,
+        "price": 333.26,
+        "volume": 26042120
+      }
+    ],
+    "fundamentals": {
+      "marketCap": 4030446440000,
+      "peRatio": 32.4379396544,
+      "pbRatio": 10.4181706892,
+      "dividendYield": 0,
+      "roe": 0,
+      "beta": 0,
+      "description": "Google Inc. (Google) is a global technology company. The Company's business is primarily focused around key areas, such as search, advertising, operating systems and platforms, enterprise and hardware products. The Company generates revenue primarily by delivering online advertising. The Company also generates revenues from Motorola by selling hardware products. The Company provides its products and services in more than 100 languages and in more than 50 countries, regions, and territories. Effective May 16, 2014, Google Inc acquired Quest Visual Inc. Effective May 20, 2014, Google Inc acquired Enterproid Inc, doing business as Divide. In June 2014, Google Inc acquired mDialog Corp. Effective June 25, 2014, Google Inc acquired Appurify Inc, a San Francisco-based developer of mobile bugging application software."
+    },
+    "financials": {
+      "summary": {
+        "revenue": 350018000000,
+        "netIncome": 100118000000
+      },
+      "history": [
+        {
+          "date": "2024-12-31",
+          "year": 2024,
+          "revenue": 350018000000,
+          "costOfRevenue": 146306000000,
+          "grossProfit": 203712000000,
+          "opExpenses": 91322000000,
+          "ebitda": 135394000000,
+          "netIncome": 100118000000,
+          "cashAndEquivalents": 23466000000,
+          "totalAssets": 450256000000,
+          "totalLiabilities": 125172000000,
+          "longTermDebt": 22574000000,
+          "totalEquity": 325084000000,
+          "netCashProvidedByOperatingActivities": 125299000000,
+          "netCashUsedForInvestingActivities": -45536000000,
+          "netCashUsedProvidedByFinancingActivities": -79733000000,
+          "netChangeInCash": -582000000
+        },
+        {
+          "date": "2023-12-31",
+          "year": 2023,
+          "revenue": 307394000000,
+          "costOfRevenue": 133332000000,
+          "grossProfit": 174062000000,
+          "opExpenses": 89769000000,
+          "ebitda": 97971000000,
+          "netIncome": 73795000000,
+          "cashAndEquivalents": 24048000000,
+          "totalAssets": 402392000000,
+          "totalLiabilities": 119013000000,
+          "longTermDebt": 24330000000,
+          "totalEquity": 283379000000,
+          "netCashProvidedByOperatingActivities": 101746000000,
+          "netCashUsedForInvestingActivities": -27063000000,
+          "netCashUsedProvidedByFinancingActivities": -72093000000,
+          "netChangeInCash": 2169000000
+        },
+        {
+          "date": "2022-12-31",
+          "year": 2022,
+          "revenue": 282836000000,
+          "costOfRevenue": 126203000000,
+          "grossProfit": 156633000000,
+          "opExpenses": 81791000000,
+          "ebitda": 85160000000,
+          "netIncome": 59972000000,
+          "cashAndEquivalents": 21879000000,
+          "totalAssets": 365264000000,
+          "totalLiabilities": 109120000000,
+          "longTermDebt": 27202000000,
+          "totalEquity": 256144000000,
+          "netCashProvidedByOperatingActivities": 91495000000,
+          "netCashUsedForInvestingActivities": -20298000000,
+          "netCashUsedProvidedByFinancingActivities": -69757000000,
+          "netChangeInCash": 934000000
+        },
+        {
+          "date": "2021-12-31",
+          "year": 2021,
+          "revenue": 257637000000,
+          "costOfRevenue": 110939000000,
+          "grossProfit": 146698000000,
+          "opExpenses": 67984000000,
+          "ebitda": 101353000000,
+          "netIncome": 76033000000,
+          "cashAndEquivalents": 20945000000,
+          "totalAssets": 359268000000,
+          "totalLiabilities": 107633000000,
+          "longTermDebt": 26206000000,
+          "totalEquity": 251635000000,
+          "netCashProvidedByOperatingActivities": 91652000000,
+          "netCashUsedForInvestingActivities": -35523000000,
+          "netCashUsedProvidedByFinancingActivities": -61362000000,
+          "netChangeInCash": -5520000000
+        },
+        {
+          "date": "2020-12-31",
+          "year": 2020,
+          "revenue": 182527000000,
+          "costOfRevenue": 84732000000,
+          "grossProfit": 97795000000,
+          "opExpenses": 56571000000,
+          "ebitda": 61914000000,
+          "netIncome": 40269000000,
+          "cashAndEquivalents": 26465000000,
+          "totalAssets": 319616000000,
+          "totalLiabilities": 97072000000,
+          "longTermDebt": 25078000000,
+          "totalEquity": 222544000000,
+          "netCashProvidedByOperatingActivities": 65124000000,
+          "netCashUsedForInvestingActivities": -32773000000,
+          "netCashUsedProvidedByFinancingActivities": -24408000000,
+          "netChangeInCash": 7967000000
+        },
+        {
+          "date": "2019-12-31",
+          "year": 2019,
+          "revenue": 161857000000,
+          "costOfRevenue": 71896000000,
+          "grossProfit": 89961000000,
+          "opExpenses": 55730000000,
+          "ebitda": 51506000000,
+          "netIncome": 34343000000,
+          "cashAndEquivalents": 18498000000,
+          "totalAssets": 275909000000,
+          "totalLiabilities": 74467000000,
+          "longTermDebt": 14768000000,
+          "totalEquity": 201442000000,
+          "netCashProvidedByOperatingActivities": 54520000000,
+          "netCashUsedForInvestingActivities": -29491000000,
+          "netCashUsedProvidedByFinancingActivities": -23209000000,
+          "netChangeInCash": 1797000000
+        },
+        {
+          "date": "2018-12-31",
+          "year": 2018,
+          "revenue": 136819000000,
+          "costOfRevenue": 59549000000,
+          "grossProfit": 77270000000,
+          "opExpenses": 49746000000,
+          "ebitda": 44062000000,
+          "netIncome": 30736000000,
+          "cashAndEquivalents": 16701000000,
+          "totalAssets": 232792000000,
+          "totalLiabilities": 55164000000,
+          "longTermDebt": 4012000000,
+          "totalEquity": 177628000000,
+          "netCashProvidedByOperatingActivities": 47971000000,
+          "netCashUsedForInvestingActivities": -28504000000,
+          "netCashUsedProvidedByFinancingActivities": -13179000000,
+          "netChangeInCash": 5986000000
+        },
+        {
+          "date": "2017-12-31",
+          "year": 2017,
+          "revenue": 110855000000,
+          "costOfRevenue": 45583000000,
+          "grossProfit": 65272000000,
+          "opExpenses": 39094000000,
+          "ebitda": 34217000000,
+          "netIncome": 12662000000,
+          "cashAndEquivalents": 10715000000,
+          "totalAssets": 197295000000,
+          "totalLiabilities": 44793000000,
+          "longTermDebt": 3969000000,
+          "totalEquity": 152502000000,
+          "netCashProvidedByOperatingActivities": 37091000000,
+          "netCashUsedForInvestingActivities": -31401000000,
+          "netCashUsedProvidedByFinancingActivities": -8298000000,
+          "netChangeInCash": -2203000000
+        },
+        {
+          "date": "2016-12-31",
+          "year": 2016,
+          "revenue": 90272000000,
+          "costOfRevenue": 35138000000,
+          "grossProfit": 55134000000,
+          "opExpenses": 31418000000,
+          "ebitda": 30418000000,
+          "netIncome": 19478000000,
+          "cashAndEquivalents": 12918000000,
+          "totalAssets": 167497000000,
+          "totalLiabilities": 28461000000,
+          "longTermDebt": 3935000000,
+          "totalEquity": 139036000000,
+          "netCashProvidedByOperatingActivities": 36036000000,
+          "netCashUsedForInvestingActivities": -31165000000,
+          "netCashUsedProvidedByFinancingActivities": -8332000000,
+          "netChangeInCash": -3631000000
+        },
+        {
+          "date": "2015-12-31",
+          "year": 2015,
+          "revenue": 74989000000,
+          "costOfRevenue": 28164000000,
+          "grossProfit": 46825000000,
+          "opExpenses": 27465000000,
+          "ebitda": 24818000000,
+          "netIncome": 16348000000,
+          "cashAndEquivalents": 16549000000,
+          "totalAssets": 147461000000,
+          "totalLiabilities": 27130000000,
+          "longTermDebt": 1995000000,
+          "totalEquity": 120331000000,
+          "netCashProvidedByOperatingActivities": 26572000000,
+          "netCashUsedForInvestingActivities": -23711000000,
+          "netCashUsedProvidedByFinancingActivities": -4225000000,
+          "netChangeInCash": -1798000000
+        },
+        {
+          "date": "2014-12-31",
+          "year": 2014,
+          "revenue": 66001000000,
+          "costOfRevenue": 25691000000,
+          "grossProfit": 40310000000,
+          "opExpenses": 23814000000,
+          "ebitda": 22855000000,
+          "netIncome": 14136000000,
+          "cashAndEquivalents": 18347000000,
+          "totalAssets": 129187000000,
+          "totalLiabilities": 25327000000,
+          "longTermDebt": 3228000000,
+          "totalEquity": 103860000000,
+          "netCashProvidedByOperatingActivities": 23024000000,
+          "netCashUsedForInvestingActivities": -21055000000,
+          "netCashUsedProvidedByFinancingActivities": -2087000000,
+          "netChangeInCash": -551000000
+        },
+        {
+          "date": "2013-12-31",
+          "year": 2013,
+          "revenue": 55519000000,
+          "costOfRevenue": 21993000000,
+          "grossProfit": 33526000000,
+          "opExpenses": 18123000000,
+          "ebitda": 19492000000,
+          "netIncome": 12733000000,
+          "cashAndEquivalents": 18898000000,
+          "totalAssets": 110920000000,
+          "totalLiabilities": 23611000000,
+          "longTermDebt": 2236000000,
+          "totalEquity": 87309000000,
+          "netCashProvidedByOperatingActivities": 18659000000,
+          "netCashUsedForInvestingActivities": -13679000000,
+          "netCashUsedProvidedByFinancingActivities": -857000000,
+          "netChangeInCash": 4120000000
+        },
+        {
+          "date": "2012-12-31",
+          "year": 2012,
+          "revenue": 46039000000,
+          "costOfRevenue": 17176000000,
+          "grossProfit": 28863000000,
+          "opExpenses": 15029000000,
+          "ebitda": 16700000000,
+          "netIncome": 10737000000,
+          "cashAndEquivalents": 14778000000,
+          "totalAssets": 93798000000,
+          "totalLiabilities": 22083000000,
+          "longTermDebt": 2988000000,
+          "totalEquity": 71715000000,
+          "netCashProvidedByOperatingActivities": 16619000000,
+          "netCashUsedForInvestingActivities": -13056000000,
+          "netCashUsedProvidedByFinancingActivities": 1229000000,
+          "netChangeInCash": 4795000000
+        },
+        {
+          "date": "2011-12-31",
+          "year": 2011,
+          "revenue": 37905000000,
+          "costOfRevenue": 13188000000,
+          "grossProfit": 24717000000,
+          "opExpenses": 12975000000,
+          "ebitda": 14235000000,
+          "netIncome": 9737000000,
+          "cashAndEquivalents": 9983000000,
+          "totalAssets": 72574000000,
+          "totalLiabilities": 14429000000,
+          "longTermDebt": 2986000000,
+          "totalEquity": 58145000000,
+          "netCashProvidedByOperatingActivities": 14565000000,
+          "netCashUsedForInvestingActivities": -19041000000,
+          "netCashUsedProvidedByFinancingActivities": 807000000,
+          "netChangeInCash": -3647000000
+        },
+        {
+          "date": "2010-12-31",
+          "year": 2010,
+          "revenue": 29321000000,
+          "costOfRevenue": 10417000000,
+          "grossProfit": 18904000000,
+          "opExpenses": 8523000000,
+          "ebitda": 12197000000,
+          "netIncome": 8505000000,
+          "cashAndEquivalents": 13630000000,
+          "totalAssets": 57851000000,
+          "totalLiabilities": 11610000000,
+          "longTermDebt": 0,
+          "totalEquity": 46241000000,
+          "netCashProvidedByOperatingActivities": 11081000000,
+          "netCashUsedForInvestingActivities": -10680000000,
+          "netCashUsedProvidedByFinancingActivities": 3050000000,
+          "netChangeInCash": 3432000000
+        },
+        {
+          "date": "2009-12-31",
+          "year": 2009,
+          "revenue": 23651000000,
+          "costOfRevenue": 8844000000,
+          "grossProfit": 14807000000,
+          "opExpenses": 6495000000,
+          "ebitda": 9905000000,
+          "netIncome": 6520000000,
+          "cashAndEquivalents": 10198000000,
+          "totalAssets": 40497000000,
+          "totalLiabilities": 4493000000,
+          "longTermDebt": 0,
+          "totalEquity": 36004000000,
+          "netCashProvidedByOperatingActivities": 9316000000,
+          "netCashUsedForInvestingActivities": -8019000000,
+          "netCashUsedProvidedByFinancingActivities": 233000000,
+          "netChangeInCash": 1541000000
+        },
+        {
+          "date": "2008-12-31",
+          "year": 2008,
+          "revenue": 21796000000,
+          "costOfRevenue": 8622000000,
+          "grossProfit": 13174000000,
+          "opExpenses": 6542000000,
+          "ebitda": 7353000000,
+          "netIncome": 4227000000,
+          "cashAndEquivalents": 8656672000,
+          "totalAssets": 31767575000,
+          "totalLiabilities": 3528713000,
+          "longTermDebt": 0,
+          "totalEquity": 28238862000,
+          "netCashProvidedByOperatingActivities": 7853000000,
+          "netCashUsedForInvestingActivities": -5319000000,
+          "netCashUsedProvidedByFinancingActivities": 87000000,
+          "netChangeInCash": 2575000000
+        },
+        {
+          "date": "2007-12-31",
+          "year": 2007,
+          "revenue": 16593986000,
+          "costOfRevenue": 6649085000,
+          "grossProfit": 9944901000,
+          "opExpenses": 4860501000,
+          "ebitda": 6641638000,
+          "netIncome": 4203720000,
+          "cashAndEquivalents": 6081593000,
+          "totalAssets": 25335806000,
+          "totalLiabilities": 2646127000,
+          "longTermDebt": 0,
+          "totalEquity": 22689679000,
+          "netCashProvidedByOperatingActivities": 5775410000,
+          "netCashUsedForInvestingActivities": -3681589000,
+          "netCashUsedProvidedByFinancingActivities": 403067000,
+          "netChangeInCash": 2536922000
+        },
+        {
+          "date": "2006-12-31",
+          "year": 2006,
+          "revenue": 10604917000,
+          "costOfRevenue": 4225027000,
+          "grossProfit": 6379890000,
+          "opExpenses": 2829894000,
+          "ebitda": 4505470000,
+          "netIncome": 3077446000,
+          "cashAndEquivalents": 3544671000,
+          "totalAssets": 18473351000,
+          "totalLiabilities": 1433511000,
+          "longTermDebt": 0,
+          "totalEquity": 17039840000,
+          "netCashProvidedByOperatingActivities": 3580508000,
+          "netCashUsedForInvestingActivities": -6899150000,
+          "netCashUsedProvidedByFinancingActivities": 2966398000,
+          "netChangeInCash": -332503000
+        },
+        {
+          "date": "2005-12-31",
+          "year": 2005,
+          "revenue": 6138560000,
+          "costOfRevenue": 2577088000,
+          "grossProfit": 3561472000,
+          "opExpenses": 1544194000,
+          "ebitda": 2398489000,
+          "netIncome": 1465397000,
+          "cashAndEquivalents": 3877174000,
+          "totalAssets": 10271813000,
+          "totalLiabilities": 852856000,
+          "longTermDebt": 0,
+          "totalEquity": 9418957000,
+          "netCashProvidedByOperatingActivities": 2459422000,
+          "netCashUsedForInvestingActivities": -3358193000,
+          "netCashUsedProvidedByFinancingActivities": 4370830000,
+          "netChangeInCash": 3450301000
+        },
+        {
+          "date": "2004-12-31",
+          "year": 2004,
+          "revenue": 3189223000,
+          "costOfRevenue": 1468967000,
+          "grossProfit": 1720256000,
+          "opExpenses": 1080064000,
+          "ebitda": 778757000,
+          "netIncome": 399119000,
+          "cashAndEquivalents": 426873000,
+          "totalAssets": 3313351000,
+          "totalLiabilities": 384295000,
+          "longTermDebt": 0,
+          "totalEquity": 2929056000,
+          "netCashProvidedByOperatingActivities": 977044000,
+          "netCashUsedForInvestingActivities": -1901356000,
+          "netCashUsedProvidedByFinancingActivities": 1194618000,
+          "netChangeInCash": 277878000
+        },
+        {
+          "date": "2003-12-31",
+          "year": 2003,
+          "revenue": 1465934000,
+          "costOfRevenue": 625854000,
+          "grossProfit": 840080000,
+          "opExpenses": 497616000,
+          "ebitda": 401703000,
+          "netIncome": 105648000,
+          "cashAndEquivalents": 148995000,
+          "totalAssets": 871458000,
+          "totalLiabilities": 282688000,
+          "longTermDebt": 1988000,
+          "totalEquity": 588770000,
+          "netCashProvidedByOperatingActivities": 395445000,
+          "netCashUsedForInvestingActivities": -313954000,
+          "netCashUsedProvidedByFinancingActivities": 8090000,
+          "netChangeInCash": 91243000
+        },
+        {
+          "date": "2002-12-31",
+          "year": 2002,
+          "revenue": 439508000,
+          "costOfRevenue": 131510000,
+          "grossProfit": 307998000,
+          "opExpenses": 121532000,
+          "ebitda": 213898000,
+          "netIncome": 99656000,
+          "cashAndEquivalents": 57752000,
+          "totalAssets": 286892000,
+          "totalLiabilities": 112939000,
+          "longTermDebt": 6512000,
+          "totalEquity": 173953000,
+          "netCashProvidedByOperatingActivities": 155265000,
+          "netCashUsedForInvestingActivities": -109717000,
+          "netCashUsedProvidedByFinancingActivities": -5473000,
+          "netChangeInCash": 40075000
+        },
+        {
+          "date": "2001-12-31",
+          "year": 2001,
+          "revenue": 86426000,
+          "costOfRevenue": 15104000,
+          "grossProfit": 71322000,
+          "opExpenses": 72741000,
+          "ebitda": 24250000,
+          "netIncome": 6985000,
+          "cashAndEquivalents": 0,
+          "totalAssets": 0,
+          "totalLiabilities": 0,
+          "longTermDebt": 0,
+          "totalEquity": 0,
+          "netCashProvidedByOperatingActivities": 31089000,
+          "netCashUsedForInvestingActivities": -29091000,
+          "netCashUsedProvidedByFinancingActivities": -2439000,
+          "netChangeInCash": -441000
+        }
+      ]
+    },
+    "news": [
+      {
+        "id": 91891172,
+        "publishedDate": "2026-01-27T20:36:29Z",
+        "title": "Planet Labs PBC (NYSE:PL) Issues Quarterly Earnings Results",
+        "url": "https://www.thelincolnianonline.com/2025/12/10/planet-labs-pbc-nysepl-issues-quarterly-earnings-results.html",
+        "description": "Planet Labs PBC (NYSE:PL – Get Free Report) issued its quarterly earnings data on Wednesday, December 10th. The company reported $0.00 earnings per share (EPS) for the quarter, topping the consensus estimate of ($0.02) by $0.02, Briefing.com reports. The company had revenue of $81.25 million during the quarter, compared to the consensus estimate of $72.02 […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "Computer And Technology",
+          "ETF",
+          "Earnings",
+          "Financial Services",
+          "Nyse:Pl",
+          "Pl",
+          "Planet Labs Pbc",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T20:37:06.606334Z",
+        "tickers": [
+          "barl",
+          "goog",
+          "googl",
+          "ms",
+          "msk",
+          "mwg",
+          "mwo",
+          "mwr",
+          "nksh",
+          "pl"
+        ]
+      },
+      {
+        "id": 91891086,
+        "publishedDate": "2026-01-27T20:34:00Z",
+        "title": "Why these ASX ETFs could be perfect to buy and hold forever",
+        "url": "https://www.fool.com.au/2026/01/28/why-these-asx-etfs-could-be-perfect-to-buy-and-hold-forever/",
+        "description": "Let's see what makes these ASX ETFs attractive options for investors looking for buy and hold picks...",
+        "source": "fool.com.au",
+        "tags": [
+          "Consumer Cyclical",
+          "Consumer Defensive",
+          "ETF",
+          "Financial Services",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:35:24.947135Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "asia",
+          "baba",
+          "bidu",
+          "cost",
+          "googl",
+          "msft",
+          "pdd",
+          "tcehy",
+          "tsm",
+          "v"
+        ]
+      },
+      {
+        "id": 91890576,
+        "publishedDate": "2026-01-27T20:21:00Z",
+        "title": "I changed 12 settings on my Android phone to significantly improve its battery life",
+        "url": "https://www.zdnet.com/article/best-android-phone-settings-to-improve-battery-life/",
+        "description": "Battery dropping too fast? Consider these 12 expert-approved tips to make your device last up to hours longer.",
+        "source": "zdnet.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:26:34.795079Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91891062,
+        "publishedDate": "2026-01-27T20:17:16Z",
+        "title": "Microsoft Releases Powerful New AI Chip to Take on Nvidia",
+        "url": "https://finance.yahoo.com/news/microsoft-releases-powerful-ai-chip-201716391.html",
+        "description": "The software giant is vying for a bigger piece of the AI pie.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Copilot",
+          "Microsoft",
+          "Microsoft 365",
+          "Nasdaq",
+          "Nvidia",
+          "Scott Guthrie",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:34:47.387948Z",
+        "tickers": [
+          "amzn",
+          "goog",
+          "googl",
+          "msft",
+          "nflx",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91890424,
+        "publishedDate": "2026-01-27T20:15:46Z",
+        "title": "Planet Labs PBC (NYSE:PL) Posts Earnings Results, Beats Estimates By $0.02 EPS",
+        "url": "https://www.thelincolnianonline.com/2025/12/10/planet-labs-pbc-nysepl-posts-earnings-results-beats-estimates-by-0-02-eps.html",
+        "description": "Planet Labs PBC (NYSE:PL – Get Free Report) issued its earnings results on Wednesday, December 10th. The company reported $0.00 EPS for the quarter, beating analysts’ consensus estimates of ($0.02) by $0.02, Briefing.com reports. Planet Labs PBC had a negative return on equity of 31.01% and a negative net margin of 45.87%.The business had revenue […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "Computer And Technology",
+          "ETF",
+          "Earnings",
+          "Financial Services",
+          "Nyse:Pl",
+          "Pl",
+          "Planet Labs Pbc",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T20:17:59.965552Z",
+        "tickers": [
+          "barl",
+          "goog",
+          "googl",
+          "gs",
+          "gsf",
+          "gsj",
+          "ms",
+          "msk",
+          "mwg",
+          "mwo",
+          "mwr",
+          "pl"
+        ]
+      },
+      {
+        "id": 91891171,
+        "publishedDate": "2026-01-27T20:15:00Z",
+        "title": "Forget Quantum Computing Inc. Stock: Buy This AI‑First Tech Titan Hiding in Plain Sight",
+        "url": "https://www.fool.com/investing/2026/01/27/forget-quantum-computing-stock-buy-this-aifirst-te/?source=iedfolrf0000001",
+        "description": "This \"Magnificent Seven\" company is establishing itself in the next frontier of technology.",
+        "source": "fool.com",
+        "tags": [
+          "Bb2Ab3E8-E034-463F-971F-0561Af65E123",
+          "Goog",
+          "Googl",
+          "Investing",
+          "Qubt",
+          "Stock",
+          "Technology",
+          "Technology And Telecom",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T20:37:03.455244Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "qubt"
+        ]
+      },
+      {
+        "id": 91890088,
+        "publishedDate": "2026-01-27T20:09:23.779126Z",
+        "title": "Mastercard expands startup outreach to agentic AI firms",
+        "url": "https://www.americanbanker.com/payments/news/mastercard-expands-startup-outreach-to-agentic-ai-firms",
+        "description": "The card network's Start Path engagement program is scouring the technology world for entrepreneurs working on the new form of artificial intelligence. ",
+        "source": "americanbanker.com",
+        "tags": [
+          "Artificial Intelligence",
+          "Financial Services",
+          "Industrials",
+          "Mastercard",
+          "Payments",
+          "Payments Innovation",
+          "Pso Content",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T20:09:35.595002Z",
+        "tickers": [
+          "fisv",
+          "goog",
+          "googl",
+          "ma",
+          "msft",
+          "pypl",
+          "pyplv"
+        ]
+      },
+      {
+        "id": 91890090,
+        "publishedDate": "2026-01-27T20:08:19Z",
+        "title": "Planet Labs PBC (NYSE:PL) Announces Earnings Results",
+        "url": "https://www.thelincolnianonline.com/2025/12/10/planet-labs-pbc-nysepl-announces-earnings-results.html",
+        "description": "Planet Labs PBC (NYSE:PL – Get Free Report) announced its earnings results on Wednesday, December 10th. The company reported $0.00 earnings per share for the quarter, beating the consensus estimate of ($0.02) by $0.02, Briefing.com reports. Planet Labs PBC had a negative return on equity of 31.01% and a negative net margin of 45.87%.The company […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "Computer And Technology",
+          "Earnings",
+          "Financial Services",
+          "Nyse:Pl",
+          "Pl",
+          "Planet Labs Pbc",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T20:09:40.889651Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "gs",
+          "gsf",
+          "gsj",
+          "nksh",
+          "pl"
+        ]
+      },
+      {
+        "id": 91890002,
+        "publishedDate": "2026-01-27T20:06:03Z",
+        "title": "Planet Labs PBC (NYSE:PL) Issues Quarterly Earnings Results, Beats Expectations By $0.02 EPS",
+        "url": "https://www.thelincolnianonline.com/2025/12/10/planet-labs-pbc-nysepl-issues-quarterly-earnings-results-beats-expectations-by-0-02-eps.html",
+        "description": "Planet Labs PBC (NYSE:PL – Get Free Report) announced its quarterly earnings data on Wednesday, December 10th. The company reported $0.00 earnings per share for the quarter, beating the consensus estimate of ($0.02) by $0.02, Briefing.com reports. Planet Labs PBC had a negative return on equity of 31.01% and a negative net margin of 45.87%.The […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "Computer And Technology",
+          "Earnings",
+          "Financial Services",
+          "Nyse:Pl",
+          "Pl",
+          "Planet Labs Pbc",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T20:06:31.032470Z",
+        "tickers": [
+          "c",
+          "goog",
+          "googl",
+          "pl"
+        ]
+      },
+      {
+        "id": 91890859,
+        "publishedDate": "2026-01-27T20:04:29Z",
+        "title": "Top photos of the day by The Associated Press",
+        "url": "https://apnews.com/photo-gallery/associated-press-top-photos-january-27-2026-988878e7bff9b7f9e1d283d1531ff7b2",
+        "description": "From front-page news to powerful moments you may have missed, this gallery showcases today’s top photos chosen by Associated Press photo editors.",
+        "source": "apnews.com",
+        "tags": [
+          "Associated Press",
+          "General",
+          "Photo Galleries",
+          "Send To Apple News",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "U.S.",
+          "U.S. News",
+          "World",
+          "World News"
+        ],
+        "crawlDate": "2026-01-27T20:32:21.933322Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91889975,
+        "publishedDate": "2026-01-27T20:02:36.580000Z",
+        "title": "Hot Picks: Heavy AI spending isn’t breaking big tech’s investment case",
+        "url": "https://www.bnnbloomberg.ca/investing/hot-picks/2026/01/27/hot-picks-heavy-ai-spending-isnt-breaking-big-techs-investment-case/",
+        "description": "Big tech stocks may look expensive, but long-term growth, AI demand and disciplined spending still support valuations, strategist Ernest Wong says.",
+        "source": "bnnbloomberg.ca",
+        "tags": [
+          "Communication Services",
+          "Consumer Cyclical",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:05:24.145799Z",
+        "tickers": [
+          "amzn",
+          "goog",
+          "googl",
+          "intc",
+          "iqnt",
+          "msft",
+          "nvda",
+          "orcl",
+          "tsm"
+        ]
+      },
+      {
+        "id": 91890584,
+        "publishedDate": "2026-01-27T19:57:16Z",
+        "title": "Microsoft Releases Powerful New AI Chip to Take on Nvidia",
+        "url": "https://www.fool.com/investing/2026/01/27/microsoft-releases-new-ai-chip-to-take-on-nvidia/?source=iedfolrf0000001",
+        "description": "The software giant is vying for a bigger piece of the AI pie.",
+        "source": "fool.com",
+        "tags": [
+          "31Bc2284-Ccbc-48D3-993C-6A85600502Ed",
+          "Amzn",
+          "Consumer Cyclical",
+          "Goog",
+          "Googl",
+          "Investing",
+          "Msft",
+          "Nvda",
+          "Stock",
+          "Technology",
+          "Technology And Telecom"
+        ],
+        "crawlDate": "2026-01-27T20:27:25.709748Z",
+        "tickers": [
+          "amzn",
+          "goog",
+          "googl",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91889053,
+        "publishedDate": "2026-01-27T19:40:44Z",
+        "title": "6 AEO Strategies For Your Small Business",
+        "url": "https://www.forbes.com/video/62150658-33fe-4575-9cb6-5e83ab0d7959/",
+        "description": "Customers are no longer merely entering keywords into a search bar, they're asking ChatGPT, Perplexity and Google AI Overviews for recommendations. Unlike traditional SEO, which has historically focused on achieving a top spot on a list of ten blue links, AEO focuses on the answers returned by a user's search query utilizing an AI powered search tool. You don't need to have big marketing budgets to be visible in AI answers. Forbes contributor TerDawn DeBoe outlines six ways to optimize your business for AI searches.",
+        "source": "forbes.com",
+        "tags": [
+          "CryptoCurrency",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:43:31.216899Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91889013,
+        "publishedDate": "2026-01-27T19:38:24Z",
+        "title": "WinRAR path traversal flaw still exploited by numerous hackers",
+        "url": "https://www.bleepingcomputer.com/news/security/winrar-path-traversal-flaw-still-exploited-by-numerous-hackers/",
+        "description": "Multiple threat actors, both state-sponsored and financially motivated, are exploiting the CVE-2025-8088 high-severity vulnerability in WinRAR for initial access and to deliver various malicious payloads.",
+        "source": "bleepingcomputer.com",
+        "tags": [
+          "Security",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:41:22.429575Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888819,
+        "publishedDate": "2026-01-27T19:35:41Z",
+        "title": "Zoom Is the First Casualty in France's War on American Big Tech",
+        "url": "https://gizmodo.com/zoom-is-the-first-casualty-in-frances-war-on-american-big-tech-2000714545",
+        "description": "Homebrewed video conferencing may not be a moonshot, but you gotta start somewhere.",
+        "source": "gizmodo.com",
+        "tags": [
+          "France",
+          "North America",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:37:42.416323Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "msft"
+        ]
+      },
+      {
+        "id": 91889795,
+        "publishedDate": "2026-01-27T19:32:51Z",
+        "title": "EU Gives Google Six Months to Open Android to Rival AI Search",
+        "url": "https://finance.yahoo.com/news/eu-gives-google-six-months-193251313.html",
+        "description": "EU regulators begin DMA proceedings, warning Google to share Android access and search data or risk future penalties.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Android",
+          "European Regulators",
+          "European Union",
+          "Google",
+          "Search Data",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:00:09.878288Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888759,
+        "publishedDate": "2026-01-27T19:32:03Z",
+        "title": "TikTok settles as social media giants face landmark trial over youth addiction claims",
+        "url": "https://www.koreatimes.co.kr/world/20260128/tiktok-settles-as-social-media-giants-face-landmark-trial-over-youth-addiction-claims",
+        "description": "LOS ANGELES — TikTok agreed to settle a landmark social media addiction lawsuit just before the trial kicked off, the plaintiff’s attorneys confirm...",
+        "source": "koreatimes.co.kr",
+        "tags": [
+          "",
+          "Algorithms And Harmful Content.",
+          "Bellwether Trials Social Media",
+          "Big Tech Legal Cases",
+          "Big Tobacco Trial Similarities",
+          "Children And Social Media Addiction",
+          "Federal Bellwether Trial Oakland",
+          "Google Youtube Lawsuit",
+          "Harmful Social Media Design",
+          "Korea",
+          "Korea Times",
+          "Korean In English",
+          "Koreatimes",
+          "Los Angeles County Superior Court Trial",
+          "Meta Ceo Mark Zuckerberg Trial",
+          "Meta Instagram Lawsuit",
+          "New Mexico Meta Trial",
+          "North Korea",
+          "School Districts Suing Social Media",
+          "Section 230 Tech Liability",
+          "Seoul",
+          "Snapchat Lawsuit Settlement",
+          "Social Media Addiction Lawsuit",
+          "South Korea",
+          "State Attorneys General Lawsuits",
+          "Stock",
+          "Tech Oversight Project",
+          "Technology",
+          "The Korea Times",
+          "Tiingo Top",
+          "Tiktok",
+          "Tiktok Lawsuit Settlement",
+          "Youth Addiction",
+          "Youth Mental Health Crisis"
+        ],
+        "crawlDate": "2026-01-27T19:37:22.205435Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91889411,
+        "publishedDate": "2026-01-27T19:30:00Z",
+        "title": "The Rare Gemstone Company Unveils Study on Growing U.S. Demand for Tsavorite, the Green Gemstone Outshining Emerald",
+        "url": "https://finance.yahoo.com/news/rare-gemstone-company-unveils-study-193000935.html",
+        "description": "Antony Zagoritis, CEO of The Rare Gemstone Company, shares how the firm is redefining luxury through ethically sourced gemstones, blockchain transparency, and custom design technology, while championing rare stones like Tsavorite and Tanzanite as both art and investment. Learn more at https://www.theraregemstonecompany.com/ Nairobi, Kenya, Jan. 27, 2026 (GLOBE NEWSWIRE) -- The Rare Gemstone Company, a Nairobi-based gemstone specialist, has unveiled a new study detailing the growing U.S. demand f",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Antony Zagoritis",
+          "Colored Gemstones",
+          "Green Gemstone",
+          "Green Gemstones",
+          "Kenya",
+          "Nairobi",
+          "Rare Gemstone",
+          "Rare Gemstone Company",
+          "Stock",
+          "Technology",
+          "The Rare Gemstone Company",
+          "Tsavorite",
+          "Tsavorite Garnet"
+        ],
+        "crawlDate": "2026-01-27T19:51:42.715092Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91890061,
+        "publishedDate": "2026-01-27T19:28:13Z",
+        "title": "Vizio's New Quantum TV Is One of the Cheapest Mini LEDs Yet",
+        "url": "https://www.cnet.com/tech/home-entertainment/vizios-new-quantum-tv-is-one-of-the-cheapest-mini-leds-yet/",
+        "description": "The TV will go on sale in two sizes, 65 inches and 75 inches, with both priced under $500.",
+        "source": "cnet.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tvs"
+        ],
+        "crawlDate": "2026-01-27T20:07:22.021609Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888466,
+        "publishedDate": "2026-01-27T19:27:12Z",
+        "title": "Apple and Google reportedly still offer dozens of AI ‘nudify’ apps",
+        "url": "https://www.engadget.com/ai/apple-and-google-reportedly-still-offer-dozens-of-ai-nudify-apps-192712446.html?src=rss",
+        "description": "A recent investigation found over 100 apps on iOS and Android that use AI to create nonconsensual and sexualized images. This is a clear violation of both companies' policies.",
+        "source": "engadget.com",
+        "tags": [
+          "Author_Name|Lawrence Bonk",
+          "Language|En-Us",
+          "Provider_Name|Engadget",
+          "Region|Us",
+          "Site|Engadget",
+          "Software",
+          "Stock",
+          "Technology",
+          "Technology & Electronics"
+        ],
+        "crawlDate": "2026-01-27T19:31:27.479403Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888817,
+        "publishedDate": "2026-01-27T19:26:53Z",
+        "title": "Utah children’s author Kouri Richins says state threatened witnesses ahead of trial in husband’s poisoning",
+        "url": "https://www.foxnews.com/us/utah-childrens-author-kouri-richins-says-state-threatened-witnesses-ahead-trial-husbands-poisoning",
+        "description": "Utah mother accused of poisoning husband faces witness intimidation claims before murder trial. Defense alleges prosecution threatened witnesses.",
+        "source": "foxnews.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:37:38.217886Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888845,
+        "publishedDate": "2026-01-27T19:25:00Z",
+        "title": "Where Will Rigetti Computing (RGTI) Stock Be in 1 Year?",
+        "url": "https://finance.yahoo.com/news/where-rigetti-computing-rgti-stock-192500046.html",
+        "description": "The quantum computing underdog faces tough near-term challenges.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Quantum Computing",
+          "Rigetti Computing",
+          "Stock",
+          "Stock Trades",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T19:38:58.236668Z",
+        "tickers": [
+          "frx",
+          "fst",
+          "goog",
+          "googl",
+          "ibm",
+          "ionq",
+          "nflx",
+          "nvda",
+          "qubt",
+          "rgti"
+        ]
+      },
+      {
+        "id": 91888317,
+        "publishedDate": "2026-01-27T19:23:43Z",
+        "title": "Sperax Joins Forces with Google Cloud: Accelerating AI-Integrated DeFi Tools for Seamless User Experiences",
+        "url": "https://www.globenewswire.com/news-release/2026/01/27/3227021/0/en/Sperax-Joins-Forces-with-Google-Cloud-Accelerating-AI-Integrated-DeFi-Tools-for-Seamless-User-Experiences.html",
+        "description": "  MENLO PARK, Calif., Jan.  27, 2026  (GLOBE NEWSWIRE) -- Sperax, the DeFi protocol driving SperaxOS and the auto-yield stablecoin USDs, is teaming up with...",
+        "source": "globenewswire.com",
+        "tags": [
+          "Sperax",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:26:37.531775Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888854,
+        "publishedDate": "2026-01-27T19:20:00Z",
+        "title": "Why Billionaires Are Quietly Buying This AI Stock for 2026",
+        "url": "https://finance.yahoo.com/news/why-billionaires-quietly-buying-ai-192000889.html",
+        "description": "Several billionaires on Wall Street are pouring into one particular member of the \"Magnificent Seven.\"",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Alphabet",
+          "Alphabet Stock",
+          "Artificial Intelligence",
+          "Bill Ackman",
+          "Competitive Advantage",
+          "Consumer Cyclical",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:39:14.484844Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "nflx",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91888184,
+        "publishedDate": "2026-01-27T19:19:16Z",
+        "title": "This 13-year-old-iPhone just got a software update from Apple — are you paying attention, Samsung?",
+        "url": "https://www.tomsguide.com/phones/iphones/this-13-year-old-iphone-just-got-a-software-update-from-apple-are-you-paying-attention-samsung",
+        "description": "iPhone 5s and the iPhone 6 can now be updated to iOS 12.5.8",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:22:40.543026Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888069,
+        "publishedDate": "2026-01-27T19:16:01Z",
+        "title": "The 'best camera phone for most people' is now $1,000 off at Verizon — no trade-in required!",
+        "url": "https://www.androidcentral.com/phones/google-pixel/the-best-camera-phone-for-most-people-is-now-usd1-000-off-at-verizon-no-trade-in-required",
+        "description": "The Google Pixel 10 Pro is one of the best phones from 2025.",
+        "source": "androidcentral.com",
+        "tags": [
+          "Communication Services",
+          "Google Pixel",
+          "Phones",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:18:27.018161Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "vz",
+          "vza"
+        ]
+      },
+      {
+        "id": 91888073,
+        "publishedDate": "2026-01-27T19:11:41Z",
+        "title": "A Reckoning for the Tech Right",
+        "url": "https://www.theatlantic.com/technology/2026/01/minneapolis-reckoning-tech-right/685781/",
+        "description": "Silicon Valley’s top CEOs have been noticeably silent after the Minneapolis shooting.",
+        "source": "theatlantic.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:19:22.580848Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "msft"
+        ]
+      },
+      {
+        "id": 91890644,
+        "publishedDate": "2026-01-27T19:10:52Z",
+        "title": "Tested: RayNeo X3 Pro glasses give a glimpse of AR in 2026 with a lot of compromises for the price",
+        "url": "https://9to5toys.com/2026/01/27/tested-rayneo-x3-pro-glasses/",
+        "description": "Today’s smart glasses generally fall into two camps: ones that put a big, wearable display in front of your eyes...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:28:32.552521Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887834,
+        "publishedDate": "2026-01-27T19:10:30Z",
+        "title": "Sergey Brin has spent $50M for a cliffside Malibu mansion -- despite California's looming billionaire tax",
+        "url": "https://nypost.com/2026/01/27/real-estate/sergey-brin-has-spent-50m-for-a-cliffside-malibu-mansion/",
+        "description": "The Google co-founder’s new property is just doors away from another residence he owns there.",
+        "source": "nypost.com",
+        "tags": [
+          "Gimme Shelter",
+          "Los Angeles",
+          "Luxury Real Estate",
+          "Malibu",
+          "Mansions",
+          "Residential Real Estate",
+          "Sergey Brin",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T19:12:35.993966Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887891,
+        "publishedDate": "2026-01-27T19:05:00Z",
+        "title": "Could BigBear.ai Stock Go to $0?",
+        "url": "https://finance.yahoo.com/news/could-bigbear-ai-stock-0-190500523.html",
+        "description": "Not every AI stock is a runaway success story.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Ai Company",
+          "Bigbear.Ai Stock",
+          "Business Improvements",
+          "Consumer Cyclical",
+          "Defense Department",
+          "Government Agencies",
+          "New England Patriots",
+          "Shares Outstanding",
+          "Special Purpose Acquisition Company",
+          "Stock",
+          "Tech Industry",
+          "Tech Stocks",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T19:14:21.270147Z",
+        "tickers": [
+          "bbai",
+          "goog",
+          "googl",
+          "msft",
+          "nflx",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91888269,
+        "publishedDate": "2026-01-27T19:05:00Z",
+        "title": "The US States Where People Spend The Most On Groceries",
+        "url": "https://finance.yahoo.com/news/us-states-where-people-spend-190500958.html",
+        "description": "It's no secret grocery prices are rising across the United States. But you might be shocked at the total some Americans spend per week.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Alaska",
+          "Bureau Of Labor Statistics",
+          "Groceries",
+          "Hawaii",
+          "Stock",
+          "Supermarket Checkout",
+          "Technology",
+          "United States"
+        ],
+        "crawlDate": "2026-01-27T19:25:17.443963Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888692,
+        "publishedDate": "2026-01-27T19:05:00Z",
+        "title": "Where Will Rigetti Computing (RGTI) Stock Be in 1 Year?",
+        "url": "https://www.fool.com/investing/2026/01/27/where-will-rigetti-computing-rgti-stock-be-in-1-ye/?source=iedfolrf0000001",
+        "description": "The quantum computing underdog faces tough near-term challenges.",
+        "source": "fool.com",
+        "tags": [
+          "91365968-Bd5F-419E-A9C7-F4A331B7F728",
+          "Goog",
+          "Googl",
+          "Ibm",
+          "Investing",
+          "Ionq",
+          "Qubt",
+          "Rgti",
+          "Stock",
+          "Technology",
+          "Technology And Telecom",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T19:35:28.545021Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "ionq",
+          "qubt",
+          "rgti"
+        ]
+      },
+      {
+        "id": 91887729,
+        "publishedDate": "2026-01-27T19:04:29Z",
+        "title": "Trump Department Responsible for Airline Safety Using AI to Write New Regulations, So They Can Be Churned Out as Fast as Possible",
+        "url": "https://futurism.com/artificial-intelligence/trump-regulations-ai",
+        "description": "The Department of Transportation is excitedly working to integrate Google's Gemini into its regulatory process.",
+        "source": "futurism.com",
+        "tags": [
+          "Artificial Intelligence",
+          "Ethics",
+          "Google",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T19:07:27.900516Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887552,
+        "publishedDate": "2026-01-27T19:00:09Z",
+        "title": "Microsoft Ramps Up AI Chip Race With Google and Amazon",
+        "url": "https://www.pymnts.com/artificial-intelligence-2/2026/microsoft-ramps-up-ai-chip-race-with-google-and-amazon/",
+        "description": "Microsoft on Monday (Jan. 26) introduced Maia 200, its second-generation custom artificial intelligence (AI) accelerator, as cloud providers increasingly",
+        "source": "pymnts.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:02:44.986057Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "msft"
+        ]
+      },
+      {
+        "id": 91887543,
+        "publishedDate": "2026-01-27T19:00:00Z",
+        "title": "Waymo Moves Closer to London Launch as U.S. Safety Scrutiny Intensifies",
+        "url": "https://oilprice.com/Energy/Energy-General/Waymo-Moves-Closer-to-London-Launch-as-US-Safety-Scrutiny-Intensifies.html",
+        "description": "Waymo is preparing to launch its driverless taxi service in London this year, expanding internationally even as U.S. regulators investigate recent safety incidents involving its autonomous vehicles.",
+        "source": "oilprice.com",
+        "tags": [
+          "Alphabet",
+          "Autonomous Vehicles",
+          "London",
+          "Miami",
+          "Robotaxis",
+          "Self-Driving Cars",
+          "Stock",
+          "Technology",
+          "Transport Policy",
+          "U.S. Regulators",
+          "United Kingdom",
+          "Waymo"
+        ],
+        "crawlDate": "2026-01-27T19:02:21.207219Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888443,
+        "publishedDate": "2026-01-27T19:00:00Z",
+        "title": "Why Billionaires Are Quietly Buying This AI Stock for 2026",
+        "url": "https://www.fool.com/investing/2026/01/27/why-billionaires-are-quietly-buying-this-ai-stock/?source=iedfolrf0000001",
+        "description": "Several billionaires on Wall Street are pouring into one particular member of the \"Magnificent Seven.\"",
+        "source": "fool.com",
+        "tags": [
+          "13Bea2C1-D561-4751-A36A-0360B4140E0C",
+          "Goog",
+          "Googl",
+          "Investing",
+          "Stock",
+          "Technology",
+          "Technology And Telecom"
+        ],
+        "crawlDate": "2026-01-27T19:30:32.459133Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888367,
+        "publishedDate": "2026-01-27T18:59:41Z",
+        "title": "TikTok llega a acuerdo para resolver demanda por acusaciones de que causa adiccin en los jvenes",
+        "url": "https://apnews.com/article/eeuu-redes-sociales-adiccion-jovenes-tiktok-meta-instagram-youtube-google-56cd5dd76ecc5fa00243d51df8e6a559",
+        "description": "LOS ÁNGELES (AP) — TikTok acordó resolver una demanda histórica sobre adicción a las redes sociales justo antes de que comenzara el juicio, confirmaron los abogados del demandante.",
+        "source": "apnews.com",
+        "tags": [
+          "General",
+          "Noticias",
+          "Send To Apple News",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "U.S.",
+          "U.S. News"
+        ],
+        "crawlDate": "2026-01-27T19:27:25.207611Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888271,
+        "publishedDate": "2026-01-27T18:59:31Z",
+        "title": "Alibaba Stock Climbs -- New AI Model Matches Google and OpenAI",
+        "url": "https://finance.yahoo.com/news/alibaba-stock-climbs-ai-model-185931208.html",
+        "description": "Alibaba Cloud Shines as AI Model Competes With Global Leaders",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Alibaba",
+          "Alibaba Cloud",
+          "Artificial Intelligence Model",
+          "Consumer Cyclical",
+          "Industry Benchmarks",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:25:22.019013Z",
+        "tickers": [
+          "baba",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887898,
+        "publishedDate": "2026-01-27T18:57:19Z",
+        "title": "Google Faces EU Push to Open Search, AI Access",
+        "url": "https://finance.yahoo.com/news/google-faces-eu-push-open-185719167.html",
+        "description": "Regulators push for equal data access for competitors and AI developers.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "European Commission",
+          "Google",
+          "Search Data",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:14:33.015121Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887499,
+        "publishedDate": "2026-01-27T18:57:00Z",
+        "title": "You're already chatting with AI Mode, now Google's update adds Gemini 3 for a refined experience",
+        "url": "https://www.androidcentral.com/apps-software/ai/youre-already-chatting-with-ai-mode-now-googles-update-adds-gemini-3-for-a-refined-experience",
+        "description": "Google announced new features in AI Mode, thanks to its Gemini 3 integration.",
+        "source": "androidcentral.com",
+        "tags": [
+          "Ai",
+          "Apps &Amp",
+          "Software",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:59:19.678187Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887465,
+        "publishedDate": "2026-01-27T18:55:11Z",
+        "title": "Several homes evacuated after reports of gunfire, booby traps in Sacramento suburb",
+        "url": "https://nypost.com/2026/01/27/us-news/sacramento-suburb-rancho-cordova-evacuated-after-reports-of-gunfire/",
+        "description": "Reports of gunfire and booby traps forced the evacuation of several homes in a Sacramento suburb Tuesday morning, according to authorities and news reports.",
+        "source": "nypost.com",
+        "tags": [
+          "California",
+          "Sacramento",
+          "Shootings",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:55:42.867183Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887643,
+        "publishedDate": "2026-01-27T18:47:00Z",
+        "title": "Costco quietly removed two deals members loved",
+        "url": "https://finance.yahoo.com/news/costco-quietly-removed-two-deals-184700352.html",
+        "description": "Costco regularly changes up its merchandise to keep customers interested. That's part of its \"treasure hunt\" model, which has fueled the chain's success. \"About 1,000 of the 4,000 items that we carry are what we refer to as the 'treasure hunt' items. Those are the items that are constantly ...",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Consumer Defensive",
+          "Costco",
+          "Discounted Gift Cards",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:04:18.981573Z",
+        "tickers": [
+          "cost",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887065,
+        "publishedDate": "2026-01-27T18:42:01Z",
+        "title": "'Google AI Plus' now available in the U.S. for $7.99 (GOOG:NASDAQ)",
+        "url": "https://seekingalpha.com/news/4543095-google-ai-plus-now-available-in-the-us-for-799",
+        "description": "Google expands Google AI Plus to 35 countries, offering Gemini tools, Flow filmmaking, and NotebookLM help.",
+        "source": "seekingalpha.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:43:51.249695Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91886961,
+        "publishedDate": "2026-01-27T18:40:51Z",
+        "title": "ATproto: The Enshittification Killswitch That Enables Resonant Computing",
+        "url": "https://www.techdirt.com/2026/01/27/atproto-the-enshittification-killswitch-that-enables-resonant-computing/",
+        "description": "Disclosure: I’m on the board of Bluesky, which was inspired by my “Protocols, Not Platforms” paper. But this post isn’t about Bluesky the app. It’s about the underlyin…",
+        "source": "techdirt.com",
+        "tags": [
+          "Atmosphere",
+          "Atmospheric Computing",
+          "Atproto",
+          "Atprotocol",
+          "Bluesky",
+          "Leaflet",
+          "Offprint",
+          "Protocols Not Platforms",
+          "Resonant Computing",
+          "Skylight",
+          "Stock",
+          "Tangled",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:41:29.460431Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91887279,
+        "publishedDate": "2026-01-27T18:37:31Z",
+        "title": "Rivian R2 Close to Production!",
+        "url": "https://cleantechnica.com/2026/01/27/rivian-r2-close-to-production/",
+        "description": "Support CleanTechnica's work through a Substack subscription or on Stripe. Or support our Kickstarter campaign! One of the big hopes for the US electric car market is the Rivian R2. This is the vehicle from Rivian that could really pull the brand into the mass market. It’s a bit like  ... [continued]",
+        "source": "cleantechnica.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:50:22.118833Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91886849,
+        "publishedDate": "2026-01-27T18:31:13Z",
+        "title": "This Grandmother Built A Home For Less Than $2,300",
+        "url": "https://cleantechnica.com/2026/01/27/this-grandmother-built-a-home-for-less-than-2300/",
+        "description": "She built a cob home out of mud and straw for less than $2,300.",
+        "source": "cleantechnica.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:38:35.050368Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91886913,
+        "publishedDate": "2026-01-27T18:28:45.751000Z",
+        "title": "Meta e Corning assinam acordo de at US$6 bi para cabos de fibra ptica em data centers de IA",
+        "url": "https://www.reuters.com/pt/tecnologia/6TMB5MPHVJIVZKIQOXTWH4ZSFA-2026-01-27/",
+        "description": null,
+        "source": "reuters.com",
+        "tags": [
+          "2026:Ml_Kbn3Om2Dq",
+          "2026:Ml_Kbn3Om2Dq:1",
+          "2026:Ml_Kbn3Om2Dr",
+          "2026:Ml_Kbn3Om2Dr:1",
+          "2026:Ml_L6N3Ys164",
+          "2026:Ml_L6N3Ys164:89665243",
+          "Guid:Tag:Reuters.Com",
+          "Stock",
+          "Technology",
+          "Usn:Kbn3Om2Dq",
+          "Usn:Kbn3Om2Dr",
+          "Usn:L6N3Ys164",
+          "Vguid:Tag:Reuters.Com"
+        ],
+        "crawlDate": "2026-01-27T18:39:25.199027Z",
+        "tickers": [
+          "glw",
+          "googl",
+          "meta",
+          "msft"
+        ]
+      },
+      {
+        "id": 91886686,
+        "publishedDate": "2026-01-27T18:28:33Z",
+        "title": "Mastercard Unveils Agent Suite to Help Businesses Navigate Agentic AI",
+        "url": "https://www.pymnts.com/news/artificial-intelligence/2026/mastercard-unveils-agent-suite-help-businesses-navigate-agentic-ai/",
+        "description": "Mastercard introduced Mastercard Agent Suite, a platform designed to help enterprises integrate agentic artificial intelligence into their operations and",
+        "source": "pymnts.com",
+        "tags": [
+          "Financial Services",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T18:34:07.829479Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "ma",
+          "pypl",
+          "pyplv"
+        ]
+      },
+      {
+        "id": 91886380,
+        "publishedDate": "2026-01-27T18:25:20Z",
+        "title": "CommVault Systems (NASDAQ:CVLT) Hits New 12-Month Low  – Time to Sell?",
+        "url": "https://www.thelincolnianonline.com/2026/01/27/commvault-systems-nasdaqcvlt-hits-new-12-month-low-time-to-sell.html",
+        "description": "CommVault Systems, Inc. (NASDAQ:CVLT – Get Free Report) shares hit a new 52-week low during mid-day trading on Tuesday . The stock traded as low as $85.38 and last traded at $85.52, with a volume of 1279403 shares changing hands. The stock had previously closed at $129.36. Key Stories Impacting CommVault Systems Here are the […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "20416610",
+          "Commvault Systems",
+          "Computer And Technology",
+          "Cvlt",
+          "Financial Services",
+          "Nasdaq:Cvlt",
+          "Stock",
+          "Stocks",
+          "Technicals",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T18:25:51.633595Z",
+        "tickers": [
+          "cvlt",
+          "goog",
+          "googl",
+          "wfc",
+          "wfc-ws"
+        ]
+      },
+      {
+        "id": 91886481,
+        "publishedDate": "2026-01-27T18:25:00Z",
+        "title": "You can still claim your refund in Amazon's $2.5 billion Prime settlement - here's how",
+        "url": "https://www.zdnet.com/article/hot-to-claim-refund-in-amazons-2-5-billion-prime-settlement/",
+        "description": "The FTC says Amazon tricked customers into signing up for a Prime subscription and made it difficult to cancel. Check if you're eligible for a payout.",
+        "source": "zdnet.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:27:30.531219Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91886427,
+        "publishedDate": "2026-01-27T18:24:05.658000Z",
+        "title": "Dow Jones misses out on tech gains as healthcare backslides",
+        "url": "https://www.fxstreet.com/news/dow-jones-industrial-average-misses-out-on-tech-gains-as-healthcare-backslides-202601271824",
+        "description": "The Dow Jones Industrial Average (DJIA) took a header on Tuesday, peeling away from the tech-bolstered pack of major indexes and falling around 500 points, or one percent, on an otherwise quiet trading day.",
+        "source": "fxstreet.com",
+        "tags": [
+          "Dowjones",
+          "Equities",
+          "Healthcare",
+          "Seo",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:26:32.864680Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "hum"
+        ]
+      },
+      {
+        "id": 91886488,
+        "publishedDate": "2026-01-27T18:19:19Z",
+        "title": "Anthropic and OpenAI CEOs condemn ICE violence, praise Trump",
+        "url": "https://techcrunch.com/2026/01/27/anthropic-and-openai-ceos-condemn-ice-violence-praise-trump/",
+        "description": "Anthropic's Dario Amodei and OpenAI's Sam Altman spoke out against ICE enforcement tactics following Minneapolis violence, with one addressing concerns publicly and the other in an internal message.",
+        "source": "techcrunch.com",
+        "tags": [
+          "Industrials",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:28:26.103681Z",
+        "tickers": [
+          "ba",
+          "goog",
+          "googl",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91885920,
+        "publishedDate": "2026-01-27T18:09:44Z",
+        "title": "EU launches proceedings to ensure Google complies with bloc's digital markets rules",
+        "url": "https://www.aa.com.tr/en/europe/eu-launches-proceedings-to-ensure-google-complies-with-blocs-digital-markets-rules/3812521",
+        "description": "Proceedings address Google's duties on Android interoperability, fair access to search data - Anadolu Ajansı",
+        "source": "aa.com.tr",
+        "tags": [
+          "Anadolu Ajansı",
+          "Digital Markets Act",
+          "Dma",
+          "Eu",
+          "European Commission",
+          "Google",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:11:21.804879Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91886805,
+        "publishedDate": "2026-01-27T18:09:32Z",
+        "title": "Is social media harmful for kids? Meta and YouTube face trial after TikTok settles suit",
+        "url": "https://www.aol.com/news/social-media-harmful-kids-meta-180932311.html",
+        "description": "Jury selection was scheduled to began in Los Angeles Superior Court Tuesday in the first of a series of closely-watched lawsuits seeking to prove social apps are \"defective\" and inflict harm on children, but a last-minute agreement by TikTok left uncertainty around how the case would proceed.",
+        "source": "aol.com",
+        "tags": [
+          "Los Angeles Superior Court",
+          "Sacha Haworth",
+          "Social Media",
+          "Social Media Addiction",
+          "Stock",
+          "Technology",
+          "Tiktok",
+          "Youtube"
+        ],
+        "crawlDate": "2026-01-27T18:36:04.947937Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885970,
+        "publishedDate": "2026-01-27T18:09:23Z",
+        "title": "Why Google’s New $7.99 AI Subscription Isn't The Bargain It Seems",
+        "url": "https://www.forbes.com/sites/paulmonckton/2026/01/27/why-googles-new-799-ai-subscription-isnt-the-bargain-it-seems/",
+        "description": "Google's new AI Plus subscription ($7.99) offers Gemini and creative tools, but hidden technical limits and a superior $9.99 alternative make it a tricky buy.",
+        "source": "forbes.com",
+        "tags": [
+          "Chatgpt Go",
+          "Flow And Whisk",
+          "Gemini 3 Pro",
+          "Gemini Context Window",
+          "Google Ai Plus",
+          "Google Ai Pricing",
+          "Google One Premium",
+          "Mid-Tier Ai Subscription",
+          "Nano Banana Pro",
+          "Stock",
+          "Technology",
+          "Veo 3.1 Fast"
+        ],
+        "crawlDate": "2026-01-27T18:12:43.204200Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885643,
+        "publishedDate": "2026-01-27T18:02:38Z",
+        "title": "TikTok reaches last-minute settlement with 19-year-old who said app gave her depression, body dysmorphia",
+        "url": "https://nypost.com/2026/01/27/business/tiktok-reaches-last-minute-settlement-with-woman-who-blamed-app-for-depression-body-dysmorphia/",
+        "description": "The woman, who has only been identified as “KGM,” has also settled with Snapchat parent company Snap.",
+        "source": "nypost.com",
+        "tags": [
+          "Facebook",
+          "Lawsuit",
+          "Lawsuits",
+          "Snap Inc",
+          "Snapchat",
+          "Social Media",
+          "Stock",
+          "Technology",
+          "Tiktok"
+        ],
+        "crawlDate": "2026-01-27T18:03:38.485131Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885566,
+        "publishedDate": "2026-01-27T18:01:29Z",
+        "title": "Meet Prism, OpenAI's free research workspace for scientists - how to try it",
+        "url": "https://www.zdnet.com/article/openai-prism-free-science/",
+        "description": "Powered by GPT-5.2, Prism helps you draft papers, source contextualized references, and more - just don't delegate your research to it.",
+        "source": "zdnet.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:02:32.162455Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885592,
+        "publishedDate": "2026-01-27T18:00:56Z",
+        "title": "Can You Sue the White House Over an AI Deepfake?",
+        "url": "https://gizmodo.com/can-you-sue-the-white-house-over-an-ai-deepfake-2000714219",
+        "description": "The Trump regime's abuse of AI has opened up new legal questions.",
+        "source": "gizmodo.com",
+        "tags": [
+          "ETF",
+          "Financial Services",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T18:03:10.317761Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "gs",
+          "gsf",
+          "gsj",
+          "gvip",
+          "msft"
+        ]
+      },
+      {
+        "id": 91886489,
+        "publishedDate": "2026-01-27T18:00:39Z",
+        "title": "Google’s more affordable AI Plus plan rolls out to all markets, including the U.S.",
+        "url": "https://techcrunch.com/2026/01/27/googles-ai-plus-plan-rolls-out-to-all-markets-including-the-u-s/",
+        "description": "Gemini 3 Pro and other AI tools are now available globally through the Google AI Plus plan, which is $7.99 per month in the United States.",
+        "source": "techcrunch.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "United States"
+        ],
+        "crawlDate": "2026-01-27T18:28:27.427218Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885552,
+        "publishedDate": "2026-01-27T18:00:30.927000Z",
+        "title": "OpenAI Debuts New Tool for Scientists in Push for AI Discovery",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/openai-debuts-new-tool-for-scientists-in-push-for-ai-discovery",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T18:01:56.135401Z",
+        "tickers": [
+          "googl"
+        ]
+      },
+      {
+        "id": 91885572,
+        "publishedDate": "2026-01-27T18:00:00Z",
+        "title": "Google is finally bringing a cheaper AI Plus subscription to the US. Is it actually worth paying for?",
+        "url": "https://www.androidcentral.com/apps-software/ai/google-brings-ai-plus-subscription-to-us",
+        "description": "Google AI Plus is available in the U.S. for the first time at $8 per month, but it's not for everyone.",
+        "source": "androidcentral.com",
+        "tags": [
+          "Ai",
+          "Apps &Amp",
+          "Software",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:02:34.844463Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885769,
+        "publishedDate": "2026-01-27T18:00:00Z",
+        "title": "Google AI Plus is now available in the US for $8 a month",
+        "url": "https://www.engadget.com/ai/google-ai-plus-is-now-available-in-the-us-for-8-a-month-180000175.html?src=rss",
+        "description": "Google AI Plus, the company’s most affordable AI subscription plan, is now rolling out in the US.",
+        "source": "engadget.com",
+        "tags": [
+          "Author_Name|Mariella Moon",
+          "Language|En-Us",
+          "Provider_Name|Engadget",
+          "Region|Us",
+          "Site|Engadget",
+          "Stock",
+          "Technology",
+          "Technology & Electronics"
+        ],
+        "crawlDate": "2026-01-27T18:06:35.166439Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885597,
+        "publishedDate": "2026-01-27T17:56:14Z",
+        "title": "How frost quakes or cryoseisms happen amid bitter cold weather",
+        "url": "https://apnews.com/article/frost-quake-cryoseism-cold-freezing-winter-weather-7643a5d03c33f225878946c06639b5bc",
+        "description": "Meteorologists say that water rapidly freezing in the soil amid bitterly cold temperatures can make a startling noise and even cause small vibrations.",
+        "source": "apnews.com",
+        "tags": [
+          "Climate",
+          "Climate And Environment",
+          "Evan Webb",
+          "General",
+          "Kentucky",
+          "Louisville",
+          "Send To Apple News",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Weather"
+        ],
+        "crawlDate": "2026-01-27T18:03:33.287189Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91888083,
+        "publishedDate": "2026-01-27T17:47:00Z",
+        "title": "Will Higher Ad Revenues Aid Meta Platforms Stock in Q4 Earnings?",
+        "url": "https://www.zacks.com/stock/news/2823737/will-higher-ad-revenues-aid-meta-platforms-stock-in-q4-earnings?cid=CS-ZC-FT-analyst_blog%7Cearnings_preview-2823737",
+        "description": null,
+        "source": "zacks.com",
+        "tags": [
+          "Analyst Blog",
+          "Consumer Cyclical",
+          "ETF",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:19:30.432421Z",
+        "tickers": [
+          "amzn",
+          "googl",
+          "meta",
+          "meta",
+          "metv",
+          "snap"
+        ]
+      },
+      {
+        "id": 91889379,
+        "publishedDate": "2026-01-27T17:47:00Z",
+        "title": "Will Higher Ad Revenues Aid Meta Platforms Stock in Q4 Earnings?",
+        "url": "https://finance.yahoo.com/news/higher-ad-revenues-aid-meta-174700559.html",
+        "description": "META's Q4 ad revenues are set to surge on AI-driven tools and rising global engagement across its platforms.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Amazon",
+          "Meta Platforms",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:50:58.767600Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91889382,
+        "publishedDate": "2026-01-27T17:45:00Z",
+        "title": "Buy, Sell or Hold the Apple Stock? Key Tips Ahead of Q1 Earnings",
+        "url": "https://finance.yahoo.com/news/buy-sell-hold-apple-stock-174500928.html",
+        "description": "AAPL eyes 10-12% sales growth in fiscal Q1, powered by strong iPhone demand and expanding Services momentum.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Apple",
+          "Apple Arcade",
+          "Apple Card",
+          "Apple Intelligence",
+          "Apple Pay",
+          "Apple Tv",
+          "Consensus Estimate",
+          "Iphone Sales",
+          "Stock",
+          "Technology",
+          "Unknown Sector",
+          "Zacks Investment Research"
+        ],
+        "crawlDate": "2026-01-27T19:51:05.654679Z",
+        "tickers": [
+          "dell",
+          "dvmt",
+          "goog",
+          "googl",
+          "lnvgy"
+        ]
+      },
+      {
+        "id": 91885363,
+        "publishedDate": "2026-01-27T17:43:19Z",
+        "title": "The price gap between Waymo and Uber is narrowing",
+        "url": "https://techcrunch.com/2026/01/27/the-price-gap-between-waymo-and-uber-is-narrowing/",
+        "description": "Data collected and analyzed by Obi suggest a shift is underway.",
+        "source": "techcrunch.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T17:57:33.067710Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "hymlf",
+          "lyft"
+        ]
+      },
+      {
+        "id": 91886214,
+        "publishedDate": "2026-01-27T17:43:19Z",
+        "title": "The price gap between Waymo and Uber is narrowing",
+        "url": "https://finance.yahoo.com/news/price-gap-between-waymo-uber-174319806.html",
+        "description": "Data collected and analyzed by Obi suggest a shift is underway.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Obi",
+          "Stock",
+          "Technology",
+          "Uber And Lyft",
+          "Uber Or Lyft",
+          "Uber Rides",
+          "Unknown Sector",
+          "Waymo"
+        ],
+        "crawlDate": "2026-01-27T18:20:22.954094Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "hymlf",
+          "lyft"
+        ]
+      },
+      {
+        "id": 91887310,
+        "publishedDate": "2026-01-27T17:43:18Z",
+        "title": "Why investors shouldn't cash out on Corning's monster rally just yet",
+        "url": "https://www.cnbc.com/2026/01/27/why-investors-shouldnt-cash-out-on-cornings-monster-rally-just-yet.html",
+        "description": "Shares surged more than 16% after CNBC reported that Corning inked a new deal with Meta Platforms. ",
+        "source": "cnbc.com",
+        "tags": [
+          "Breaking News: Markets",
+          "Breaking News: Technology",
+          "Business",
+          "Computing",
+          "Consumer Cyclical",
+          "ETF",
+          "Earnings",
+          "Internet",
+          "Investment Strategy",
+          "Markets",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Wireless"
+        ],
+        "crawlDate": "2026-01-27T18:51:38.870396Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "glw",
+          "googl",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91884699,
+        "publishedDate": "2026-01-27T17:42:05Z",
+        "title": "This popular free YouTube function could be locked into its paid Premium plan — and I won't be happy if I have to sign up for another subscription service",
+        "url": "https://www.techradar.com/computing/this-popular-free-youtube-function-could-be-locked-into-its-paid-premium-plan-and-i-wont-be-happy-if-i-have-to-sign-up-for-another-subscription-service",
+        "description": "A new YouTube experiment shows that its free-to-use playback-speed tool could be locked into the YouTube Premium plan.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:43:21.772769Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885310,
+        "publishedDate": "2026-01-27T17:31:10Z",
+        "title": "Strategy Buys 2,932 Bitcoin For $264M, But MSTR Stock Tests Critical $160 Support",
+        "url": "https://finance.yahoo.com/news/strategy-buys-2-932-bitcoin-173110911.html",
+        "description": "Strategy Inc. (NASDAQ:MSTR) has bought 2,932 Bitcoin (CRYPTO: BTC) for $264.1 million, but MSTR is down to $161 on Monday morning. The Bitcoin Purchase Details Strategy paid an average of $90,061 per Bitcoin for the latest purchase, well above the...",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Accredited Investors",
+          "Bitcoin Purchase",
+          "CryptoCurrency",
+          "Kraken",
+          "Michael Saylor",
+          "Stock",
+          "Strategy",
+          "Technology",
+          "Trading Platform"
+        ],
+        "crawlDate": "2026-01-27T17:55:51.095259Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "mstr"
+        ]
+      },
+      {
+        "id": 91885065,
+        "publishedDate": "2026-01-27T17:30:58Z",
+        "title": "Grubhub confirms data breach amid extortion claims",
+        "url": "https://www.foxnews.com/tech/grubhub-confirms-data-breach-amid-extortion-claims",
+        "description": "Grubhub data breach confirmed as sources say ShinyHunters group allegedly demands Bitcoin payment to prevent release of stolen customer support data.",
+        "source": "foxnews.com",
+        "tags": [
+          "CryptoCurrency",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:49:40.498907Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91889028,
+        "publishedDate": "2026-01-27T17:30:58Z",
+        "title": "Grubhub confirms data breach amid extortion claims",
+        "url": "https://www.aol.com/news/grubhub-confirms-data-breach-amid-173058512.html",
+        "description": "Grubhub data breach confirmed as sources say ShinyHunters group allegedly demands Bitcoin payment to prevent release of stolen customer support data.",
+        "source": "aol.com",
+        "tags": [
+          "Attackers",
+          "Bleepingcomputer",
+          "CryptoCurrency",
+          "Data Breach",
+          "Extortion",
+          "Grubhub",
+          "Personal Details",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:41:44.555505Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884203,
+        "publishedDate": "2026-01-27T17:30:33Z",
+        "title": "Alphabet (GOOGL) Price Target Lifted at KeyBanc on AI and Cloud Momentum",
+        "url": "https://www.insidermonkey.com/blog/alphabet-googl-price-target-lifted-at-keybanc-on-ai-and-cloud-momentum-1682268/",
+        "description": "Alphabet Inc. (NASDAQ:GOOGL) is one of the AI Stocks in Focus on Wall Street.",
+        "source": "insidermonkey.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:31:31.290780Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885327,
+        "publishedDate": "2026-01-27T17:30:33Z",
+        "title": "Alphabet (GOOGL) Price Target Lifted at KeyBanc on AI and Cloud Momentum",
+        "url": "https://finance.yahoo.com/news/alphabet-googl-price-target-lifted-173033129.html",
+        "description": "Alphabet Inc. (NASDAQ:GOOGL) is one of the AI Stocks in Focus on Wall Street. On January 26, KeyBanc analyst Justin Patterson raised the price target on the stock to $360.00 (from $330.00) while maintaining an Overweight rating. The firm views AI and Cloud trends structurally favorable for GOOGL, justifying a higher valuation. According to the […]",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Alphabet Inc",
+          "Keybanc",
+          "Price Target",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:56:15.952357Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91885237,
+        "publishedDate": "2026-01-27T17:30:00Z",
+        "title": "These 3 Subscription Traps Are Draining Your Bank Account",
+        "url": "https://finance.yahoo.com/news/3-subscription-traps-draining-bank-173000671.html",
+        "description": "Subscription traps use free trials, complex cancellation processes, and hidden price hikes to drain $118 monthly from your bank account on average.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Cancellation",
+          "Consumer Cyclical",
+          "Google Searches",
+          "Stock",
+          "Subscription Charges",
+          "Subscription Manager",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:55:03.582220Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "nflx"
+        ]
+      },
+      {
+        "id": 91889393,
+        "publishedDate": "2026-01-27T17:30:00Z",
+        "title": "Opinion - America’s disaster costs are soaring —taxpayers can’t keep paying",
+        "url": "https://finance.yahoo.com/news/opinion-america-disaster-costs-soaring-173000689.html",
+        "description": "Investing in pre-disaster mitigation can save taxpayers billions of dollars by reducing the cost of recovery from natural disasters, while also providing strong protections to vulnerable local communities.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "American Taxpayer",
+          "American Taxpayers",
+          "Billions Of Dollars",
+          "Communities",
+          "Critical Infrastructure",
+          "Disaster Relief",
+          "Federal Disaster",
+          "Federal Emergency Management Agency",
+          "National Oceanic And Atmospheric Administration",
+          "Natural Disasters",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:51:23.147208Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91889548,
+        "publishedDate": "2026-01-27T17:30:00Z",
+        "title": "Opinion - America’s disaster costs are soaring —taxpayers can’t keep paying",
+        "url": "https://www.aol.com/news/opinion-america-disaster-costs-soaring-173000046.html",
+        "description": "Investing in pre-disaster mitigation can save taxpayers billions of dollars by reducing the cost of recovery from natural disasters, while also providing strong protections to vulnerable local communities.",
+        "source": "aol.com",
+        "tags": [
+          "American Taxpayer",
+          "American Taxpayers",
+          "Billions Of Dollars",
+          "Communities",
+          "Critical Infrastructure",
+          "Disaster Relief",
+          "Federal Disaster",
+          "Federal Emergency Management Agency",
+          "National Oceanic And Atmospheric Administration",
+          "Natural Disasters",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:54:23.655770Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884172,
+        "publishedDate": "2026-01-27T17:27:08Z",
+        "title": "Yahoo is adding generative AI to its search engine",
+        "url": "https://www.engadget.com/ai/yahoo-is-adding-generative-ai-to-its-search-engine-172706249.html?src=rss",
+        "description": "Yahoo has released an AI-powered search engine.",
+        "source": "engadget.com",
+        "tags": [
+          "Arts & Entertainment",
+          "Author_Name|Andre Revilla",
+          "Financial Services",
+          "Investment & Company Information",
+          "Language|En-Us",
+          "Media",
+          "Provider_Name|Engadget",
+          "Region|Us",
+          "Site|Engadget",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:30:34.352136Z",
+        "tickers": [
+          "aaba",
+          "goog",
+          "googl",
+          "yhoo"
+        ]
+      },
+      {
+        "id": 91883926,
+        "publishedDate": "2026-01-27T17:23:21Z",
+        "title": "Jefferies Flags App Store and Google Ad Risks for Apple (AAPL)",
+        "url": "https://www.insidermonkey.com/blog/jefferies-flags-app-store-and-google-ad-risks-for-apple-aapl-1682267/",
+        "description": "Apple Inc. (NASDAQ:AAPL) is one of the AI Stocks in Focus on Wall Street.",
+        "source": "insidermonkey.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:25:14.572358Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884826,
+        "publishedDate": "2026-01-27T17:23:21Z",
+        "title": "Jefferies Flags App Store and Google Ad Risks for Apple (AAPL)",
+        "url": "https://finance.yahoo.com/news/jefferies-flags-app-store-google-172321219.html",
+        "description": "Apple Inc. (NASDAQ:AAPL) is one of the AI Stocks in Focus on Wall Street. On January 26, Jefferies analyst Edison Lee lowered the price target on the stock to $276.47 (from $283.36) while maintaining a Hold rating. The firm believes AAPL’s long-term growth is capped due to slowing App Store growth and Google ad revenue […]",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "App Store",
+          "Apple Inc.",
+          "Financial Services",
+          "Google",
+          "Jefferies",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T17:45:58.781427Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl",
+          "jef",
+          "jef-1"
+        ]
+      },
+      {
+        "id": 91884096,
+        "publishedDate": "2026-01-27T17:22:32.395000Z",
+        "title": "Bari Weiss Unveils New CBS Contributors, Online Push for News",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/bari-weiss-unveils-new-cbs-contributors-online-push-for-news",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T17:28:23.542830Z",
+        "tickers": [
+          "googl",
+          "nyt",
+          "psky"
+        ]
+      },
+      {
+        "id": 91884278,
+        "publishedDate": "2026-01-27T17:08:44Z",
+        "title": "Graphene Investments Liquidates Entire $2.95 Million Bath & Body Works Stake Amid Turnaround Challenges",
+        "url": "https://www.fool.com/coverage/filings/2026/01/27/graphene-investments-liquidates-entire-usd2-95-million-bath-and-body-works-stake-amid-turnaround-challenges/?source=iedfolrf0000001",
+        "description": "Bath & Body Works delivers personal care and home fragrance products through a broad retail and e-commerce footprint across North America.",
+        "source": "fool.com",
+        "tags": [
+          "6C9A9362-A812-4Dae-B83C-974C020598E5",
+          "Aapl",
+          "Avgo",
+          "Bbwi",
+          "Consumer Cyclical",
+          "Coveragefilings",
+          "Googl",
+          "Msft",
+          "North America",
+          "Nvda",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:34:17.553663Z",
+        "tickers": [
+          "aapl",
+          "avgo",
+          "bbwi",
+          "googl",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91883086,
+        "publishedDate": "2026-01-27T17:03:19Z",
+        "title": "Sam Altman Says OpenAI Is Slashing Its Hiring Pace as Financial Crunch Tightens",
+        "url": "https://futurism.com/artificial-intelligence/sam-altman-openai-slashing-hiring",
+        "description": "During a livestreamed town hall event on Monday, Altman said that OpenAI is looking to \"dramatically slow down\" hiring.",
+        "source": "futurism.com",
+        "tags": [
+          "Artificial Intelligence",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T17:04:23.548097Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884801,
+        "publishedDate": "2026-01-27T17:03:19Z",
+        "title": "Sam Altman Says OpenAI Is Slashing Its Hiring Pace as Financial Crunch Tightens",
+        "url": "https://finance.yahoo.com/news/sam-altman-says-openai-slashing-170319752.html",
+        "description": "The company is looking to \"dramatically slow down\" hiring.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Altman",
+          "Openai",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:45:28.092385Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91883237,
+        "publishedDate": "2026-01-27T17:02:39Z",
+        "title": "Samsung Galaxy Unpacked 2026: Everything we think the company will unveil",
+        "url": "https://www.engadget.com/mobile/smartphones/samsung-galaxy-unpacked-2026-everything-we-think-the-company-will-unveil-130000218.html?src=rss",
+        "description": "Samsung's next Unpacked event is rumored to be happening in February and will feature the launch of the company's Galaxy S26 phones.",
+        "source": "engadget.com",
+        "tags": [
+          "Author_Name|Ian Carlos Campbell",
+          "Handheld & Connected Devices",
+          "Language|En-Us",
+          "Provider_Name|Engadget",
+          "Region|Us",
+          "Site|Engadget",
+          "Smart Phones",
+          "Stock",
+          "Technology",
+          "Technology & Electronics"
+        ],
+        "crawlDate": "2026-01-27T17:07:32.806034Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "msi"
+        ]
+      },
+      {
+        "id": 91886743,
+        "publishedDate": "2026-01-27T17:02:00Z",
+        "title": "Is Oracle's Rising Cloud CapEx Driving Its Next Growth Phase?",
+        "url": "https://www.zacks.com/stock/news/2823661/is-oracle-s-rising-cloud-capex-driving-its-next-growth-phase?cid=CS-ZC-FT-analyst_blog%7Cquick_take-2823661",
+        "description": null,
+        "source": "zacks.com",
+        "tags": [
+          "Analyst Blog",
+          "Consumer Cyclical",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T18:34:51.536044Z",
+        "tickers": [
+          "amzn",
+          "googl",
+          "orcl"
+        ]
+      },
+      {
+        "id": 91887025,
+        "publishedDate": "2026-01-27T17:02:00Z",
+        "title": "Is Oracle's Rising Cloud CapEx Driving Its Next Growth Phase?",
+        "url": "https://finance.yahoo.com/news/oracles-rising-cloud-capex-driving-170200149.html",
+        "description": "ORCL is ramping cloud CapEx to $50B as AI and enterprise demand surge, betting GPU-rich data centers can unlock faster revenue growth.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Data Centers",
+          "Global Cloud",
+          "Google Cloud",
+          "Oracle Cloud Infrastructure",
+          "Stock",
+          "Technology",
+          "Zacks Investment Research"
+        ],
+        "crawlDate": "2026-01-27T18:43:08.058081Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "nvda",
+          "orcl"
+        ]
+      },
+      {
+        "id": 91883040,
+        "publishedDate": "2026-01-27T17:00:53Z",
+        "title": "Your Android phone just got a powerful anti-theft upgrade. Here's what's new",
+        "url": "https://www.zdnet.com/article/android-anti-theft-security-updates/",
+        "description": "These updates give you more control over your device's security.",
+        "source": "zdnet.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:03:33.994665Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91882861,
+        "publishedDate": "2026-01-27T17:00:00Z",
+        "title": "Google’s new theft protection makes your phone a much harder target, and it's the peace of mind I’ve been waiting for",
+        "url": "https://www.androidcentral.com/apps-software/googles-new-theft-protection-makes-your-phone-a-much-harder-target-and-its-the-peace-of-mind-ive-been-waiting-for",
+        "description": "Android’s latest update turns your phone into a nightmare for thieves.",
+        "source": "androidcentral.com",
+        "tags": [
+          "Apps &Amp",
+          "Software",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:00:44.978539Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91882955,
+        "publishedDate": "2026-01-27T17:00:00Z",
+        "title": "Google Search gets smarter AI Overviews with Gemini 3 — and adds follow‑up chats to your search results",
+        "url": "https://www.techradar.com/ai-platforms-assistants/gemini/google-search-gets-smarter-ai-overviews-with-gemini-3-and-adds-follow-up-chats-to-your-search-results",
+        "description": "Google Search gets a brain upgrade, thanks to Gemini 3’s conversational skills",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:02:22.706018Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91883238,
+        "publishedDate": "2026-01-27T17:00:00Z",
+        "title": "Gemini 3 is now Google's default model for AI Overviews",
+        "url": "https://www.engadget.com/ai/gemini-3-is-now-googles-default-model-for-ai-overviews-170000302.html?src=rss",
+        "description": "Google is rolling out two upgrades for Search. First, Gemini 3 is now the default for AI Overviews. Second, you can now jump into an AI Mode conversation directly from a summary.",
+        "source": "engadget.com",
+        "tags": [
+          "Author_Name|Igor Bonifacic",
+          "Language|En-Us",
+          "Provider_Name|Engadget",
+          "Region|Us",
+          "Site|Engadget",
+          "Stock",
+          "Technology",
+          "Technology & Electronics"
+        ],
+        "crawlDate": "2026-01-27T17:07:33.709213Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884088,
+        "publishedDate": "2026-01-27T17:00:00Z",
+        "title": "Google now lets users jump from AI Overviews into AI Mode conversations",
+        "url": "https://techcrunch.com/2026/01/27/google-now-lets-users-jump-from-ai-overviews-into-ai-mode-conversations/",
+        "description": "The tech giant also announced that it's making Gemini 3 the new default model for AI Overviews globally.",
+        "source": "techcrunch.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:27:27.428880Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884090,
+        "publishedDate": "2026-01-27T17:00:00Z",
+        "title": "Android phones are getting more anti-theft features",
+        "url": "https://techcrunch.com/2026/01/27/android-phones-are-getting-more-anti-theft-features/",
+        "description": "Google says Android devices will get new security features, like stronger authentication safeguards and enhanced recovery tools.",
+        "source": "techcrunch.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:27:30.145785Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91883854,
+        "publishedDate": "2026-01-27T16:58:01Z",
+        "title": "Indian states weigh Australia-style ban on social media for children",
+        "url": "https://finance.yahoo.com/news/indian-states-weigh-australia-style-165801930.html",
+        "description": "Goa and Andhra Pradesh are among Indian states mulling Australia-like social media ban for under-16s.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Australia",
+          "Children",
+          "India",
+          "Indian States",
+          "Nara Lokesh",
+          "Social Media Apps",
+          "Stock",
+          "Technology",
+          "Tiktok"
+        ],
+        "crawlDate": "2026-01-27T17:23:41.326902Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91884089,
+        "publishedDate": "2026-01-27T16:58:01Z",
+        "title": "Indian states weigh Australia-style ban on social media for children",
+        "url": "https://techcrunch.com/2026/01/27/indian-states-weigh-australia-style-ban-on-social-media-for-children/",
+        "description": "Goa and Andhra Pradesh are among Indian states mulling Australia-like social media ban for under-16s.",
+        "source": "techcrunch.com",
+        "tags": [
+          "Australia",
+          "India",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T17:27:29.135447Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91883078,
+        "publishedDate": "2026-01-27T16:56:48.108000Z",
+        "title": "WhatsApp estrena un modo de alta seguridad para ofrecer mayor proteccin",
+        "url": "https://www.reuters.com/es/tecnolog%C3%ADa/4P6AFHXVV5M7BDVMLUMF37HYEY-2026-01-27/",
+        "description": null,
+        "source": "reuters.com",
+        "tags": [
+          "2026:Ml_Kbn3Om26K",
+          "2026:Ml_Kbn3Om26K:1",
+          "2026:Ml_Kbn3Om26L",
+          "2026:Ml_Kbn3Om26L:1",
+          "2026:Ml_L6N3Ys13G",
+          "2026:Ml_L6N3Ys13G:893117354",
+          "Guid:Tag:Reuters.Com",
+          "Stock",
+          "Technology",
+          "Usn:Kbn3Om26K",
+          "Usn:Kbn3Om26L",
+          "Usn:L6N3Ys13G",
+          "Vguid:Tag:Reuters.Com"
+        ],
+        "crawlDate": "2026-01-27T17:04:10.375108Z",
+        "tickers": [
+          "aapl",
+          "googl",
+          "meta"
+        ]
+      },
+      {
+        "id": 91884030,
+        "publishedDate": "2026-01-27T16:55:43Z",
+        "title": "AI Overviews gets upgraded to Gemini 3 with a dash of AI Mode",
+        "url": "https://arstechnica.com/google/2026/01/ai-overviews-gets-upgraded-to-gemini-3-with-a-dash-of-ai-mode/",
+        "description": "AI Overviews may get it right more often with the move to Gemini 3.",
+        "source": "arstechnica.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T17:26:28.546374Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91882632,
+        "publishedDate": "2026-01-27T16:52:41Z",
+        "title": "Google Pixel 10 users are reporting broken Wi-Fi and Bluetooth with the latest update – and there’s no fix in sight",
+        "url": "https://www.techradar.com/phones/google-pixel-phones/google-pixel-10-users-are-reporting-broken-wi-fi-and-bluetooth-with-the-latest-update-and-theres-no-fix-in-sight",
+        "description": "The latest Pixel patch fixes bugs but also seems to introduce some, rendering certain Pixel 10 series phones almost unusable.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T16:55:27.261201Z",
+        "tickers": [
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91883198,
+        "publishedDate": "2026-01-27T16:46:58Z",
+        "title": "Will social media bans weigh on App Store revenue? Analyst sees limited impact",
+        "url": "https://finance.yahoo.com/news/social-media-bans-weigh-app-164658862.html",
+        "description": "Investing.com -- Restrictions preventing children under 16 from accessing major social media platforms in Australia, and a similar proposal now under consideration in the U.K., have prompted some to question whether Apple’s App Store and Google’s Play Store could face pressure on in-app purchase revenue.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "App Store",
+          "Australia",
+          "Jonathan Brinksman",
+          "Play Store",
+          "Revenue Impact",
+          "Social Media Platforms",
+          "Stock",
+          "Technology",
+          "Tiktok"
+        ],
+        "crawlDate": "2026-01-27T17:07:03.320741Z",
+        "tickers": [
+          "goog",
+          "googl",
+          "nvda"
+        ]
+      }
+    ]
+  },
+  "timestamp": 1769546636537
+}
