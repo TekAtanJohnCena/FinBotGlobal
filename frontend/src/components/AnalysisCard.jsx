@@ -1,7 +1,7 @@
 // PATH: src/components/AnalysisCard.jsx
 import React, { useState } from "react";
 import MarketChart from "./MarketChart";
-import { TrendingUp, Activity, PieChart, BarChart3, ChevronDown, ChevronUp, Layers } from "lucide-react";
+import { Activity, PieChart, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function AnalysisCard({ a, theme = "dark" }) {
   const [showChart, setShowChart] = useState(false);
@@ -125,7 +125,7 @@ export default function AnalysisCard({ a, theme = "dark" }) {
                   className="w-full flex items-center justify-between p-4 rounded-xl bg-zinc-800/30 hover:bg-zinc-800/50 transition-all border border-zinc-700/20 group"
                 >
                   <div className="flex items-center gap-3">
-                    <piechart size={16} className="text-zinc-500 group-hover:text-purple-400 transition-colors" />
+                    <PieChart size={16} className="text-zinc-500 group-hover:text-purple-400 transition-colors" />
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Teknik Görünüm</span>
                   </div>
                   {showChart ? <ChevronUp size={16} className="text-zinc-500" /> : <ChevronDown size={16} className="text-zinc-500" />}

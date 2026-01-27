@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from "../lib/api";
 import {
@@ -11,22 +12,12 @@ import {
   PieChart,
   Activity,
   ArrowUpRight,
-  ArrowDownRight,
   Newspaper,
   BookOpen,
   PenTool,
   Trash2,
   X
 } from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts';
 import ReactApexChart from 'react-apexcharts';
 
 const Screener = () => {
@@ -47,6 +38,7 @@ const Screener = () => {
   const [activeRange, setActiveRange] = useState("1 Ay");
   const [periodPerformances, setPeriodPerformances] = useState({});
   const [chartType, setChartType] = useState('area');
+  const [language, setLanguage] = useState('en'); // Language for company description
 
   // Trendline Tool State (Hybrid: Series for Line, Annotations for Markers)
   const [isDrawing, setIsDrawing] = useState(false);
@@ -58,7 +50,7 @@ const Screener = () => {
   const series = useMemo(() => {
     if (!historyData || historyData.length === 0) return [];
 
-    // 1. Client-Side Filtering based on Active Range (Fix Sorun 1)
+    // 1. Client-Side Filtering based on Active Range (simple slice)
     const ranges = {
       "Gün içi": 2,
       "1 Hafta": 7,
@@ -71,30 +63,38 @@ const Screener = () => {
       "Tümü": historyData.length
     };
 
-    // Fallback: If no match, show all (backend handles specific API calls anyway)
-    // But slicing guarantees visual update if backend data is accumulating
     const limit = ranges[activeRange] || historyData.length;
-    const filteredData = historyData.slice(-limit);
+    let filteredData = historyData.slice(-limit);
 
-    // 2. Mapping
+    // 2. Downsampling for Performance (max 500 points)
+    const MAX_POINTS = 500;
+    if (filteredData.length > MAX_POINTS) {
+      const step = Math.ceil(filteredData.length / MAX_POINTS);
+      const downsampled = [];
+      for (let i = 0; i < filteredData.length; i += step) {
+        downsampled.push(filteredData[i]);
+      }
+      // Always include the last point
+      if (downsampled[downsampled.length - 1] !== filteredData[filteredData.length - 1]) {
+        downsampled.push(filteredData[filteredData.length - 1]);
+      }
+      filteredData = downsampled;
+    }
+
+    // 3. Mapping
     const seriesData = filteredData
       .filter(item => item && item.date)
       .map(item => {
-        const dateStr = item.date;
-        const timestamp = new Date(dateStr).getTime();
-
-        // Strict Check
+        const timestamp = new Date(item.date).getTime();
         if (isNaN(timestamp)) return null;
 
-        // Robust Value Extraction
         const c = parseFloat(item.price || item.close || item.adjClose || 0);
-        // Fallbacks for OHLC
         const o = parseFloat(item.open || item.adjOpen || c);
         const h = parseFloat(item.high || item.adjHigh || c);
         const l = parseFloat(item.low || item.adjLow || c);
 
-        // Ensure no NaNs
-        if (isNaN(c)) return null;
+        // Skip null, undefined, or zero values
+        if (isNaN(c) || c === null || c === 0) return null;
 
         if (chartType === 'candlestick') {
           return { x: timestamp, y: [o, h, l, c] };
@@ -106,18 +106,18 @@ const Screener = () => {
       .sort((a, b) => a.x - b.x);
 
     return [{ name: 'Fiyat', data: seriesData }];
-  }, [historyData, chartType, activeRange]); // Added activeRange dependency
+  }, [historyData, chartType, activeRange]);
 
-  // ApexCharts Options (Fixed Dark Mode & TradingView Colors)
+  // ApexCharts Options
   const isCandle = chartType === 'candlestick';
   const chartOptions = {
     chart: {
       type: chartType,
       height: 350,
       toolbar: { show: true, tools: { download: false, selection: true, zoom: true, pan: true } },
-      background: 'transparent', // Always Transparent (Sorun 2)
+      background: 'transparent',
       animations: { enabled: true },
-      foreColor: isCandle ? '#333' : '#cbd5e1', // Always Light Text
+      foreColor: isCandle ? '#333' : '#cbd5e1',
       events: {
         click: function (event, chartContext, config) {
           // Drawing Logic
@@ -193,12 +193,12 @@ const Screener = () => {
         }
       }
     },
-    annotations: annotations, // Pass Dynamic Annotations (Fix Sorun)
+    annotations: annotations,
     dataLabels: { enabled: false },
     stroke: {
       curve: 'smooth',
-      width: 2, // Default width
-      colors: undefined // Dynamic arrays handled by ApexCharts default or series specific
+      width: 2,
+      colors: undefined
     },
     xaxis: {
       type: 'datetime',
@@ -217,10 +217,10 @@ const Screener = () => {
       },
       tooltip: { enabled: true }
     },
-    theme: { mode: 'dark' }, // Always Dark (Sorun 2)
+    theme: { mode: 'dark' },
     grid: {
       show: true,
-      borderColor: '#2B2B43', // Dark Grid
+      borderColor: '#2B2B43',
       strokeDashArray: 4,
       xaxis: { lines: { show: true } },
       yaxis: { lines: { show: true } }
@@ -230,7 +230,7 @@ const Screener = () => {
       gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1, stops: [0, 90, 100] }
     },
     tooltip: {
-      theme: 'dark', // Always Dark Tooltip
+      theme: 'dark',
       style: { fontSize: '12px' },
       x: { format: 'dd MMM yyyy' },
       y: { formatter: (val) => val != null ? `$${Number(val).toFixed(2)}` : '' }
@@ -265,72 +265,138 @@ const Screener = () => {
     }
   };
 
-  const fetchStockAnalysis = async (targetSymbol) => {
-    setAnalysisLoading(true);
-    try {
-      const response = await api.get(`/stock-analysis/${targetSymbol}`);
-      if (response.data.ok) {
-        const data = response.data.data;
-        setAnalysisData(data);
-        setHistoryData(data.history || []);
-        calculateAllPeriodChanges(data.history || []);
-      }
-    } catch (err) {
-      console.error("Analysis fetch error:", err);
-    } finally {
-      setAnalysisLoading(false);
-    }
-  };
+  // React Query Hook for Stock Analysis
+  const { data: queryData, isLoading: isQueryLoading } = useQuery({
+    queryKey: ['stockAnalysis', symbol, activeRange, language],
+    queryFn: async () => {
+      if (!symbol) return null;
 
+      const rangeMap = {
+        "Gün içi": "1y",
+        "1 Hafta": "1m",
+        "1 Ay": "1m",
+        "3 Ay": "3m",
+        "6 Ay": "6m",
+        "1 Yıl": "1y",
+        "3 Yıl": "3y",
+        "5 Yıl": "5y",
+        "Tümü": "max"
+      };
+
+      const backendRange = rangeMap[activeRange] || "1y";
+      console.log(`🚀 Fetching Analysis: ${symbol} | Range: ${activeRange} -> ${backendRange} | Lang: ${language}`);
+
+      const response = await api.get(`/stock-analysis/${symbol}?range=${backendRange}&lang=${language}`);
+      if (!response.data.ok) throw new Error("API Error");
+
+      return response.data.data;
+    },
+    enabled: !!symbol,
+    staleTime: 60000,
+    placeholderData: keepPreviousData,
+  });
+
+  // Calculate Performance Changes
   const calculateAllPeriodChanges = (history) => {
     if (!history || history.length < 2) return;
 
-    const lastPrice = history[history.length - 1].price;
+    const findPriceDaysAgo = (days) => {
+      // Safety check for history item structure
+      const lastItem = history[history.length - 1];
+      if (!lastItem || !lastItem.date) return 0;
+
+      const now = new Date(lastItem.date).getTime();
+      const targetTime = now - (days * 24 * 60 * 60 * 1000);
+
+      let closest = history[0];
+      let minDiff = Math.abs(new Date(closest.date).getTime() - targetTime);
+
+      for (let i = 0; i < history.length; i++) {
+        if (!history[i] || !history[i].date) continue;
+        const diff = Math.abs(new Date(history[i].date).getTime() - targetTime);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = history[i];
+        }
+      }
+      return closest.price || closest.close;
+    };
+
+    const lastItem = history[history.length - 1];
+    const lastPrice = lastItem.price || lastItem.close;
+
     const ranges = {
-      "Gün içi": 2,
+      "Gün içi": 1,
       "1 Hafta": 7,
       "1 Ay": 30,
       "3 Ay": 90,
       "6 Ay": 180,
-      "1 Yıl": 365
+      "1 Yıl": 365,
+      "5 Yıl": 365 * 5
     };
 
     const perfs = {};
     Object.entries(ranges).forEach(([label, days]) => {
-      const index = Math.max(0, history.length - days);
-      const startPrice = history[index].price;
-      perfs[label] = ((lastPrice / startPrice) - 1) * 100;
+      let startPrice;
+      if (label === "Gün içi") {
+        startPrice = lastItem.open || lastItem.price;
+      } else {
+        startPrice = findPriceDaysAgo(days);
+      }
+      if (startPrice) {
+        perfs[label] = ((lastPrice / startPrice) - 1) * 100;
+      }
     });
+
+    const allTimeStart = history[0].price || history[0].close;
+    if (allTimeStart) {
+      perfs["Tümü"] = ((lastPrice / allTimeStart) - 1) * 100;
+    }
 
     setPeriodPerformances(perfs);
   };
 
-  const getFilteredData = () => {
-    if (!historyData.length) return [];
-    const ranges = {
-      "Gün içi": 2,
-      "1 Hafta": 7,
-      "1 Ay": 30,
-      "3 Ay": 90,
-      "6 Ay": 180,
-      "1 Yıl": 365
-    };
-    const days = ranges[activeRange] || historyData.length;
-    return historyData.slice(-days).map(item => ({
-      ...item,
-      dateFormatted: new Date(item.date).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' })
-    }));
-  };
+  // Sync Query Data to State & Sanity Check
+  useEffect(() => {
+    // DEBUG: Log when symbol changes
+    console.log('🔍 DEBUG: Current symbol from useParams:', symbol);
 
+    if (queryData) {
+      // CRITICAL DEBUG: Full API Response
+      console.log(`✅ Data Received for ${symbol} (${activeRange})`, {
+        fullResponse: queryData,
+        price: queryData.price,
+        changePercent: queryData.changePercent,
+        historyLength: queryData.history?.length,
+        firstItem: queryData.history?.[0],
+        lastItem: queryData.history?.at(-1),
+        fundamentals: queryData.fundamentals
+      });
+
+      // Filter valid history items
+      const validHistory = (queryData.history || []).filter(h =>
+        h && h.date && !isNaN(new Date(h.date).getTime()) && (h.price !== undefined || h.close !== undefined)
+      );
+
+      setAnalysisData(queryData);
+      setHistoryData(validHistory);
+      calculateAllPeriodChanges(validHistory);
+
+      console.log('📊 DEBUG: analysisData set to:', queryData);
+    } else {
+      console.log('⚠️ DEBUG: queryData is null/undefined, symbol:', symbol, 'isQueryLoading:', isQueryLoading);
+    }
+  }, [queryData, symbol, activeRange, isQueryLoading]);
+
+  // Sync Loading State
+  useEffect(() => {
+    setAnalysisLoading(isQueryLoading);
+  }, [isQueryLoading]);
+
+  // Initial Fetch Effect (for Stock List)
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    if (symbol) {
-      fetchStockAnalysis(symbol);
-    }
-  }, [symbol]);
 
   const formatMoney = (value) => {
     if (!value) return "-";
@@ -527,7 +593,7 @@ const Screener = () => {
                   {/* Range Buttons - Scrollable on Mobile */}
                   <div className="w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                     <div className="flex gap-1 p-1 bg-[#131722] rounded-xl border border-slate-800 shadow-inner w-fit">
-                      {["Gün içi", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl"].map((range) => {
+                      {["Gün içi", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "5 Yıl", "Tümü"].map((range) => {
                         const perf = periodPerformances[range] || 0;
                         const isActive = activeRange === range;
                         return (
@@ -569,9 +635,37 @@ const Screener = () => {
             {/* 2. COMPANY PROFILE (Description) */}
             {analysisData?.fundamentals?.description && (
               <div className="bg-[#131722] p-4 md:p-6 rounded-2xl border border-slate-800/50 shadow-inner">
-                <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 mb-3 md:mb-4 flex items-center gap-2">
-                  <BookOpen size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Şirket Hakkında
-                </h3>
+                {/* Header with Language Selector */}
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                    <BookOpen size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Şirket Hakkında
+                  </h3>
+
+                  {/* Language Dropdown */}
+                  <div className="relative flex items-center gap-2">
+                    {isQueryLoading && (
+                      <RefreshCw className="w-3 h-3 animate-spin text-indigo-400" />
+                    )}
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="bg-[#1e222d] text-xs text-slate-300 border border-slate-700 rounded-lg px-2 py-1 
+                                 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500
+                                 cursor-pointer hover:border-indigo-500/50 transition-colors appearance-none pr-6"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 4px center',
+                        backgroundSize: '14px'
+                      }}
+                    >
+                      <option value="en">🇬🇧 English</option>
+                      <option value="tr">🇹🇷 Türkçe</option>
+                      <option value="ar">🇸🇦 العربية</option>
+                    </select>
+                  </div>
+                </div>
+
                 <p className="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">{analysisData.fundamentals.description}</p>
               </div>
             )}

@@ -1,0 +1,3394 @@
+{
+  "data": {
+    "symbol": "AAPL",
+    "type": "STOCK",
+    "price": 255.41,
+    "changePercent": 2.97129495242703,
+    "history": [
+      {
+        "date": "2025-12-29T00:00:00.000Z",
+        "open": 272.69,
+        "adjOpen": 272.69,
+        "high": 274.36,
+        "adjHigh": 274.36,
+        "low": 272.35,
+        "adjLow": 272.35,
+        "close": 273.76,
+        "adjClose": 273.76,
+        "price": 273.76,
+        "volume": 23715213
+      },
+      {
+        "date": "2025-12-30T00:00:00.000Z",
+        "open": 272.81,
+        "adjOpen": 272.81,
+        "high": 274.08,
+        "adjHigh": 274.08,
+        "low": 272.28,
+        "adjLow": 272.28,
+        "close": 273.08,
+        "adjClose": 273.08,
+        "price": 273.08,
+        "volume": 22139617
+      },
+      {
+        "date": "2025-12-31T00:00:00.000Z",
+        "open": 273.06,
+        "adjOpen": 273.06,
+        "high": 273.68,
+        "adjHigh": 273.68,
+        "low": 271.75,
+        "adjLow": 271.75,
+        "close": 271.86,
+        "adjClose": 271.86,
+        "price": 271.86,
+        "volume": 27293639
+      },
+      {
+        "date": "2026-01-02T00:00:00.000Z",
+        "open": 272.255,
+        "adjOpen": 272.255,
+        "high": 277.84,
+        "adjHigh": 277.84,
+        "low": 269,
+        "adjLow": 269,
+        "close": 271.01,
+        "adjClose": 271.01,
+        "price": 271.01,
+        "volume": 37838054
+      },
+      {
+        "date": "2026-01-05T00:00:00.000Z",
+        "open": 270.64,
+        "adjOpen": 270.64,
+        "high": 271.51,
+        "adjHigh": 271.51,
+        "low": 266.14,
+        "adjLow": 266.14,
+        "close": 267.26,
+        "adjClose": 267.26,
+        "price": 267.26,
+        "volume": 45647190
+      },
+      {
+        "date": "2026-01-06T00:00:00.000Z",
+        "open": 267,
+        "adjOpen": 267,
+        "high": 267.55,
+        "adjHigh": 267.55,
+        "low": 262.12,
+        "adjLow": 262.12,
+        "close": 262.36,
+        "adjClose": 262.36,
+        "price": 262.36,
+        "volume": 52352090
+      },
+      {
+        "date": "2026-01-07T00:00:00.000Z",
+        "open": 263.2,
+        "adjOpen": 263.2,
+        "high": 263.68,
+        "adjHigh": 263.68,
+        "low": 259.81,
+        "adjLow": 259.81,
+        "close": 260.33,
+        "adjClose": 260.33,
+        "price": 260.33,
+        "volume": 48309804
+      },
+      {
+        "date": "2026-01-08T00:00:00.000Z",
+        "open": 257.02,
+        "adjOpen": 257.02,
+        "high": 259.29,
+        "adjHigh": 259.29,
+        "low": 255.7,
+        "adjLow": 255.7,
+        "close": 259.04,
+        "adjClose": 259.04,
+        "price": 259.04,
+        "volume": 50419337
+      },
+      {
+        "date": "2026-01-09T00:00:00.000Z",
+        "open": 259.075,
+        "adjOpen": 259.075,
+        "high": 260.21,
+        "adjHigh": 260.21,
+        "low": 256.22,
+        "adjLow": 256.22,
+        "close": 259.37,
+        "adjClose": 259.37,
+        "price": 259.37,
+        "volume": 39996967
+      },
+      {
+        "date": "2026-01-12T00:00:00.000Z",
+        "open": 259.16,
+        "adjOpen": 259.16,
+        "high": 261.3,
+        "adjHigh": 261.3,
+        "low": 256.8,
+        "adjLow": 256.8,
+        "close": 260.25,
+        "adjClose": 260.25,
+        "price": 260.25,
+        "volume": 45263767
+      },
+      {
+        "date": "2026-01-13T00:00:00.000Z",
+        "open": 258.72,
+        "adjOpen": 258.72,
+        "high": 261.81,
+        "adjHigh": 261.81,
+        "low": 258.39,
+        "adjLow": 258.39,
+        "close": 261.05,
+        "adjClose": 261.05,
+        "price": 261.05,
+        "volume": 45730847
+      },
+      {
+        "date": "2026-01-14T00:00:00.000Z",
+        "open": 259.49,
+        "adjOpen": 259.49,
+        "high": 261.82,
+        "adjHigh": 261.82,
+        "low": 256.71,
+        "adjLow": 256.71,
+        "close": 259.96,
+        "adjClose": 259.96,
+        "price": 259.96,
+        "volume": 40019421
+      },
+      {
+        "date": "2026-01-15T00:00:00.000Z",
+        "open": 260.65,
+        "adjOpen": 260.65,
+        "high": 261.04,
+        "adjHigh": 261.04,
+        "low": 257.05,
+        "adjLow": 257.05,
+        "close": 258.21,
+        "adjClose": 258.21,
+        "price": 258.21,
+        "volume": 39388564
+      },
+      {
+        "date": "2026-01-16T00:00:00.000Z",
+        "open": 257.9,
+        "adjOpen": 257.9,
+        "high": 258.9,
+        "adjHigh": 258.9,
+        "low": 254.93,
+        "adjLow": 254.93,
+        "close": 255.53,
+        "adjClose": 255.53,
+        "price": 255.53,
+        "volume": 72142773
+      },
+      {
+        "date": "2026-01-20T00:00:00.000Z",
+        "open": 252.73,
+        "adjOpen": 252.73,
+        "high": 254.79,
+        "adjHigh": 254.79,
+        "low": 243.42,
+        "adjLow": 243.42,
+        "close": 246.7,
+        "adjClose": 246.7,
+        "price": 246.7,
+        "volume": 77280987
+      },
+      {
+        "date": "2026-01-21T00:00:00.000Z",
+        "open": 248.7,
+        "adjOpen": 248.7,
+        "high": 251.56,
+        "adjHigh": 251.56,
+        "low": 245.18,
+        "adjLow": 245.18,
+        "close": 247.65,
+        "adjClose": 247.65,
+        "price": 247.65,
+        "volume": 54641725
+      },
+      {
+        "date": "2026-01-22T00:00:00.000Z",
+        "open": 249.2,
+        "adjOpen": 249.2,
+        "high": 251,
+        "adjHigh": 251,
+        "low": 248.15,
+        "adjLow": 248.15,
+        "close": 248.35,
+        "adjClose": 248.35,
+        "price": 248.35,
+        "volume": 39708340
+      },
+      {
+        "date": "2026-01-23T00:00:00.000Z",
+        "open": 247.32,
+        "adjOpen": 247.32,
+        "high": 249.41,
+        "adjHigh": 249.41,
+        "low": 244.68,
+        "adjLow": 244.68,
+        "close": 248.04,
+        "adjClose": 248.04,
+        "price": 248.04,
+        "volume": 41688982
+      },
+      {
+        "date": "2026-01-26T00:00:00.000Z",
+        "open": 251.48,
+        "adjOpen": 251.48,
+        "high": 256.56,
+        "adjHigh": 256.56,
+        "low": 249.8,
+        "adjLow": 249.8,
+        "close": 255.41,
+        "adjClose": 255.41,
+        "price": 255.41,
+        "volume": 55969234
+      }
+    ],
+    "fundamentals": {
+      "marketCap": 0,
+      "peRatio": 0,
+      "pbRatio": 0,
+      "dividendYield": 0,
+      "roe": 0,
+      "beta": 0,
+      "description": "Apple Inc. (Apple) designs, manufactures and markets mobile communication and media devices, personal computers, and portable digital music players, and a variety of related software, services, peripherals, networking solutions, and third-party digital content and applications. The Company's products and services include iPhone, iPad, Mac, iPod, Apple TV, a portfolio of consumer and professional software applications, the iOS and OS X operating systems, iCloud, and a variety of accessory, service and support offerings. The Company also delivers digital content and applications through the iTunes Store, App StoreSM, iBookstoreSM, and Mac App Store. The Company distributes its products worldwide through its retail stores, online stores, and direct sales force, as well as through third-party cellular network carriers, wholesalers, retailers, and value-added resellers. In February 2012, the Company acquired app-search engine Chomp."
+    },
+    "financials": {
+      "summary": {
+        "revenue": 416161000000,
+        "netIncome": 112010000000
+      },
+      "history": [
+        {
+          "date": "2025-09-27",
+          "year": 2025,
+          "revenue": 416161000000,
+          "costOfRevenue": 220960000000,
+          "grossProfit": 195201000000,
+          "opExpenses": 62151000000,
+          "ebitda": 144427000000,
+          "netIncome": 112010000000,
+          "cashAndEquivalents": 35934000000,
+          "totalAssets": 359241000000,
+          "totalLiabilities": 285508000000,
+          "longTermDebt": 78328000000,
+          "totalEquity": 73733000000,
+          "netCashProvidedByOperatingActivities": 111482000000,
+          "netCashUsedForInvestingActivities": 15195000000,
+          "netCashUsedProvidedByFinancingActivities": -120686000000,
+          "netChangeInCash": 5991000000
+        },
+        {
+          "date": "2024-09-28",
+          "year": 2024,
+          "revenue": 391035000000,
+          "costOfRevenue": 210352000000,
+          "grossProfit": 180683000000,
+          "opExpenses": 57467000000,
+          "ebitda": 134930000000,
+          "netIncome": 93736000000,
+          "cashAndEquivalents": 29943000000,
+          "totalAssets": 364980000000,
+          "totalLiabilities": 308030000000,
+          "longTermDebt": 85750000000,
+          "totalEquity": 56950000000,
+          "netCashProvidedByOperatingActivities": 118254000000,
+          "netCashUsedForInvestingActivities": 2935000000,
+          "netCashUsedProvidedByFinancingActivities": -121983000000,
+          "netChangeInCash": -794000000
+        },
+        {
+          "date": "2023-09-30",
+          "year": 2023,
+          "revenue": 383285000000,
+          "costOfRevenue": 214137000000,
+          "grossProfit": 169148000000,
+          "opExpenses": 54847000000,
+          "ebitda": 125255000000,
+          "netIncome": 96995000000,
+          "cashAndEquivalents": 29965000000,
+          "totalAssets": 352583000000,
+          "totalLiabilities": 290437000000,
+          "longTermDebt": 95281000000,
+          "totalEquity": 62146000000,
+          "netCashProvidedByOperatingActivities": 110543000000,
+          "netCashUsedForInvestingActivities": 3705000000,
+          "netCashUsedProvidedByFinancingActivities": -108488000000,
+          "netChangeInCash": 5760000000
+        },
+        {
+          "date": "2022-09-24",
+          "year": 2022,
+          "revenue": 394328000000,
+          "costOfRevenue": 223546000000,
+          "grossProfit": 170782000000,
+          "opExpenses": 51345000000,
+          "ebitda": 130207000000,
+          "netIncome": 99803000000,
+          "cashAndEquivalents": 23646000000,
+          "totalAssets": 352755000000,
+          "totalLiabilities": 302083000000,
+          "longTermDebt": 98959000000,
+          "totalEquity": 50672000000,
+          "netCashProvidedByOperatingActivities": 122151000000,
+          "netCashUsedForInvestingActivities": -22354000000,
+          "netCashUsedProvidedByFinancingActivities": -110749000000,
+          "netChangeInCash": -10952000000
+        },
+        {
+          "date": "2021-09-25",
+          "year": 2021,
+          "revenue": 365817000000,
+          "costOfRevenue": 212981000000,
+          "grossProfit": 152836000000,
+          "opExpenses": 43887000000,
+          "ebitda": 123136000000,
+          "netIncome": 94680000000,
+          "cashAndEquivalents": 34940000000,
+          "totalAssets": 351002000000,
+          "totalLiabilities": 287912000000,
+          "longTermDebt": 109106000000,
+          "totalEquity": 63090000000,
+          "netCashProvidedByOperatingActivities": 104038000000,
+          "netCashUsedForInvestingActivities": -14545000000,
+          "netCashUsedProvidedByFinancingActivities": -93353000000,
+          "netChangeInCash": -3860000000
+        },
+        {
+          "date": "2020-09-26",
+          "year": 2020,
+          "revenue": 274515000000,
+          "costOfRevenue": 169559000000,
+          "grossProfit": 104956000000,
+          "opExpenses": 38668000000,
+          "ebitda": 81020000000,
+          "netIncome": 57411000000,
+          "cashAndEquivalents": 38016000000,
+          "totalAssets": 323888000000,
+          "totalLiabilities": 258549000000,
+          "longTermDebt": 98667000000,
+          "totalEquity": 65339000000,
+          "netCashProvidedByOperatingActivities": 80674000000,
+          "netCashUsedForInvestingActivities": -4289000000,
+          "netCashUsedProvidedByFinancingActivities": -86820000000,
+          "netChangeInCash": -10435000000
+        },
+        {
+          "date": "2019-09-28",
+          "year": 2019,
+          "revenue": 260174000000,
+          "costOfRevenue": 161782000000,
+          "grossProfit": 98392000000,
+          "opExpenses": 34462000000,
+          "ebitda": 81860000000,
+          "netIncome": 55256000000,
+          "cashAndEquivalents": 48844000000,
+          "totalAssets": 338516000000,
+          "totalLiabilities": 248028000000,
+          "longTermDebt": 91807000000,
+          "totalEquity": 90488000000,
+          "netCashProvidedByOperatingActivities": 69391000000,
+          "netCashUsedForInvestingActivities": 45896000000,
+          "netCashUsedProvidedByFinancingActivities": -90976000000,
+          "netChangeInCash": 24311000000
+        },
+        {
+          "date": "2018-09-29",
+          "year": 2018,
+          "revenue": 265595000000,
+          "costOfRevenue": 163756000000,
+          "grossProfit": 101839000000,
+          "opExpenses": 30941000000,
+          "ebitda": 87046000000,
+          "netIncome": 59531000000,
+          "cashAndEquivalents": 25913000000,
+          "totalAssets": 365725000000,
+          "totalLiabilities": 258578000000,
+          "longTermDebt": 93735000000,
+          "totalEquity": 107147000000,
+          "netCashProvidedByOperatingActivities": 77434000000,
+          "netCashUsedForInvestingActivities": 16066000000,
+          "netCashUsedProvidedByFinancingActivities": -87876000000,
+          "netChangeInCash": 5624000000
+        },
+        {
+          "date": "2017-09-30",
+          "year": 2017,
+          "revenue": 229234000000,
+          "costOfRevenue": 141048000000,
+          "grossProfit": 88186000000,
+          "opExpenses": 26842000000,
+          "ebitda": 76569000000,
+          "netIncome": 48351000000,
+          "cashAndEquivalents": 20289000000,
+          "totalAssets": 375319000000,
+          "totalLiabilities": 241272000000,
+          "longTermDebt": 97207000000,
+          "totalEquity": 134047000000,
+          "netCashProvidedByOperatingActivities": 64225000000,
+          "netCashUsedForInvestingActivities": -46446000000,
+          "netCashUsedProvidedByFinancingActivities": -17974000000,
+          "netChangeInCash": -195000000
+        },
+        {
+          "date": "2016-09-24",
+          "year": 2016,
+          "revenue": 215639000000,
+          "costOfRevenue": 131376000000,
+          "grossProfit": 84263000000,
+          "opExpenses": 24239000000,
+          "ebitda": 73333000000,
+          "netIncome": 45687000000,
+          "cashAndEquivalents": 20484000000,
+          "totalAssets": 321686000000,
+          "totalLiabilities": 193437000000,
+          "longTermDebt": 75427000000,
+          "totalEquity": 128249000000,
+          "netCashProvidedByOperatingActivities": 66231000000,
+          "netCashUsedForInvestingActivities": -45977000000,
+          "netCashUsedProvidedByFinancingActivities": -20890000000,
+          "netChangeInCash": -636000000
+        },
+        {
+          "date": "2015-09-26",
+          "year": 2015,
+          "revenue": 233715000000,
+          "costOfRevenue": 140089000000,
+          "grossProfit": 93626000000,
+          "opExpenses": 22396000000,
+          "ebitda": 84505000000,
+          "netIncome": 53394000000,
+          "cashAndEquivalents": 21120000000,
+          "totalAssets": 290345000000,
+          "totalLiabilities": 170990000000,
+          "longTermDebt": 53329000000,
+          "totalEquity": 119355000000,
+          "netCashProvidedByOperatingActivities": 81266000000,
+          "netCashUsedForInvestingActivities": -56274000000,
+          "netCashUsedProvidedByFinancingActivities": -17716000000,
+          "netChangeInCash": 7276000000
+        },
+        {
+          "date": "2014-09-27",
+          "year": 2014,
+          "revenue": 182795000000,
+          "costOfRevenue": 112258000000,
+          "grossProfit": 70537000000,
+          "opExpenses": 18034000000,
+          "ebitda": 61813000000,
+          "netIncome": 39510000000,
+          "cashAndEquivalents": 13844000000,
+          "totalAssets": 231839000000,
+          "totalLiabilities": 120292000000,
+          "longTermDebt": 28987000000,
+          "totalEquity": 111547000000,
+          "netCashProvidedByOperatingActivities": 59713000000,
+          "netCashUsedForInvestingActivities": -22579000000,
+          "netCashUsedProvidedByFinancingActivities": -37549000000,
+          "netChangeInCash": -415000000
+        },
+        {
+          "date": "2013-09-28",
+          "year": 2013,
+          "revenue": 170910000000,
+          "costOfRevenue": 106606000000,
+          "grossProfit": 64304000000,
+          "opExpenses": 15305000000,
+          "ebitda": 57048000000,
+          "netIncome": 37037000000,
+          "cashAndEquivalents": 14259000000,
+          "totalAssets": 207000000000,
+          "totalLiabilities": 83451000000,
+          "longTermDebt": 16960000000,
+          "totalEquity": 123549000000,
+          "netCashProvidedByOperatingActivities": 53666000000,
+          "netCashUsedForInvestingActivities": -33774000000,
+          "netCashUsedProvidedByFinancingActivities": -16379000000,
+          "netChangeInCash": 3513000000
+        },
+        {
+          "date": "2012-09-29",
+          "year": 2012,
+          "revenue": 156508000000,
+          "costOfRevenue": 87846000000,
+          "grossProfit": 68662000000,
+          "opExpenses": 13421000000,
+          "ebitda": 59040000000,
+          "netIncome": 41733000000,
+          "cashAndEquivalents": 10746000000,
+          "totalAssets": 176064000000,
+          "totalLiabilities": 57854000000,
+          "longTermDebt": 0,
+          "totalEquity": 118210000000,
+          "netCashProvidedByOperatingActivities": 50856000000,
+          "netCashUsedForInvestingActivities": -48227000000,
+          "netCashUsedProvidedByFinancingActivities": -1698000000,
+          "netChangeInCash": 931000000
+        },
+        {
+          "date": "2011-09-24",
+          "year": 2011,
+          "revenue": 108249000000,
+          "costOfRevenue": 64431000000,
+          "grossProfit": 43818000000,
+          "opExpenses": 10028000000,
+          "ebitda": 36019000000,
+          "netIncome": 25922000000,
+          "cashAndEquivalents": 9815000000,
+          "totalAssets": 116371000000,
+          "totalLiabilities": 39756000000,
+          "longTermDebt": 0,
+          "totalEquity": 76615000000,
+          "netCashProvidedByOperatingActivities": 37529000000,
+          "netCashUsedForInvestingActivities": -40419000000,
+          "netCashUsedProvidedByFinancingActivities": 1444000000,
+          "netChangeInCash": -1446000000
+        },
+        {
+          "date": "2010-09-25",
+          "year": 2010,
+          "revenue": 65225000000,
+          "costOfRevenue": 39541000000,
+          "grossProfit": 25684000000,
+          "opExpenses": 7299000000,
+          "ebitda": 19567000000,
+          "netIncome": 14013000000,
+          "cashAndEquivalents": 11261000000,
+          "totalAssets": 75183000000,
+          "totalLiabilities": 27392000000,
+          "longTermDebt": 0,
+          "totalEquity": 47791000000,
+          "netCashProvidedByOperatingActivities": 18595000000,
+          "netCashUsedForInvestingActivities": -13854000000,
+          "netCashUsedProvidedByFinancingActivities": 1257000000,
+          "netChangeInCash": 5998000000
+        },
+        {
+          "date": "2009-09-26",
+          "year": 2009,
+          "revenue": 42905000000,
+          "costOfRevenue": 25683000000,
+          "grossProfit": 17222000000,
+          "opExpenses": 5482000000,
+          "ebitda": 12800000000,
+          "netIncome": 8235000000,
+          "cashAndEquivalents": 5263000000,
+          "totalAssets": 47501000000,
+          "totalLiabilities": 15861000000,
+          "longTermDebt": 0,
+          "totalEquity": 31640000000,
+          "netCashProvidedByOperatingActivities": 10159000000,
+          "netCashUsedForInvestingActivities": -17434000000,
+          "netCashUsedProvidedByFinancingActivities": 663000000,
+          "netChangeInCash": -6612000000
+        },
+        {
+          "date": "2008-09-27",
+          "year": 2008,
+          "revenue": 37491000000,
+          "costOfRevenue": 24294000000,
+          "grossProfit": 13197000000,
+          "opExpenses": 4870000000,
+          "ebitda": 9443000000,
+          "netIncome": 6119000000,
+          "cashAndEquivalents": 11875000000,
+          "totalAssets": 36171000000,
+          "totalLiabilities": 13874000000,
+          "longTermDebt": 0,
+          "totalEquity": 22297000000,
+          "netCashProvidedByOperatingActivities": 9596000000,
+          "netCashUsedForInvestingActivities": -8189000000,
+          "netCashUsedProvidedByFinancingActivities": 1116000000,
+          "netChangeInCash": 2523000000
+        },
+        {
+          "date": "2007-09-29",
+          "year": 2007,
+          "revenue": 24578000000,
+          "costOfRevenue": 16426000000,
+          "grossProfit": 8152000000,
+          "opExpenses": 3745000000,
+          "ebitda": 5333000000,
+          "netIncome": 3495000000,
+          "cashAndEquivalents": 9352000000,
+          "totalAssets": 25347000000,
+          "totalLiabilities": 10815000000,
+          "longTermDebt": 0,
+          "totalEquity": 14532000000,
+          "netCashProvidedByOperatingActivities": 5470000000,
+          "netCashUsedForInvestingActivities": -3249000000,
+          "netCashUsedProvidedByFinancingActivities": 739000000,
+          "netChangeInCash": 2960000000
+        },
+        {
+          "date": "2006-09-30",
+          "year": 2006,
+          "revenue": 19315000000,
+          "costOfRevenue": 13717000000,
+          "grossProfit": 5598000000,
+          "opExpenses": 3145000000,
+          "ebitda": 3043000000,
+          "netIncome": 1989000000,
+          "cashAndEquivalents": 6392000000,
+          "totalAssets": 17205000000,
+          "totalLiabilities": 7221000000,
+          "longTermDebt": 0,
+          "totalEquity": 9984000000,
+          "netCashProvidedByOperatingActivities": 2220000000,
+          "netCashUsedForInvestingActivities": 357000000,
+          "netCashUsedProvidedByFinancingActivities": 324000000,
+          "netChangeInCash": 2901000000
+        },
+        {
+          "date": "2005-09-24",
+          "year": 2005,
+          "revenue": 13931000000,
+          "costOfRevenue": 9889000000,
+          "grossProfit": 4042000000,
+          "opExpenses": 2399000000,
+          "ebitda": 1987000000,
+          "netIncome": 1328000000,
+          "cashAndEquivalents": 3491000000,
+          "totalAssets": 11516000000,
+          "totalLiabilities": 4088000000,
+          "longTermDebt": 0,
+          "totalEquity": 7428000000,
+          "netCashProvidedByOperatingActivities": 2535000000,
+          "netCashUsedForInvestingActivities": -2556000000,
+          "netCashUsedProvidedByFinancingActivities": 543000000,
+          "netChangeInCash": 522000000
+        },
+        {
+          "date": "2004-09-25",
+          "year": 2004,
+          "revenue": 8279000000,
+          "costOfRevenue": 6022000000,
+          "grossProfit": 2257000000,
+          "opExpenses": 1944000000,
+          "ebitda": 520000000,
+          "netIncome": 266000000,
+          "cashAndEquivalents": 2969000000,
+          "totalAssets": 8050000000,
+          "totalLiabilities": 2974000000,
+          "longTermDebt": 0,
+          "totalEquity": 5076000000,
+          "netCashProvidedByOperatingActivities": 934000000,
+          "netCashUsedForInvestingActivities": -1488000000,
+          "netCashUsedProvidedByFinancingActivities": 127000000,
+          "netChangeInCash": -427000000
+        },
+        {
+          "date": "2003-09-27",
+          "year": 2003,
+          "revenue": 6207000000,
+          "costOfRevenue": 4499000000,
+          "grossProfit": 1708000000,
+          "opExpenses": 1709000000,
+          "ebitda": 206000000,
+          "netIncome": 69000000,
+          "cashAndEquivalents": 3396000000,
+          "totalAssets": 6815000000,
+          "totalLiabilities": 2592000000,
+          "longTermDebt": 0,
+          "totalEquity": 4223000000,
+          "netCashProvidedByOperatingActivities": 289000000,
+          "netCashUsedForInvestingActivities": 828000000,
+          "netCashUsedProvidedByFinancingActivities": 27000000,
+          "netChangeInCash": 1144000000
+        },
+        {
+          "date": "2002-09-28",
+          "year": 2002,
+          "revenue": 5742000000,
+          "costOfRevenue": 4139000000,
+          "grossProfit": 1603000000,
+          "opExpenses": 1586000000,
+          "ebitda": 201000000,
+          "netIncome": 65000000,
+          "cashAndEquivalents": 2252000000,
+          "totalAssets": 6298000000,
+          "totalLiabilities": 2203000000,
+          "longTermDebt": 316000000,
+          "totalEquity": 4095000000,
+          "netCashProvidedByOperatingActivities": 89000000,
+          "netCashUsedForInvestingActivities": -252000000,
+          "netCashUsedProvidedByFinancingActivities": 105000000,
+          "netChangeInCash": -58000000
+        },
+        {
+          "date": "2001-09-29",
+          "year": 2001,
+          "revenue": 5363000000,
+          "costOfRevenue": 4128000000,
+          "grossProfit": 1235000000,
+          "opExpenses": 1579000000,
+          "ebitda": 60000000,
+          "netIncome": -25000000,
+          "cashAndEquivalents": 2310000000,
+          "totalAssets": 6021000000,
+          "totalLiabilities": 2101000000,
+          "longTermDebt": 317000000,
+          "totalEquity": 3920000000,
+          "netCashProvidedByOperatingActivities": 185000000,
+          "netCashUsedForInvestingActivities": 892000000,
+          "netCashUsedProvidedByFinancingActivities": 42000000,
+          "netChangeInCash": 1119000000
+        },
+        {
+          "date": "2000-09-30",
+          "year": 2000,
+          "revenue": 7983000000,
+          "costOfRevenue": 5817000000,
+          "grossProfit": 2166000000,
+          "opExpenses": 1644000000,
+          "ebitda": 1176000000,
+          "netIncome": 786000000,
+          "cashAndEquivalents": 1191000000,
+          "totalAssets": 6803000000,
+          "totalLiabilities": 2696000000,
+          "longTermDebt": 300000000,
+          "totalEquity": 4107000000,
+          "netCashProvidedByOperatingActivities": 868000000,
+          "netCashUsedForInvestingActivities": -972000000,
+          "netCashUsedProvidedByFinancingActivities": -31000000,
+          "netChangeInCash": -135000000
+        },
+        {
+          "date": "1999-09-25",
+          "year": 1999,
+          "revenue": 6134000000,
+          "costOfRevenue": 4438000000,
+          "grossProfit": 1696000000,
+          "opExpenses": 1337000000,
+          "ebitda": 761000000,
+          "netIncome": 601000000,
+          "cashAndEquivalents": 1326000000,
+          "totalAssets": 5161000000,
+          "totalLiabilities": 2057000000,
+          "longTermDebt": 300000000,
+          "totalEquity": 3104000000,
+          "netCashProvidedByOperatingActivities": 822000000,
+          "netCashUsedForInvestingActivities": -988000000,
+          "netCashUsedProvidedByFinancingActivities": 11000000,
+          "netChangeInCash": -155000000
+        },
+        {
+          "date": "1998-09-25",
+          "year": 1998,
+          "revenue": 5941000000,
+          "costOfRevenue": 4462000000,
+          "grossProfit": 1479000000,
+          "opExpenses": 1218000000,
+          "ebitda": 440000000,
+          "netIncome": 309000000,
+          "cashAndEquivalents": 1481000000,
+          "totalAssets": 4289000000,
+          "totalLiabilities": 2647000000,
+          "longTermDebt": 954000000,
+          "totalEquity": 1642000000,
+          "netCashProvidedByOperatingActivities": 775000000,
+          "netCashUsedForInvestingActivities": -543000000,
+          "netCashUsedProvidedByFinancingActivities": 19000000,
+          "netChangeInCash": 251000000
+        },
+        {
+          "date": "1997-09-26",
+          "year": 1997,
+          "revenue": 7081000000,
+          "costOfRevenue": 5713000000,
+          "grossProfit": 1368000000,
+          "opExpenses": 2438000000,
+          "ebitda": -927000000,
+          "netIncome": -1045000000,
+          "cashAndEquivalents": 1230000000,
+          "totalAssets": 4233000000,
+          "totalLiabilities": 3033000000,
+          "longTermDebt": 951000000,
+          "totalEquity": 1200000000,
+          "netCashProvidedByOperatingActivities": 154000000,
+          "netCashUsedForInvestingActivities": -499000000,
+          "netCashUsedProvidedByFinancingActivities": 23000000,
+          "netChangeInCash": -322000000
+        },
+        {
+          "date": "1996-09-27",
+          "year": 1996,
+          "revenue": 9833000000,
+          "costOfRevenue": 8865000000,
+          "grossProfit": 968000000,
+          "opExpenses": 2351000000,
+          "ebitda": -1179000000,
+          "netIncome": -816000000,
+          "cashAndEquivalents": 1552000000,
+          "totalAssets": 5364000000,
+          "totalLiabilities": 3306000000,
+          "longTermDebt": 949000000,
+          "totalEquity": 2058000000,
+          "netCashProvidedByOperatingActivities": 408000000,
+          "netCashUsedForInvestingActivities": -8000000,
+          "netCashUsedProvidedByFinancingActivities": 396000000,
+          "netChangeInCash": 796000000
+        },
+        {
+          "date": "1995-09-29",
+          "year": 1995,
+          "revenue": 11062000000,
+          "costOfRevenue": 8204000000,
+          "grossProfit": 2858000000,
+          "opExpenses": 2174000000,
+          "ebitda": 801000000,
+          "netIncome": 424000000,
+          "cashAndEquivalents": 756000000,
+          "totalAssets": 6231000000,
+          "totalLiabilities": 3330000000,
+          "longTermDebt": 303000000,
+          "totalEquity": 2901000000,
+          "netCashProvidedByOperatingActivities": -240000000,
+          "netCashUsedForInvestingActivities": -402000000,
+          "netCashUsedProvidedByFinancingActivities": 195000000,
+          "netChangeInCash": -447000000
+        },
+        {
+          "date": "1994-09-30",
+          "year": 1994,
+          "revenue": 9189000000,
+          "costOfRevenue": 6846000000,
+          "grossProfit": 2343000000,
+          "opExpenses": 1821000000,
+          "ebitda": 668000000,
+          "netIncome": 310000000,
+          "cashAndEquivalents": 1203000000,
+          "totalAssets": 5303000000,
+          "totalLiabilities": 2920000000,
+          "longTermDebt": 305000000,
+          "totalEquity": 2383000000,
+          "netCashProvidedByOperatingActivities": 737000000,
+          "netCashUsedForInvestingActivities": -2000000,
+          "netCashUsedProvidedByFinancingActivities": -208000000,
+          "netChangeInCash": 527000000
+        },
+        {
+          "date": "1993-09-24",
+          "year": 1993,
+          "revenue": 7977000000,
+          "costOfRevenue": 5249000000,
+          "grossProfit": 2728000000,
+          "opExpenses": 2618000000,
+          "ebitda": 306000000,
+          "netIncome": 87000000,
+          "cashAndEquivalents": 676413000,
+          "totalAssets": 5171412000,
+          "totalLiabilities": 3145034000,
+          "longTermDebt": 7117000,
+          "totalEquity": 2026378000,
+          "netCashProvidedByOperatingActivities": -651000000,
+          "netCashUsedForInvestingActivities": 493000000,
+          "netCashUsedProvidedByFinancingActivities": 336000000,
+          "netChangeInCash": 178000000
+        },
+        {
+          "date": "1992-09-30",
+          "year": 1992,
+          "revenue": 7086542000,
+          "costOfRevenue": 3991337000,
+          "grossProfit": 3095205000,
+          "opExpenses": 2289397000,
+          "ebitda": 1072624000,
+          "netIncome": 530373000,
+          "cashAndEquivalents": 0,
+          "totalAssets": 0,
+          "totalLiabilities": 0,
+          "longTermDebt": 0,
+          "totalEquity": 0,
+          "netCashProvidedByOperatingActivities": 920973000,
+          "netCashUsedForInvestingActivities": -912634000,
+          "netCashUsedProvidedByFinancingActivities": -113929000,
+          "netChangeInCash": -105590000
+        }
+      ]
+    },
+    "news": [
+      {
+        "id": 91875020,
+        "publishedDate": "2026-01-27T14:00:30.991000Z",
+        "title": "Samsung's TriFold Phone Will Cost $2,899 in US and Launch on Jan. 30",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/samsung-s-trifold-foldable-phone-will-cost-2-899-in-us-and-launch-on-jan-30",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Communication Services",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T14:03:21.885443Z",
+        "tickers": [
+          "aapl",
+          "googl",
+          "t",
+          "tmus",
+          "vz"
+        ]
+      },
+      {
+        "id": 91874772,
+        "publishedDate": "2026-01-27T13:46:26Z",
+        "title": "Invesco’s (NYSE:IVZ) Q4 CY2025 Sales Beat Estimates, Stock Soars",
+        "url": "https://stockstory.org/us/stocks/nyse/ivz/news/earnings/invescos-nyseivz-q4-cy2025-sales-beat-estimates-stock-soars",
+        "description": "Asset management firm Invesco (NYSE:IVZ) reported revenue ahead of Wall Streets expectations in Q4 CY2025, with sales up 8.8% year on year to $1.26 billion. Its non-GAAP profit of $0.62 per share was 7.1% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "ETF",
+          "Earnings",
+          "Financial Services",
+          "Real Estate",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T14:00:40.931005Z",
+        "tickers": [
+          "aapl",
+          "ihit",
+          "ivr",
+          "ivz",
+          "msft"
+        ]
+      },
+      {
+        "id": 91874215,
+        "publishedDate": "2026-01-27T13:44:00Z",
+        "title": "Cloudflare Stock Keeps On Surging. A Viral AI Bot Has Investors Excited.",
+        "url": "https://www.barrons.com/articles/cloudflare-stock-moltbot-viral-ai-bot-fdb3e77b",
+        "description": null,
+        "source": "barrons.com",
+        "tags": [
+          "ETF",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T13:47:32.764883Z",
+        "tickers": [
+          "aapl",
+          "meta",
+          "meta",
+          "metv",
+          "net"
+        ]
+      },
+      {
+        "id": 91873541,
+        "publishedDate": "2026-01-27T13:21:10Z",
+        "title": "Sysco (NYSE:SYY) Reports Q4 CY2025 In Line With Expectations",
+        "url": "https://stockstory.org/us/stocks/nyse/syy/news/earnings/sysco-nysesyy-reports-q4-cy2025-in-line-with-expectations",
+        "description": "Food distribution giant Sysco (NYSE:SYY) met Wall Streets revenue expectations in Q4 CY2025, with sales up 3% year on year to $20.76 billion. Its non-GAAP profit of $0.99 per share was 1.4% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Consumer Defensive",
+          "Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T13:31:47.246364Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "syy"
+        ]
+      },
+      {
+        "id": 91872873,
+        "publishedDate": "2026-01-27T13:13:40.130000Z",
+        "title": "Why UK Markets Can Withstand Turbulent Politics",
+        "url": "https://www.bloomberg.com/news/newsletters/2026-01-27/why-uk-markets-can-withstand-turbulent-politics",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T13:15:35.205988Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91872808,
+        "publishedDate": "2026-01-27T13:12:45Z",
+        "title": "Rep. Nancy Pelosi Sells Off Shares of Apple Inc. (NASDAQ:AAPL)",
+        "url": "https://www.thelincolnianonline.com/2026/01/27/rep-nancy-pelosi-sells-off-shares-of-apple-inc-nasdaqaapl.html",
+        "description": "Representative Nancy Pelosi (D-California) recently sold shares of Apple Inc. (NASDAQ:AAPL). In a filing disclosed on January 23rd, the Representative disclosed that they had sold between $5,000,001 and $25,000,000 in Apple stock on December 30th. Representative Nancy Pelosi also recently made the following trade(s): Purchased $250,001 – $500,000 in shares of NVIDIA (NASDAQ:NVDA) on 1/16/2026. […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "03783310",
+          "Aapl",
+          "Apple",
+          "California",
+          "Computer And Technology",
+          "Congress Stock Trades",
+          "Congressional Stock Trades",
+          "Consumer Cyclical",
+          "Financial Services",
+          "Nancy Pelosi",
+          "Nasdaq:Aapl",
+          "Stock",
+          "Technology",
+          "Unknown Sector",
+          "Utilities"
+        ],
+        "crawlDate": "2026-01-27T13:13:36.118269Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "bcs",
+          "dis",
+          "goog",
+          "googl",
+          "jpm",
+          "jpm-ws",
+          "nvda",
+          "pypl",
+          "pyplv",
+          "vst"
+        ]
+      },
+      {
+        "id": 91872448,
+        "publishedDate": "2026-01-27T13:00:18Z",
+        "title": "All the “Buy into SpaceX Early” Teaser Pitches — What are they recommending?",
+        "url": "https://www.stockgumshoe.com/2026/01/all-the-buy-into-spacex-early-teaser-pitches-what-are-they-recommending/",
+        "description": "One thing has been consistently true about the investment marketing business, at least for as long as I’ve been paying attention (30 years or so):\nPeople love IPOs\n.\nInitial Public Offerings (IPOs), the most common mechanism through which private com",
+        "source": "stockgumshoe.com",
+        "tags": [
+          "Alphabet (Googl Goog)",
+          "Ark Venture (Arkvx)",
+          "Asset Allocation",
+          "Ast Spacemobile (Asts)",
+          "Baillie Gifford Us Growth Trust (Usa.L Blgff)",
+          "Baron First Principles Etf (Ronb)",
+          "Baron Focused Growth Fund (Bfgfx)",
+          "Baron Partners Fund (Bptrx)",
+          "Big Picture",
+          "Communication Services",
+          "Consumer Discretionary",
+          "Destiny Tech 100 Fund (Dxyz)",
+          "Echostar (Sats)",
+          "Equityzen",
+          "Ershares Public Private Crossover Etf (Xovr)",
+          "Etfs Or Mutual Funds",
+          "Fidelity Contrafund (Fcntx)",
+          "Financial Services",
+          "Forge Global",
+          "Globalstar (Gsat)",
+          "Hiive",
+          "Ian Wyatt",
+          "Intuitive Machines (Lunr)",
+          "Nasdaq Private Market",
+          "Private Shares Fund",
+          "Redwire",
+          "Renaissance Ipo Etf (Ipo)",
+          "Rocketlab (Rklb)",
+          "Scottish Mortgage Investment Trust (Smt.L Smtzf)",
+          "Sofi",
+          "Spacex",
+          "Starfighters Space",
+          "Stmicroelectronics (Stm)",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector",
+          "Upmarket",
+          "Xai"
+        ],
+        "crawlDate": "2026-01-27T13:04:34.687102Z",
+        "tickers": [
+          "aapl",
+          "chtr",
+          "gs",
+          "gsat",
+          "gsbd",
+          "gsf",
+          "gsj",
+          "nvda",
+          "pcln",
+          "pypl",
+          "pyplv",
+          "sofi",
+          "stm",
+          "twtr"
+        ]
+      },
+      {
+        "id": 91871919,
+        "publishedDate": "2026-01-27T12:50:00Z",
+        "title": "This earnings number is the only one that matters as a gut check on Big Tech’s AI spending",
+        "url": "https://www.marketwatch.com/story/this-earnings-number-is-the-only-one-that-matters-as-a-gut-check-on-big-techs-ai-spending-949e7aaf",
+        "description": null,
+        "source": "marketwatch.com",
+        "tags": [
+          "Aapl",
+          "Ai",
+          "Amat",
+          "Amzn",
+          "Artificialintelligence",
+          "Bigtech",
+          "Capex",
+          "Capitalexpenditures",
+          "Cashflow",
+          "Consumer Cyclical",
+          "ETF",
+          "Earnings",
+          "Financial Services",
+          "Freecashflow",
+          "Goog",
+          "Hyperscaler",
+          "Invest",
+          "Investing",
+          "Investment",
+          "Investor",
+          "Klac",
+          "Lrcx",
+          "Mag7",
+          "Magnificent7",
+          "Magnificentseven",
+          "Markettiming",
+          "Meta",
+          "Msft",
+          "Mutual Fund",
+          "Now",
+          "Nvda",
+          "Stock",
+          "Stockmarket",
+          "Tech",
+          "Technology",
+          "Tiingo Top",
+          "Tsla",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T12:52:17.759299Z",
+        "tickers": [
+          "aaic",
+          "aapl",
+          "ai",
+          "amat",
+          "amzn",
+          "capex",
+          "goog",
+          "klac",
+          "lrcx",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "nvda",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91874427,
+        "publishedDate": "2026-01-27T12:47:50.816000Z",
+        "title": "Tanzania Will Sell Gold Reserves to Fund Infrastructure Spending",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/tanzania-will-sell-gold-reserves-to-fund-infrastructure-spending",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Tanzania",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T13:52:38.293736Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91871889,
+        "publishedDate": "2026-01-27T12:36:34Z",
+        "title": "Most affordable 24GB M4 Mac mini you can't buy on Amazon is $100 off right now",
+        "url": "https://9to5toys.com/2026/01/27/24gb-m4-mac-mini-amazon-on-sale/",
+        "description": "While the AirPods 4 and Pro 3 deals are flowing this morning, alongside availability on the new AirTag 2 at...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:51:33.911288Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91873994,
+        "publishedDate": "2026-01-27T12:36:22Z",
+        "title": "Here are Tuesday's biggest analyst calls: Nvidia, Apple, Tesla, Disney, CoreWeave, Affirm, Strategy & more",
+        "url": "https://www.cnbc.com/2026/01/27/tuesday-biggest-wall-street-analyst-calls-like-nvidia.html",
+        "description": "Here are the biggest calls on Wall Street on Tuesday.",
+        "source": "cnbc.com",
+        "tags": [
+          "Breaking News: Investing",
+          "Breaking News: Markets",
+          "Consumer Cyclical",
+          "Consumer Defensive",
+          "Energy",
+          "Healthcare",
+          "Investment Strategy",
+          "Markets",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T13:41:52.504026Z",
+        "tickers": [
+          "aapl",
+          "afrm",
+          "amzn",
+          "crwv",
+          "dis",
+          "isrg",
+          "mstr",
+          "nov",
+          "nvda",
+          "nvs",
+          "tel",
+          "tel",
+          "tgt",
+          "tsla",
+          "wat",
+          "zbh"
+        ]
+      },
+      {
+        "id": 91871281,
+        "publishedDate": "2026-01-27T12:30:31.074000Z",
+        "title": "The AI Memory Crunch Is Coming for Your Wallet",
+        "url": "https://www.bloomberg.com/opinion/articles/2026-01-27/the-ai-memory-crunch-is-coming-for-your-wallet",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T12:35:34.109758Z",
+        "tickers": [
+          "aapl",
+          "intc"
+        ]
+      },
+      {
+        "id": 91871329,
+        "publishedDate": "2026-01-27T12:25:46Z",
+        "title": "HCA Healthcare (NYSE:HCA) Misses Q4 CY2025 Revenue Estimates",
+        "url": "https://stockstory.org/us/stocks/nyse/hca/news/earnings/hca-healthcare-nysehca-misses-q4-cy2025-revenue-estimates",
+        "description": "Hospital operator HCA Healthcare (NYSE:HCA) fell short of the markets revenue expectations in Q4 CY2025, but sales rose 6.7% year on year to $19.51 billion. The company’s full-year revenue guidance of $78.25 billion at the midpoint came in 1.1% below analysts’ estimates. Its GAAP profit of $8.14 per share was 9.2% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Earnings",
+          "Healthcare",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T12:36:37.622185Z",
+        "tickers": [
+          "aapl",
+          "hca",
+          "msft"
+        ]
+      },
+      {
+        "id": 91871459,
+        "publishedDate": "2026-01-27T12:24:27.188000Z",
+        "title": "South Africa Plans M&A Rule Changes That Could Ease Red Tape",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/south-africa-plans-m-a-rule-changes-that-could-ease-red-tape",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "South Africa",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T12:40:25.052936Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91871051,
+        "publishedDate": "2026-01-27T12:24:08Z",
+        "title": "The AirTag 2 leaves some iPhones behind – here's the full compatibility list and which models get its best upgrade",
+        "url": "https://www.techradar.com/phones/iphone/the-airtag-2-leaves-some-iphones-behind-heres-the-full-compatibility-list-and-which-models-get-its-best-upgrade",
+        "description": "The extended precision tracking feature on the new AirTag also requires a recent iPhone to work properly.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:29:19.026195Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91871048,
+        "publishedDate": "2026-01-27T12:23:49Z",
+        "title": "This simple Apple Maps setting solved a key problem for me —  I can’t believe no one’s talking about it",
+        "url": "https://www.techradar.com/computing/websites-apps/this-simple-apple-maps-setting-solved-a-key-problem-for-me-i-cant-believe-no-ones-talking-about-it",
+        "description": "Apple Maps can automatically locate your parked car, even if you don’t remember where you left it.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:29:17.658534Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91870933,
+        "publishedDate": "2026-01-27T12:21:37Z",
+        "title": "iPhone Air 2's rumored new Face ID could be two upgrades in one, fixing one of our biggest complaints with the iPhone Air",
+        "url": "https://www.tomsguide.com/phones/iphones/iphone-air-2s-rumored-new-face-id-could-be-two-upgrades-in-one-fixing-one-of-our-biggest-complaints-with-the-iphone-air",
+        "description": "Could it be enough to appeal to Air skeptics?",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:25:16.268441Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91871542,
+        "publishedDate": "2026-01-27T12:11:17Z",
+        "title": "RTX (NYSE:RTX) Beats Expectations in Strong Q4 CY2025",
+        "url": "https://stockstory.org/us/stocks/nyse/rtx/news/earnings/rtx-nysertx-beats-expectations-in-strong-q4-cy2025",
+        "description": "Aerospace and defense company Raytheon (NYSE:RTX) reported Q4 CY2025 results beating Wall Street’s revenue expectations, with sales up 12.1% year on year to $24.24 billion. The company expects the full year’s revenue to be around $92.5 billion, close to analysts’ estimates. Its non-GAAP profit of $1.55 per share was 5.3% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Earnings",
+          "Industrials",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T12:41:35.629963Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "rtn",
+          "rtx"
+        ]
+      },
+      {
+        "id": 91870141,
+        "publishedDate": "2026-01-27T12:02:00.985000Z",
+        "title": "Sports Leagues Struggle To Lure Fans Away From Illegal Streams",
+        "url": "https://www.bloomberg.com/news/newsletters/2026-01-27/sports-fans-look-to-illegal-streaming-sites-as-games-go-behind-paywalls",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T12:06:24.287469Z",
+        "tickers": [
+          "aapl",
+          "amd",
+          "intc",
+          "msft",
+          "nflx"
+        ]
+      },
+      {
+        "id": 91870036,
+        "publishedDate": "2026-01-27T12:01:00Z",
+        "title": "Stocks and Gold Near Record Highs? Maybe It’s About Trust and Verify.",
+        "url": "https://www.barrons.com/articles/stocks-gold-record-highs-98a6fc36",
+        "description": null,
+        "source": "barrons.com",
+        "tags": [
+          "Consumer Cyclical",
+          "ETF",
+          "Financial Services",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T12:04:30.608329Z",
+        "tickers": [
+          "aapl",
+          "bac",
+          "gs",
+          "lpla",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "spx",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91870137,
+        "publishedDate": "2026-01-27T12:00:00.002000Z",
+        "title": "Nvidia Lacks Clear Successor for Superstar CEO Who Built Company",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/nvidia-lacks-clear-successor-for-superstar-ceo-who-built-company",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T12:06:21.969958Z",
+        "tickers": [
+          "aapl",
+          "googl",
+          "intc",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91869788,
+        "publishedDate": "2026-01-27T11:56:56Z",
+        "title": "Lbp Am Sa Sells 14,712 Shares of ARM Holdings PLC Sponsored ADR $ARM",
+        "url": "https://www.thelincolnianonline.com/2026/01/27/lbp-am-sa-sells-14712-shares-of-arm-holdings-plc-sponsored-adr-arm.html",
+        "description": "Lbp Am Sa lowered its position in ARM Holdings PLC Sponsored ADR (NASDAQ:ARM – Free Report) by 14.4% in the third quarter, according to the company in its most recent 13F filing with the Securities & Exchange Commission. The institutional investor owned 87,757 shares of the company’s stock after selling 14,712 shares during the period. […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "13F",
+          "Arm",
+          "Computer And Technology",
+          "ETF",
+          "Financial Services",
+          "Hedge Fund Holdings",
+          "Institutional Investor Holdings",
+          "Nasdaq:Arm",
+          "Sec Filings",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T11:57:44.470930Z",
+        "tickers": [
+          "aapl",
+          "arm",
+          "barl",
+          "key",
+          "ms",
+          "msk",
+          "mwg",
+          "mwo",
+          "mwr"
+        ]
+      },
+      {
+        "id": 91869727,
+        "publishedDate": "2026-01-27T11:54:15Z",
+        "title": "Samsung Galaxy S26 may copy one of the iPhone’s most controversial features, and photographers should pay attention",
+        "url": "https://www.tomsguide.com/phones/samsung-phones/samsung-galaxy-s26-may-copy-one-of-the-iphones-most-controversial-features-and-photographers-should-pay-attention",
+        "description": "Samsung has allegedly planned an iPhone Camera Control-style button for the S26",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T11:56:31.278488Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91871866,
+        "publishedDate": "2026-01-27T11:50:54Z",
+        "title": "Hello! AirPods Pro 3 just dropped back to $199 Amazon all-time low, AirPods 4 ANC now at $119",
+        "url": "https://9to5toys.com/2026/01/27/airpods-pro-deal-4-anc-sale/",
+        "description": "Just after seeing a solid deal hit AirPods 4 with ANC down at $119 this morning, Amazon is now once...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:51:04.346699Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91869116,
+        "publishedDate": "2026-01-27T11:30:45Z",
+        "title": "Apple Inc. $AAPL Holdings Trimmed by Sather Financial Group Inc",
+        "url": "https://www.thelincolnianonline.com/2026/01/27/apple-inc-aapl-holdings-trimmed-by-sather-financial-group-inc.html",
+        "description": "Sather Financial Group Inc lowered its holdings in Apple Inc. (NASDAQ:AAPL – Free Report) by 22.8% in the third quarter, according to its most recent Form 13F filing with the Securities & Exchange Commission. The institutional investor owned 23,919 shares of the iPhone maker’s stock after selling 7,062 shares during the period. Sather Financial Group […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "03783310",
+          "13F",
+          "Aapl",
+          "Apple",
+          "Computer And Technology",
+          "Financial Services",
+          "Hedge Fund Holdings",
+          "Institutional Investor Holdings",
+          "Nasdaq:Aapl",
+          "Sec Filings",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T11:32:43.160087Z",
+        "tickers": [
+          "aapl",
+          "bac",
+          "gs",
+          "gsf",
+          "gsj",
+          "jef",
+          "mhm",
+          "mpe",
+          "stt"
+        ]
+      },
+      {
+        "id": 91869117,
+        "publishedDate": "2026-01-27T11:30:45Z",
+        "title": "Apple Inc. $AAPL Stock Holdings Cut by MassMutual Private Wealth & Trust FSB",
+        "url": "https://www.thelincolnianonline.com/2026/01/27/apple-inc-aapl-stock-holdings-cut-by-massmutual-private-wealth-trust-fsb.html",
+        "description": "MassMutual Private Wealth & Trust FSB cut its holdings in Apple Inc. (NASDAQ:AAPL – Free Report) by 0.9% in the third quarter, according to its most recent disclosure with the Securities and Exchange Commission (SEC). The institutional investor owned 705,260 shares of the iPhone maker’s stock after selling 6,618 shares during the quarter. Apple accounts […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "03783310",
+          "13F",
+          "Aapl",
+          "Apple",
+          "Computer And Technology",
+          "ETF",
+          "Financial Services",
+          "Hedge Fund Holdings",
+          "Institutional Investor Holdings",
+          "Nasdaq:Aapl",
+          "Sec Filings",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T11:32:45.280535Z",
+        "tickers": [
+          "aapl",
+          "barl",
+          "bcs",
+          "jef",
+          "ms",
+          "msk",
+          "mwg",
+          "mwo",
+          "mwr"
+        ]
+      },
+      {
+        "id": 91871182,
+        "publishedDate": "2026-01-27T11:30:01Z",
+        "title": "Meta inks deal to pay Corning up to $6 billion for fiber-optic cables in AI data centers",
+        "url": "https://www.cnbc.com/2026/01/27/apple-supplier-corning-wins-6-billion-from-meta-for-ai-optical-fiber.html",
+        "description": "Corning, a 175-year-old glassmaker known for supplying iPhone glass, is now at the center of the AI infrastructure boom with a new type of fiber-optic cable ",
+        "source": "cnbc.com",
+        "tags": [
+          "Basic Materials",
+          "Breaking News: Technology",
+          "Business",
+          "Computing",
+          "Consumer Cyclical",
+          "ETF",
+          "Internet",
+          "Stock",
+          "Technology",
+          "Wireless"
+        ],
+        "crawlDate": "2026-01-27T12:32:36.745945Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "avgo",
+          "googl",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "nvda",
+          "oc"
+        ]
+      },
+      {
+        "id": 91869022,
+        "publishedDate": "2026-01-27T11:26:58Z",
+        "title": "Apple once again puts Android to shame – it just updated the 12-year-old iPhone 5S to set a new record",
+        "url": "https://www.techradar.com/phones/ios/apple-once-again-puts-android-to-shame-it-just-updated-the-12-year-old-iphone-5s-to-set-a-new-record",
+        "description": "Apple has just updated some ancient handsets, ensuring they stay functional for longer.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T11:27:43.117760Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91869134,
+        "publishedDate": "2026-01-27T11:22:14Z",
+        "title": "Masimo combats Apple attempt to avoid $634M patent spat payment",
+        "url": "https://www.massdevice.com/masimo-combats-apple-avoid-payment-patent/",
+        "description": "Masimo (Nasdaq:MASI) has opposed an attempt by Apple to overturn the recent patent infringement ruling ordering it to pay $634 million.",
+        "source": "massdevice.com",
+        "tags": [
+          "Healthcare",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T11:33:21.708761Z",
+        "tickers": [
+          "aapl",
+          "masi"
+        ]
+      },
+      {
+        "id": 91868706,
+        "publishedDate": "2026-01-27T11:12:39Z",
+        "title": "Need a new PC? Beat the RAM crisis price hikes — Mac mini M4 with 16GB at almost 20% off could be the bargain of the year",
+        "url": "https://www.techradar.com/computing/macs/need-a-new-pc-beat-the-ram-crisis-price-hikes-mac-mini-m4-with-16gb-at-almost-20-percent-off-could-be-the-bargain-of-the-year",
+        "description": "Sick of Windows 11? This Mac mini M4 deal could be the smartest purchase you make in 2026.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T11:15:32.999761Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91871858,
+        "publishedDate": "2026-01-27T11:08:02Z",
+        "title": "Apple's latest green Trail Loop drops to Amazon all-time low at 35% off, many more",
+        "url": "https://9to5toys.com/2026/01/27/apple-latest-green-trail-loop-deals/",
+        "description": "Prices are continuing to drop on a range of Apple’s latest Apple Watch Ultra bands and this morning we are...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:50:51.903458Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91868313,
+        "publishedDate": "2026-01-27T11:00:32.587000Z",
+        "title": "CEOs’ ICE Letter (That Doesn’t Mention ICE) Isn’t Good Enough",
+        "url": "https://www.bloomberg.com/opinion/articles/2026-01-27/minneapolis-a-letter-not-leadership-from-ceos-on-ice",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Consumer Defensive",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T11:03:32.831998Z",
+        "tickers": [
+          "aapl",
+          "nyt",
+          "tgt"
+        ]
+      },
+      {
+        "id": 91870053,
+        "publishedDate": "2026-01-27T11:00:01Z",
+        "title": "Apple, Google host dozens of AI ‘nudify’ apps like Grok, report finds",
+        "url": "https://www.cnbc.com/2026/01/27/apple-google-host-dozens-of-ai-nudify-apps-like-grok-report-finds.html",
+        "description": "A tech watchdog organization found 55 nudify apps on Google Play and 47 in the Apple App Store.",
+        "source": "cnbc.com",
+        "tags": [
+          "Breaking News: Technology",
+          "Business",
+          "Entertainment",
+          "Media",
+          "Pornography",
+          "Publishing",
+          "Social Media",
+          "Stock",
+          "Technology",
+          "Television"
+        ],
+        "crawlDate": "2026-01-27T12:04:45.040416Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91868324,
+        "publishedDate": "2026-01-27T10:54:22.626000Z",
+        "title": "World shares track Wall Street gains as gold edges lower",
+        "url": "https://www.bnnbloomberg.ca/markets/dow-jones/2026/01/27/world-shares-track-wall-street-gains-as-gold-edges-lower/",
+        "description": "World shares were mostly higher Tuesday after U.S. stock indexes ticked upward, buoyed by strong profit reports for some companies. ",
+        "source": "bnnbloomberg.ca",
+        "tags": [
+          "Business",
+          "International",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T11:04:02.635541Z",
+        "tickers": [
+          "aapl",
+          "hymlf",
+          "msft"
+        ]
+      },
+      {
+        "id": 91867872,
+        "publishedDate": "2026-01-27T10:35:07.500000Z",
+        "title": "TikTok Star Khaby Lame Signs $975 Million Deal to Monetize Global Fan Base",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/tiktok-star-khaby-lame-signs-975-million-deal-to-monetize-global-fan-base",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T10:44:32.942944Z",
+        "tickers": [
+          "aapl",
+          "anpa"
+        ]
+      },
+      {
+        "id": 91870627,
+        "publishedDate": "2026-01-27T10:31:33Z",
+        "title": "AirPods 4 with ANC drop to one the best prices ever today at $119 shipped (35% off)",
+        "url": "https://9to5toys.com/2026/01/27/airpods-4-anc-best-price-sale/",
+        "description": "Just after yesterday’s release of the brand new AirTag 2, Apple’s most affordable AirPods with active noise cancellation are seeing...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T12:18:26.110631Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91867728,
+        "publishedDate": "2026-01-27T10:18:29.624000Z",
+        "title": "Liberia Sees Mine andOil Deals Drawing $4.8 Billion in Investment",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/liberia-sees-mine-oil-deals-drawing-4-8-billion-in-investment",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Liberia",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T10:35:28.774707Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91868396,
+        "publishedDate": "2026-01-27T10:00:01Z",
+        "title": "Tech's massive AI spend is under scrutiny ahead of earnings. Here's what to watch",
+        "url": "https://www.cnbc.com/2026/01/27/big-tech-earnings-2026-ai-spend.html",
+        "description": "The fourth-quarter earnings season will give the megacaps an opportunity to lay out their 2026 spending visions and, in some cases, defend those plans. ",
+        "source": "cnbc.com",
+        "tags": [
+          "Breaking News: Technology",
+          "Business",
+          "Consumer Cyclical",
+          "ETF",
+          "Earnings",
+          "Enterprise",
+          "Entertainment",
+          "Media",
+          "Publishing",
+          "Social Media",
+          "Stock",
+          "Technology",
+          "Television"
+        ],
+        "crawlDate": "2026-01-27T11:06:35.454184Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "avgo",
+          "googl",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "nvda",
+          "orcl",
+          "tsla",
+          "tsm"
+        ]
+      },
+      {
+        "id": 91866871,
+        "publishedDate": "2026-01-27T09:30:04Z",
+        "title": "Nancy Pelosi just updated her 2026 stock portfolio",
+        "url": "https://finbold.com/nancy-pelosi-just-updated-her-2026-stock-portfolio/",
+        "description": "Nancy Pelosi has disclosed a major update to her investment portfolio, revealing more than $10 million in cumulative stock transactions.",
+        "source": "finbold.com",
+        "tags": [
+          "Amazon",
+          "Consumer Cyclical",
+          "Financial Services",
+          "Nancy Pelosi",
+          "Nvidia",
+          "Stock",
+          "Stocks",
+          "Technology",
+          "Unknown Sector",
+          "Utilities"
+        ],
+        "crawlDate": "2026-01-27T09:51:28.727261Z",
+        "tickers": [
+          "300178",
+          "aapl",
+          "ab",
+          "amzn",
+          "dis",
+          "googl",
+          "nvda",
+          "pypl",
+          "pyplv",
+          "tem",
+          "vsnt",
+          "vst"
+        ]
+      },
+      {
+        "id": 91866595,
+        "publishedDate": "2026-01-27T09:26:06Z",
+        "title": "Bitcoin Rises on Optimism Over Upcoming Big Tech Earnings",
+        "url": "https://www.barrons.com/livecoverage/stock-market-news-today-012726/card/bitcoin-rises-on-optimism-over-upcoming-big-tech-earnings-Sm4CsgOSYdRtRrtz3fdX",
+        "description": "Bitcoin was edging higher following gains in U.S. stocks overnight on optimism over upcoming U.S. megacap tech earnings.\nInvestors are positioning ahead of results from Microsoft, Apple, Meta and Tesla this week.\n\n\"The spotlight now shifts to whether the AI-fuelled stock rally can sustain its momen",
+        "source": "barrons.com",
+        "tags": [
+          "CryptoCurrency",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T09:29:34.613354Z",
+        "tickers": [
+          "aapl",
+          "msft"
+        ]
+      },
+      {
+        "id": 91866195,
+        "publishedDate": "2026-01-27T09:00:00Z",
+        "title": "Samsung Galaxy S26 could gain access to one of Google’s best AI features, and it’s the kind of upgrade we need more of",
+        "url": "https://www.tomsguide.com/phones/samsung-phones/samsung-galaxy-s26-could-gain-access-to-one-of-googles-best-ai-features-and-its-the-kind-of-upgrade-we-need-more-of",
+        "description": "AI can do more than just make pictures",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T09:02:26.182770Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91866512,
+        "publishedDate": "2026-01-27T09:00:00Z",
+        "title": "Is Berkshire Hathaway Stock a Buy Now?",
+        "url": "https://www.fool.com/investing/2026/01/27/is-berkshire-hathaway-stock-a-buy-now/?source=iedfolrf0000001",
+        "description": "The legendary conglomerate has made some leadership changes.",
+        "source": "fool.com",
+        "tags": [
+          "5F9F3888-8920-4946-Aae1-Fb8930A27422",
+          "Aapl",
+          "Axp",
+          "Brk.A",
+          "Brk.B",
+          "Energy",
+          "Financial Services",
+          "Financials",
+          "Investing",
+          "Oxy",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T09:23:31.830268Z",
+        "tickers": [
+          "aapl",
+          "axp",
+          "oxy"
+        ]
+      },
+      {
+        "id": 91865983,
+        "publishedDate": "2026-01-27T08:40:00Z",
+        "title": "Aletheia Maintains Sell on Apple (AAPL), Lowers Target Price",
+        "url": "https://www.insidermonkey.com/blog/aletheia-maintains-sell-on-apple-aapl-lowers-target-price-1681702/",
+        "description": "Apple Inc. (NASDAQ:AAPL) is one of the AI Stocks Analysts Are Watching.",
+        "source": "insidermonkey.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T08:41:18.609875Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91866210,
+        "publishedDate": "2026-01-27T08:40:00Z",
+        "title": "Aletheia Maintains Sell on Apple (AAPL), Lowers Target Price",
+        "url": "https://finance.yahoo.com/news/aletheia-maintains-sell-apple-aapl-084000844.html",
+        "description": "Apple Inc. (NASDAQ:AAPL) is one of the AI Stocks Analysts Are Watching. On January 20, Aletheia Capital analyst Warren Lau lowered the price target on the stock to $205.00 (from $215.00) while maintaining a Sell rating. According to the firm, Apple’s hardware margins have peaked and face pressure until the company raises prices or pushes […]",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Ai Stocks Analysts",
+          "Aletheia Capital",
+          "Apple Inc.",
+          "Face Pressure",
+          "Price Target",
+          "Stock",
+          "Supplier Negotiations",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T09:02:43.171125Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91865886,
+        "publishedDate": "2026-01-27T08:10:00Z",
+        "title": "Forget SoundHound AI: This Tech King Is the Real Voice-and-AI Cash Cow Worth Betting On",
+        "url": "https://finance.yahoo.com/news/forget-soundhound-ai-tech-king-081000185.html",
+        "description": "Apple offers a relatively low-risk, potentially high-reward investment proposition.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Apple",
+          "Consumer Cyclical",
+          "Soundhound Ai",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T08:31:07.678402Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl",
+          "hymlf",
+          "nflx",
+          "nvda",
+          "soun",
+          "stla"
+        ]
+      },
+      {
+        "id": 91865472,
+        "publishedDate": "2026-01-27T07:50:00Z",
+        "title": "Apple Vs Microsoft: Which Is The Best Tech Investment As Quarterly Results Approach?",
+        "url": "https://talkmarkets.com/content/stocks--equities/apple-vs-microsoft-which-is-the-best-tech-investment-as-quarterly-results-approach?post=552749",
+        "description": "Over the last year, Apple's stock is up +11% to slightly outperform Microsoft’s +9%, although both have lagged the broader index's returns of more than +15%.",
+        "source": "talkmarkets.com",
+        "tags": [
+          "Equities",
+          "Stock",
+          "Stocks",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T07:50:27.856292Z",
+        "tickers": [
+          "aapl",
+          "msft"
+        ]
+      },
+      {
+        "id": 91865687,
+        "publishedDate": "2026-01-27T07:50:00Z",
+        "title": "Forget SoundHound AI: This Tech King Is the Real Voice-and-AI Cash Cow Worth Betting On",
+        "url": "https://www.fool.com/investing/2026/01/27/forget-soundhound-ai-this-tech-king-is-the-real-vo/?source=iedfolrf0000001",
+        "description": "Apple offers a relatively low-risk, potentially high-reward investment proposition.",
+        "source": "fool.com",
+        "tags": [
+          "15901756-D957-4624-8Ec9-F665F0C4A8C3",
+          "Aapl",
+          "Consumer Cyclical",
+          "Goog",
+          "Googl",
+          "Investing",
+          "Soun",
+          "Stla",
+          "Stock",
+          "Technology",
+          "Technology And Telecom",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T08:13:22.744609Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl",
+          "soun",
+          "stla"
+        ]
+      },
+      {
+        "id": 91865586,
+        "publishedDate": "2026-01-27T06:55:19Z",
+        "title": "Daily Open: India forges a trade deal with the EU — as Trump doubles down on tariff playbook",
+        "url": "https://www.cnbc.com/2026/01/27/cnbc-daily-open-india-forges-a-trade-deal-with-the-eu-as-trump-doubles-down-on-tariff-playbook.html",
+        "description": "U.S. equities remain resilient, as investors positioned themselves ahead of Big Tech earnings.",
+        "source": "cnbc.com",
+        "tags": [
+          "ETF",
+          "Foreign Policy",
+          "India",
+          "Markets",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Trade",
+          "Unknown Sector",
+          "World Markets"
+        ],
+        "crawlDate": "2026-01-27T08:03:26.151792Z",
+        "tickers": [
+          "aapl",
+          "crwv",
+          "meta",
+          "meta",
+          "metv",
+          "msft"
+        ]
+      },
+      {
+        "id": 91865592,
+        "publishedDate": "2026-01-27T06:49:00Z",
+        "title": "The Zacks Analyst Blog Microsoft, Apple, Meta and Tesla",
+        "url": "https://www.zacks.com/stock/news/2823024/the-zacks-analyst-blog-microsoft-apple-meta-and-tesla?cid=CS-ZC-FT-press_releases-2823024",
+        "description": null,
+        "source": "zacks.com",
+        "tags": [
+          "Consumer Cyclical",
+          "ETF",
+          "Press Releases",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T08:04:16.162938Z",
+        "tickers": [
+          "aapl",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91864561,
+        "publishedDate": "2026-01-27T06:14:48.425000Z",
+        "title": "Wall Streettermine en hausse",
+        "url": "https://www.reuters.com/fr/affaires/wall-street-termine-en-hausse-2026-01-27/",
+        "description": null,
+        "source": "reuters.com",
+        "tags": [
+          "2026:Ml_Kbn3Om0Gm",
+          "2026:Ml_Kbn3Om0Gm-Ofrbs",
+          "2026:Ml_Kbn3Om0Gm-Ofrbs:1",
+          "2026:Ml_Kbn3Om0Gm:1",
+          "2026:Ml_Kbn3Om0Gn",
+          "2026:Ml_Kbn3Om0Gn-Ofrbs",
+          "2026:Ml_Kbn3Om0Gn-Ofrbs:1",
+          "2026:Ml_Kbn3Om0Gn:1",
+          "2026:Ml_L8N3Yr28R",
+          "2026:Ml_L8N3Yr28R:1713580670",
+          "Consumer Cyclical",
+          "Guid:Tag:Reuters.Com",
+          "Stock",
+          "Technology",
+          "Unknown Sector",
+          "Usn:Kbn3Om0Gm",
+          "Usn:Kbn3Om0Gm-Ofrbs",
+          "Usn:Kbn3Om0Gn",
+          "Usn:Kbn3Om0Gn-Ofrbs",
+          "Usn:L8N3Yr28R",
+          "Vguid:Tag:Reuters.Com"
+        ],
+        "crawlDate": "2026-01-27T06:22:27.468021Z",
+        "tickers": [
+          "aapl",
+          "intc",
+          "meta",
+          "msft",
+          "tsla",
+          "usar"
+        ]
+      },
+      {
+        "id": 91864589,
+        "publishedDate": "2026-01-27T06:06:29.005000Z",
+        "title": "Goldman, Morgan Stanley’s South Africa Inflation Call Undercuts Central Bank",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/goldman-morgan-stanley-s-south-africa-inflation-call-undercuts-central-bank",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "ETF",
+          "Financial Services",
+          "South Africa",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T06:23:46.114174Z",
+        "tickers": [
+          "aapl",
+          "gs",
+          "gsf",
+          "gsj",
+          "gvip",
+          "ms"
+        ]
+      },
+      {
+        "id": 91864482,
+        "publishedDate": "2026-01-27T06:04:37.664000Z",
+        "title": "ASML rides Nvidia's coattails with lasers and huge chip 'printers'",
+        "url": "https://www.reuters.com/world/europe/asml-rides-nvidias-coattails-with-lasers-huge-chip-printers-2026-01-27/",
+        "description": null,
+        "source": "reuters.com",
+        "tags": [
+          "2026:Ml_Kbn3Om0Fb",
+          "2026:Ml_Kbn3Om0Fb:1",
+          "2026:Ml_Kbn3Om0Fb:2",
+          "2026:Ml_Kbn3Om0Fc",
+          "2026:Ml_Kbn3Om0Fc:1",
+          "2026:Ml_L6N3Yo0T9",
+          "2026:Ml_L6N3Yo0T9:507680352",
+          "Guid:Tag:Reuters.Com",
+          "Stock",
+          "Technology",
+          "Usn:Kbn3Om0Fb",
+          "Usn:Kbn3Om0Fc",
+          "Usn:L6N3Yo0T9",
+          "Vguid:Tag:Reuters.Com"
+        ],
+        "crawlDate": "2026-01-27T06:18:06.360383Z",
+        "tickers": [
+          "aapl",
+          "asml",
+          "googl",
+          "intc",
+          "mu",
+          "nvda",
+          "qcom"
+        ]
+      },
+      {
+        "id": 91864218,
+        "publishedDate": "2026-01-27T06:00:00Z",
+        "title": "SPDR ETF Report For Monday, Jan 26",
+        "url": "https://talkmarkets.com/content/us-markets/spdr-etf-report-for-monday-jan-26?post=552717",
+        "description": "In this video, Ira Epstein discusses the market's response to weekend news, highlighting that despite fears of a market downturn due to events in Minnesota, most indices performed well, with the Russell index experiencing a pullback.",
+        "source": "talkmarkets.com",
+        "tags": [
+          "Bonds",
+          "Commodities",
+          "Consumer Cyclical",
+          "Consumer Defensive",
+          "Currencies",
+          "ETF",
+          "Equities",
+          "Etfs",
+          "Financial Services",
+          "Forex",
+          "Industrials",
+          "Stock",
+          "Stocks",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T06:01:27.816290Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "fdx",
+          "fxe",
+          "fxy",
+          "gld",
+          "googl",
+          "gs",
+          "gsf",
+          "gsj",
+          "gvip",
+          "iwm",
+          "joby",
+          "jpm",
+          "msft",
+          "nflx",
+          "nvda",
+          "rivn",
+          "slv",
+          "spx",
+          "tlt",
+          "tsla",
+          "ura",
+          "uup",
+          "wfc",
+          "wmt",
+          "xle",
+          "xlf",
+          "xli"
+        ]
+      },
+      {
+        "id": 91864427,
+        "publishedDate": "2026-01-27T06:00:00Z",
+        "title": "Palantir and 5 More Stocks to Play Trump’s Plan to Invest in America",
+        "url": "https://www.barrons.com/articles/trump-investments-government-palantir-apple-98f5e987",
+        "description": null,
+        "source": "barrons.com",
+        "tags": [
+          "Basic Materials",
+          "North America",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T06:13:31.933543Z",
+        "tickers": [
+          "aapl",
+          "adi",
+          "exe",
+          "intc",
+          "ionq",
+          "lac",
+          "lac",
+          "mp",
+          "pltr",
+          "rgti",
+          "spx",
+          "usar"
+        ]
+      },
+      {
+        "id": 91872690,
+        "publishedDate": "2026-01-27T06:00:00Z",
+        "title": "Palantir and 5 More Stocks That Might Catch Trump’s Attention—in a Good Way",
+        "url": "https://www.barrons.com/articles/palantir-stock-price-trump-buy-apple-ionq-98f5e987",
+        "description": null,
+        "source": "barrons.com",
+        "tags": [
+          "Basic Materials",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T13:10:21.943455Z",
+        "tickers": [
+          "aapl",
+          "adi",
+          "exe",
+          "intc",
+          "ionq",
+          "lac",
+          "lac",
+          "mp",
+          "pltr",
+          "rgti",
+          "spx",
+          "usar"
+        ]
+      },
+      {
+        "id": 91863884,
+        "publishedDate": "2026-01-27T05:30:00Z",
+        "title": "I’ve said that the iPhone 17 is one of the 'best bang-for-your-buck flagships' but the Galaxy S26 could steal the crown — here’s how",
+        "url": "https://www.tomsguide.com/phones/samsung-phones/ive-said-that-the-iphone-17-is-one-of-the-best-bang-for-your-buck-flagships-but-the-galaxy-s26-could-steal-the-crown-heres-how",
+        "description": "Samsung could be widening the gap with the S26",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T05:32:05.807262Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl"
+        ]
+      },
+      {
+        "id": 91863669,
+        "publishedDate": "2026-01-27T05:01:01Z",
+        "title": "China Shifts From Africa Funder to Debt Collector, Study Finds",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/china-shifts-from-africa-funder-to-debt-collector-study-finds",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "China",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T05:14:24.261122Z",
+        "tickers": [
+          "aapl",
+          "googl"
+        ]
+      },
+      {
+        "id": 91863577,
+        "publishedDate": "2026-01-27T05:01:00Z",
+        "title": "Everything new on Apple TV in February 2026",
+        "url": "https://www.tomsguide.com/entertainment/apple-tv/everything-new-on-apple-tv-in-february-2026",
+        "description": "This month's Apple TV lineup includes 'Eternity,' 'Monarch' season 2, and more",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T05:06:28.607797Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91864694,
+        "publishedDate": "2026-01-27T04:58:39Z",
+        "title": "The Trump Administration Is Racing to Launch the Deep-Sea Mining Industry, Despite Huge Risks and Broad Opposition",
+        "url": "https://cleantechnica.com/2026/01/26/the-trump-administration-is-racing-to-launch-the-deep-sea-mining-industry-despite-huge-risks-and-broad-opposition/",
+        "description": "Support CleanTechnica's work through a Substack subscription or on Stripe. Or support our Kickstarter campaign! This would destroy deep-sea habitats and the ecosystems they support. By Rebecca Loomis, Staff Attorney, Nature, NRDC The Trump administration is supporting a new and highly destructive deep-sea mining (DSM) industry in our ocean, despite  ... [continued]",
+        "source": "cleantechnica.com",
+        "tags": [
+          "Consumer Defensive",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T06:32:51.550079Z",
+        "tickers": [
+          "aapl",
+          "goog",
+          "googl",
+          "natr"
+        ]
+      },
+      {
+        "id": 91863306,
+        "publishedDate": "2026-01-27T04:40:00Z",
+        "title": "Nasdaq 100 Elliott Wave Daily Update - Monday, Jan 26",
+        "url": "https://talkmarkets.com/content/stocks--equities/nasdaq-100-elliott-wave-daily-update-monday-jan-26?post=552681",
+        "description": "The Nasdaq 100 is currently in the late stages of a ",
+        "source": "talkmarkets.com",
+        "tags": [
+          "Consumer Cyclical",
+          "ETF",
+          "Equities",
+          "Stock",
+          "Stocks",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T04:41:36.569836Z",
+        "tickers": [
+          "aapl",
+          "gld",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "nvda",
+          "pplt",
+          "slv",
+          "spx",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91863324,
+        "publishedDate": "2026-01-27T04:40:00Z",
+        "title": "Chinese Lens Maker Sunny Optical Gets Green Light for Auto Unit Spinoff",
+        "url": "https://www.marketwatch.com/story/chinese-lens-maker-sunny-optical-gets-green-light-for-auto-unit-spinoff-40f3a72d",
+        "description": null,
+        "source": "marketwatch.com",
+        "tags": [
+          "Aapl",
+          "Hk:2382",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T04:44:37.753763Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91862560,
+        "publishedDate": "2026-01-27T03:12:35Z",
+        "title": "Lennox (LII) Reports Earnings Tomorrow: What To Expect",
+        "url": "https://stockstory.org/us/stocks/nyse/lii/news/earnings/lennox-lii-reports-earnings-tomorrow-what-to-expect",
+        "description": "Climate control solutions innovator Lennox International (NYSE:LII)\n will be announcing earnings results this Wednesday before the bell. Here’s what to look for. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Industrials",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:22:44.707549Z",
+        "tickers": [
+          "aapl",
+          "iiin",
+          "lii",
+          "msft"
+        ]
+      },
+      {
+        "id": 91862408,
+        "publishedDate": "2026-01-27T03:11:04Z",
+        "title": "Progressive (PGR) Q4 Earnings Report Preview: What To Look For",
+        "url": "https://stockstory.org/us/stocks/nyse/pgr/news/earnings/progressive-pgr-q4-earnings-report-preview-what-to-look-for",
+        "description": "Insurance company Progressive (NYSE:PGR) will be reporting results this Wednesday before market open. Here’s what you need to know. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Financial Services",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:12:38.459165Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "pgr"
+        ]
+      },
+      {
+        "id": 91862395,
+        "publishedDate": "2026-01-27T03:09:35Z",
+        "title": "What is a Whoop? The cult fitness band causing a stir at Australian Open",
+        "url": "https://www.smh.com.au/technology/what-is-a-whoop-the-cult-fitness-band-causing-a-stir-at-australian-open-20260127-p5nx82.html?ref=rss&utm_medium=rss&utm_source=rss_feed",
+        "description": "A controversy during Carlos Alcaraz’s tennis match has shone a spotlight on the fitness trackers, which are widely used by professional athletes.",
+        "source": "smh.com.au",
+        "tags": [
+          "Australia",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T03:10:32.868896Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91862431,
+        "publishedDate": "2026-01-27T03:07:02Z",
+        "title": "MSCI (MSCI) Q4 Earnings Report Preview: What To Look For",
+        "url": "https://stockstory.org/us/stocks/nyse/msci/news/earnings/msci-msci-q4-earnings-report-preview-what-to-look-for",
+        "description": "Investment analytics provider MSCI (NYSE:MSCI) will be reporting results this Wednesday before market open. Here’s what you need to know. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Financial Services",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T03:12:57.865929Z",
+        "tickers": [
+          "aapl",
+          "fds",
+          "jef",
+          "jef-1",
+          "msci",
+          "msft"
+        ]
+      },
+      {
+        "id": 91862428,
+        "publishedDate": "2026-01-27T03:05:55Z",
+        "title": "Meta (META) Q4 Earnings: What To Expect",
+        "url": "https://stockstory.org/us/stocks/nasdaq/meta/news/earnings/meta-meta-q4-earnings-what-to-expect-2",
+        "description": "Social network operator Meta Platforms (NASDAQ:META)\n will be reporting earnings this Wednesday afternoon. Here’s what investors should know. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Consumer Cyclical",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:12:55.198483Z",
+        "tickers": [
+          "aapl",
+          "meta",
+          "msft",
+          "nflx"
+        ]
+      },
+      {
+        "id": 91862425,
+        "publishedDate": "2026-01-27T03:05:06Z",
+        "title": "AXIS Capital (AXS) Q4 Earnings: What To Expect",
+        "url": "https://stockstory.org/us/stocks/nyse/axs/news/earnings/axis-capital-axs-q4-earnings-what-to-expect",
+        "description": "Global specialty insurer AXIS Capital Holdings Limited (NYSE:AXS) will be reporting earnings this Wednesday after the bell. Here’s what investors should know. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Financial Services",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:12:52.605753Z",
+        "tickers": [
+          "aapl",
+          "axs",
+          "msft"
+        ]
+      },
+      {
+        "id": 91862417,
+        "publishedDate": "2026-01-27T03:04:15Z",
+        "title": "ADP (ADP) Reports Earnings Tomorrow: What To Expect",
+        "url": "https://stockstory.org/us/stocks/nasdaq/adp/news/earnings/adp-adp-reports-earnings-tomorrow-what-to-expect-2",
+        "description": "Payroll and HR services provider Automatic Data Processing (NASDAQ:ADP) will be announcing earnings results this Wednesday before the bell. Here’s what investors should know. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Industrials",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:12:46.333880Z",
+        "tickers": [
+          "aapl",
+          "adp",
+          "msft"
+        ]
+      },
+      {
+        "id": 91862419,
+        "publishedDate": "2026-01-27T03:03:41Z",
+        "title": "Monro Earnings: What To Look For From MNRO",
+        "url": "https://stockstory.org/us/stocks/nasdaq/mnro/news/earnings/monro-earnings-what-to-look-for-from-mnro",
+        "description": "Auto services provider Monro (NASDAQ:MNRO) will be reporting results this Wednesday before market open. Here’s what investors should know. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Consumer Cyclical",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:12:47.434623Z",
+        "tickers": [
+          "aapl",
+          "kmx",
+          "mnro",
+          "msft"
+        ]
+      },
+      {
+        "id": 91862413,
+        "publishedDate": "2026-01-27T03:03:38Z",
+        "title": "Earnings To Watch: Amphenol (APH) Reports Q4 Results Tomorrow",
+        "url": "https://stockstory.org/us/stocks/nyse/aph/news/earnings/earnings-to-watch-amphenol-aph-reports-q4-results-tomorrow",
+        "description": "Electrical connector manufacturer Amphenol (NYSE:APH) will be announcing earnings results this Wednesday morning. Here’s what to look for. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Industrials",
+          "Pre-Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T03:12:43.770729Z",
+        "tickers": [
+          "aapl",
+          "aph",
+          "msft",
+          "snx"
+        ]
+      },
+      {
+        "id": 91862242,
+        "publishedDate": "2026-01-27T02:33:22Z",
+        "title": "Jim Cramer Says “I’m Not Changing My View, I Say, Own Apple, Don’t Trade It”",
+        "url": "https://finance.yahoo.com/news/jim-cramer-says-m-not-023322336.html",
+        "description": "Apple Inc. (NASDAQ:AAPL) is one of the stocks in focus as Jim Cramer shared his weekly game plan. Cramer highlighted why the stock has been down for the past few weeks, as he stated: Apple’s stock’s been down for eight straight weeks. Quite a dry spell. Why is that? I think it’s the other side […]",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Apple Inc.",
+          "Jim Cramer",
+          "Stock",
+          "Straight Weeks",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T02:50:09.790555Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91861860,
+        "publishedDate": "2026-01-27T02:02:11.739000Z",
+        "title": "Stocks up as earnings hopes offset Trump's Korea tariff move, dollar wobbles",
+        "url": "https://www.reuters.com/world/china/global-markets-wrapup-1-2026-01-27/",
+        "description": null,
+        "source": "reuters.com",
+        "tags": [
+          "2026:Ml_Kbn3Om04S",
+          "2026:Ml_Kbn3Om04S:1",
+          "2026:Ml_Kbn3Om04T",
+          "2026:Ml_Kbn3Om04T:1",
+          "2026:Ml_L4N3Yr21I",
+          "2026:Ml_L4N3Yr21I:1740740951",
+          "2026:Ml_M1L4N3Yr21I",
+          "2026:Ml_M1L4N3Yr21I:1740740951",
+          "Consumer Cyclical",
+          "Guid:Tag:Reuters.Com",
+          "South Korea",
+          "Stock",
+          "Technology",
+          "Usn:Kbn3Om04S",
+          "Usn:Kbn3Om04T",
+          "Usn:L4N3Yr21I",
+          "Usn:M1L4N3Yr21I",
+          "Vguid:Tag:Reuters.Com"
+        ],
+        "crawlDate": "2026-01-27T02:06:43.790020Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91861822,
+        "publishedDate": "2026-01-27T02:00:00Z",
+        "title": "'Garmin actually want their devices to break in these labs' I went to Garmin's closely guarded Kansas HQ to find out why its watches are so expensive",
+        "url": "https://www.techradar.com/health-fitness/garmin-actually-want-their-devices-to-break-in-these-labs-i-went-to-garmins-closely-guarded-kansas-hq-to-find-out-why-its-watches-are-so-expensive",
+        "description": "Inside Garmin's secretive Kansas HQ.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T02:01:34.462087Z",
+        "tickers": [
+          "aapl",
+          "grmn"
+        ]
+      },
+      {
+        "id": 91861177,
+        "publishedDate": "2026-01-27T00:55:00Z",
+        "title": "Review & Preview: Another Swing at 7K",
+        "url": "https://www.barrons.com/articles/stocks-today-tariffs-dow-50000-gamestop-stock-79c45afd",
+        "description": null,
+        "source": "barrons.com",
+        "tags": [
+          "Consumer Cyclical",
+          "ETF",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T00:59:16.595782Z",
+        "tickers": [
+          "aapl",
+          "anet",
+          "djia",
+          "gme",
+          "hood",
+          "meta",
+          "meta",
+          "metv",
+          "msft",
+          "open",
+          "open",
+          "spx",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91861399,
+        "publishedDate": "2026-01-27T00:20:04Z",
+        "title": "Daily Open: Trump turns tariff pressure back on South Korea — but markets are focused on Big Tech earnings",
+        "url": "https://www.cnbc.com/2026/01/27/cnbc-daily-open-trump-hikes-south-korea-tariffs-markets-focus-on-big-tech-earnings.html",
+        "description": "U.S. equities remain resilient, as investors positioned themselves ahead of Big Tech earnings.",
+        "source": "cnbc.com",
+        "tags": [
+          "ETF",
+          "Markets",
+          "South Korea",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Trade",
+          "Unknown Sector",
+          "World Markets"
+        ],
+        "crawlDate": "2026-01-27T01:23:27.646861Z",
+        "tickers": [
+          "aapl",
+          "crwv",
+          "meta",
+          "meta",
+          "metv",
+          "msft"
+        ]
+      },
+      {
+        "id": 91860523,
+        "publishedDate": "2026-01-27T00:13:15.086000Z",
+        "title": "Amodei, HoffmanJoin Tech Workers Decrying Minnesota Violence",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-27/amodei-hoffman-join-tech-workers-decrying-minnesota-violence",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Stock",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-27T00:16:32.318984Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "googl",
+          "nvda",
+          "rddt"
+        ]
+      },
+      {
+        "id": 91860492,
+        "publishedDate": "2026-01-27T00:07:25.334000Z",
+        "title": "Mendona, do STF, d liminar em favor de SP na adeso ao programa de refinanciamento de dvidas com Unio",
+        "url": "https://www.reuters.com/pt/negocio/YROKN3IMF5PMTITRYNTSI3Y5TI-2026-01-27/",
+        "description": null,
+        "source": "reuters.com",
+        "tags": [
+          "2026:Ml_Kbn3Om00B",
+          "2026:Ml_Kbn3Om00B:1",
+          "2026:Ml_Kbn3Om00C",
+          "2026:Ml_Kbn3Om00C:1",
+          "2026:Ml_L1N3Yr179",
+          "2026:Ml_L1N3Yr179:1096627647",
+          "Consumer Cyclical",
+          "Guid:Tag:Reuters.Com",
+          "Stock",
+          "Technology",
+          "Usn:Kbn3Om00B",
+          "Usn:Kbn3Om00C",
+          "Usn:L1N3Yr179",
+          "Vguid:Tag:Reuters.Com"
+        ],
+        "crawlDate": "2026-01-27T00:12:20.689474Z",
+        "tickers": [
+          "aapl",
+          "avgo",
+          "googl",
+          "meta",
+          "msft",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91860055,
+        "publishedDate": "2026-01-26T23:30:37.526000Z",
+        "title": "Will Apple’s (AAPL) New Creator Studio Subscription Deepen Its Services Narrative for Investors?",
+        "url": "https://simplywall.st/stocks/us/tech/nasdaq-aapl/apple/news/will-apples-aapl-new-creator-studio-subscription-deepen-its",
+        "description": "Earlier in January, Apple unveiled Apple Creator Studio, a US$12.99‑per‑month (US$129‑per‑year) subscription suite of pro‑grade creative apps spanning video, music, imaging, and visual productivity across Mac, iPad, and iPhone, with discounted pricing for students and educators.\nBy bundling Final Cut Pro, Logic Pro, Pixelmator Pro and enhanced iWork and Freeform features into a single subscription, Apple is deepening its services ecosystem and reinforcing the role of its hardware as a...",
+        "source": "simplywall.st",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-26T23:39:57.235385Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91860785,
+        "publishedDate": "2026-01-26T23:29:38Z",
+        "title": "Tuesday's big stock stories: What’s likely to move the market in the next trading session",
+        "url": "https://www.cnbc.com/2026/01/26/tuesdays-big-stock-stories-whats-likely-to-move-the-market.html",
+        "description": "The S&P 500 kicked off the week on a positive note as Meta Platforms and Apple rose ahead of their earnings reports.",
+        "source": "cnbc.com",
+        "tags": [
+          "ETF",
+          "Healthcare",
+          "Industrials",
+          "Investment Strategy",
+          "Stock",
+          "Stock Markets",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T00:35:26.251623Z",
+        "tickers": [
+          "aal",
+          "aapl",
+          "ba",
+          "meta",
+          "meta",
+          "metv",
+          "orcl",
+          "unh"
+        ]
+      },
+      {
+        "id": 91859948,
+        "publishedDate": "2026-01-26T23:27:00Z",
+        "title": "Tech Up Ahead of Sector Earnings -- Tech Roundup",
+        "url": "https://www.marketwatch.com/story/tech-up-ahead-of-sector-earnings-tech-roundup-86f7ed01",
+        "description": null,
+        "source": "marketwatch.com",
+        "tags": [
+          "Aapl",
+          "Crwv",
+          "Msft",
+          "Nvda",
+          "Skyt",
+          "Stock",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-26T23:33:36.488901Z",
+        "tickers": [
+          "aapl",
+          "crwv",
+          "msft",
+          "nvda",
+          "skyt",
+          "skyt"
+        ]
+      },
+      {
+        "id": 91859049,
+        "publishedDate": "2026-01-26T22:32:52Z",
+        "title": "These 7 hidden iOS features have transformed how I use my iPhone",
+        "url": "https://www.techradar.com/phones/ios/these-7-hidden-ios-features-have-transformed-how-i-use-my-iphone",
+        "description": "Whether you want to block out the world, hide your apps, or just get things done faster, these tools should help.",
+        "source": "techradar.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-26T22:34:27.692108Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91859219,
+        "publishedDate": "2026-01-26T22:31:07.658000Z",
+        "title": "Qualcomm Board Shift As Christopher Young Departs For Vertex CEO Role",
+        "url": "https://simplywall.st/stocks/us/semiconductors/nasdaq-qcom/qualcomm/news/qualcomm-board-shift-as-christopher-young-departs-for-vertex",
+        "description": "Christopher D. Young plans to step down from Qualcomm's Board of Directors to focus on his new role as CEO of Vertex Inc.\nHis departure marks a board-level change at NasdaqGS:QCOM, affecting the mix of experience and oversight at the company.\n\nQualcomm, listed on NasdaqGS:QCOM, is a major supplier of wireless chips and related technologies that sit at the heart of smartphones, connected devices, and growing data use. As demand for connectivity, edge computing, and advanced mobile...",
+        "source": "simplywall.st",
+        "tags": [
+          "Healthcare",
+          "Industrials",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-26T22:45:03.687915Z",
+        "tickers": [
+          "aapl",
+          "qcom",
+          "vrtx",
+          "vtnrq"
+        ]
+      },
+      {
+        "id": 91858829,
+        "publishedDate": "2026-01-26T22:23:21.555000Z",
+        "title": "Australia’s Southeast Scorches, Albanese Picks Defense Secretary as US Envoy",
+        "url": "https://www.bloomberg.com/news/newsletters/2026-01-26/australia-suffers-heatwave-next-us-ambassador",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Australia",
+          "Consumer Cyclical",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T22:25:18.833927Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "tsla"
+        ]
+      },
+      {
+        "id": 91858978,
+        "publishedDate": "2026-01-26T22:15:36.609000Z",
+        "title": "Cameroon Sells $750 Million Dollar Bond After Benin Deal",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-26/cameroon-sells-750-million-dollar-bond-after-benin-deal",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Benin",
+          "Cameroon",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T22:32:31.874075Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91859688,
+        "publishedDate": "2026-01-26T22:13:50Z",
+        "title": "The lesson Jim Cramer wants investors to learn from Monday's market rally",
+        "url": "https://www.cnbc.com/2026/01/26/the-lesson-jim-cramer-wants-investors-to-learn-from-mondays-market-rally.html",
+        "description": "\"Stocks don't go down because people are in a bad mood,\" CNBC's Jim Cramer said Monday.",
+        "source": "cnbc.com",
+        "tags": [
+          "Business",
+          "ETF",
+          "Investment Strategy",
+          "Markets",
+          "Stock",
+          "Stock Markets",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T23:16:35.057315Z",
+        "tickers": [
+          "aapl",
+          "meta",
+          "meta",
+          "metv",
+          "msft"
+        ]
+      },
+      {
+        "id": 91859005,
+        "publishedDate": "2026-01-26T22:13:15Z",
+        "title": "Brown & Brown (NYSE:BRO) Misses Q4 CY2025 Sales Expectations",
+        "url": "https://stockstory.org/us/stocks/nyse/bro/news/earnings/brown-and-brown-nysebro-misses-q4-cy2025-sales-expectations",
+        "description": "Insurance brokerage firm Brown & Brown (NYSE:BRO) missed Wall Street’s revenue expectations in Q4 CY2025, but sales rose 36% year on year to $1.61 billion. Its non-GAAP profit of $0.93 per share was 3.3% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Earnings",
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T22:33:22.169028Z",
+        "tickers": [
+          "aapl",
+          "bro",
+          "msft"
+        ]
+      },
+      {
+        "id": 91858388,
+        "publishedDate": "2026-01-26T22:02:29Z",
+        "title": "Enterprise Financial Services’s (NASDAQ:EFSC) Q4 CY2025 Sales Top Estimates",
+        "url": "https://stockstory.org/us/stocks/nasdaq/efsc/news/earnings/enterprise-financial-servicess-nasdaqefsc-q4-cy2025-sales-top-estimates",
+        "description": "Regional banking company Enterprise Financial Services (NASDAQ:EFSC) reported Q4 CY2025 results beating Wall Street’s revenue expectations, with sales up 14.3% year on year to $193.6 million. Its non-GAAP profit of $1.36 per share was in line with analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Earnings",
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T22:08:47.586285Z",
+        "tickers": [
+          "aapl",
+          "efsc",
+          "msft"
+        ]
+      },
+      {
+        "id": 91858262,
+        "publishedDate": "2026-01-26T21:55:30Z",
+        "title": "Crane (NYSE:CR) Posts Better-Than-Expected Sales In Q4 CY2025",
+        "url": "https://stockstory.org/us/stocks/nyse/cr/news/earnings/crane-nysecr-posts-better-than-expected-sales-in-q4-cy2025",
+        "description": "Industrial conglomerate Crane (NYSE:CR) announced better-than-expected revenue in Q4 CY2025, with sales up 6.8% year on year to $581 million. Its non-GAAP profit of $1.53 per share was 8.2% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Earnings",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-26T22:04:33.898900Z",
+        "tickers": [
+          "aapl",
+          "cr",
+          "msft"
+        ]
+      },
+      {
+        "id": 91857854,
+        "publishedDate": "2026-01-26T21:52:40.393000Z",
+        "title": "Europe’s Options for Pushing Back Against an Emboldened Trump",
+        "url": "https://www.bloomberg.com/news/articles/2026-01-26/trump-s-greenland-ambitions-tariff-threats-put-europe-on-defense",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T21:57:42.940086Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91860300,
+        "publishedDate": "2026-01-26T21:39:00Z",
+        "title": "Stocks Rise Ahead Of Big Tech Earnings, Rate Decision",
+        "url": "https://talkmarkets.com/content/commodities/stocks-rise-ahead-of-big-tech-earnings-rate-decision?post=552653",
+        "description": "Stocks pushed higher Monday as investors balanced political uncertainty with a packed week of earnings and looming Federal Reserve interest rate decision.",
+        "source": "talkmarkets.com",
+        "tags": [
+          "Commodities",
+          "Communication Services",
+          "ETF",
+          "Equities",
+          "Stock",
+          "Stocks",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-26T23:58:20.303448Z",
+        "tickers": [
+          "aapl",
+          "gld",
+          "intc",
+          "iqnt",
+          "meta",
+          "meta",
+          "metv",
+          "oil",
+          "oil",
+          "qqq",
+          "spx"
+        ]
+      },
+      {
+        "id": 91856657,
+        "publishedDate": "2026-01-26T21:30:56.305000Z",
+        "title": "Minnesota Outcry Puts a Government Shutdown Back on the Table",
+        "url": "https://www.bloomberg.com/news/newsletters/2026-01-26/minnesota-outcry-puts-a-government-shutdown-back-on-the-table",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Financial Services",
+          "Industrials",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T21:33:25.030386Z",
+        "tickers": [
+          "aapl",
+          "bac",
+          "bah",
+          "c",
+          "pnc"
+        ]
+      },
+      {
+        "id": 91858540,
+        "publishedDate": "2026-01-26T21:28:28Z",
+        "title": "Gain peace of mind to track down your lost wallet with this UGREEN FineTrack Find My Slim card at $20",
+        "url": "https://9to5toys.com/2026/01/26/ugreen-finetrack-find-my-slim-card-at-20/",
+        "description": "UGREEN FineTrack Slim Wallet Tracker Card Buy for $20 (Reg. $24) Clip the on-page $4 off coupon. What we love...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-26T22:12:58.963067Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91858541,
+        "publishedDate": "2026-01-26T21:21:15Z",
+        "title": "Apple's new next-gen AirTag 2 now available at $29 via Amazon, or grab the original at up to 30% off",
+        "url": "https://9to5toys.com/2026/01/26/apple-new-airtag-2-now-available-amazon/",
+        "description": "Apple debuted the long-awaited AirTag 2 today. Pre-orders are now live at Amazon ahead of delivery this week and are...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-26T22:13:00.138228Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91856226,
+        "publishedDate": "2026-01-26T21:18:27Z",
+        "title": "First Merchants (NASDAQ:FRME) Misses Q4 CY2025 Sales Expectations",
+        "url": "https://stockstory.org/us/stocks/nasdaq/frme/news/earnings/first-merchants-nasdaqfrme-misses-q4-cy2025-sales-expectations",
+        "description": "Regional banking company First Merchants (NASDAQ:FRME) missed Wall Street’s revenue expectations in Q4 CY2025, with sales falling 11.5% year on year to $172.2 million. Its non-GAAP profit of $0.98 per share was 3% above analysts’ consensus estimates. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Earnings",
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-26T21:24:10.067269Z",
+        "tickers": [
+          "aapl",
+          "frme",
+          "msft"
+        ]
+      },
+      {
+        "id": 91855667,
+        "publishedDate": "2026-01-26T21:00:00Z",
+        "title": "Richard Gere Joins 'The Off Weeks' Apple TV Limited Series",
+        "url": "https://deadline.com/2026/01/richard-gere-the-off-weeks-apple-tv-limited-series-1236697336/",
+        "description": "Richard Gere has joined the cast of 'The Off Weeks,' Apple TV's limited series starring and executive produced by Jessica Chastain and Ben Stiller.",
+        "source": "deadline.com",
+        "tags": [
+          "Apple Tv",
+          "Richard Gere",
+          "Stock",
+          "Technology",
+          "The Off Weeks"
+        ],
+        "crawlDate": "2026-01-26T21:14:24.333175Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91855430,
+        "publishedDate": "2026-01-26T20:56:03Z",
+        "title": "Why Booz Allen Hamilton (BAH) Stock Is Falling Today",
+        "url": "https://stockstory.org/us/stocks/nyse/bah/news/why-up-down/why-booz-allen-hamilton-bah-stock-is-falling-today",
+        "description": "Shares of government consulting firm Booz Allen Hamilton (NYSE:BAH) fell 9.2% in the afternoon session after the U.S. Department of the Treasury announced it canceled all contracts with the consulting firm. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Industrials",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-26T21:07:27.386227Z",
+        "tickers": [
+          "aapl",
+          "bah",
+          "lmt",
+          "lmt-wd",
+          "msft",
+          "noc"
+        ]
+      },
+      {
+        "id": 91855423,
+        "publishedDate": "2026-01-26T20:55:58Z",
+        "title": "Why Datadog (DDOG) Stock Is Up Today",
+        "url": "https://stockstory.org/us/stocks/nasdaq/ddog/news/why-up-down/why-datadog-ddog-stock-is-up-today-7",
+        "description": "Shares of cloud monitoring platform Datadog (NASDAQ:DDOG) jumped 4.9% in the afternoon session after Stifel upgraded the company's stock to \"Buy\" from \"Hold\", citing expectations of a strong quarterly performance. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-26T21:07:23.424468Z",
+        "tickers": [
+          "aapl",
+          "ddog",
+          "msft",
+          "sf",
+          "sfn"
+        ]
+      },
+      {
+        "id": 91855422,
+        "publishedDate": "2026-01-26T20:55:43Z",
+        "title": "AMD (AMD) Stock Trades Down, Here Is Why",
+        "url": "https://stockstory.org/us/stocks/nasdaq/amd/news/why-up-down/amd-amd-stock-trades-down-here-is-why-3",
+        "description": "Shares of computer processor maker AMD (NASDAQ:AMD)\r\n fell 3.3% in the afternoon session after Microsoft unveiled its latest AI chip to reduce reliance on established chipmakers. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-26T21:07:22.208645Z",
+        "tickers": [
+          "aapl",
+          "acn",
+          "amd",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91855437,
+        "publishedDate": "2026-01-26T20:55:43Z",
+        "title": "Apple (AAPL) Stock Trades Up, Here Is Why",
+        "url": "https://stockstory.org/us/stocks/nasdaq/aapl/news/why-up-down/apple-aapl-stock-trades-up-here-is-why-3",
+        "description": "Shares of iPhone and iPad maker Apple (NASDAQ:AAPL) jumped 3.3% in the afternoon session after investor optimism grew ahead of its earnings report, fueled by positive analyst commentary citing strong iPhone 17 sales. ",
+        "source": "stockstory.org",
+        "tags": [
+          "ETF",
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-26T21:07:33.060572Z",
+        "tickers": [
+          "aapl",
+          "barl",
+          "jpm",
+          "jpm-ws",
+          "ms",
+          "msft",
+          "msk",
+          "mwg",
+          "mwo",
+          "mwr"
+        ]
+      },
+      {
+        "id": 91855736,
+        "publishedDate": "2026-01-26T20:55:43Z",
+        "title": "Apple (AAPL) Stock Trades Up, Here Is Why",
+        "url": "https://finance.yahoo.com/news/apple-aapl-stock-trades-why-205543182.html",
+        "description": "Shares of iPhone and iPad maker Apple (NASDAQ:AAPL) jumped 3.3% in the afternoon session after investor optimism grew ahead of its earnings report, fueled by positive analyst commentary citing strong iPhone 17 sales.",
+        "source": "finance.yahoo.com",
+        "tags": [
+          "Apple",
+          "Apple Intelligence",
+          "ETF",
+          "Financial Services",
+          "Morgan Stanley",
+          "President Trump",
+          "Stock",
+          "Stock Trades",
+          "Technology",
+          "Unknown Sector"
+        ],
+        "crawlDate": "2026-01-26T21:15:51.990061Z",
+        "tickers": [
+          "aapl",
+          "barl",
+          "jpm",
+          "jpm-ws",
+          "ms",
+          "msft",
+          "msk",
+          "mwg",
+          "mwo",
+          "mwr"
+        ]
+      }
+    ]
+  },
+  "timestamp": 1769522672642
+}

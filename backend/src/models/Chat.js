@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 
 const MessageSchema = new mongoose.Schema({
   sender: { type: String, enum: ["user", "bot"], required: true },
-  text: { type: String }, 
+  text: { type: String },
   type: { type: String, enum: ["text", "price", "analysis", "chart", "news"], default: "text" },
-  analysis: { type: mongoose.Schema.Types.Mixed }, 
-  chartData: { type: mongoose.Schema.Types.Mixed }, 
-  news: { type: [mongoose.Schema.Types.Mixed] }, 
+  analysis: { type: mongoose.Schema.Types.Mixed },
+  chartData: { type: mongoose.Schema.Types.Mixed },
+  news: { type: [mongoose.Schema.Types.Mixed] },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -17,7 +17,8 @@ const ChatSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, 
+      required: true,
+      index: true, // Optimize chat history lookup 
     },
     title: { type: String, default: "" },
     messages: [MessageSchema],

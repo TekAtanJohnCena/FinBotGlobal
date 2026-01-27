@@ -5,6 +5,8 @@
 import "dotenv/config";
 import axios from "axios";
 import OpenAI from "openai";
+import cacheManager from "../utils/cacheManager.js"; // Import Cache Manager
+
 
 // MODELS
 import Chat from "../models/Chat.js";
@@ -141,6 +143,20 @@ async function fetchTiingoFundamentals(ticker) {
 
   // Ticker'ı tekrar temizle (garanti olsun)
   const cleanedTicker = cleanTicker(ticker);
+
+  // CACHE KONTROLÜ (1 Saat TTL)
+  const cacheKey = `tiingo_fund_${cleanedTicker}`;
+  const cachedData = cacheManager.get(cacheKey, 3600 * 1000);
+
+  if (cachedData) {
+    log.info("TIINGO", `📦 Önbellekten veri getirildi: ${cleanedTicker}`);
+    return {
+      ticker: cleanedTicker,
+      date: cachedData.date,
+      statementData: cachedData.statementData
+    };
+  }
+
   const url = `https://api.tiingo.com/tiingo/fundamentals/${cleanedTicker}/statements`;
 
   log.debug("TIINGO", "API URL:", url);
@@ -182,11 +198,16 @@ async function fetchTiingoFundamentals(ticker) {
       }
     }
 
-    return {
+    const result = {
       ticker: cleanedTicker,
       date: latest.date,
       statementData: latest.statementData
     };
+
+    // CACHE KAYDET
+    cacheManager.set(cacheKey, result);
+
+    return result;
 
   } catch (error) {
     if (error.response) {

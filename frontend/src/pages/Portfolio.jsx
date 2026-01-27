@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from "../lib/api";
 import CashBalanceCard from '../components/CashBalanceCard';
 import {
@@ -19,9 +20,7 @@ import {
 } from 'lucide-react';
 
 const Portfolio = () => {
-  const [portfolioData, setPortfolioData] = useState([]);
-  const [totals, setTotals] = useState({ totalValue: 0, totalPnl: 0, totalPnlPercent: 0 });
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // Search State
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,12 +38,11 @@ const Portfolio = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Cash Balance State
-  const [cashBalance, setCashBalance] = useState(0);
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [cashInput, setCashInput] = useState("");
 
-  // Default Popular Stocks (Hardcoded, but we will fetch prices)
-  const [popularStocks, setPopularStocks] = useState([
+  // Default Popular Stocks
+  const popularStocks = [
     { ticker: 'AAPL', name: 'Apple Inc.', price: 0 },
     { ticker: 'TSLA', name: 'Tesla, Inc.', price: 0 },
     { ticker: 'NVDA', name: 'NVIDIA Corp.', price: 0 },
@@ -53,35 +51,60 @@ const Portfolio = () => {
     { ticker: 'GOOGL', name: 'Alphabet Inc.', price: 0 },
     { ticker: 'META', name: 'Meta Platforms', price: 0 },
     { ticker: 'NFLX', name: 'Netflix, Inc.', price: 0 }
-  ]);
+  ];
 
-  const fetchPortfolio = async () => {
-    setLoading(true);
-    try {
+  // --- QUERIES ---
+
+  // 1. Portfolio Data
+  const {
+    data: portfolioRes,
+    isLoading: portfolioLoading,
+    refetch: refetchPortfolio
+  } = useQuery({
+    queryKey: ['portfolio'],
+    queryFn: async () => {
       const res = await api.get('/portfolio');
-      if (res.data.ok) {
-        setPortfolioData(res.data.data);
-        setTotals(res.data.totals);
-      }
-    } catch (err) {
-      console.error("Portfolio fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+    refetchInterval: 60000, // Refresh every 1 min
+    staleTime: 30000,
+  });
 
-  const fetchPopularPrices = async () => {
-    try {
+  const portfolioData = portfolioRes?.data || [];
+  const totals = portfolioRes?.totals || { totalValue: 0, totalPnl: 0, totalPnlPercent: 0 };
+  const loading = portfolioLoading;
+
+  // 2. Popular Stocks Prices
+  const { data: popularStocksRes } = useQuery({
+    queryKey: ['popularStocks'],
+    queryFn: async () => {
       const tickers = popularStocks.map(s => s.ticker).join(",");
       const res = await api.get(`/prices/batch?tickers=${tickers}`);
-      if (res.data.ok) {
-        setPopularStocks(prev => prev.map(s => ({
-          ...s,
-          price: res.data.data[s.ticker] || s.price
-        })));
-      }
-    } catch (e) { }
-  };
+      return res.data;
+    },
+    refetchInterval: 60000,
+  });
+
+  // Merge popular stocks with prices
+  const currentPopularStocks = popularStocks.map(s => ({
+    ...s,
+    price: popularStocksRes?.data?.[s.ticker] || s.price
+  }));
+
+  // 3. Cash Balance
+  const { data: cashRes } = useQuery({
+    queryKey: ['cashBalance'],
+    queryFn: async () => {
+      const res = await api.get('/portfolio/cash');
+      return res.data;
+    }
+  });
+
+  const cashBalance = cashRes?.balance || 0;
+
+  // Removed manual useEffects in favor of useQuery
+
+  // handleSearch needs to stay, but useEffects are gone. Re-adding handleSearch.
 
   const handleSearch = useCallback(async (val) => {
     setSearchTerm(val);
@@ -103,30 +126,11 @@ const Portfolio = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchPortfolio();
-    fetchPopularPrices();
-    fetchCashBalance();
-    const interval = setInterval(fetchPortfolio, 300000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchCashBalance = async () => {
-    try {
-      const res = await api.get('/portfolio/cash');
-      if (res.data.ok) {
-        setCashBalance(res.data.balance || 0);
-      }
-    } catch (err) {
-      console.error('Cash fetch error:', err);
-    }
-  };
-
   const saveCashBalance = async () => {
     try {
       const res = await api.post('/portfolio/cash', { amount: Number(cashInput) });
       if (res.data.ok) {
-        setCashBalance(Number(cashInput));
+        await queryClient.invalidateQueries(['cashBalance']);
         setIsCashModalOpen(false);
         setCashInput("");
       }
@@ -168,7 +172,8 @@ const Portfolio = () => {
         setIsModalOpen(false);
         setAddQty("");
         setAddCost("");
-        fetchPortfolio();
+        queryClient.invalidateQueries(['portfolio']);
+        queryClient.invalidateQueries(['cashBalance']);
       } else {
         alert('❌ Hata: ' + (res.data.error || 'Bilinmeyen hata'));
       }
@@ -185,7 +190,7 @@ const Portfolio = () => {
     try {
       const res = await api.delete(`/portfolio/${id}`);
       if (res.data.ok) {
-        fetchPortfolio();
+        queryClient.invalidateQueries(['portfolio']);
       }
     } catch (err) {
       console.error("Delete error:", err);
@@ -249,7 +254,7 @@ const Portfolio = () => {
                 {!searchTerm && <Activity size={12} className="text-emerald-500" />}
               </h3>
 
-              {(searchTerm ? searchResults : popularStocks).map(s => (
+              {(searchTerm ? searchResults : currentPopularStocks).map(s => (
                 <div
                   key={s.ticker || s.symbol}
                   className="flex items-center justify-between p-4 rounded-2xl hover:bg-emerald-500/5 transition-all group border border-transparent hover:border-emerald-500/20"
@@ -316,7 +321,11 @@ const Portfolio = () => {
             </div>
 
             <button
-              onClick={fetchPortfolio}
+              onClick={() => {
+                refetchPortfolio();
+                queryClient.invalidateQueries(['popularStocks']);
+                queryClient.invalidateQueries(['cashBalance']);
+              }}
               className="flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-[#1e222d] border border-slate-700 rounded-xl md:rounded-2xl text-slate-300 hover:text-emerald-400 hover:border-emerald-500/30 transition-all font-black text-xs uppercase tracking-widest shadow-xl w-full md:w-auto justify-center"
             >
               <RefreshCw size={16} className={loading && portfolioData.length > 0 ? 'animate-spin' : ''} />

@@ -2,9 +2,11 @@ import express from 'express';
 import axios from 'axios';
 import { getBatchPrices } from '../services/tiingo/stockService.js';
 import cacheManager from '../utils/cacheManager.js';
+import { OpenAI } from 'openai';
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Cache TTL configuration (in milliseconds)
 const CACHE_TTL = {
@@ -13,6 +15,39 @@ const CACHE_TTL = {
     STATEMENTS: 60 * 60 * 1000,        // 1 hour - Financial statements
     PRICES: 5 * 60 * 1000              // 5 minutes - Real-time prices
 };
+
+/**
+ * Translate company description using OpenAI
+ * @param {string} text - Original English text
+ * @param {string} targetLang - Target language code (tr, ar, en)
+ * @returns {Promise<string>} - Translated text
+ */
+async function translateDescription(text, targetLang) {
+    if (!text || targetLang === 'en') return text; // No translation needed for English
+
+    const langNames = { tr: 'Turkish', ar: 'Arabic' };
+    const targetLanguage = langNames[targetLang] || 'English';
+
+    try {
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional translator. Translate the following company description to ${targetLanguage}. Keep it professional and accurate. Return ONLY the translated text, nothing else.`
+                },
+                { role: 'user', content: text }
+            ],
+            temperature: 0.3,
+            max_tokens: 1000
+        });
+
+        return completion.choices[0]?.message?.content?.trim() || text;
+    } catch (error) {
+        console.error(`❌ Translation error (${targetLang}):`, error.message);
+        return text; // Fallback to original text on error
+    }
+}
 
 // In-memory cache variables (fallback if cacheManager not used)
 let tickerMetaCache = null;
@@ -209,10 +244,17 @@ router.get('/global-news', async (req, res) => {
  */
 router.get('/stock-analysis/:symbol', async (req, res) => {
     const { symbol } = req.params;
-    const { range = '1y' } = req.query; // Default to '1y' as requested
+    const { range = '1y', lang = 'en' } = req.query; // Default range='1y', lang='en'
     const normalizedSymbol = symbol.toLowerCase();
+
+    // TIINGO API FORMAT: Convert dots to dashes (BRK.B -> BRK-B)
+    const apiSymbol = normalizedSymbol.replace(/\./g, '-');
+
     const type = getAssetType(normalizedSymbol);
     const now = Date.now();
+    // Include lang in cache key so translations are cached separately
+    const analysisCacheKey = `analysis_${normalizedSymbol}_${range}_${lang}`;
+    console.log(`🔑 Cache Key: ${analysisCacheKey} | API Symbol: ${apiSymbol}`);
 
     // Calculate Start Date based on Range
     let startDate = '2024-01-01'; // Default Fallback, but we will overwrite it
@@ -255,7 +297,13 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             break;
     }
 
-    console.log(`📊 Analysis Request: ${symbol} | Requested Range: ${range} | Calculated StartDate: ${startDate}`);
+    // Determine Resample Frequency
+    let resampleFreq = 'daily';
+    if (range === 'max' || range === 'all') {
+        resampleFreq = 'weekly';
+    }
+
+    console.log(`📊 Analysis Request: ${symbol} | Requested Range: ${range} | Calculated StartDate: ${startDate} | Freq: ${resampleFreq}`);
 
     try {
         let responseData = {
@@ -271,8 +319,8 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
 
         if (type === 'CRYPTO') {
             const [priceRes, historyRes] = await Promise.all([
-                axios.get(`https://api.tiingo.com/tiingo/crypto/prices?tickers=${normalizedSymbol}&token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/crypto/prices?tickers=${normalizedSymbol}&startDate=${startDate}&resampleFreq=1day&token=${TIINGO_API_KEY}`)
+                axios.get(`https://api.tiingo.com/tiingo/crypto/prices?tickers=${apiSymbol}&token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/crypto/prices?tickers=${apiSymbol}&startDate=${startDate}&resampleFreq=${resampleFreq === 'weekly' ? '1day' : '1day'}&token=${TIINGO_API_KEY}`) // Crypto API uses different freq format
             ]);
             const cryptoPriceData = priceRes.data[0]?.priceData?.at(-1) || {};
             const cryptoHistoryRaw = historyRes.data[0]?.priceData || [];
@@ -288,8 +336,8 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             }));
         } else if (type === 'FOREX') {
             const [priceRes, historyRes] = await Promise.all([
-                axios.get(`https://api.tiingo.com/tiingo/fx/top?tickers=${normalizedSymbol}&token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/fx/prices?tickers=${normalizedSymbol}&startDate=${startDate}&resampleFreq=1day&token=${TIINGO_API_KEY}`)
+                axios.get(`https://api.tiingo.com/tiingo/fx/top?tickers=${apiSymbol}&token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/fx/prices?tickers=${apiSymbol}&startDate=${startDate}&resampleFreq=1day&token=${TIINGO_API_KEY}`)
             ]);
             const fxPriceData = priceRes.data[0] || {};
             const fxHistoryRaw = historyRes.data || [];
@@ -304,25 +352,48 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
         } else {
             // STOCK - Check statements cache first
             // Cache keys must differ by startDate (range) to avoid serving 1-month data for a 5-year request
-            const cacheKey = `${normalizedSymbol}_${startDate}`;
-            /* 
-            const hasValidCache = statementsCache[cacheKey] &&
-                statementsCacheTimestamp[cacheKey] &&
-                (now - statementsCacheTimestamp[cacheKey]) < STATEMENTS_CACHE_DURATION;
-             */
+            // cacheKey is already defined above
+            const cachedResult = cacheManager.get(analysisCacheKey, CACHE_TTL.STATEMENTS);
+
+            if (cachedResult) {
+                // DEBUG: Log cache data structure
+                console.log(`📦 Serving cached analysis for ${normalizedSymbol} (${range})`);
+                console.log('📊 Cache Data Type:', typeof cachedResult, '| Has .data:', !!cachedResult.data);
+
+                // cacheManager.get returns { data, timestamp }, so access .data
+                const actualData = cachedResult.data || cachedResult;
+                return res.json({ ok: true, data: actualData });
+            }
 
             // FETCH STOCK DATA (Missing Logic Restored)
-            const [historyRes, metaRes, statementsRes, newsRes] = await Promise.all([
-                axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}/prices?startDate=${startDate}&resampleFreq=daily&token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/daily/${normalizedSymbol}?token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${normalizedSymbol}/statements?token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${normalizedSymbol}&token=${TIINGO_API_KEY}`)
+            // FETCH STOCK DATA (Refactored to Promise.allSettled for robustness)
+            // NOTE: Using apiSymbol (with dashes) for Tiingo API compatibility
+            const results = await Promise.allSettled([
+                axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}/prices?startDate=${startDate}&resampleFreq=${resampleFreq}&token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}?token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/statements?token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${apiSymbol}&token=${TIINGO_API_KEY}`)
             ]);
 
-            const historyRaw = historyRes.data || [];
-            const meta = metaRes.data || {};
-            const rawStatements = statementsRes.data || [];
-            const newsData = newsRes.data || [];
+            const historyRes = results[0];
+            const metaRes = results[1];
+            const statementsRes = results[2];
+            const newsRes = results[3];
+
+            // GUARD: Ensure all responses are proper arrays/objects
+            const historyRaw = (historyRes.status === 'fulfilled' && Array.isArray(historyRes.value.data))
+                ? historyRes.value.data : [];
+            const meta = (metaRes.status === 'fulfilled' && metaRes.value.data)
+                ? metaRes.value.data : {};
+            const rawStatements = (statementsRes.status === 'fulfilled' && Array.isArray(statementsRes.value.data))
+                ? statementsRes.value.data : [];
+            const newsData = (newsRes.status === 'fulfilled' && Array.isArray(newsRes.value.data))
+                ? newsRes.value.data : [];
+
+            // Log failures for debugging
+            if (historyRes.status === 'rejected') console.error(`❌ Data fetch failed (History): ${historyRes.reason.message}`);
+            if (metaRes.status === 'rejected') console.error(`❌ Data fetch failed (Meta): ${metaRes.reason.message}`);
+            if (statementsRes.status === 'rejected') console.error(`❌ Data fetch failed (Statements): ${statementsRes.reason.message}`);
 
             // Latest Daily for Fundamentals
             const latestDaily = historyRaw.length > 0 ? historyRaw[historyRaw.length - 1] : {};
@@ -359,8 +430,19 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
                 description: meta.description || ""
             };
 
+            // Translate description if not English
+            if (lang !== 'en' && responseData.fundamentals.description) {
+                console.log(`🌐 Translating description to ${lang}...`);
+                responseData.fundamentals.description = await translateDescription(
+                    responseData.fundamentals.description,
+                    lang
+                );
+            }
+
             // Parse financial statements with correct dataCode mapping
-            const annuals = rawStatements.filter(s => s.quarter === 0);
+            // GUARD: Ensure rawStatements is an array before filtering
+            const safeStatements = Array.isArray(rawStatements) ? rawStatements : [];
+            const annuals = safeStatements.filter(s => s && s.quarter === 0);
 
             responseData.financials.history = annuals.map(statement => {
                 const incomeStatement = statement.statementData?.incomeStatement || [];
@@ -413,6 +495,17 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             responseData.changePercent = prev ? ((last - prev) / prev) * 100 : 0;
         }
 
+        // CACHE VALIDATION: Only cache valid, non-empty data
+        const isValidData = responseData.history &&
+            responseData.history.length > 0 &&
+            responseData.price > 0;
+
+        if (isValidData) {
+            cacheManager.set(analysisCacheKey, responseData);
+        } else {
+            console.warn(`⚠️ Skipping cache for ${symbol}: Invalid data (history: ${responseData.history?.length || 0}, price: ${responseData.price})`);
+        }
+
         res.json({ ok: true, data: responseData });
     } catch (error) {
         console.error('❌ Stock analysis error:', error.message);
@@ -429,12 +522,23 @@ router.get('/prices/batch', async (req, res) => {
 
     try {
         const tickerArray = tickers.split(',').map(t => t.trim().toUpperCase());
+        const cacheKey = `batch_${tickerArray.sort().join('_')}`;
+        const cachedPrices = cacheManager.get(cacheKey, CACHE_TTL.PRICES);
+
+        if (cachedPrices) {
+            console.log(`📦 Serving cached batch prices`);
+            return res.json({ ok: true, data: cachedPrices });
+        }
+
         const data = await getBatchPrices(tickerArray);
 
         const simpleFormat = {};
         Object.keys(data).forEach(ticker => {
             simpleFormat[ticker] = data[ticker].price;
         });
+
+        // Cache the result
+        cacheManager.set(cacheKey, simpleFormat);
 
         res.json({ ok: true, data: simpleFormat });
     } catch (error) {

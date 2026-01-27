@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import api from "../lib/api";
 import {
@@ -15,9 +16,8 @@ import {
 const Markets = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("Stocks");
-    const [loading, setLoading] = useState(true);
-    const [marketData, setMarketData] = useState([]);
 
+    // Static Asset Config
     const ASSETS = {
         Stocks: [
             { symbol: 'AAPL', name: 'Apple Inc.' },
@@ -45,10 +45,14 @@ const Markets = () => {
         ]
     };
 
-    const fetchMarketData = async () => {
-        setLoading(true);
-        const currentAssets = ASSETS[activeTab];
-        try {
+    const {
+        data: marketData,
+        isLoading: loading,
+        refetch
+    } = useQuery({
+        queryKey: ['markets', activeTab],
+        queryFn: async () => {
+            const currentAssets = ASSETS[activeTab];
             const results = await Promise.all(currentAssets.map(async (asset) => {
                 try {
                     const res = await api.get(`/stock-analysis/${asset.symbol}`);
@@ -64,19 +68,12 @@ const Markets = () => {
                 }
                 return { ...asset, price: 0, change: 0 };
             }));
-            setMarketData(results);
-        } catch (err) {
-            console.error("Market fetch error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchMarketData();
-        const interval = setInterval(fetchMarketData, 60000); // Update every minute
-        return () => clearInterval(interval);
-    }, [activeTab]);
+            return results;
+        },
+        refetchInterval: 60000,
+        staleTime: 30000,
+        placeholderData: (previousData) => previousData // Keep prev data while fetching new tab
+    });
 
     return (
         <div className="min-h-screen bg-[#0f111a] text-white p-4 md:p-6">
@@ -88,7 +85,7 @@ const Markets = () => {
                         <p className="text-slate-500 text-xs md:text-sm font-bold uppercase tracking-widest">Real-time Multi-Asset Tracking</p>
                     </div>
                     <button
-                        onClick={fetchMarketData}
+                        onClick={() => refetch()}
                         className="p-2.5 md:p-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all text-slate-400 hover:text-white"
                     >
                         <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
@@ -131,7 +128,7 @@ const Markets = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/50">
-                                {marketData.map((asset) => (
+                                {(marketData || []).map((asset) => (
                                     <tr
                                         key={asset.symbol}
                                         onClick={() => navigate(`/screener/${asset.symbol}`)}

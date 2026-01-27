@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 // SECURITY MIDDLEWARE
 import { securityHeaders } from "./middleware/security.js";
 import { generalLimiter, tiingoLimiter, authLimiter } from "./middleware/rateLimiter.js";
+import compression from "compression";
 import morgan from "morgan";
 import logger, { morganStream } from "./utils/logger.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
@@ -31,9 +32,16 @@ import newsRoutes from "./routes/news.js";
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
 import { getChatHistory } from "./controllers/chatController.js";
+import cacheManager from "./utils/cacheManager.js";
 
 const app = express();
 app.set('trust proxy', 1);
+
+// DEV MODE: Clear corrupted cache on startup
+if (process.env.NODE_ENV !== 'production') {
+  const clearedCount = cacheManager.clearAll();
+  console.log(`🧹 DEV MODE: Cleared ${clearedCount} cache files on startup`);
+}
 
 // ===== Middleware & CORS =====
 const allowedOrigins = [
@@ -65,6 +73,7 @@ app.use((req, res, next) => {
 app.use(morgan("combined", { stream: morganStream }));
 app.use(securityHeaders);
 app.use(express.json());
+app.use(compression());
 app.use(generalLimiter); // Apply global rate limit
 
 // ===== Routes =====

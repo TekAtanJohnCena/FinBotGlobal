@@ -13,8 +13,7 @@ import logo from "../images/logo1.png";
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const { login, googleLogin } = useContext(AuthContext);
@@ -443,33 +442,7 @@ const Login = () => {
               />
             </div>
 
-            {/* Terms and Privacy Checkboxes */}
-            <div className="form-group" style={{ marginTop: '1.25rem' }}>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', marginBottom: '0.6rem' }}>
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#3b82f6' }}
-                />
-                <span>
-                  Kabul ediyorum{' '}
-                  <Link to="/legal/terms" target="_blank" className="auth-link" style={{ fontSize: '0.85rem' }}>Kullanıcı Sözleşmesi</Link>
-                </span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem' }}>
-                <input
-                  type="checkbox"
-                  checked={privacyAccepted}
-                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                  style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#3b82f6' }}
-                />
-                <span>
-                  Kabul ediyorum{' '}
-                  <Link to="/legal/privacy" target="_blank" className="auth-link" style={{ fontSize: '0.85rem' }}>Gizlilik Politikası</Link>
-                </span>
-              </label>
-            </div>
+
 
             {/* Footer */}
             <p className="auth-footer">
