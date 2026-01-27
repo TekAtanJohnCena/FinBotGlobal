@@ -1,14 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from "../lib/api";
 import {
     ArrowLeft,
-    Coins,
     Download,
     Activity,
     Info,
-    ChevronRight
+    ChevronDown,
+    Lock,
+    Sparkles,
+    FileSpreadsheet,
+    FileText
 } from 'lucide-react';
+
+// Türkçe Mali Kalem Eşleştirmesi
+const TURKISH_LABELS = {
+    // Gelir Tablosu
+    revenue: "Toplam Gelir",
+    costOfRevenue: "Satışların Maliyeti",
+    grossProfit: "Brüt Kâr",
+    opExpenses: "Faaliyet Giderleri",
+    ebitda: "FAVÖK",
+    netIncome: "Net Kâr",
+    // Bilanço
+    cashAndEquivalents: "Nakit ve Benzerleri",
+    totalAssets: "Toplam Varlıklar",
+    totalLiabilities: "Toplam Borçlar",
+    longTermDebt: "Uzun Vadeli Borç",
+    totalEquity: "Toplam Özkaynak",
+    // Nakit Akışı
+    netCashProvidedByOperatingActivities: "İşletme Nakit Akışı",
+    netCashUsedForInvestingActivities: "Yatırım Nakit Akışı",
+    netCashUsedProvidedByFinancingActivities: "Finansman Nakit Akışı",
+    netChangeInCash: "Net Nakit Değişimi"
+};
+
+// Plan bazlı yıl limitleri
+const PLAN_YEAR_LIMITS = {
+    FREE: 5,
+    BASIC: 10,
+    PREMIUM: 25
+};
 
 const Financials = () => {
     const { symbol } = useParams();
@@ -17,6 +49,26 @@ const Financials = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState("Income Statement");
+    const [exportMenuOpen, setExportMenuOpen] = useState(false);
+    const [userPlan, setUserPlan] = useState('FREE');
+    const [yearLimit, setYearLimit] = useState(5);
+
+    // Kullanıcı planını al
+    useEffect(() => {
+        const fetchUserPlan = async () => {
+            try {
+                const response = await api.get('/user/quota');
+                if (response.data.ok) {
+                    const plan = response.data.data.plan || 'FREE';
+                    setUserPlan(plan);
+                    setYearLimit(PLAN_YEAR_LIMITS[plan] || 5);
+                }
+            } catch (err) {
+                console.log('Could not fetch user plan, using FREE limits');
+            }
+        };
+        fetchUserPlan();
+    }, []);
 
     useEffect(() => {
         const fetchFinancials = async () => {
@@ -30,10 +82,10 @@ const Financials = () => {
                     );
                     setData({ ...response.data.data, financials: { ...response.data.data.financials, history: sortedHistory } });
                 } else {
-                    setError("Failed to load financial data.");
+                    setError("Mali veriler yüklenemedi.");
                 }
             } catch (err) {
-                setError("Server connection error.");
+                setError("Sunucu bağlantı hatası.");
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -66,36 +118,102 @@ const Financials = () => {
     const getRows = () => {
         if (activeTab === "Income Statement") {
             return [
-                { label: "Total Revenue", key: "revenue" },
-                { label: "Cost of Revenue", key: "costOfRevenue" },
-                { label: "Gross Profit", key: "grossProfit", bold: true },
-                { label: "Operating Expenses", key: "opExpenses" },
-                { label: "EBITDA", key: "ebitda", bold: true },
-                { label: "Net Income", key: "netIncome", bold: true, color: "text-emerald-400" },
+                { label: TURKISH_LABELS.revenue, key: "revenue" },
+                { label: TURKISH_LABELS.costOfRevenue, key: "costOfRevenue" },
+                { label: TURKISH_LABELS.grossProfit, key: "grossProfit", bold: true },
+                { label: TURKISH_LABELS.opExpenses, key: "opExpenses" },
+                { label: TURKISH_LABELS.ebitda, key: "ebitda", bold: true },
+                { label: TURKISH_LABELS.netIncome, key: "netIncome", bold: true, color: "text-emerald-400" },
             ];
         } else if (activeTab === "Balance Sheet") {
             return [
-                { label: "Cash & Equivalents", key: "cashAndEquivalents" },
-                { label: "Total Assets", key: "totalAssets", bold: true },
-                { label: "Total Liabilities", key: "totalLiabilities", bold: true },
-                { label: "Long Term Debt", key: "longTermDebt" },
-                { label: "Total Equity", key: "totalEquity", bold: true, color: "text-blue-400" },
+                { label: TURKISH_LABELS.cashAndEquivalents, key: "cashAndEquivalents" },
+                { label: TURKISH_LABELS.totalAssets, key: "totalAssets", bold: true },
+                { label: TURKISH_LABELS.totalLiabilities, key: "totalLiabilities", bold: true },
+                { label: TURKISH_LABELS.longTermDebt, key: "longTermDebt" },
+                { label: TURKISH_LABELS.totalEquity, key: "totalEquity", bold: true, color: "text-blue-400" },
             ];
         } else {
             return [
-                { label: "Operating Cash Flow", key: "netCashProvidedByOperatingActivities" },
-                { label: "Investing Cash Flow", key: "netCashUsedForInvestingActivities" },
-                { label: "Financing Cash Flow", key: "netCashUsedProvidedByFinancingActivities" },
-                { label: "Net Change in Cash", key: "netChangeInCash", bold: true, color: "text-indigo-400" },
+                { label: TURKISH_LABELS.netCashProvidedByOperatingActivities, key: "netCashProvidedByOperatingActivities" },
+                { label: TURKISH_LABELS.netCashUsedForInvestingActivities, key: "netCashUsedForInvestingActivities" },
+                { label: TURKISH_LABELS.netCashUsedProvidedByFinancingActivities, key: "netCashUsedProvidedByFinancingActivities" },
+                { label: TURKISH_LABELS.netChangeInCash, key: "netChangeInCash", bold: true, color: "text-indigo-400" },
             ];
         }
     };
+
+    // CSV Export fonksiyonu
+    const exportToCSV = useCallback((type) => {
+        if (!data?.financials?.history) return;
+
+        const history = data.financials.history.slice(0, yearLimit);
+        let rows = [];
+        let filename = '';
+
+        if (type === 'income') {
+            rows = getIncomeRows();
+            filename = `${symbol}_gelir_tablosu.csv`;
+        } else if (type === 'balance') {
+            rows = getBalanceRows();
+            filename = `${symbol}_bilanco.csv`;
+        } else if (type === 'cashflow') {
+            rows = getCashFlowRows();
+            filename = `${symbol}_nakit_akisi.csv`;
+        }
+
+        // CSV header
+        const headers = ['Kalem', ...history.map(h => h.year || new Date(h.date).getFullYear())];
+        let csvContent = headers.join(',') + '\n';
+
+        // CSV rows
+        rows.forEach(row => {
+            const values = [row.label, ...history.map(h => h[row.key] || 0)];
+            csvContent += values.join(',') + '\n';
+        });
+
+        // Download
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        setExportMenuOpen(false);
+    }, [data, yearLimit, symbol]);
+
+    const getIncomeRows = () => [
+        { label: TURKISH_LABELS.revenue, key: "revenue" },
+        { label: TURKISH_LABELS.costOfRevenue, key: "costOfRevenue" },
+        { label: TURKISH_LABELS.grossProfit, key: "grossProfit" },
+        { label: TURKISH_LABELS.opExpenses, key: "opExpenses" },
+        { label: TURKISH_LABELS.ebitda, key: "ebitda" },
+        { label: TURKISH_LABELS.netIncome, key: "netIncome" },
+    ];
+
+    const getBalanceRows = () => [
+        { label: TURKISH_LABELS.cashAndEquivalents, key: "cashAndEquivalents" },
+        { label: TURKISH_LABELS.totalAssets, key: "totalAssets" },
+        { label: TURKISH_LABELS.totalLiabilities, key: "totalLiabilities" },
+        { label: TURKISH_LABELS.longTermDebt, key: "longTermDebt" },
+        { label: TURKISH_LABELS.totalEquity, key: "totalEquity" },
+    ];
+
+    const getCashFlowRows = () => [
+        { label: TURKISH_LABELS.netCashProvidedByOperatingActivities, key: "netCashProvidedByOperatingActivities" },
+        { label: TURKISH_LABELS.netCashUsedForInvestingActivities, key: "netCashUsedForInvestingActivities" },
+        { label: TURKISH_LABELS.netCashUsedProvidedByFinancingActivities, key: "netCashUsedProvidedByFinancingActivities" },
+        { label: TURKISH_LABELS.netChangeInCash, key: "netChangeInCash" },
+    ];
 
     if (loading) return (
         <div className="min-h-screen bg-[#0f111a] flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-[10px]">Assembling Statements...</p>
+                <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-[10px]">Mali Tablolar Yükleniyor...</p>
             </div>
         </div>
     );
@@ -103,14 +221,16 @@ const Financials = () => {
     if (error || !data) return (
         <div className="min-h-screen bg-[#0f111a] flex items-center justify-center p-6 text-center">
             <div>
-                <h2 className="text-2xl font-black text-rose-500 mb-2">Error</h2>
-                <p className="text-slate-400">{error || "No financial data available for this symbol."}</p>
-                <button onClick={() => navigate(-1)} className="mt-6 px-6 py-2 bg-slate-800 rounded-xl hover:bg-slate-700 transition-colors font-bold text-sm">Return back</button>
+                <h2 className="text-2xl font-black text-rose-500 mb-2">Hata</h2>
+                <p className="text-slate-400">{error || "Bu sembol için mali veri bulunamadı."}</p>
+                <button onClick={() => navigate(-1)} className="mt-6 px-6 py-2 bg-slate-800 rounded-xl hover:bg-slate-700 transition-colors font-bold text-sm">Geri Dön</button>
             </div>
         </div>
     );
 
-    const history = data?.financials?.history || [];
+    const history = (data?.financials?.history || []).slice(0, yearLimit);
+    const fullHistory = data?.financials?.history || [];
+    const hasMoreData = fullHistory.length > yearLimit;
     const rows = getRows();
 
     return (
@@ -139,28 +259,99 @@ const Financials = () => {
                     {/* STATS SUMMARY */}
                     <div className="hidden xl:flex items-center gap-10">
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Market Cap</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Piyasa Değeri</span>
                             <span className="text-sm font-black text-slate-200">{formatNumber(data?.fundamentals?.marketCap)}</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">P/E Ratio</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">F/K Oranı</span>
                             <span className="text-sm font-black text-slate-200">{data?.fundamentals?.peRatio?.toFixed(2) || "—"}</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Div. Yield</span>
-                            <span className="text-sm font-black text-emerald-400">{data?.fundamentals?.dividendYield ? `${(data.fundamentals.dividendYield * 100).toFixed(2)}%` : "—"}</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Temettü Verimi</span>
+                            <span className="text-sm font-black text-emerald-400">{data?.fundamentals?.dividendYield ? `%${(data.fundamentals.dividendYield * 100).toFixed(2)}` : "—"}</span>
                         </div>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-4">
-                        <button className="hidden sm:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl transition-all font-bold text-xs border border-slate-700">
-                            <Download size={16} /> Export
+                    {/* EXPORT BUTTON */}
+                    <div className="hidden md:flex items-center gap-4 relative">
+                        <button
+                            onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-4 py-2.5 rounded-xl transition-all font-bold text-xs shadow-lg shadow-indigo-500/20"
+                        >
+                            <Download size={16} />
+                            İndir
+                            <ChevronDown size={14} className={`transition-transform ${exportMenuOpen ? 'rotate-180' : ''}`} />
                         </button>
+
+                        {/* Export Dropdown */}
+                        {exportMenuOpen && (
+                            <div className="absolute top-full right-0 mt-2 w-56 bg-[#1e222d] border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50">
+                                <div className="p-2">
+                                    <button
+                                        onClick={() => exportToCSV('income')}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-800 rounded-lg transition-colors text-left"
+                                    >
+                                        <FileSpreadsheet size={16} className="text-emerald-400" />
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-200">Gelir Tablosu</div>
+                                            <div className="text-[10px] text-slate-500">CSV formatında indir</div>
+                                        </div>
+                                    </button>
+                                    <button
+                                        onClick={() => exportToCSV('balance')}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-800 rounded-lg transition-colors text-left"
+                                    >
+                                        <FileText size={16} className="text-blue-400" />
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-200">Bilanço</div>
+                                            <div className="text-[10px] text-slate-500">CSV formatında indir</div>
+                                        </div>
+                                    </button>
+                                    <button
+                                        onClick={() => exportToCSV('cashflow')}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-800 rounded-lg transition-colors text-left"
+                                    >
+                                        <Activity size={16} className="text-indigo-400" />
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-200">Nakit Akışı</div>
+                                            <div className="text-[10px] text-slate-500">CSV formatında indir</div>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div className="border-t border-slate-700 px-3 py-2 bg-slate-800/30">
+                                    <div className="text-[9px] text-slate-500 uppercase font-bold">
+                                        Plan limitiniz: {yearLimit} yıl veri
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
             <main className="max-w-[1600px] mx-auto p-4 md:p-8">
+                {/* Plan Limit Banner */}
+                {hasMoreData && userPlan === 'FREE' && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                                <Lock size={18} className="text-amber-400" />
+                            </div>
+                            <div>
+                                <div className="text-sm font-bold text-amber-200">Daha fazla yıl verisi mevcut!</div>
+                                <div className="text-xs text-amber-400/70">Free plan: {yearLimit} yıl • Plus: 10 yıl • Pro: 25+ yıl</div>
+                            </div>
+                        </div>
+                        <Link
+                            to="/pricing"
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-bold text-xs hover:from-amber-400 hover:to-orange-400 transition-all"
+                        >
+                            <Sparkles size={14} />
+                            Yükselt
+                        </Link>
+                    </div>
+                )}
+
                 {/* NAVIGATION / TABS */}
                 <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-10">
                     <div className="overflow-x-auto pb-2 md:pb-0">
@@ -174,7 +365,7 @@ const Financials = () => {
                                         : 'text-slate-500 hover:text-slate-300'
                                         }`}
                                 >
-                                    {tab === "Income Statement" ? "Gelir" : tab === "Balance Sheet" ? "Bilanço" : "Nakit Akışı"}
+                                    {tab === "Income Statement" ? "Gelir Tablosu" : tab === "Balance Sheet" ? "Bilanço" : "Nakit Akışı"}
                                 </button>
                             ))}
                         </div>
@@ -182,7 +373,9 @@ const Financials = () => {
 
                     <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl w-fit">
                         <Info size={14} className="text-indigo-400/80" />
-                        <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest">Historical Data Provided by Tiingo</span>
+                        <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest">
+                            Görüntülenen: {history.length} Yıl • Plan: {userPlan === 'FREE' ? 'Ücretsiz' : userPlan === 'BASIC' ? 'Plus' : 'Pro'}
+                        </span>
                     </div>
                 </div>
 
@@ -193,7 +386,7 @@ const Financials = () => {
                             <thead>
                                 <tr className="bg-[#242835] border-b border-slate-800">
                                     <th className="px-4 md:px-8 py-4 md:py-6 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 sticky left-0 bg-[#242835] z-20 min-w-[160px] md:min-w-[280px] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]">
-                                        Financial Line Items (USD)
+                                        Mali Kalemler (USD)
                                     </th>
                                     {history.map((stmt) => (
                                         <th key={stmt.date} className="px-4 md:px-10 py-4 md:py-6 text-right text-[10px] md:text-xs font-black text-slate-300 min-w-[100px] md:min-w-[160px] uppercase tracking-tighter">
@@ -235,16 +428,40 @@ const Financials = () => {
                     </div>
                 </div>
 
+                {/* Mobile Export Button */}
+                <div className="md:hidden mt-6">
+                    <button
+                        onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-xl font-bold text-sm"
+                    >
+                        <Download size={18} />
+                        Verileri İndir
+                    </button>
+                    {exportMenuOpen && (
+                        <div className="mt-2 bg-[#1e222d] border border-slate-700 rounded-xl overflow-hidden">
+                            <button onClick={() => exportToCSV('income')} className="w-full px-4 py-3 text-left text-sm font-bold text-slate-200 hover:bg-slate-800 border-b border-slate-700">
+                                📊 Gelir Tablosu (CSV)
+                            </button>
+                            <button onClick={() => exportToCSV('balance')} className="w-full px-4 py-3 text-left text-sm font-bold text-slate-200 hover:bg-slate-800 border-b border-slate-700">
+                                📋 Bilanço (CSV)
+                            </button>
+                            <button onClick={() => exportToCSV('cashflow')} className="w-full px-4 py-3 text-left text-sm font-bold text-slate-200 hover:bg-slate-800">
+                                💵 Nakit Akışı (CSV)
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 {/* FOOTER */}
                 <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[9px] text-slate-600 font-bold uppercase tracking-widest bg-[#161a24] p-6 rounded-2xl border border-slate-800/40">
                     <div className="flex items-center gap-4">
-                        <span>© 2026 FinBot Global Financials</span>
+                        <span>© 2026 FinBot Global</span>
                         <div className="hidden sm:block w-1 h-1 bg-slate-800 rounded-full"></div>
-                        <span className="text-slate-500">Source: Tiingo Professional Data</span>
+                        <span className="text-slate-500">Kaynak: Tiingo Professional Data</span>
                     </div>
                     <div className="flex items-center gap-2 text-indigo-500/80">
                         <Activity size={14} />
-                        <span>Real-time aggregation active</span>
+                        <span>Gerçek zamanlı veri</span>
                     </div>
                 </div>
             </main>

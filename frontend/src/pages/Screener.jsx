@@ -686,35 +686,14 @@ const Screener = () => {
                     <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">F/K Oranı</div>
                     <div className="text-sm md:text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.peRatio ? analysisData.fundamentals.peRatio.toFixed(2) : '—'}</div>
                   </div>
-                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg">
-                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">Temetü Verimi</div>
-                    <div className="text-sm md:text-lg font-mono font-black text-slate-100">{analysisData?.fundamentals?.dividendYield ? `%${(analysisData.fundamentals.dividendYield * 100).toFixed(2)}` : '—'}</div>
-                  </div>
-                  <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg">
-                    <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">Beta / ROE</div>
-                    <div className="text-sm md:text-lg font-mono font-black text-slate-100">
-                      {analysisData?.fundamentals?.beta ? analysisData.fundamentals.beta.toFixed(2) : '—'}
-                      <span className="text-slate-600 mx-1">/</span>
-                      <span className="text-indigo-400">{analysisData?.fundamentals?.roe ? `%${(analysisData.fundamentals.roe * 100).toFixed(1)}` : '—'}</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
               {/* FINANCIALS */}
               <div className="space-y-3 md:space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <DollarSign size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Mali Performans (Yıllık)
-                  </h3>
-                  <Link
-                    to={`/financials/${symbol}`}
-                    className="text-[9px] md:text-[10px] font-black text-indigo-400 hover:text-indigo-300 transition-colors uppercase flex items-center gap-1 group"
-                  >
-                    Detaylı Tablolar
-                    <ArrowUpRight size={10} className="md:w-3 md:h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </Link>
-                </div>
+                <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                  <DollarSign size={12} className="md:w-[14px] md:h-[14px] text-indigo-400" /> Mali Performans (Yıllık)
+                </h3>
                 <div className="grid grid-cols-2 gap-2 md:gap-4">
                   <div className="bg-[#1e222d] p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800 shadow-lg flex flex-col justify-center h-[80px] md:h-[104px]">
                     <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1 text-indigo-400">Toplam Gelir</div>
@@ -731,6 +710,23 @@ const Screener = () => {
                 </div>
               </div>
             </div>
+
+            {/* Detaylı Tablolar Banner - Full Width */}
+            <Link
+              to={`/financials/${symbol}`}
+              className="flex items-center justify-between p-4 md:p-5 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 hover:from-indigo-500/20 hover:via-purple-500/20 hover:to-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 rounded-xl md:rounded-2xl transition-all duration-300 group shadow-lg shadow-indigo-500/5 hover:shadow-indigo-500/10"
+            >
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl flex items-center justify-center border border-indigo-500/30">
+                  <BarChart2 size={18} className="md:w-6 md:h-6 text-indigo-400" />
+                </div>
+                <div>
+                  <div className="text-sm md:text-base font-black text-slate-100 group-hover:text-white transition-colors">Detaylı Mali Tablolar</div>
+                  <div className="text-[10px] md:text-xs text-slate-500 font-medium">Gelir tablosu, bilanço ve nakit akışı • Yıllık veriler</div>
+                </div>
+              </div>
+              <ArrowUpRight size={20} className="md:w-7 md:h-7 text-indigo-400 group-hover:text-indigo-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+            </Link>
 
             {/* 4. NEWS SECTION (Bottom) */}
             <div className="space-y-3 md:space-y-4">

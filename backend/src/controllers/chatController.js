@@ -6,6 +6,7 @@ import "dotenv/config";
 import axios from "axios";
 import OpenAI from "openai";
 import cacheManager from "../utils/cacheManager.js"; // Import Cache Manager
+import { incrementFinbotUsage } from "../middleware/quotaMiddleware.js";
 
 
 // MODELS
@@ -591,13 +592,17 @@ export const sendMessage = async (req, res) => {
     chat.updatedAt = new Date();
     await chat.save();
 
+    // Başarılı sorgu sonrası kota kullanımını artır
+    await incrementFinbotUsage(userId);
+
     return res.json({
       reply,
       chatId: chat._id,
       messages: chat.messages,
       title: chat.title,
       financialData: financialData, // Frontend için
-      analysis: financialData
+      analysis: financialData,
+      quotaInfo: req.quotaInfo // Kalan kota bilgisi
     });
 
   } catch (error) {

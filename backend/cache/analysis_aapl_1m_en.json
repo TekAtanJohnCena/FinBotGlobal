@@ -254,9 +254,9 @@
       }
     ],
     "fundamentals": {
-      "marketCap": 0,
-      "peRatio": 0,
-      "pbRatio": 0,
+      "marketCap": 3790384009900,
+      "peRatio": 33.8396929729,
+      "pbRatio": 51.4068871455,
       "dividendYield": 0,
       "roe": 0,
       "beta": 0,
@@ -918,6 +918,116 @@
     },
     "news": [
       {
+        "id": 91890607,
+        "publishedDate": "2026-01-27T20:11:13Z",
+        "title": "Why FTAI Infrastructure (FIP) Shares Are Getting Obliterated Today",
+        "url": "https://stockstory.org/us/stocks/nasdaq/fip/news/why-up-down/why-ftai-infrastructure-fip-shares-are-getting-obliterated-today-2",
+        "description": "Shares of infrastructure investment and operations firm FTAI Infrastructure (NASDAQ:FIP)  fell 5.2% in the afternoon session after its subsidiary, Jefferson, announced plans for a private offering of up to $255 million in notes. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-27T20:27:52.671784Z",
+        "tickers": [
+          "aapl",
+          "fip",
+          "msft"
+        ]
+      },
+      {
+        "id": 91890606,
+        "publishedDate": "2026-01-27T20:11:09Z",
+        "title": "Why Is Sysco (SYY) Stock Rocketing Higher Today",
+        "url": "https://stockstory.org/us/stocks/nyse/syy/news/why-up-down/why-is-sysco-syy-stock-rocketing-higher-today",
+        "description": "Shares of food distribution giant Sysco (NYSE:SYY) jumped 9.4% in the afternoon session after the company reported fourth-quarter 2025 results where profits surpassed Wall Street expectations. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Consumer Defensive",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-27T20:27:51.457708Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "syy"
+        ]
+      },
+      {
+        "id": 91890609,
+        "publishedDate": "2026-01-27T20:10:59Z",
+        "title": "Why Applied Industrial (AIT) Shares Are Getting Obliterated Today",
+        "url": "https://stockstory.org/us/stocks/nyse/ait/news/why-up-down/why-applied-industrial-ait-shares-are-getting-obliterated-today",
+        "description": "Shares of industrial products distributor Applied Industrial (NYSE:AIT) fell 7.8% in the afternoon session after the company reported fourth-quarter results that showed signs of slowing growth, which overshadowed a slight earnings beat. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Industrials",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-27T20:27:54.077601Z",
+        "tickers": [
+          "aapl",
+          "ait",
+          "msft",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91890614,
+        "publishedDate": "2026-01-27T20:10:57Z",
+        "title": "Why Brown & Brown (BRO) Shares Are Falling Today",
+        "url": "https://stockstory.org/us/stocks/nyse/bro/news/why-up-down/why-brown-and-brown-bro-shares-are-falling-today",
+        "description": "Shares of insurance brokerage firm Brown & Brown (NYSE:BRO) fell 7.3% in the afternoon session after the company reported mixed fourth-quarter 2025 results, with an earnings beat failing to offset a shortfall in revenue. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-27T20:27:57.807638Z",
+        "tickers": [
+          "aapl",
+          "bro",
+          "msft"
+        ]
+      },
+      {
+        "id": 91890184,
+        "publishedDate": "2026-01-27T20:09:44.756000Z",
+        "title": "ICE Sweeps in Minnesota Reach a Political Tipping Point",
+        "url": "https://www.bloomberg.com/news/newsletters/2026-01-27/ice-sweeps-in-minnesota-reach-tipping-point-with-killing-of-alex-pretti",
+        "description": null,
+        "source": "bloomberg.com",
+        "tags": [
+          "Financial Services",
+          "Stock",
+          "Technology",
+          "Tiingo Top"
+        ],
+        "crawlDate": "2026-01-27T20:11:26.167012Z",
+        "tickers": [
+          "aapl",
+          "gs",
+          "jpm",
+          "nvda"
+        ]
+      },
+      {
         "id": 91888184,
         "publishedDate": "2026-01-27T19:19:16Z",
         "title": "This 13-year-old-iPhone just got a software update from Apple — are you paying attention, Samsung?",
@@ -1078,6 +1188,22 @@
           "gsj",
           "msft",
           "nvda"
+        ]
+      },
+      {
+        "id": 91889217,
+        "publishedDate": "2026-01-27T18:35:33Z",
+        "title": "Amazon now offering Apple's Midnight black AirPods Max (USB-C) at nearly $120 off",
+        "url": "https://9to5toys.com/2026/01/27/amazon-apple-midnight-black-airpods-max-usb-c/",
+        "description": "Joining today’s particularly notable deals on AirPods Pro 3 back at the $199 Amazon all-time low and AirPods 4 ANC...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T19:48:34.101527Z",
+        "tickers": [
+          "aapl"
         ]
       },
       {
@@ -3294,177 +3420,8 @@
           "soun",
           "stla"
         ]
-      },
-      {
-        "id": 91865472,
-        "publishedDate": "2026-01-27T07:50:00Z",
-        "title": "Apple Vs Microsoft: Which Is The Best Tech Investment As Quarterly Results Approach?",
-        "url": "https://talkmarkets.com/content/stocks--equities/apple-vs-microsoft-which-is-the-best-tech-investment-as-quarterly-results-approach?post=552749",
-        "description": "Over the last year, Apple's stock is up +11% to slightly outperform Microsoft’s +9%, although both have lagged the broader index's returns of more than +15%.",
-        "source": "talkmarkets.com",
-        "tags": [
-          "Equities",
-          "Stock",
-          "Stocks",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T07:50:27.856292Z",
-        "tickers": [
-          "aapl",
-          "msft"
-        ]
-      },
-      {
-        "id": 91865687,
-        "publishedDate": "2026-01-27T07:50:00Z",
-        "title": "Forget SoundHound AI: This Tech King Is the Real Voice-and-AI Cash Cow Worth Betting On",
-        "url": "https://www.fool.com/investing/2026/01/27/forget-soundhound-ai-this-tech-king-is-the-real-vo/?source=iedfolrf0000001",
-        "description": "Apple offers a relatively low-risk, potentially high-reward investment proposition.",
-        "source": "fool.com",
-        "tags": [
-          "15901756-D957-4624-8Ec9-F665F0C4A8C3",
-          "Aapl",
-          "Consumer Cyclical",
-          "Goog",
-          "Googl",
-          "Investing",
-          "Soun",
-          "Stla",
-          "Stock",
-          "Technology",
-          "Technology And Telecom",
-          "Tiingo Top",
-          "Unknown Sector"
-        ],
-        "crawlDate": "2026-01-27T08:13:22.744609Z",
-        "tickers": [
-          "aapl",
-          "goog",
-          "googl",
-          "soun",
-          "stla"
-        ]
-      },
-      {
-        "id": 91865586,
-        "publishedDate": "2026-01-27T06:55:19Z",
-        "title": "Daily Open: India forges a trade deal with the EU — as Trump doubles down on tariff playbook",
-        "url": "https://www.cnbc.com/2026/01/27/cnbc-daily-open-india-forges-a-trade-deal-with-the-eu-as-trump-doubles-down-on-tariff-playbook.html",
-        "description": "U.S. equities remain resilient, as investors positioned themselves ahead of Big Tech earnings.",
-        "source": "cnbc.com",
-        "tags": [
-          "ETF",
-          "Foreign Policy",
-          "India",
-          "Markets",
-          "Stock",
-          "Technology",
-          "Tiingo Top",
-          "Trade",
-          "Unknown Sector",
-          "World Markets"
-        ],
-        "crawlDate": "2026-01-27T08:03:26.151792Z",
-        "tickers": [
-          "aapl",
-          "crwv",
-          "meta",
-          "meta",
-          "metv",
-          "msft"
-        ]
-      },
-      {
-        "id": 91865592,
-        "publishedDate": "2026-01-27T06:49:00Z",
-        "title": "The Zacks Analyst Blog Microsoft, Apple, Meta and Tesla",
-        "url": "https://www.zacks.com/stock/news/2823024/the-zacks-analyst-blog-microsoft-apple-meta-and-tesla?cid=CS-ZC-FT-press_releases-2823024",
-        "description": null,
-        "source": "zacks.com",
-        "tags": [
-          "Consumer Cyclical",
-          "ETF",
-          "Press Releases",
-          "Stock",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T08:04:16.162938Z",
-        "tickers": [
-          "aapl",
-          "meta",
-          "meta",
-          "metv",
-          "msft",
-          "tsla"
-        ]
-      },
-      {
-        "id": 91864561,
-        "publishedDate": "2026-01-27T06:14:48.425000Z",
-        "title": "Wall Streettermine en hausse",
-        "url": "https://www.reuters.com/fr/affaires/wall-street-termine-en-hausse-2026-01-27/",
-        "description": null,
-        "source": "reuters.com",
-        "tags": [
-          "2026:Ml_Kbn3Om0Gm",
-          "2026:Ml_Kbn3Om0Gm-Ofrbs",
-          "2026:Ml_Kbn3Om0Gm-Ofrbs:1",
-          "2026:Ml_Kbn3Om0Gm:1",
-          "2026:Ml_Kbn3Om0Gn",
-          "2026:Ml_Kbn3Om0Gn-Ofrbs",
-          "2026:Ml_Kbn3Om0Gn-Ofrbs:1",
-          "2026:Ml_Kbn3Om0Gn:1",
-          "2026:Ml_L8N3Yr28R",
-          "2026:Ml_L8N3Yr28R:1713580670",
-          "Consumer Cyclical",
-          "Guid:Tag:Reuters.Com",
-          "Stock",
-          "Technology",
-          "Unknown Sector",
-          "Usn:Kbn3Om0Gm",
-          "Usn:Kbn3Om0Gm-Ofrbs",
-          "Usn:Kbn3Om0Gn",
-          "Usn:Kbn3Om0Gn-Ofrbs",
-          "Usn:L8N3Yr28R",
-          "Vguid:Tag:Reuters.Com"
-        ],
-        "crawlDate": "2026-01-27T06:22:27.468021Z",
-        "tickers": [
-          "aapl",
-          "intc",
-          "meta",
-          "msft",
-          "tsla",
-          "usar"
-        ]
-      },
-      {
-        "id": 91864589,
-        "publishedDate": "2026-01-27T06:06:29.005000Z",
-        "title": "Goldman, Morgan Stanley’s South Africa Inflation Call Undercuts Central Bank",
-        "url": "https://www.bloomberg.com/news/articles/2026-01-27/goldman-morgan-stanley-s-south-africa-inflation-call-undercuts-central-bank",
-        "description": null,
-        "source": "bloomberg.com",
-        "tags": [
-          "ETF",
-          "Financial Services",
-          "South Africa",
-          "Stock",
-          "Technology",
-          "Tiingo Top",
-          "Unknown Sector"
-        ],
-        "crawlDate": "2026-01-27T06:23:46.114174Z",
-        "tickers": [
-          "aapl",
-          "gs",
-          "gsf",
-          "gsj",
-          "gvip",
-          "ms"
-        ]
       }
     ]
   },
-  "timestamp": 1769543030230
+  "timestamp": 1769546082463
 }

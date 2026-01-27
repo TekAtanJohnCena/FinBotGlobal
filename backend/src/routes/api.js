@@ -372,13 +372,15 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
                 axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}/prices?startDate=${startDate}&resampleFreq=${resampleFreq}&token=${TIINGO_API_KEY}`),
                 axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}?token=${TIINGO_API_KEY}`),
                 axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/statements?token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${apiSymbol}&token=${TIINGO_API_KEY}`)
+                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${apiSymbol}&token=${TIINGO_API_KEY}`),
+                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/daily?token=${TIINGO_API_KEY}`)
             ]);
 
             const historyRes = results[0];
             const metaRes = results[1];
             const statementsRes = results[2];
             const newsRes = results[3];
+            const fundDailyRes = results[4];
 
             // GUARD: Ensure all responses are proper arrays/objects
             const historyRaw = (historyRes.status === 'fulfilled' && Array.isArray(historyRes.value.data))
@@ -389,6 +391,11 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
                 ? statementsRes.value.data : [];
             const newsData = (newsRes.status === 'fulfilled' && Array.isArray(newsRes.value.data))
                 ? newsRes.value.data : [];
+            const fundDailyData = (fundDailyRes.status === 'fulfilled' && Array.isArray(fundDailyRes.value.data))
+                ? fundDailyRes.value.data : [];
+
+            // Get latest fundamentals/daily entry
+            const latestFund = fundDailyData.length > 0 ? fundDailyData[fundDailyData.length - 1] : {};
 
             // Log failures for debugging
             if (historyRes.status === 'rejected') console.error(`❌ Data fetch failed (History): ${historyRes.reason.message}`);
@@ -421,12 +428,12 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
 
 
             responseData.fundamentals = {
-                marketCap: latestDaily.marketCap || meta.marketCap || 0,
-                peRatio: latestDaily.peRatio || 0,
-                pbRatio: latestDaily.pbRatio || 0,
-                dividendYield: 0,
-                roe: 0,
-                beta: 0,
+                marketCap: latestFund.marketCap || latestDaily.marketCap || meta.marketCap || 0,
+                peRatio: latestFund.peRatio || latestDaily.peRatio || 0,
+                pbRatio: latestFund.pbRatio || latestDaily.pbRatio || 0,
+                dividendYield: latestFund.divYield || latestFund.trailingDiv1Y || 0,
+                roe: latestFund.roe || 0,
+                beta: latestFund.beta || 0,
                 description: meta.description || ""
             };
 

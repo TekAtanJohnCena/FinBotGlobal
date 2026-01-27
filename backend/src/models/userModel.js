@@ -39,6 +39,13 @@ const userSchema = new mongoose.Schema(
     // Şifre Sıfırlama Bilgileri
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+
+    // Günlük Kullanım Kotaları (UTC gece yarısı sıfırlanır)
+    usage: {
+      finbotQueries: { type: Number, default: 0 },
+      newsAnalysis: { type: Number, default: 0 },
+      lastResetDate: { type: Date, default: Date.now }
+    }
   },
   { timestamps: true }
 );

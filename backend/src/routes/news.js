@@ -3,6 +3,7 @@ import express from 'express';
 import axios from 'axios';
 import { OpenAI } from 'openai';
 import { protect } from '../middleware/auth.js';
+import { checkNewsQuota, incrementNewsUsage } from '../middleware/quotaMiddleware.js';
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
@@ -47,8 +48,9 @@ router.get('/:symbol', async (req, res) => {
 /**
  * POST /api/news/analyze
  * AI-powered sentiment analysis using OpenAI
+ * Protected by news analysis quota
  */
-router.post('/analyze', protect, async (req, res) => {
+router.post('/analyze', protect, checkNewsQuota, async (req, res) => {
     const { title, description, symbol } = req.body;
 
     if (!title && !description) {
@@ -90,13 +92,17 @@ router.post('/analyze', protect, async (req, res) => {
         const sentiment = sentimentMatch ? sentimentMatch[1].toUpperCase() : 'NEUTRAL';
         const analysis = analysisMatch ? analysisMatch[1].trim() : aiResponse;
 
+        // Başarılı analiz sonrası kota kullanımını artır
+        await incrementNewsUsage(req.user._id);
+
         res.json({
             ok: true,
             data: {
                 sentiment: sentiment,
                 analysis: analysis,
                 timestamp: new Date().toISOString()
-            }
+            },
+            quotaInfo: req.quotaInfo
         });
 
     } catch (error) {
@@ -109,3 +115,4 @@ router.post('/analyze', protect, async (req, res) => {
 });
 
 export default router;
+
