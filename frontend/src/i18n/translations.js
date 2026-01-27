@@ -337,44 +337,44 @@ export const translations = {
 
     // Hero Section
     hero: {
-      title: "US Market-Focused",
-      titleAccent: "AI-Powered",
-      titleEnd: "Financial Assistant",
-      subtitle: "Finbot helps you understand companies from Dow Jones to S&P 500 in minutes: compare balance sheets, visualize metrics, get clear explanations.",
+      title: "Wall Street Now",
+      titleAccent: "Speaks Your Language",
+      titleEnd: "",
+      subtitle: "Apple, Tesla, Nvidia... Ask FinBot why you should buy which US stock. Earn in dollars, protect against inflation.",
       startButton: "Launch Finbot 🚀",
-      tryFreeButton: "🚀 Try Free",
-      viewPlansButton: "📊 View Plans",
-      bullet1: "Dow Jones → S&P 500 coverage",
-      bullet2: "Comparative tables & charts",
-      bullet3: "Smart summaries"
+      tryFreeButton: "🚀 Start Free Analysis",
+      viewPlansButton: "📊 View Packages",
+      bullet1: "NASDAQ, NYSE, S&P 500 coverage",
+      bullet2: "Dollar-based return tracking",
+      bullet3: "10-K/10-Q reports in plain language"
     },
 
     // Features
     features: {
       title: "Features",
-      feature1Title: "US Market Data",
-      feature1Desc: "Financials and metrics normalized for US market.",
-      feature1Item1: "Standardized items",
-      feature1Item2: "Source & timestamp visible",
-      feature1Item3: "Transparency with revision notes",
+      feature1Title: "Summarize 10-K and 10-Q Reports in Seconds",
+      feature1Desc: "Analyze annual and quarterly financial reports of US companies.",
+      feature1Item1: "Automatic SEC filings analysis",
+      feature1Item2: "EPS, P/E, ROE metrics explained clearly",
+      feature1Item3: "Balance sheet, income statement, cash flow",
 
-      feature2Title: "Smart Q&A & Summaries",
-      feature2Desc: "Ask in natural language; get clear, reliable answers.",
-      feature2Item1: "Brief / Detailed explanation modes",
-      feature2Item2: "Summary + note flow",
-      feature2Item3: "Copy / share report (Pro)",
+      feature2Title: "NASDAQ and NYSE Data in Your Pocket",
+      feature2Desc: "Real-time US market data and price tracking.",
+      feature2Item1: "15-min delayed data (Free)",
+      feature2Item2: "Live data (Pro)",
+      feature2Item3: "Historical price charts",
 
-      feature3Title: "Comparison & Charts",
-      feature3Desc: "View quarters side by side; track trends with charts.",
-      feature3Item1: "Last 10 quarters view (Plus+)",
-      feature3Item2: "Trend and ratio views",
-      feature3Item3: "Cross-company comparison templates",
+      feature3Title: "Dollar-Based Returns",
+      feature3Desc: "Grow your money in dollars, protect against inflation.",
+      feature3Item1: "USD-based portfolio tracking",
+      feature3Item2: "Profit/loss calculation",
+      feature3Item3: "Dividend Yield tracking",
 
-      feature4Title: "Portfolio & Alerts",
-      feature4Desc: "Set up watchlists; get notified of important changes.",
-      feature4Item1: "Notes and tags",
-      feature4Item2: "Financial event/announcement alerts",
-      feature4Item3: "Export (Pro/Enterprise)"
+      feature4Title: "Earnings Announcements and Dividend Alerts",
+      feature4Desc: "Stay informed about important US market events.",
+      feature4Item1: "Earnings season alerts",
+      feature4Item2: "Dividend payment dates",
+      feature4Item3: "Analyst ratings changes"
     },
 
     // Mobile App Page
@@ -426,84 +426,83 @@ export const translations = {
 
     // Hero MockWindow
     mockWindow: {
-      title: "Finbot AI • Chat & Visualization",
+      title: "Finbot AI • Wall Street Analysis",
       questionLabel: "Question",
-      questionExample: "\"Can you briefly summarize ASELS's performance based on the last 5 quarterly balance sheets?\"",
+      questionExample: "\"Can you compare the last quarter balance sheets of AAPL and MSFT in the technology sector?\"",
       trendChart: "Trend Chart",
       highlights: "Highlights",
       aiSummary: "AI Summary",
-      comparison: "Balance Sheet Comparison"
+      comparison: "Company Comparison"
     },
 
     // Pricing
     pricing: {
       title: "Packages",
-      subtitle: "Flexible options for your investment style.",
+      subtitle: "Flexible options for professional access to Wall Street.",
       monthly: "Monthly",
       yearly: "Yearly",
-      yearlyDiscount: "40% off",
+      yearlyDiscount: "20% off",
       perMonth: "/mo",
       perYear: "/yr",
       monthlyEquivalent: "Monthly equivalent",
       contactUs: "Contact Us",
-      contactSubtitle: "Contact us for enterprise quote",
-      tagline: "US Market-focused • AI-powered assistance",
+      contactSubtitle: "For enterprise solutions",
+      tagline: "US Markets • AI-powered support in your language",
 
       free: {
         badge: "Starter",
-        title: "Freemium",
-        subtitle: "Curious Investor",
+        title: "Free",
+        subtitle: "For those who want to learn markets.",
         cta: "Try Now",
         features: [
-          "Daily 3 Smart Query Rights",
-          "Access to All US Stocks",
-          "Quick Comparison (e.g.: THYAO vs PGSUS)",
-          "Last 5 Quarters Balance Sheet Analysis",
-          "Basic AI Summary"
+          "5 Daily AI Questions",
+          "Basic Company Profiles",
+          "Last 1 Year Historical Data",
+          "15-min Delayed Data",
+          "Limited News Access"
         ]
       },
 
       plus: {
-        badge: "Price/Performance",
+        badge: "Investor",
+        badgePopular: "Most Popular",
         title: "Plus",
-        subtitle: "Informed & Active Investor",
+        subtitle: "For those who want to make informed decisions.",
         cta: "Upgrade to Plus",
         features: [
-          "Daily 50 Queries (Uninterrupted Analysis)",
-          "Portfolio Integration & Risk Analysis",
-          "Last 12 Quarters (3 Years) Historical Data",
-          "Detailed Charts & Trend Analysis",
-          "AI Investor Assistant"
+          "50 Daily AI Questions",
+          "Last 10 Years Historical Data (Deep Analysis)",
+          "Unlimited Company Report Cards (Summaries)",
+          "Portfolio Integration & Profit/Loss",
+          "Ad-Free Experience"
         ]
       },
 
       pro: {
         badge: "Professional",
-        badgePopular: "Popular",
         title: "Pro",
-        subtitle: "In-Depth Analysis & Strategy",
+        subtitle: "For traders and data-driven experts.",
         cta: "Choose Pro Advantage",
         features: [
-          "Unlimited Query Freedom",
-          "Full Depth: Last 25 Quarters (6 Years)",
-          "Positive/Negative Future Scenarios",
-          "Sectoral 'Deep-Dive' Comparison",
-          "Excel/PDF Reporting",
-          "Dividend & Bonus Share Forecasts"
+          "Unlimited AI Questions (Wall Street Mode)",
+          "20+ Years Historical Data (Full Archive)",
+          "Live Data (Real-Time) Stream",
+          "Detailed Technical Indicators",
+          "Priority Support Line"
         ]
       },
 
       enterprise: {
         badge: "Enterprise",
         title: "Enterprise",
-        subtitle: "Brokerage Firms & Funds",
+        subtitle: "Custom solutions for Fintech startups and Funds.",
         cta: "Let's Collaborate",
         features: [
-          "Custom White-Label Solution for Your Clients",
-          "Brokerage Application Integration",
-          "Raw Data & Analysis Access via API",
+          "FinBot API Access (Data and AI)",
+          "Custom SLA and Server Support",
           "Multi-User Management",
-          "Custom SLA and Support Line"
+          "White-Label (Use with your own brand)",
+          "Custom AI Training for Your Organization"
         ]
       }
     },
@@ -514,7 +513,7 @@ export const translations = {
       items: [
         {
           q: "What is FinBot?",
-          a: "FinBot is an AI-powered financial assistant that analyzes financial data, especially US Market (Nasdaq, NYSE) stocks, in real-time and presents it to users in an understandable way. It performs fundamental analysis, technical analysis, balance sheet interpretation, and company comparisons in seconds."
+          a: "FinBot is an AI-powered financial assistant that analyzes financial data, especially US Stock Exchanges (Nasdaq, NYSE) stocks, in real-time and presents it to users in an understandable way. It performs fundamental analysis, technical analysis, balance sheet interpretation, and company comparisons in seconds."
         },
         {
           q: "What data does FinBot use?",
@@ -557,7 +556,7 @@ export const translations = {
 
     // Footer
     footer: {
-      description: "BIST-focused AI-powered financial assistant. Helps you quickly understand, compare companies, and get clear summaries.",
+      description: "AI-powered financial assistant providing access to Wall Street. Helps you quickly understand, compare US stocks, and invest in dollar-based assets.",
       quickLinks: "Quick Links",
       home: "Home",
       packages: "Packages",
@@ -660,44 +659,44 @@ export const translations = {
 
     // Hero Section
     hero: {
-      title: "مساعد مالي",
-      titleAccent: "بالذكاء الاصطناعي",
-      titleEnd: "يركز على BIST",
-      subtitle: "يساعدك Finbot على فهم الشركات من BIST 30 إلى BIST 500 في دقائق: قارن الميزانيات العمومية، تصور المقاييس، واحصل على تفسيرات واضحة.",
+      title: "وول ستريت الآن",
+      titleAccent: "يتحدث لغتك",
+      titleEnd: "",
+      subtitle: "Apple، Tesla، Nvidia... اسأل FinBot عن الأسهم الأمريكية التي يجب شراؤها ولماذا. اربح بالدولار واحمِ نفسك من التضخم.",
       startButton: "🚀 ابدأ Finbot",
-      tryFreeButton: "🚀 جرب مجاناً",
-      viewPlansButton: "📊 عرض الخطط",
-      bullet1: "تغطية BIST 30 → BIST 500",
-      bullet2: "جداول ورسوم بيانية مقارنة",
-      bullet3: "ملخصات ذكية"
+      tryFreeButton: "🚀 ابدأ التحليل المجاني",
+      viewPlansButton: "📊 عرض الباقات",
+      bullet1: "تغطية NASDAQ، NYSE، S&P 500",
+      bullet2: "تتبع العوائد بالدولار",
+      bullet3: "تقارير 10-K/10-Q بلغة واضحة"
     },
 
     // Features
     features: {
       title: "المميزات",
-      feature1Title: "بيانات متوافقة مع BIST",
-      feature1Desc: "البيانات المالية والمقاييس المعايرة للسوق التركي.",
-      feature1Item1: "عناصر موحدة",
-      feature1Item2: "المصدر والطابع الزمني مرئيان",
-      feature1Item3: "الشفافية مع ملاحظات المراجعة",
+      feature1Title: "تلخيص تقارير 10-K و 10-Q في ثوانٍ",
+      feature1Desc: "تحليل التقارير المالية السنوية والربع سنوية للشركات الأمريكية.",
+      feature1Item1: "تحليل تلقائي لملفات SEC",
+      feature1Item2: "شرح واضح لمقاييس EPS، P/E، ROE",
+      feature1Item3: "الميزانية العمومية، بيان الدخل، التدفق النقدي",
 
-      feature2Title: "أسئلة ذكية وملخصات",
-      feature2Desc: "اسأل بلغة طبيعية؛ احصل على إجابات واضحة وموثوقة.",
-      feature2Item1: "أوضاع شرح موجزة / مفصلة",
-      feature2Item2: "ملخص + تدفق الملاحظات",
-      feature2Item3: "نسخ / مشاركة التقرير (Pro)",
+      feature2Title: "بيانات NASDAQ و NYSE في جيبك",
+      feature2Desc: "بيانات السوق الأمريكي في الوقت الفعلي وتتبع الأسعار.",
+      feature2Item1: "بيانات متأخرة 15 دقيقة (مجاني)",
+      feature2Item2: "بيانات حية (Pro)",
+      feature2Item3: "رسوم بيانية للأسعار التاريخية",
 
-      feature3Title: "المقارنة والرسوم البيانية",
-      feature3Desc: "عرض الأرباع جنباً إلى جنب؛ تتبع الاتجاهات بالرسوم البيانية.",
-      feature3Item1: "عرض آخر 10 أرباع (Plus+)",
-      feature3Item2: "عروض الاتجاه والنسبة",
-      feature3Item3: "قوالب المقارنة بين الشركات",
+      feature3Title: "عوائد بالدولار",
+      feature3Desc: "نمِّ أموالك بالدولار واحمِ نفسك من التضخم.",
+      feature3Item1: "تتبع المحفظة بالدولار",
+      feature3Item2: "حساب الربح/الخسارة",
+      feature3Item3: "تتبع عائد الأرباح",
 
-      feature4Title: "المحفظة والتنبيهات",
-      feature4Desc: "قم بإعداد قوائم المراقبة؛ احصل على إشعارات للتغييرات المهمة.",
-      feature4Item1: "ملاحظات وعلامات",
-      feature4Item2: "تنبيهات الأحداث المالية / الإعلانات",
-      feature4Item3: "التصدير (Pro/Enterprise)"
+      feature4Title: "إعلانات الأرباح وتنبيهات توزيعات الأرباح",
+      feature4Desc: "ابقَ على اطلاع بأحداث السوق الأمريكي المهمة.",
+      feature4Item1: "تنبيهات موسم الأرباح",
+      feature4Item2: "تواريخ دفع توزيعات الأرباح",
+      feature4Item3: "تغييرات تصنيفات المحللين"
     },
 
     // Mobile App Page
@@ -749,13 +748,13 @@ export const translations = {
 
     // Hero MockWindow
     mockWindow: {
-      title: "Finbot AI • الدردشة والتصور",
+      title: "Finbot AI • تحليل وول ستريت",
       questionLabel: "سؤال",
-      questionExample: "\"هل يمكنك تلخيص أداء ASELS بإيجاز بناءً على آخر 5 ميزانيات ربع سنوية؟\"",
+      questionExample: "\"هل يمكنك مقارنة ميزانيات الربع الأخير لـ AAPL و MSFT في قطاع التكنولوجيا؟\"",
       trendChart: "مخطط الاتجاه",
       highlights: "النقاط البارزة",
       aiSummary: "ملخص الذكاء الاصطناعي",
-      comparison: "مقارنة الميزانية العمومية"
+      comparison: "مقارنة الشركات"
     },
 
     // Pricing
