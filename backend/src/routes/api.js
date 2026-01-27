@@ -529,7 +529,8 @@ router.get('/prices/batch', async (req, res) => {
 
     try {
         const tickerArray = tickers.split(',').map(t => t.trim().toUpperCase());
-        const cacheKey = `batch_${tickerArray.sort().join('_')}`;
+        // Versioned cache key to invalidate old/bad cache without manual clearing
+        const cacheKey = `batch_v2_${tickerArray.sort().join('_')}`;
         const cachedPrices = cacheManager.get(cacheKey, CACHE_TTL.PRICES);
 
         if (cachedPrices) {
@@ -541,14 +542,21 @@ router.get('/prices/batch', async (req, res) => {
 
         const simpleFormat = {};
         Object.keys(data).forEach(ticker => {
-            simpleFormat[ticker] = data[ticker].price;
+            const p = data[ticker].price;
+            // Only include if price is valid number > 0
+            if (p && typeof p === 'number' && p > 0) {
+                simpleFormat[ticker] = p;
+            }
         });
 
-        // Cache the result
-        cacheManager.set(cacheKey, simpleFormat);
+        // Cache ONLY if we have data
+        if (Object.keys(simpleFormat).length > 0) {
+            cacheManager.set(cacheKey, simpleFormat);
+        }
 
         res.json({ ok: true, data: simpleFormat });
     } catch (error) {
+        console.error('Batch price error:', error);
         res.status(500).json({ ok: false, error: 'Batch price fetch failed.' });
     }
 });

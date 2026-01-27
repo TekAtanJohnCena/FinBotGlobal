@@ -918,6 +918,108 @@
     },
     "news": [
       {
+        "id": 91892289,
+        "publishedDate": "2026-01-27T21:02:31.106000Z",
+        "title": "Market Outlook: Tech earnings put AI payoff and rate outlook under scrutiny",
+        "url": "https://www.bnnbloomberg.ca/investing/market-outlook/2026/01/27/market-outlook-tech-earnings-put-ai-payoff-and-rate-outlook-under-scrutiny/",
+        "description": "Tech earnings season kicks off as investors assess AI returns, central bank guidance and rising currency volatility.",
+        "source": "bnnbloomberg.ca",
+        "tags": [
+          "Consumer Defensive",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T21:09:44.267322Z",
+        "tickers": [
+          "aapl",
+          "cost",
+          "msft"
+        ]
+      },
+      {
+        "id": 91891656,
+        "publishedDate": "2026-01-27T20:53:11Z",
+        "title": "Apple could keep iPhone 18 price the same as it 'shows just how much leverage they have,' argues analyst",
+        "url": "https://www.tomsguide.com/phones/iphones/apple-could-keep-iphone-18-price-the-same-as-it-shows-just-how-much-leverage-they-have-argues-analyst",
+        "description": "Apple may eat the cost of more expensive memory",
+        "source": "tomsguide.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:56:27.572844Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
+        "id": 91891451,
+        "publishedDate": "2026-01-27T20:43:43Z",
+        "title": "Promising Technology Stocks To Keep An Eye On – January 27th",
+        "url": "https://www.thelincolnianonline.com/2026/01/27/promising-technology-stocks-to-keep-an-eye-on-january-27th.html",
+        "description": "NVIDIA, Micron Technology, Microsoft, Apple, and Meta Platforms are the five Technology stocks to watch today, according to MarketBeat’s stock screener tool. Technology stocks are shares of companies that develop, manufacture, or provide products and services based on technology—such as software, hardware, semiconductors, internet platforms, and IT services. Investors typically view them as growth-oriented, often […]",
+        "source": "thelincolnianonline.com",
+        "tags": [
+          "CryptoCurrency",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:45:31.922666Z",
+        "tickers": [
+          "aapl",
+          "msft",
+          "mu",
+          "nvda"
+        ]
+      },
+      {
+        "id": 91891086,
+        "publishedDate": "2026-01-27T20:34:00Z",
+        "title": "Why these ASX ETFs could be perfect to buy and hold forever",
+        "url": "https://www.fool.com.au/2026/01/28/why-these-asx-etfs-could-be-perfect-to-buy-and-hold-forever/",
+        "description": "Let's see what makes these ASX ETFs attractive options for investors looking for buy and hold picks...",
+        "source": "fool.com.au",
+        "tags": [
+          "Consumer Cyclical",
+          "Consumer Defensive",
+          "ETF",
+          "Financial Services",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:35:24.947135Z",
+        "tickers": [
+          "aapl",
+          "amzn",
+          "asia",
+          "baba",
+          "bidu",
+          "cost",
+          "googl",
+          "msft",
+          "pdd",
+          "tcehy",
+          "tsm",
+          "v"
+        ]
+      },
+      {
+        "id": 91892011,
+        "publishedDate": "2026-01-27T20:19:39Z",
+        "title": "Apple's most affordable 13-inch M5 iPad Pro is $320 off right now (Open-box, 1-yr. warranty), or $149 off new",
+        "url": "https://9to5toys.com/2026/01/27/apple-affordable-13-inch-m5-ipad-pro/",
+        "description": "Apple’s pro-grade iPad certainly isn’t for everyone with MSRPs like that, but if you are looking to add one of...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T21:03:41.221931Z",
+        "tickers": [
+          "aapl"
+        ]
+      },
+      {
         "id": 91890607,
         "publishedDate": "2026-01-27T20:11:13Z",
         "title": "Why FTAI Infrastructure (FIP) Shares Are Getting Obliterated Today",
@@ -1007,6 +1109,56 @@
         ]
       },
       {
+        "id": 91892434,
+        "publishedDate": "2026-01-27T20:10:42Z",
+        "title": "Why Is Popular (BPOP) Stock Rocketing Higher Today",
+        "url": "https://stockstory.org/us/stocks/nasdaq/bpop/news/why-up-down/why-is-popular-bpop-stock-rocketing-higher-today",
+        "description": "Shares of puerto Rican financial institution Popular (NASDAQ:BPOP) jumped 5.8% in the afternoon session after it reported strong fourth-quarter 2025 financial results that surpassed analyst expectations for profit while meeting revenue forecasts. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Financial Services",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Unknown Sector",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-27T21:12:33.541583Z",
+        "tickers": [
+          "aapl",
+          "bpop",
+          "msft",
+          "wal",
+          "wal-p-a",
+          "zion",
+          "zionl",
+          "zionw"
+        ]
+      },
+      {
+        "id": 91892437,
+        "publishedDate": "2026-01-27T20:10:42Z",
+        "title": "General Motors (GM) Stock Trades Up, Here Is Why",
+        "url": "https://stockstory.org/us/stocks/nyse/gm/news/why-up-down/general-motors-gm-stock-trades-up-here-is-why-2",
+        "description": "Shares of automotive manufacturer General Motors (NYSE:GM)\r\n jumped 9% in the afternoon session after the company reported fourth-quarter earnings that beat Wall Street's expectations and provided an upbeat profit forecast for the upcoming year. ",
+        "source": "stockstory.org",
+        "tags": [
+          "Consumer Cyclical",
+          "Stock",
+          "Stockstory",
+          "Technology",
+          "Tiingo Top",
+          "Why-It-Moves-Single"
+        ],
+        "crawlDate": "2026-01-27T21:12:34.775260Z",
+        "tickers": [
+          "aapl",
+          "gm",
+          "msft"
+        ]
+      },
+      {
         "id": 91890184,
         "publishedDate": "2026-01-27T20:09:44.756000Z",
         "title": "ICE Sweeps in Minnesota Reach a Political Tipping Point",
@@ -1025,6 +1177,24 @@
           "gs",
           "jpm",
           "nvda"
+        ]
+      },
+      {
+        "id": 91891767,
+        "publishedDate": "2026-01-27T19:21:39Z",
+        "title": "Today’s best Apple Books and audiobook deals from $2",
+        "url": "https://9to5toys.com/2026/01/27/todays-best-apple-books-and-audiobook-deals-from-2-8/",
+        "description": "Today’s lineup of the best deals on Apple Books is now ready to roll, including loads of Warhammer 40,000 stories,...",
+        "source": "9to5toys.com",
+        "tags": [
+          "Consumer Cyclical",
+          "Stock",
+          "Technology"
+        ],
+        "crawlDate": "2026-01-27T20:59:04.737953Z",
+        "tickers": [
+          "aapl",
+          "nyt"
         ]
       },
       {
@@ -3218,210 +3388,8 @@
         "tickers": [
           "aapl"
         ]
-      },
-      {
-        "id": 91868396,
-        "publishedDate": "2026-01-27T10:00:01Z",
-        "title": "Tech's massive AI spend is under scrutiny ahead of earnings. Here's what to watch",
-        "url": "https://www.cnbc.com/2026/01/27/big-tech-earnings-2026-ai-spend.html",
-        "description": "The fourth-quarter earnings season will give the megacaps an opportunity to lay out their 2026 spending visions and, in some cases, defend those plans. ",
-        "source": "cnbc.com",
-        "tags": [
-          "Breaking News: Technology",
-          "Business",
-          "Consumer Cyclical",
-          "ETF",
-          "Earnings",
-          "Enterprise",
-          "Entertainment",
-          "Media",
-          "Publishing",
-          "Social Media",
-          "Stock",
-          "Technology",
-          "Television"
-        ],
-        "crawlDate": "2026-01-27T11:06:35.454184Z",
-        "tickers": [
-          "aapl",
-          "amzn",
-          "avgo",
-          "googl",
-          "meta",
-          "meta",
-          "metv",
-          "msft",
-          "nvda",
-          "orcl",
-          "tsla",
-          "tsm"
-        ]
-      },
-      {
-        "id": 91866871,
-        "publishedDate": "2026-01-27T09:30:04Z",
-        "title": "Nancy Pelosi just updated her 2026 stock portfolio",
-        "url": "https://finbold.com/nancy-pelosi-just-updated-her-2026-stock-portfolio/",
-        "description": "Nancy Pelosi has disclosed a major update to her investment portfolio, revealing more than $10 million in cumulative stock transactions.",
-        "source": "finbold.com",
-        "tags": [
-          "Amazon",
-          "Consumer Cyclical",
-          "Financial Services",
-          "Nancy Pelosi",
-          "Nvidia",
-          "Stock",
-          "Stocks",
-          "Technology",
-          "Unknown Sector",
-          "Utilities"
-        ],
-        "crawlDate": "2026-01-27T09:51:28.727261Z",
-        "tickers": [
-          "300178",
-          "aapl",
-          "ab",
-          "amzn",
-          "dis",
-          "googl",
-          "nvda",
-          "pypl",
-          "pyplv",
-          "tem",
-          "vsnt",
-          "vst"
-        ]
-      },
-      {
-        "id": 91866595,
-        "publishedDate": "2026-01-27T09:26:06Z",
-        "title": "Bitcoin Rises on Optimism Over Upcoming Big Tech Earnings",
-        "url": "https://www.barrons.com/livecoverage/stock-market-news-today-012726/card/bitcoin-rises-on-optimism-over-upcoming-big-tech-earnings-Sm4CsgOSYdRtRrtz3fdX",
-        "description": "Bitcoin was edging higher following gains in U.S. stocks overnight on optimism over upcoming U.S. megacap tech earnings.\nInvestors are positioning ahead of results from Microsoft, Apple, Meta and Tesla this week.\n\n\"The spotlight now shifts to whether the AI-fuelled stock rally can sustain its momen",
-        "source": "barrons.com",
-        "tags": [
-          "CryptoCurrency",
-          "Stock",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T09:29:34.613354Z",
-        "tickers": [
-          "aapl",
-          "msft"
-        ]
-      },
-      {
-        "id": 91866195,
-        "publishedDate": "2026-01-27T09:00:00Z",
-        "title": "Samsung Galaxy S26 could gain access to one of Google’s best AI features, and it’s the kind of upgrade we need more of",
-        "url": "https://www.tomsguide.com/phones/samsung-phones/samsung-galaxy-s26-could-gain-access-to-one-of-googles-best-ai-features-and-its-the-kind-of-upgrade-we-need-more-of",
-        "description": "AI can do more than just make pictures",
-        "source": "tomsguide.com",
-        "tags": [
-          "Stock",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T09:02:26.182770Z",
-        "tickers": [
-          "aapl",
-          "goog",
-          "googl"
-        ]
-      },
-      {
-        "id": 91866512,
-        "publishedDate": "2026-01-27T09:00:00Z",
-        "title": "Is Berkshire Hathaway Stock a Buy Now?",
-        "url": "https://www.fool.com/investing/2026/01/27/is-berkshire-hathaway-stock-a-buy-now/?source=iedfolrf0000001",
-        "description": "The legendary conglomerate has made some leadership changes.",
-        "source": "fool.com",
-        "tags": [
-          "5F9F3888-8920-4946-Aae1-Fb8930A27422",
-          "Aapl",
-          "Axp",
-          "Brk.A",
-          "Brk.B",
-          "Energy",
-          "Financial Services",
-          "Financials",
-          "Investing",
-          "Oxy",
-          "Stock",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T09:23:31.830268Z",
-        "tickers": [
-          "aapl",
-          "axp",
-          "oxy"
-        ]
-      },
-      {
-        "id": 91865983,
-        "publishedDate": "2026-01-27T08:40:00Z",
-        "title": "Aletheia Maintains Sell on Apple (AAPL), Lowers Target Price",
-        "url": "https://www.insidermonkey.com/blog/aletheia-maintains-sell-on-apple-aapl-lowers-target-price-1681702/",
-        "description": "Apple Inc. (NASDAQ:AAPL) is one of the AI Stocks Analysts Are Watching.",
-        "source": "insidermonkey.com",
-        "tags": [
-          "Stock",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T08:41:18.609875Z",
-        "tickers": [
-          "aapl"
-        ]
-      },
-      {
-        "id": 91866210,
-        "publishedDate": "2026-01-27T08:40:00Z",
-        "title": "Aletheia Maintains Sell on Apple (AAPL), Lowers Target Price",
-        "url": "https://finance.yahoo.com/news/aletheia-maintains-sell-apple-aapl-084000844.html",
-        "description": "Apple Inc. (NASDAQ:AAPL) is one of the AI Stocks Analysts Are Watching. On January 20, Aletheia Capital analyst Warren Lau lowered the price target on the stock to $205.00 (from $215.00) while maintaining a Sell rating. According to the firm, Apple’s hardware margins have peaked and face pressure until the company raises prices or pushes […]",
-        "source": "finance.yahoo.com",
-        "tags": [
-          "Ai Stocks Analysts",
-          "Aletheia Capital",
-          "Apple Inc.",
-          "Face Pressure",
-          "Price Target",
-          "Stock",
-          "Supplier Negotiations",
-          "Technology"
-        ],
-        "crawlDate": "2026-01-27T09:02:43.171125Z",
-        "tickers": [
-          "aapl"
-        ]
-      },
-      {
-        "id": 91865886,
-        "publishedDate": "2026-01-27T08:10:00Z",
-        "title": "Forget SoundHound AI: This Tech King Is the Real Voice-and-AI Cash Cow Worth Betting On",
-        "url": "https://finance.yahoo.com/news/forget-soundhound-ai-tech-king-081000185.html",
-        "description": "Apple offers a relatively low-risk, potentially high-reward investment proposition.",
-        "source": "finance.yahoo.com",
-        "tags": [
-          "Apple",
-          "Consumer Cyclical",
-          "Soundhound Ai",
-          "Stock",
-          "Technology",
-          "Unknown Sector"
-        ],
-        "crawlDate": "2026-01-27T08:31:07.678402Z",
-        "tickers": [
-          "aapl",
-          "goog",
-          "googl",
-          "hymlf",
-          "nflx",
-          "nvda",
-          "soun",
-          "stla"
-        ]
       }
     ]
   },
-  "timestamp": 1769546082463
+  "timestamp": 1769548699233
 }

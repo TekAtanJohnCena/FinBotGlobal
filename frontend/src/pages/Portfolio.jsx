@@ -11,13 +11,14 @@ import {
   Search,
   X,
   RefreshCw,
-  PieChart,
+  PieChart as PieChartIcon,
   Activity,
   DollarSign,
   ArrowUpRight,
   Briefcase,
   AlertCircle
 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const Portfolio = () => {
   const queryClient = useQueryClient();
@@ -357,23 +358,119 @@ const Portfolio = () => {
               <Activity className="absolute -right-8 -bottom-8 w-32 h-32 md:w-48 md:h-48 opacity-[0.03] text-emerald-500" />
             </div>
 
+            {/* Varlık Dağılımı - Pasta Grafiği ve Portföy Ekle */}
             <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl md:rounded-[40px] p-6 md:p-8 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
               <div className="relative z-10 flex flex-col h-full">
-                <div className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-2">Varlık Dağılımı</div>
-                <div className="text-3xl md:text-5xl font-black text-white tracking-tighter">{portfolioData.length}</div>
-                <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between">
-                  <span className="text-xs md:text-sm font-bold text-indigo-100 opacity-80 uppercase tracking-wider">Aktif Pozisyon</span>
-                  <div className="flex -space-x-2">
-                    {portfolioData.slice(0, 4).map((a, i) => (
-                      <div key={i} className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-indigo-400 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">
-                        {a.symbol.slice(0, 1)}
+                <div className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-4">Varlık Dağılımı</div>
+
+                <div className="flex items-center gap-6 flex-1">
+                  {/* Sol: Pasta Grafiği */}
+                  <div className="w-36 h-36 md:w-44 md:h-44 flex-shrink-0">
+                    {portfolioData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={portfolioData.map((asset, index) => {
+                              const totalPortfolioValue = portfolioData.reduce((sum, a) => sum + (a.totalValue || 0), 0);
+                              const percentage = totalPortfolioValue > 0 ? ((asset.totalValue || 0) / totalPortfolioValue * 100).toFixed(1) : 0;
+                              return {
+                                name: asset.symbol,
+                                value: asset.totalValue || 0,
+                                percentage: percentage
+                              };
+                            })}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={35}
+                            outerRadius={60}
+                            paddingAngle={4}
+                            dataKey="value"
+                            stroke="#312e81"
+                            strokeWidth={2}
+                          >
+                            {portfolioData.map((_, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={['#22d3ee', '#a78bfa', '#f472b6', '#fbbf24', '#34d399', '#60a5fa', '#f87171'][index % 7]}
+                                style={{
+                                  filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.3s ease'
+                                }}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: '#1e1b4b',
+                              border: '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '16px',
+                              fontSize: '13px',
+                              color: '#fff',
+                              padding: '12px 16px',
+                              boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
+                            }}
+                            itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                            labelStyle={{ color: '#a5b4fc', fontWeight: 'bold', marginBottom: '4px' }}
+                            formatter={(value, name, props) => {
+                              const percentage = props.payload.percentage;
+                              return [
+                                <span key="val" style={{ color: '#fff', fontWeight: 'bold' }}>
+                                  ${value.toLocaleString()} <span style={{ color: '#a5b4fc' }}>(%{percentage})</span>
+                                </span>,
+                                props.payload.name
+                              ];
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="w-full h-full rounded-full border-4 border-dashed border-indigo-400/30 flex items-center justify-center">
+                        <PieChartIcon size={32} className="text-indigo-400/40" />
                       </div>
-                    ))}
-                    {portfolioData.length > 4 && <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-indigo-300 border-2 border-indigo-600 flex items-center justify-center text-[10px] font-black text-indigo-900 shadow-lg">+{portfolioData.length - 4}</div>}
+                    )}
+                  </div>
+
+                  {/* Sağ: Aktif Pozisyon + Portföy Ekle */}
+                  <div className="flex-1 flex flex-col justify-center gap-4">
+                    <div>
+                      <div className="text-4xl md:text-5xl font-black text-white tracking-tighter">{portfolioData.length}</div>
+                      <div className="text-xs font-bold text-white/70 uppercase tracking-wider">Aktif Pozisyon</div>
+                    </div>
+
+                    {/* Mini Legend */}
+                    {portfolioData.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {portfolioData.slice(0, 4).map((asset, index) => (
+                          <div
+                            key={asset.symbol}
+                            className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg"
+                          >
+                            <div
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: ['#22d3ee', '#a78bfa', '#f472b6', '#fbbf24', '#34d399', '#60a5fa', '#f87171'][index % 7] }}
+                            />
+                            <span className="text-[10px] font-bold text-white">{asset.symbol}</span>
+                          </div>
+                        ))}
+                        {portfolioData.length > 4 && (
+                          <div className="px-2 py-1 bg-white/10 rounded-lg">
+                            <span className="text-[10px] font-bold text-white/70">+{portfolioData.length - 4}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setIsSidebarOpen(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 border border-white/20 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-white/10 w-fit"
+                    >
+                      <Plus size={16} />
+                      Portföy Ekle
+                    </button>
                   </div>
                 </div>
               </div>
-              <PieChart className="absolute -right-8 -bottom-8 w-32 h-32 md:w-48 md:h-48 opacity-10 text-white" />
             </div>
           </div>
 
