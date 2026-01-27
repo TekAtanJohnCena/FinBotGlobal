@@ -408,16 +408,40 @@ const Financials = () => {
                                                 <span className={`${row.bold ? 'font-black' : 'font-semibold'} line-clamp-1`}>{row.label}</span>
                                             </div>
                                         </td>
-                                        {history.map((stmt) => {
+                                        {history.map((stmt, i) => {
                                             const val = stmt[row.key];
                                             const isNeg = val < 0;
+
+                                            // Calculate YoY Change
+                                            let pctChange = null;
+                                            const prevYearStmt = history[i + 1]; // Previous year (since sorted descending)
+                                            if (prevYearStmt) {
+                                                const prevVal = prevYearStmt[row.key];
+                                                if (prevVal && prevVal !== 0) {
+                                                    pctChange = ((val - prevVal) / Math.abs(prevVal)) * 100;
+                                                }
+                                            }
+
                                             return (
                                                 <td
                                                     key={stmt.date}
                                                     className={`px-4 md:px-10 py-3 md:py-5 text-right font-mono text-xs md:text-sm ${row.bold ? 'text-slate-100 font-bold' : 'text-slate-400'} 
-                                                        ${isNeg ? 'text-rose-400' : ''}`}
+                                                        ${isNeg ? 'text-rose-400' : ''} group relative`}
                                                 >
-                                                    {formatNumber(val)}
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        {formatNumber(val)}
+
+                                                        {/* Percentage Change Badge (Visible on Row Hover) */}
+                                                        {pctChange !== null && Math.abs(pctChange) > 0.01 && (
+                                                            <span className={`
+                                                                opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                                                                text-[9px] font-black px-1.5 py-0.5 rounded-md
+                                                                ${pctChange > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}
+                                                            `}>
+                                                                {pctChange > 0 ? '+' : ''}{pctChange.toFixed(1)}%
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             );
                                         })}
