@@ -1,19 +1,22 @@
 // PATH: backend/src/routes/news.js
+/**
+ * News Routes - Tiingo News API
+ * NOTE: OpenAI analysis moved to /api/ai/news-analyze
+ */
+
 import express from 'express';
 import axios from 'axios';
-import { OpenAI } from 'openai';
 import { protect } from '../middleware/auth.js';
+import { aiRateLimiter } from '../middleware/security.js';
 import { checkNewsQuota, incrementNewsUsage } from '../middleware/quotaMiddleware.js';
+import { analyzeNews } from '../controllers/aiController.js';
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
 
-// 🔧 OPENAI INTEGRATION
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 /**
  * GET /api/news/:symbol
- * Get news for a specific stock symbol
+ * Get news for a specific stock symbol (NO AI)
  */
 router.get('/:symbol', async (req, res) => {
     const { symbol } = req.params;
@@ -46,73 +49,56 @@ router.get('/:symbol', async (req, res) => {
 });
 
 /**
- * POST /api/news/analyze
- * AI-powered sentiment analysis using OpenAI
- * Protected by news analysis quota
+ * GET /api/news/general/latest
+ * Get latest general news
  */
-router.post('/analyze', protect, checkNewsQuota, async (req, res) => {
-    const { title, description, symbol } = req.body;
-
-    if (!title && !description) {
-        return res.status(400).json({
-            ok: false,
-            error: 'News title or description is required.'
-        });
-    }
+router.get('/general/latest', async (req, res) => {
+    const limit = req.query.limit || 20;
 
     try {
-        const newsText = `${title}\n\n${description || ''}`.trim();
-
-        console.log('🤖 OpenAI Analizi Başlıyor...');
-        console.log(`📊 Sembol: ${symbol || 'Genel'}`);
-
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                {
-                    role: "system",
-                    content: "Sen uzman bir finansal analistsin. Verilen haberi oku ve bu haberin ilgili hisse senedi üzerindeki kısa vadeli etkisini analiz et. Cevabını şu formatta ver:\nSENTIMENT: [POSITIVE/NEGATIVE/NEUTRAL]\nANALYSIS: [2-3 cümle ile açıklama]\nCevabını Türkçe ver ve profesyonel bir ton kullan."
-                },
-                {
-                    role: "user",
-                    content: `Hisse: ${symbol || 'Belirtilmedi'}\nHaber: ${newsText}`
-                }
-            ],
-            temperature: 0.3,
-            max_tokens: 200
+        const response = await axios.get('https://api.tiingo.com/tiingo/news', {
+            params: {
+                tags: 'technology,finance',
+                limit: limit,
+                token: TIINGO_API_KEY
+            }
         });
 
-        const aiResponse = completion.choices[0].message.content;
-        console.log('✅ OpenAI yanıtı alındı.');
+        const news = response.data.map(item => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            source: item.source,
+            publishedDate: item.publishedDate,
+            url: item.url,
+            tickers: item.tickers
+        }));
 
-        // Parse the response
-        const sentimentMatch = aiResponse.match(/SENTIMENT:\s*(POSITIVE|NEGATIVE|NEUTRAL)/i);
-        const analysisMatch = aiResponse.match(/ANALYSIS:\s*(.+)/is);
-
-        const sentiment = sentimentMatch ? sentimentMatch[1].toUpperCase() : 'NEUTRAL';
-        const analysis = analysisMatch ? analysisMatch[1].trim() : aiResponse;
-
-        // Başarılı analiz sonrası kota kullanımını artır
-        await incrementNewsUsage(req.user._id);
-
-        res.json({
-            ok: true,
-            data: {
-                sentiment: sentiment,
-                analysis: analysis,
-                timestamp: new Date().toISOString()
-            },
-            quotaInfo: req.quotaInfo
-        });
-
+        res.json({ ok: true, data: news });
     } catch (error) {
-        console.error('❌ OpenAI Analysis error:', error.message);
-        res.status(500).json({
-            ok: false,
-            error: `AI analizi başarısız oldu: ${error.message}`
-        });
+        console.error('General news fetch error:', error.message);
+        res.status(500).json({ ok: false, error: 'Failed to fetch news.' });
+    }
+});
+
+/**
+ * POST /api/news/analyze
+ * BACKWARD COMPATIBILITY: Proxies to /api/ai/news-analyze
+ * Frontend should migrate to /api/ai/news-analyze
+ */
+router.post('/analyze', protect, aiRateLimiter, checkNewsQuota, async (req, res) => {
+    console.log('⚠️ DEPRECATED: /api/news/analyze called. Use /api/ai/news-analyze instead.');
+
+    // Proxy to the new AI controller
+    try {
+        await analyzeNews(req, res);
+        // Increment quota on success
+        if (req.user?._id) {
+            await incrementNewsUsage(req.user._id);
+        }
+    } catch (error) {
+        // Error already handled by analyzeNews
     }
 });
 
 export default router;
-

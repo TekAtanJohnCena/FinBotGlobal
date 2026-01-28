@@ -2,11 +2,10 @@ import express from 'express';
 import axios from 'axios';
 import { getBatchPrices } from '../services/tiingo/stockService.js';
 import cacheManager from '../utils/cacheManager.js';
-import { OpenAI } from 'openai';
+// NOTE: OpenAI removed - use /api/ai/translate endpoint instead
 
 const router = express.Router();
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Cache TTL configuration (in milliseconds)
 const CACHE_TTL = {
@@ -16,38 +15,8 @@ const CACHE_TTL = {
     PRICES: 5 * 60 * 1000              // 5 minutes - Real-time prices
 };
 
-/**
- * Translate company description using OpenAI
- * @param {string} text - Original English text
- * @param {string} targetLang - Target language code (tr, ar, en)
- * @returns {Promise<string>} - Translated text
- */
-async function translateDescription(text, targetLang) {
-    if (!text || targetLang === 'en') return text; // No translation needed for English
-
-    const langNames = { tr: 'Turkish', ar: 'Arabic' };
-    const targetLanguage = langNames[targetLang] || 'English';
-
-    try {
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [
-                {
-                    role: 'system',
-                    content: `You are a professional translator. Translate the following company description to ${targetLanguage}. Keep it professional and accurate. Return ONLY the translated text, nothing else.`
-                },
-                { role: 'user', content: text }
-            ],
-            temperature: 0.3,
-            max_tokens: 1000
-        });
-
-        return completion.choices[0]?.message?.content?.trim() || text;
-    } catch (error) {
-        console.error(`❌ Translation error (${targetLang}):`, error.message);
-        return text; // Fallback to original text on error
-    }
-}
+// NOTE: translateDescription removed - use /api/ai/translate endpoint
+// Translation is now lazy-loaded via frontend
 
 // In-memory cache variables (fallback if cacheManager not used)
 let tickerMetaCache = null;
@@ -437,14 +406,8 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
                 description: meta.description || ""
             };
 
-            // Translate description if not English
-            if (lang !== 'en' && responseData.fundamentals.description) {
-                console.log(`🌐 Translating description to ${lang}...`);
-                responseData.fundamentals.description = await translateDescription(
-                    responseData.fundamentals.description,
-                    lang
-                );
-            }
+            // NOTE: Auto-translation removed
+            // Frontend should call /api/ai/translate when user requests translation
 
             // Parse financial statements with correct dataCode mapping
             // GUARD: Ensure rawStatements is an array before filtering

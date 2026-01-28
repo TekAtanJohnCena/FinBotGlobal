@@ -63,7 +63,7 @@ export const tiingoLimiter = rateLimit({
  */
 export const aiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 20,
+    limit: process.env.NODE_ENV === 'production' ? 20 : 1000, // Very high limit for dev/test
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     // keyGenerator KALDIRILDI (Hata kaynağı buydu)

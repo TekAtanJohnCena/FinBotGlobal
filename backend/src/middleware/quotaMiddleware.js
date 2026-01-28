@@ -8,7 +8,7 @@ import User from "../models/userModel.js";
  * FREE = Free, BASIC = Plus, PREMIUM = Pro
  */
 const QUOTA_LIMITS = {
-    FREE: { finbotQueries: 5, newsAnalysis: 1, dataYears: 5 },
+    FREE: { finbotQueries: 100, newsAnalysis: 100, dataYears: 5 }, // High limits for dev/test
     BASIC: { finbotQueries: 50, newsAnalysis: 10, dataYears: 10 },
     PREMIUM: { finbotQueries: 250, newsAnalysis: 50, dataYears: 25 }
 };

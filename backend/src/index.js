@@ -28,6 +28,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import apiRoutes from "./routes/api.js";
 import newsRoutes from "./routes/news.js";
+import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -87,6 +88,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api", apiRoutes);
 app.use("/api/news", newsRoutes);
+app.use("/api/ai", aiRoutes); // Dedicated AI endpoints (lazy-loaded)
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);

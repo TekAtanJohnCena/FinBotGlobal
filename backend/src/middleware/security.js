@@ -67,7 +67,7 @@ export const authRateLimiter = rateLimit({
  */
 export const aiRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 10, // Limit each IP to 10 AI requests per minute
+  max: process.env.NODE_ENV === 'production' ? 10 : 500, // Very high limit for dev/test
   message: "AI istekleri çok sık. Lütfen bir dakika bekleyin.",
   standardHeaders: true,
   legacyHeaders: false,
