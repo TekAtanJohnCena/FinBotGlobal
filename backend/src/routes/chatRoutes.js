@@ -22,11 +22,11 @@ const router = express.Router();
 router.post("/", protect, checkFinbotQuota, aiRateLimiter, validate(chatMessageSchema), sendMessage);
 // GET /api/chat/history -> getChatHistory (geçmiş sohbetler)
 router.get("/history", protect, getChatHistory);
-// GET /api/chat/:chatId -> getChatById (tek sohbet detayı)
-router.get("/:chatId", protect, getChatById);
-// PUT /api/chat/:chatId/rename -> renameChat
-router.put("/:chatId/rename", protect, renameChat);
-// DELETE /api/chat/:chatId -> deleteChat
-router.delete("/:chatId", protect, deleteChat);
+// GET /api/chat/:id -> getChatById (tek sohbet detayı)
+router.get("/:id", protect, getChatById);
+// PUT /api/chat/:id/rename -> renameChat
+router.put("/:id/rename", protect, renameChat);
+// DELETE /api/chat/:id -> deleteChat
+router.delete("/:id", protect, deleteChat);
 
 export default router;

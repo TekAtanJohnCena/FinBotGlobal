@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import { asyncHandler } from "../utils/errorHandler.js";
-import { sendWelcomeEmail, sendPasswordResetEmail } from "../services/emailService.js";
+import { sendWelcomeEmail, sendPasswordResetEmail, sendVerificationEmail } from "../services/emailService.js";
 
 // ==============================
 // Google OAuth Client
@@ -71,10 +71,14 @@ export const register = asyncHandler(async (req, res) => {
   // Şifre hashleme
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  // Yeni kullanıcı oluştur
+  // 6 haneli OTP kodu üret
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika
+
+  // Yeni kullanıcı oluştur (Unverified)
   const newUser = await User.create({
-    username,
-    email,
+    username: username.toLowerCase(),
+    email: email.toLowerCase(),
     password: hashedPassword,
     firstName,
     lastName,
@@ -83,28 +87,28 @@ export const register = asyncHandler(async (req, res) => {
     authType: "manual",
     subscriptionTier: "FREE",
     subscriptionStatus: "INACTIVE",
+    isVerified: false,
+    otpCode,
+    otpExpires
   });
 
-  console.log("✅ User registered:", newUser.email);
+  console.log("✅ User registered (pending verification):", newUser.email);
 
-  const accessToken = generateAccessToken(newUser._id);
-  setAuthCookie(res, accessToken);
+  // Doğrulama maili gönder
+  try {
+    await sendVerificationEmail(newUser.email, otpCode);
+  } catch (error) {
+    // Mail atılamazsa kullanıcıyı sil ki tekrar deneyebilsin (veya logla)
+    console.error("OTP send failed:", error);
+    await User.findByIdAndDelete(newUser._id);
+    return res.status(500).json({ message: "Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin." });
+  }
 
+  // Token DÖNME, sadece başarı mesajı dön
   res.status(201).json({
-    message: "Kullanıcı başarıyla oluşturuldu.",
-    token: accessToken,
-    user: {
-      id: newUser._id,
-      username: newUser.username,
-      email: newUser.email,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      phoneNumber: newUser.phoneNumber,
-      birthDate: newUser.birthDate,
-      authType: newUser.authType,
-      subscriptionTier: newUser.subscriptionTier,
-      subscriptionStatus: newUser.subscriptionStatus,
-    },
+    success: true,
+    message: "Kayıt başarılı! Lütfen e-postanıza gönderilen doğrulama kodunu giriniz.",
+    email: newUser.email
   });
 });
 
@@ -132,6 +136,15 @@ export const login = asyncHandler(async (req, res) => {
   if (!user || !user.password) {
     return res.status(401).json({
       message: "E-posta/Kullanıcı adı veya şifre hatalı.",
+    });
+  }
+
+  // E-Posta doğrulama kontrolü
+  if (user.isVerified === false) {
+    return res.status(401).json({
+      message: "Lütfen önce e-posta adresinizi doğrulayın. (Mail kutunuzu kontrol edin)",
+      isNotVerified: true, // Frontend bu flag'i kullanabilir
+      email: user.email
     });
   }
 
@@ -231,6 +244,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
       authType: "google",
       subscriptionTier: "FREE",
       subscriptionStatus: "INACTIVE",
+      isVerified: true, // Google ile gelen kullanıcılar doğrulanmış sayılır
     });
     console.log("✅ New Google user created:", email);
 
@@ -342,5 +356,63 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     message: "Şifre başarıyla güncellendi."
+  });
+});
+
+/* =====================================================
+   6. VERIFY EMAIL (OTP)
+   ===================================================== */
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: "E-posta ve doğrulama kodu gerekli." });
+  }
+
+  const user = await User.findOne({
+    email: email.toLowerCase(),
+    otpCode: code,
+    otpExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Geçersiz veya süresi dolmuş kod." });
+  }
+
+  // Doğrulama başarılı
+  user.isVerified = true;
+  user.otpCode = undefined;
+  user.otpExpires = undefined;
+  await user.save();
+
+  console.log("✅ User verified email:", user.email);
+
+  // Hoşgeldin maili gönder
+  try {
+    await sendWelcomeEmail(user.email, user.firstName);
+  } catch (err) {
+    console.error("Welcome email failed:", err);
+  }
+
+  // Giriş yap (Token üret)
+  const accessToken = generateAccessToken(user._id);
+  setAuthCookie(res, accessToken);
+
+  res.status(200).json({
+    success: true,
+    message: "E-posta başarıyla doğrulandı.",
+    token: accessToken,
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      birthDate: user.birthDate,
+      authType: user.authType,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionStatus: user.subscriptionStatus,
+    }
   });
 });

@@ -41,9 +41,27 @@ const GLOBAL_STYLES = `
     font-size: 16px;
     line-height: 1.6;
   }
+  /* Custom Slim Scrollbar */
+  .slim-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .slim-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .slim-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+  }
+  .slim-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+  .slim-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
 `;
 
-const MAX_VISIBLE = 10;
+const MAX_VISIBLE = 7;
 
 export default function ChatWithHistory() {
   // --------------------------- Auth & Router --------------------------------
@@ -142,17 +160,8 @@ export default function ChatWithHistory() {
         currentChatId = res.data.chatId;
         setActiveChatId(currentChatId);
 
-        // --- İYİLEŞTİRME BURADA ---
-        // İsimlendirme hatası, mesajın görünmesini engellememeli.
-        // Bu yüzden ayrı bir try-catch bloğuna alıyoruz.
-        try {
-          await api.put(`/chat/${currentChatId}/rename`, { title: t.substring(0, 30) });
-          // Sidebar'ı güncelle ki yeni isim görünsün
-          fetchHistory();
-        } catch (renameError) {
-          console.warn("Otomatik isimlendirme yapılamadı:", renameError);
-          // Kullanıcıya hata göstermeye gerek yok, varsayılan isim kalabilir.
-        }
+        // Backend artık otomatik isimlendirme yapıyor, manuel rename'e gerek yok.
+        fetchHistory();
       }
 
       // 4. Botun cevabını ekrana bas
@@ -309,7 +318,7 @@ export default function ChatWithHistory() {
       <aside
         style={{ backgroundColor: '#131314' }}
         className={`
-          fixed inset-y-0 z-40 w-[280px] md:w-[260px]
+          fixed inset-y-0 z-40 w-[320px] md:w-[320px]
           flex flex-col border-r border-white/5
           transition-transform duration-300 ease-in-out
           left-0 md:left-20
@@ -353,108 +362,111 @@ export default function ChatWithHistory() {
           />
         </div>
 
-        <div className="px-4 text-[11px] font-semibold tracking-wide text-zinc-500 mb-2">SOHBETLER</div>
-
-        <ul className="flex-1 overflow-y-auto no-scrollbar mt-2 px-2 space-y-1.5">
-          {(showAll ? history : history.slice(0, MAX_VISIBLE)).map((chat) => (
-            <li
-              key={chat._id}
-              className={`group flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-all duration-200
-                ${chat._id === activeChatId
-                  ? "bg-gradient-to-r from-emerald-900/30 to-emerald-800/20 ring-1 ring-emerald-500/30 shadow-lg"
-                  : "hover:bg-zinc-800/60 active:scale-[0.98]"}`}
-              onClick={() => loadChat(chat._id)}
-            >
-              {/* Chat icon */}
-              <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm
-                ${chat._id === activeChatId ? "bg-emerald-500/20 text-emerald-400" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700"}`}>
-                💬
-              </div>
-
-              {/* Chat title */}
-              <span className="flex-1 truncate text-zinc-200 font-medium">
-                {chat.title || chat.messages?.[0]?.text || "Yeni Sohbet"}
-              </span>
-
-              {/* Action buttons */}
-              <span className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  className="p-1.5 hover:bg-emerald-500/20 text-zinc-400 hover:text-emerald-400 rounded-lg transition-all"
-                  onClick={(e) => { e.stopPropagation(); setRenamingId(chat._id); setRenameValue(chat.title || ""); }}
-                  title="Yeniden Adlandır"
-                >
-                  <PencilSquareIcon className="w-4 h-4" />
-                </button>
-                <button
-                  className="p-1.5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded-lg transition-all"
-                  onClick={(e) => { e.stopPropagation(); handleDeleteChat(chat._id); }}
-                  title="Sil"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </button>
-              </span>
-            </li>
-          ))}
-
-          {renamingId && (
-            <li className="mt-2 rounded-xl bg-zinc-800/80 px-3 py-3 ring-1 ring-emerald-500/30 shadow-lg">
-              <div className="flex items-center gap-2">
-                <input
-                  value={renameValue}
-                  onChange={(e) => setRenameValue(e.target.value)}
-                  autoFocus
-                  placeholder="Sohbet adı girin..."
-                  className="flex-1 rounded-lg bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleRenameChat(renamingId);
-                    if (e.key === "Escape") { setRenamingId(null); setRenameValue(""); }
-                  }}
-                />
-                <button
-                  onClick={() => handleRenameChat(renamingId)}
-                  className="bg-emerald-500 hover:bg-emerald-400 px-3 py-2 text-xs rounded-lg text-black font-bold transition-colors shadow-lg"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={() => { setRenamingId(null); setRenameValue(""); }}
-                  className="bg-zinc-700 hover:bg-zinc-600 px-3 py-2 text-xs rounded-lg text-white font-bold transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-            </li>
-          )}
-
-          {history.length > MAX_VISIBLE && (
-            <li className="pt-2">
-              <button
-                onClick={() => setShowAll(!showAll)}
-                className="w-full rounded-xl bg-zinc-800/50 hover:bg-zinc-700/80 px-3 py-2.5 text-sm text-zinc-300 hover:text-white font-medium transition-all flex items-center justify-center gap-2"
-              >
-                {showAll ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                    </svg>
-                    Daha az göster
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                    {history.length - MAX_VISIBLE} sohbet daha
-                  </>
-                )}
-              </button>
-            </li>
-          )}
-        </ul>
-
-        {/* Quota Display for FREE and PLUS users */}
-        <div className="px-4 py-3 border-t border-white/5">
+        {/* Quota Display - Center Position */}
+        <div className="px-4 pb-3">
           <QuotaDisplay compact={false} />
+        </div>
+
+        {/* Scrollable Chat List Container */}
+        <div className="flex-1 overflow-y-auto slim-scrollbar min-h-0">
+          <div className="px-4 text-[11px] font-semibold tracking-wide text-zinc-500 mb-2 sticky top-0 bg-[#131314] py-2 z-10">SOHBETLER</div>
+
+          <ul className="px-2 space-y-1.5 pb-2">
+            {(showAll ? history : history.slice(0, MAX_VISIBLE)).map((chat) => (
+              <li
+                key={chat._id}
+                className={`group flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-all duration-200
+                ${chat._id === activeChatId
+                    ? "bg-gradient-to-r from-emerald-900/30 to-emerald-800/20 ring-1 ring-emerald-500/30 shadow-lg"
+                    : "hover:bg-zinc-800/60 active:scale-[0.98]"}`}
+                onClick={() => loadChat(chat._id)}
+              >
+                {/* Chat icon */}
+                <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm
+                ${chat._id === activeChatId ? "bg-emerald-500/20 text-emerald-400" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700"}`}>
+                  💬
+                </div>
+
+                {/* Chat title */}
+                <span className="flex-1 truncate text-zinc-200 font-medium">
+                  {chat.title || chat.messages?.[0]?.text || "Yeni Sohbet"}
+                </span>
+
+                {/* Action buttons */}
+                <span className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    className="p-1.5 hover:bg-emerald-500/20 text-zinc-400 hover:text-emerald-400 rounded-lg transition-all"
+                    onClick={(e) => { e.stopPropagation(); setRenamingId(chat._id); setRenameValue(chat.title || ""); }}
+                    title="Yeniden Adlandır"
+                  >
+                    <PencilSquareIcon className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="p-1.5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded-lg transition-all"
+                    onClick={(e) => { e.stopPropagation(); handleDeleteChat(chat._id); }}
+                    title="Sil"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </span>
+              </li>
+            ))}
+
+            {renamingId && (
+              <li className="mt-2 rounded-xl bg-zinc-800/80 px-3 py-3 ring-1 ring-emerald-500/30 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    autoFocus
+                    placeholder="Sohbet adı girin..."
+                    className="flex-1 rounded-lg bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRenameChat(renamingId);
+                      if (e.key === "Escape") { setRenamingId(null); setRenameValue(""); }
+                    }}
+                  />
+                  <button
+                    onClick={() => handleRenameChat(renamingId)}
+                    className="bg-emerald-500 hover:bg-emerald-400 px-3 py-2 text-xs rounded-lg text-black font-bold transition-colors shadow-lg"
+                  >
+                    ✓
+                  </button>
+                  <button
+                    onClick={() => { setRenamingId(null); setRenameValue(""); }}
+                    className="bg-zinc-700 hover:bg-zinc-600 px-3 py-2 text-xs rounded-lg text-white font-bold transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </li>
+            )}
+
+            {history.length > MAX_VISIBLE && (
+              <li className="pt-2">
+                <button
+                  onClick={() => setShowAll(!showAll)}
+                  className="w-full rounded-xl bg-zinc-800/50 hover:bg-zinc-700/80 px-3 py-2.5 text-sm text-zinc-300 hover:text-white font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  {showAll ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                      Daha az göster
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                      {history.length - MAX_VISIBLE} sohbet daha
+                    </>
+                  )}
+                </button>
+              </li>
+            )}
+          </ul>
         </div>
 
         {/* Bottom spacing for mobile nav */}

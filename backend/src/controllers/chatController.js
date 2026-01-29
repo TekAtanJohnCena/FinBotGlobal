@@ -640,7 +640,9 @@ export const sendMessage = async (req, res) => {
         return res.status(404).json({ message: "Sohbet bulunamadı." });
       }
     } else {
-      chat = new Chat({ user: userId, messages: [], title: "Yeni Sohbet" });
+      // İlk mesajı başlık olarak ayarla (max 50 karakter)
+      const title = message.length > 50 ? message.substring(0, 50) + "..." : message;
+      chat = new Chat({ user: userId, messages: [], title: title });
     }
 
     // Kullanıcı mesajını ekle

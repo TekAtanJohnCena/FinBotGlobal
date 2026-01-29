@@ -1,14 +1,32 @@
 // PATH: backend/src/routes/userRoutes.js
 import express from "express";
-import { getUserProfile } from "../controllers/userController.js";
+import {
+    getUserProfile,
+    updateUserProfile,
+    getUserSettings,
+    updateUserSettings,
+    changePassword,
+    deleteAccount
+} from "../controllers/userController.js";
 import { protect } from "../middleware/auth.js";
 import { getUserQuotaStatus } from "../middleware/quotaMiddleware.js";
 import User from "../models/userModel.js";
 
 const router = express.Router();
 
-// Get user profile (protected route)
+// Profile routes
 router.get("/profile", protect, getUserProfile);
+router.put("/profile", protect, updateUserProfile);
+
+// Settings routes
+router.get("/settings", protect, getUserSettings);
+router.put("/settings", protect, updateUserSettings);
+
+// Password change
+router.put("/password", protect, changePassword);
+
+// Account deletion
+router.delete("/account", protect, deleteAccount);
 
 // Get user quota status (protected route)
 router.get("/quota", protect, async (req, res) => {
@@ -31,5 +49,3 @@ router.get("/quota", protect, async (req, res) => {
 });
 
 export default router;
-
-

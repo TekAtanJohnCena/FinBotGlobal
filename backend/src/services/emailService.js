@@ -152,7 +152,38 @@ export const sendPasswordResetEmail = async (userEmail, resetToken) => {
     }
 };
 
+/**
+ * Send Verification Code Email
+ * @param {string} userEmail 
+ * @param {string} code 
+ */
+export const sendVerificationEmail = async (userEmail, code) => {
+    const html = emailLayout(`
+        <h2>Doğrulama Kodunuz</h2>
+        <p>Finbot hesabınızı doğrulamak için lütfen aşağıdaki kodu kullanın:</p>
+        <div style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #004a99; text-align: center; margin: 20px 0; padding: 10px; background: #eef2f5; border-radius: 8px;">
+            ${code}
+        </div>
+        <p>Bu kod 15 dakika süreyle geçerlidir.</p>
+        <p>Eğer bu kodu siz talep etmediyseniz, lütfen görmezden gelin.</p>
+    `);
+
+    try {
+        await transporter.sendMail({
+            from: config.smtp.from,
+            to: userEmail,
+            subject: 'Finbot Doğrulama Kodunuz',
+            html
+        });
+        console.log(`✅ Verification email sent to: ${userEmail}`);
+    } catch (error) {
+        console.error(`❌ Error sending verification email:`, error);
+        throw error;
+    }
+};
+
 export default {
     sendWelcomeEmail,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    sendVerificationEmail
 };

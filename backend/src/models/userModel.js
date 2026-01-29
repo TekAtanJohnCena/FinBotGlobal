@@ -45,6 +45,44 @@ const userSchema = new mongoose.Schema(
       finbotQueries: { type: Number, default: 0 },
       newsAnalysis: { type: Number, default: 0 },
       lastResetDate: { type: Date, default: Date.now }
+    },
+
+    // Email Verification
+    isVerified: { type: Boolean, default: false },
+    otpCode: { type: String },
+    otpExpires: { type: Date },
+
+    // Full Name (for display)
+    fullName: { type: String, default: "" },
+
+    // User Settings (all preferences)
+    settings: {
+      // Chat & Assistant
+      responseLength: { type: String, enum: ["short", "normal", "detailed"], default: "normal" },
+      language: { type: String, enum: ["tr", "en"], default: "tr" },
+      explanationLevel: { type: String, enum: ["simple", "intermediate", "professional"], default: "intermediate" },
+      saveHistory: { type: Boolean, default: true },
+      autoDelete: { type: String, enum: ["7", "30", "never"], default: "never" },
+
+      // Favorite Stocks
+      favoriteStocks: { type: [String], default: ["AAPL", "MSFT", "NVDA", "AMZN"] },
+
+      // Analysis Preferences
+      quarterlyEarnings: { type: Boolean, default: true },
+      annualFinancials: { type: Boolean, default: true },
+      showCharts: { type: Boolean, default: true },
+      autoSummary: { type: Boolean, default: true },
+
+      // Notifications
+      earningsAlerts: { type: Boolean, default: true },
+      financialUpdates: { type: Boolean, default: false },
+      priceChangePercent: { type: String, default: "5" },
+      weeklySummary: { type: Boolean, default: true },
+
+      // Appearance
+      theme: { type: String, enum: ["light", "dark", "system"], default: "dark" },
+      numberFormat: { type: String, enum: ["compact", "full"], default: "compact" },
+      chartAnimations: { type: Boolean, default: true }
     }
   },
   { timestamps: true }

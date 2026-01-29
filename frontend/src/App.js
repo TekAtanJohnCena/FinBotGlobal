@@ -13,6 +13,10 @@ const AcademyCourseView = lazy(() => import("./pages/AcademyCourseView"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const MobileApp = lazy(() => import("./pages/MobileApp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Support = lazy(() => import("./pages/Support"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 // --- SAYFALAR (Legal) ---
 const KVKKText = lazy(() => import('./pages/legal/KVKKText'));
@@ -82,6 +86,8 @@ function App() {
         ================================================= */}
           <Route path="/" element={<Landing />} />
           <Route path="/app" element={<MobileApp />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/contact" element={<Contact />} />
           <Route
             element={
               <ProtectedRoute>
@@ -100,6 +106,8 @@ function App() {
             <Route path="/news" element={<NewsPage />} />
             <Route path="/kap" element={<Navigate to="/news" replace />} />
             <Route path="/academy" element={<AcademyCourseView />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
 
           {/* Legal Pages */}

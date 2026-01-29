@@ -46,14 +46,12 @@ export default function UserProfileDropdown({ userInitial, onLogout }) {
 
   const handleSettings = () => {
     setIsOpen(false);
-    // For now, show alert - you can create a settings page later
-    alert("Ayarlar sayfası yakında eklenecek!");
+    navigate("/settings");
   };
 
   const handleHelp = () => {
     setIsOpen(false);
-    // Open email client
-    window.location.href = "mailto:destek@finbot.com.tr";
+    navigate("/support");
   };
 
   const handleUpgrade = () => {

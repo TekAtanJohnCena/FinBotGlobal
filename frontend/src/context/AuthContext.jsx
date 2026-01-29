@@ -85,6 +85,19 @@ export const AuthProvider = ({ children }) => {
   // KAYIT OL
   const register = async (formData) => {
     const res = await api.post("/auth/register", formData);
+    // Backend artık token dönmüyor, sadece success dönüyor
+    return res.data;
+  };
+
+  // E-POSTA DOĞRULAMA (OTP)
+  const verifyEmail = async (email, code) => {
+    const res = await api.post("/auth/verify-email", { email, code });
+    const { token, user: userData } = res.data;
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    setUser(userData);
     return res.data;
   };
 
@@ -98,7 +111,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, googleLogin, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, googleLogin, register, logout, verifyEmail }}>
       {!loading && children}
     </AuthContext.Provider>
   );
