@@ -35,11 +35,11 @@ const TURKISH_LABELS = {
     netChangeInCash: "Net Nakit Değişimi"
 };
 
-// Plan bazlı yıl limitleri
+// Plan bazlı yıl limitleri (PRO = 999 means unlimited)
 const PLAN_YEAR_LIMITS = {
     FREE: 5,
-    BASIC: 10,
-    PREMIUM: 25
+    PLUS: 10,
+    PRO: 999  // Unlimited - show all available data
 };
 
 const Financials = () => {
@@ -374,7 +374,7 @@ const Financials = () => {
                     <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl w-fit">
                         <Info size={14} className="text-indigo-400/80" />
                         <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest">
-                            Görüntülenen: {history.length} Yıl • Plan: {userPlan === 'FREE' ? 'Ücretsiz' : userPlan === 'BASIC' ? 'Plus' : 'Pro'}
+                            Görüntülenen: {history.length} Yıl • Plan: {userPlan === 'FREE' ? 'Ücretsiz' : userPlan === 'PLUS' ? 'Plus' : 'Pro'} {userPlan === 'PRO' && '(Sınırsız)'}
                         </span>
                     </div>
                 </div>

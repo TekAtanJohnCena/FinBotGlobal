@@ -29,8 +29,8 @@ const QuotaDisplay = ({ compact = false }) => {
 
     const planNames = {
         FREE: 'Ücretsiz',
-        BASIC: 'Plus',
-        PREMIUM: 'Pro'
+        PLUS: 'Plus',
+        PRO: 'Pro'
     };
 
     const getProgressColor = (used, limit) => {
@@ -67,9 +67,9 @@ const QuotaDisplay = ({ compact = false }) => {
                     <TrendingUp size={16} className="text-indigo-400" />
                     Günlük Kullanım
                 </h3>
-                <span className={`px-2 py-1 text-[10px] font-black uppercase rounded ${quota.plan === 'PREMIUM' ? 'bg-purple-500/20 text-purple-400' :
-                        quota.plan === 'BASIC' ? 'bg-indigo-500/20 text-indigo-400' :
-                            'bg-slate-700 text-slate-400'
+                <span className={`px-2 py-1 text-[10px] font-black uppercase rounded ${quota.plan === 'PRO' ? 'bg-purple-500/20 text-purple-400' :
+                    quota.plan === 'PLUS' ? 'bg-indigo-500/20 text-indigo-400' :
+                        'bg-slate-700 text-slate-400'
                     }`}>
                     {planNames[quota.plan]}
                 </span>
@@ -119,7 +119,7 @@ const QuotaDisplay = ({ compact = false }) => {
             </div>
 
             {/* Upgrade CTA */}
-            {quota.plan !== 'PREMIUM' && (
+            {quota.plan !== 'PRO' && (
                 <Link
                     to="/pricing"
                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg font-bold text-xs transition-all"

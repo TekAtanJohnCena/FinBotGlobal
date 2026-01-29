@@ -24,10 +24,10 @@ const userSchema = new mongoose.Schema(
     },
     registrationDate: { type: Date, default: Date.now },
 
-    // Abonelik Bilgileri
+    // Abonelik Bilgileri (FREE/PLUS/PRO)
     subscriptionTier: {
       type: String,
-      enum: ["FREE", "BASIC", "PREMIUM"],
+      enum: ["FREE", "PLUS", "PRO"],
       default: "FREE"
     },
     subscriptionStatus: {

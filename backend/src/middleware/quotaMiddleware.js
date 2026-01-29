@@ -4,13 +4,39 @@
 import User from "../models/userModel.js";
 
 /**
- * Plan Quota Limits
- * FREE = Free, BASIC = Plus, PREMIUM = Pro
+ * Plan Quota Limits (Resets daily at UTC 00:00)
+ * 
+ * Tier Breakdown:
+ * - FREE:  5 queries/day, 1 news analysis, 5 years data
+ * - PLUS: 50 queries/day, 5 news analyses, 10 years data
+ * - PRO: 150 queries/day, 30 news analyses, unlimited data (25+)
  */
 const QUOTA_LIMITS = {
-    FREE: { finbotQueries: 100, newsAnalysis: 100, dataYears: 5 }, // High limits for dev/test
-    BASIC: { finbotQueries: 50, newsAnalysis: 10, dataYears: 10 },
-    PREMIUM: { finbotQueries: 250, newsAnalysis: 50, dataYears: 25 }
+    FREE: { finbotQueries: 5, newsAnalysis: 1, dataYears: 5 },
+    PLUS: { finbotQueries: 50, newsAnalysis: 5, dataYears: 10 },
+    PRO: { finbotQueries: 150, newsAnalysis: 30, dataYears: 999 }  // 999 = unlimited
+};
+
+/**
+ * Backward compatibility: Map old tier names to new names
+ * Note: Includes Turkish character variants (İ instead of I)
+ */
+const TIER_ALIASES = {
+    BASIC: "PLUS",
+    PREMIUM: "PRO",
+    "BASİC": "PLUS",     // Turkish İ
+    "PREMİUM": "PRO"     // Turkish İ
+};
+
+/**
+ * Normalize tier name (handles old BASIC/PREMIUM names)
+ * @param {string} tier - Tier name
+ * @returns {string} - Normalized tier name (FREE, PLUS, or PRO)
+ */
+const normalizeTier = (tier) => {
+    if (!tier) return "FREE";
+    const upperTier = tier.toUpperCase();
+    return TIER_ALIASES[upperTier] || upperTier;
 };
 
 /**
@@ -46,7 +72,8 @@ const resetUserQuota = async (user) => {
  * Get quota limits for user's plan
  */
 export const getQuotaLimits = (tier) => {
-    return QUOTA_LIMITS[tier] || QUOTA_LIMITS.FREE;
+    const normalizedTier = normalizeTier(tier);
+    return QUOTA_LIMITS[normalizedTier] || QUOTA_LIMITS.FREE;
 };
 
 /**
@@ -82,7 +109,7 @@ export const checkFinbotQuota = async (req, res, next) => {
             await resetUserQuota(user);
         }
 
-        const tier = user.subscriptionTier || "FREE";
+        const tier = normalizeTier(user.subscriptionTier);
         const limits = getQuotaLimits(tier);
         const currentUsage = user.usage?.finbotQueries || 0;
 
@@ -98,7 +125,7 @@ export const checkFinbotQuota = async (req, res, next) => {
                     remaining: 0,
                     plan: tier,
                     resetsAt: getNextResetTime(),
-                    upgradeRequired: tier === "FREE" ? "BASIC" : tier === "BASIC" ? "PREMIUM" : null
+                    upgradeRequired: tier === "FREE" ? "PLUS" : tier === "PLUS" ? "PRO" : null
                 }
             });
         }
@@ -150,7 +177,7 @@ export const checkNewsQuota = async (req, res, next) => {
             await resetUserQuota(user);
         }
 
-        const tier = user.subscriptionTier || "FREE";
+        const tier = normalizeTier(user.subscriptionTier);
         const limits = getQuotaLimits(tier);
         const currentUsage = user.usage?.newsAnalysis || 0;
 
@@ -166,7 +193,7 @@ export const checkNewsQuota = async (req, res, next) => {
                     remaining: 0,
                     plan: tier,
                     resetsAt: getNextResetTime(),
-                    upgradeRequired: tier === "FREE" ? "BASIC" : tier === "BASIC" ? "PREMIUM" : null
+                    upgradeRequired: tier === "FREE" ? "PLUS" : tier === "PLUS" ? "PRO" : null
                 }
             });
         }
@@ -202,7 +229,7 @@ export const incrementNewsUsage = async (userId) => {
  * Get user's current quota status
  */
 export const getUserQuotaStatus = async (user) => {
-    const tier = user.subscriptionTier || "FREE";
+    const tier = normalizeTier(user.subscriptionTier);
     const limits = getQuotaLimits(tier);
 
     // Check if quota needs reset

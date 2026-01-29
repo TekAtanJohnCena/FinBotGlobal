@@ -18,6 +18,8 @@ import {
 import AnalysisCard from "../components/AnalysisCard";
 import TypingIndicator from "../components/TypingIndicator";
 import StructuredResponse from "../components/StructuredResponse";
+import QuotaDisplay from "../components/QuotaDisplay";
+import { Link } from "react-router-dom";
 import "../styles/structuredResponse.css";
 import logo from "../images/logo1.png";
 // ----------------------------- Global CSS ------------------------
@@ -172,6 +174,21 @@ export default function ChatWithHistory() {
         navigate("/login");
         return;
       }
+
+      // 429: Günlük limit aşıldı
+      if (err.response?.status === 429) {
+        const quotaData = err.response?.data?.data;
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            text: `⚠️ **Günlük sorgu hakkınız doldu!**\n\nBugün için ${quotaData?.limit || 5} sorgu hakkınızı kullandınız.\n\n**Daha fazla sorgu için:**\n- Yarın (UTC 00:00'da) haklarınız yenilenecek\n- [Planınızı yükselterek](/pricing) daha fazla sorgu hakkı kazanabilirsiniz`,
+            isQuotaError: true
+          }
+        ]);
+        return;
+      }
+
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "Bağlantı hatası. Lütfen tekrar deneyin." }
@@ -434,6 +451,11 @@ export default function ChatWithHistory() {
             </li>
           )}
         </ul>
+
+        {/* Quota Display for FREE and PLUS users */}
+        <div className="px-4 py-3 border-t border-white/5">
+          <QuotaDisplay compact={false} />
+        </div>
 
         {/* Bottom spacing for mobile nav */}
         <div className="h-16 md:hidden shrink-0" />
