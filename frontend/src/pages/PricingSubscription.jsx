@@ -19,13 +19,13 @@ const PricingSubscription = () => {
       key: "plus",
       icon: <Zap className="w-6 h-6" />,
       highlight: true,
-      monthly: 189,
+      monthly: 369,
     },
     {
       key: "pro",
       icon: <Shield className="w-6 h-6" />,
       highlight: false,
-      monthly: 269,
+      monthly: 449,
     },
     {
       key: "enterprise",

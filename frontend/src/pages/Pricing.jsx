@@ -15,12 +15,12 @@ export default function Pricing() {
         },
         {
             key: "plus",
-            monthly: 189,
+            monthly: 369,
             highlight: true // Popular moved to Plus
         },
         {
             key: "pro",
-            monthly: 269, // Updated price
+            monthly: 449, // Updated price
             highlight: false
         },
         {
