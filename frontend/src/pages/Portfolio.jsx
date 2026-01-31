@@ -1,9 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from "../lib/api";
-import CashBalanceCard from '../components/CashBalanceCard';
 import {
-  Wallet,
   TrendingUp,
   TrendingDown,
   Plus,
@@ -14,7 +12,6 @@ import {
   PieChart as PieChartIcon,
   Activity,
   DollarSign,
-  ArrowUpRight,
   Briefcase,
   AlertCircle
 } from 'lucide-react';
@@ -199,7 +196,7 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0a0f1c] text-white overflow-hidden font-sans">
+    <div className="flex h-full w-full bg-[#0a0f1c] text-white overflow-hidden font-sans">
       {/* Mobile Sidebar Toggle Button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -246,11 +243,11 @@ const Portfolio = () => {
           {searchLoading ? (
             <div className="flex flex-col items-center justify-center p-12 gap-3 text-slate-500">
               <RefreshCw className="w-6 h-6 animate-spin text-emerald-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest leading-loose">Piyasalar Taranıyor...</span>
+              <span className="text-xs font-black uppercase tracking-widest leading-loose">Piyasalar Taranıyor...</span>
             </div>
           ) : (
             <div className="p-4 space-y-2">
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 ml-2 flex items-center gap-2">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 ml-2 flex items-center gap-2">
                 {searchTerm ? 'Arama Sonuçları' : 'Popüler Hisseler'}
                 {!searchTerm && <Activity size={12} className="text-emerald-500" />}
               </h3>
@@ -267,7 +264,7 @@ const Portfolio = () => {
                         <div className="font-mono font-black text-lg text-emerald-500 ml-auto mr-2">${s.price.toFixed(2)}</div>
                       )}
                     </div>
-                    <div className="text-[10px] text-slate-500 line-clamp-1 font-bold">{s.name}</div>
+                    <div className="text-xs text-slate-500 line-clamp-1 font-bold">{s.name}</div>
                   </div>
                   <button
                     onClick={() => {
@@ -316,7 +313,7 @@ const Portfolio = () => {
                 <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-white">Canlı Portföyüm</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                  <p className="text-slate-500 font-black text-[10px] md:text-xs uppercase tracking-widest">Tiingo Real-Time Market Feed</p>
+                  <p className="text-slate-500 font-black text-xs md:text-xs uppercase tracking-widest">Tiingo Real-Time Market Feed</p>
                 </div>
               </div>
             </div>
@@ -339,7 +336,7 @@ const Portfolio = () => {
             <div className="bg-[#1e222d] border border-slate-800 rounded-3xl md:rounded-[40px] p-6 md:p-8 shadow-2xl relative overflow-hidden group">
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Toplam Varlık Değeri</span>
+                  <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Toplam Varlık Değeri</span>
                   <DollarSign size={18} className="text-emerald-500 md:w-5 md:h-5" />
                 </div>
                 <div className="text-3xl md:text-5xl font-mono font-black text-white tracking-tighter">
@@ -361,9 +358,9 @@ const Portfolio = () => {
             {/* Varlık Dağılımı - Pasta Grafiği ve Portföy Ekle */}
             <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl md:rounded-[40px] p-6 md:p-8 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
               <div className="relative z-10 flex flex-col h-full">
-                <div className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-4">Varlık Dağılımı</div>
+                <div className="text-xs font-black text-indigo-200 uppercase tracking-widest mb-4">Varlık Dağılımı</div>
 
-                <div className="flex items-center gap-6 flex-1">
+                <div className="flex flex-col md:flex-row items-center gap-6 flex-1">
                   {/* Sol: Pasta Grafiği */}
                   <div className="w-36 h-36 md:w-44 md:h-44 flex-shrink-0">
                     {portfolioData.length > 0 ? (
@@ -450,12 +447,12 @@ const Portfolio = () => {
                               className="w-2 h-2 rounded-full"
                               style={{ backgroundColor: ['#22d3ee', '#a78bfa', '#f472b6', '#fbbf24', '#34d399', '#60a5fa', '#f87171'][index % 7] }}
                             />
-                            <span className="text-[10px] font-bold text-white">{asset.symbol}</span>
+                            <span className="text-xs font-bold text-white">{asset.symbol}</span>
                           </div>
                         ))}
                         {portfolioData.length > 4 && (
                           <div className="px-2 py-1 bg-white/10 rounded-lg">
-                            <span className="text-[10px] font-bold text-white/70">+{portfolioData.length - 4}</span>
+                            <span className="text-xs font-bold text-white/70">+{portfolioData.length - 4}</span>
                           </div>
                         )}
                       </div>
@@ -523,7 +520,7 @@ const Portfolio = () => {
                           </div>
                           <div className="min-w-0">
                             <div className="font-black text-base text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight">{asset.symbol}</div>
-                            <div className="text-[10px] font-bold text-slate-500 line-clamp-1">{asset.name}</div>
+                            <div className="text-xs font-bold text-slate-500 line-clamp-1">{asset.name}</div>
                           </div>
                         </div>
                       </td>
@@ -543,7 +540,7 @@ const Portfolio = () => {
                         <div className={`font-black text-base flex items-center justify-end gap-1 ${asset.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {asset.profitPercent.toFixed(2)}%
                         </div>
-                        <div className={`text-[10px] font-bold ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
+                        <div className={`text-xs font-bold ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
                           {asset.profit >= 0 ? '+' : '-'}${Math.abs(asset.profit).toLocaleString()}
                         </div>
                       </td>
@@ -591,11 +588,11 @@ const Portfolio = () => {
                         </div>
                         <div className="min-w-0">
                           <div className="font-black text-base text-white uppercase tracking-tight">{asset.symbol}</div>
-                          <div className="text-[10px] font-bold text-slate-500 line-clamp-1">{asset.name}</div>
+                          <div className="text-xs font-bold text-slate-500 line-clamp-1">{asset.name}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 ml-13">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Anlık:</span>
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-500">Anlık:</span>
                         <span className="font-mono font-black text-lg text-emerald-400">${asset.currentPrice.toFixed(2)}</span>
                       </div>
                     </div>
@@ -609,7 +606,7 @@ const Portfolio = () => {
                         {asset.profit >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {asset.profitPercent.toFixed(2)}%
                       </div>
-                      <div className={`text-[10px] font-bold mt-1 ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
+                      <div className={`text-xs font-bold mt-1 ${asset.profit >= 0 ? 'text-emerald-500/40' : 'text-rose-500/40'}`}>
                         {asset.profit >= 0 ? '+' : '-'}${Math.abs(asset.profit).toLocaleString()}
                       </div>
                     </div>
@@ -618,9 +615,9 @@ const Portfolio = () => {
                   {/* Delete Button */}
                   <button
                     onClick={() => deleteAsset(asset.id)}
-                    className="w-full mt-3 flex items-center justify-center gap-2 py-2 text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all text-xs font-bold uppercase tracking-wider"
+                    className="w-full mt-3 flex items-center justify-center gap-2 py-3 text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all text-xs font-bold uppercase tracking-wider min-h-[44px]"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={16} />
                     Sil
                   </button>
                 </div>
@@ -668,7 +665,7 @@ const Portfolio = () => {
             <div className="space-y-8">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 block ml-1">Miktar (Adet)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 block ml-1">Miktar (Adet)</label>
                   <input
                     type="number"
                     placeholder="0.00"
@@ -679,7 +676,7 @@ const Portfolio = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 block ml-1">Alış Fiyatı ($)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 block ml-1">Alış Fiyatı ($)</label>
                   <input
                     type="number"
                     placeholder="0.00"
@@ -699,7 +696,7 @@ const Portfolio = () => {
                 Portföye Güvenle Kaydet
               </button>
 
-              <p className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">Kayıt işlemi Tiingo Market Feed ile senkronize edilir</p>
+              <p className="text-center text-xs text-slate-600 font-bold uppercase tracking-[0.2em]">Kayıt işlemi Tiingo Market Feed ile senkronize edilir</p>
             </div>
           </div>
         </div>

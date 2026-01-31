@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { formatTicker } from '../lib/tickerUtils';
 import api from "../lib/api";
 import {
   Search,
@@ -16,7 +17,13 @@ import {
   BookOpen,
   PenTool,
   Trash2,
-  X
+  X,
+  Sparkles,
+  Loader2,
+  ChevronRight,
+  Minus,
+  ExternalLink,
+  Clock
 } from 'lucide-react';
 import {
   AreaChart,
@@ -36,6 +43,8 @@ const Screener = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Mobile Sidebar State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -45,6 +54,11 @@ const Screener = () => {
   const [analysisData, setAnalysisData] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [activeRange, setActiveRange] = useState("1 Ay");
+
+  // AI Analysis State
+  const [analyzingNewsId, setAnalyzingNewsId] = useState(null);
+  const [analyses, setAnalyses] = useState({}); // Store analysis by ID: { [id]: { analysis, sentiment } }
+
   const [periodPerformances, setPeriodPerformances] = useState({});
   const [chartType, setChartType] = useState('area');
   const [language, setLanguage] = useState('en'); // Language for company description
@@ -455,9 +469,75 @@ const Screener = () => {
     }));
   };
 
-  const filteredStocks = stocks.filter(stock =>
-    stock.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getSentimentColor = (sentiment) => {
+    switch (sentiment) {
+      case 'POSITIVE': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+      case 'NEGATIVE': return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+      case 'NEUTRAL': return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+      default: return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+    }
+  };
+
+  const getSentimentIcon = (sentiment) => {
+    switch (sentiment) {
+      case 'POSITIVE': return <TrendingUp size={16} />;
+      case 'NEGATIVE': return <TrendingDown size={16} />;
+      case 'NEUTRAL': return <Minus size={16} />;
+      default: return <Sparkles size={16} />;
+    }
+  };
+
+  const getSentimentLabel = (sentiment) => {
+    switch (sentiment) {
+      case 'POSITIVE': return 'Yükseliş Beklentisi';
+      case 'NEGATIVE': return 'Düşüş Riski';
+      case 'NEUTRAL': return 'Nötr Etki';
+      default: return 'Hata';
+    }
+  };
+
+  const timeAgo = (dateStr) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffHrs = Math.floor(diffMs / 3600000);
+    if (diffHrs < 1) return "Az önce";
+    if (diffHrs < 24) return `${diffHrs} saat önce`;
+    return `${Math.floor(diffHrs / 24)} gün önce`;
+  };
+
+  // Debounce Search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchTerm.length > 1) {
+        setIsSearching(true);
+        try {
+          // Use our new backend proxy for Tiingo Search
+          const response = await api.get(`/search?query=${searchTerm}`);
+          if (response.data.ok) {
+            setSearchResults(response.data.data);
+          }
+        } catch (err) {
+          console.error("Search error", err);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const handleStockClick = (stockSymbol) => {
+    // Format ticker (e.g. dots to hyphens)
+    const formatted = formatTicker(stockSymbol);
+    setSearchTerm("");
+    setSearchResults([]);
+    setIsSidebarOpen(false);
+    navigate(`/screener/${formatted}`);
+  };
 
   return (
     <div className="flex h-screen bg-[#0a0f1c] text-white overflow-hidden font-sans">
@@ -500,15 +580,37 @@ const Screener = () => {
             </button>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <div className="relative group z-50">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-500" />
             <input
               type="text"
-              placeholder="Sembol ara..."
+              placeholder="Sembol ara (Tüm Piyasa)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-[#2a2e39] border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full transition-all text-slate-200"
+              className="bg-[#2a2e39] border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full transition-all text-slate-200 placeholder:text-slate-500"
             />
+            {isSearching && <RefreshCw className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-indigo-500" />}
+
+            {/* SEARCH DROPDOWN RESULTS */}
+            {searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[#2a2e39] border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar z-[60]">
+                {searchResults.map((item) => (
+                  <div
+                    key={item.ticker || item.symbol} // Tiingo uses 'ticker', local state uses 'symbol'
+                    onClick={() => handleStockClick(item.ticker || item.symbol)}
+                    className="px-4 py-3 hover:bg-[#323846] cursor-pointer border-b border-slate-800 flex items-center justify-between group"
+                  >
+                    <div>
+                      <div className="font-bold text-sm text-white group-hover:text-indigo-400">{item.ticker || item.symbol}</div>
+                      <div className="text-[10px] text-slate-400 truncate max-w-[180px]">{item.name}</div>
+                    </div>
+                    <div className="text-[9px] uppercase font-bold text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap">
+                      {item.assetType || 'Stock'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -522,7 +624,7 @@ const Screener = () => {
             <div className="p-4 text-xs text-rose-500 text-center">{error}</div>
           ) : (
             <div className="flex flex-col">
-              {filteredStocks.map((stock) => (
+              {stocks.map((stock) => (
                 <div
                   key={stock.symbol}
                   onClick={() => {
@@ -819,20 +921,92 @@ const Screener = () => {
               </h3>
               <div className="space-y-2 md:space-y-3">
                 {analysisData?.news?.length > 0 ? (
-                  analysisData.news.map((item) => (
-                    <a
-                      key={item.id}
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 md:p-4 bg-[#1e222d] border border-slate-800 rounded-xl hover:bg-slate-800 transition-all group"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[10px] md:text-xs font-black text-indigo-400 mb-1">{item.source} • {new Date(item.date).toLocaleDateString('tr-TR')}</div>
-                        <h4 className="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white transition-colors line-clamp-2 md:line-clamp-1">{item.title}</h4>
+                  analysisData.news.slice(0, 8).map((item) => (
+                    <div key={item.id} className="bg-[#1e222d] border border-slate-800 rounded-xl p-4 hover:bg-slate-800/50 transition-all group">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold rounded border border-indigo-500/20">{item.source}</span>
+                            <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {timeAgo(item.date)}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors leading-tight">{item.title}</h4>
+                        </div>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 bg-slate-800 hover:bg-indigo-500/20 text-slate-500 hover:text-indigo-400 rounded-lg transition-colors"
+                        >
+                          <ExternalLink size={16} />
+                        </a>
                       </div>
-                      <ArrowUpRight className="text-slate-600 group-hover:text-indigo-400 transition-colors ml-3 md:ml-4 shrink-0 w-4 h-4 md:w-[18px] md:h-[18px]" />
-                    </a>
+
+                      {/* AI Analysis Button */}
+                      <div className="mt-3">
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            if (analyzingNewsId === item.id) return;
+
+                            setAnalyzingNewsId(item.id);
+                            try {
+                              const res = await api.post("/ai/news-analyze", {
+                                title: item.title,
+                                symbol: symbol,
+                                description: item.description || ""
+                              });
+
+                              setAnalyses(prev => ({
+                                ...prev,
+                                [item.id]: res.data.data // Correctly access the nested data object
+                              }));
+                            } catch (err) {
+                              console.error("Analysis failed", err);
+                              alert("AI Analysis failed. Please try again.");
+                            } finally {
+                              setAnalyzingNewsId(null);
+                            }
+                          }}
+                          disabled={analyzingNewsId === item.id}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-[10px] uppercase text-white transition-all shadow-md shadow-indigo-600/20 w-fit"
+                        >
+                          {analyzingNewsId === item.id ? (
+                            <>
+                              <Loader2 size={12} className="animate-spin" />
+                              Analiz Ediliyor...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={12} />
+                              FinBot Analiz
+                              <ChevronRight size={12} />
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* AI Analysis Result (Inline) */}
+                      {analyses[item.id] && (
+                        <div className="mt-3 p-3 bg-[#0f172a] rounded-xl border border-slate-700/50 animate-in fade-in duration-500">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg font-bold text-[10px] uppercase border ${getSentimentColor(analyses[item.id].sentiment)}`}>
+                              {getSentimentIcon(analyses[item.id].sentiment)}
+                              {getSentimentLabel(analyses[item.id].sentiment)}
+                            </div>
+                            <div className="flex items-center gap-1 text-[9px] text-slate-600 font-bold ml-auto">
+                              <Sparkles size={10} />
+                              FinBot AI
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                            {analyses[item.id].analysis}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   ))
                 ) : (
                   <div className="p-6 md:p-8 text-center text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl text-xs md:text-sm">

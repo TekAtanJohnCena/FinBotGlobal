@@ -2,6 +2,8 @@
 import tiingoClient from './tiingoClient.js';
 import cache from '../cache/cacheService.js';
 
+import { formatTicker } from '../../utils/tickerFormatter.js';
+
 const FUNDAMENTALS_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
@@ -10,7 +12,7 @@ const FUNDAMENTALS_TTL = 24 * 60 * 60 * 1000; // 24 hours
  * @returns {Promise<Object>} - Financial fundamentals
  */
 export async function getFundamentals(ticker) {
-    const normalizedTicker = ticker?.toUpperCase().replace('.IS', '');
+    const normalizedTicker = formatTicker(ticker);
     if (!normalizedTicker) {
         throw new Error('Ticker is required');
     }

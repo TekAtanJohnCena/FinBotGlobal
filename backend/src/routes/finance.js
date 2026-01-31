@@ -7,7 +7,7 @@ const router = express.Router();
 function normalizeUSSymbol(raw) {
   const s = String(raw || "").trim().toUpperCase();
   if (!s) return null;
-  return s.replace(".IS", ""); // Remove legacy BIST extension
+  return s; // Remove legacy BIST extension logic removed
 }
 
 /**

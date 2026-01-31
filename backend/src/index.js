@@ -30,6 +30,7 @@ import apiRoutes from "./routes/api.js";
 import newsRoutes from "./routes/news.js";
 import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"; // Subscription Management
+import stockRoutes from "./routes/stocks.js"; // US Stock Database
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -91,6 +92,7 @@ app.use("/api", apiRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/ai", aiRoutes); // Dedicated AI endpoints (lazy-loaded)
 app.use("/api/subscription", subscriptionRoutes); // Subscription Management
+app.use("/api/stocks", stockRoutes); // US Stock Database
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);

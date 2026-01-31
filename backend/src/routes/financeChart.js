@@ -59,8 +59,8 @@ router.get("/chart", async (req, res) => {
       return res.status(400).json({ ok: false, error: "symbol required" });
     }
 
-    // Remove legacy .IS suffix for BIST compatibility
-    const ticker = raw.replace('.IS', '');
+    // Remove legacy .IS suffix for BIST compatibility - REMOVED
+    const ticker = raw;
     const range = String(req.query.range || "6mo");
 
     console.log("[chart] Request:", { ticker, range });
@@ -106,7 +106,7 @@ router.get("/chart", async (req, res) => {
  */
 router.get("/candles/:ticker", async (req, res) => {
   try {
-    const ticker = req.params.ticker?.toUpperCase().replace('.IS', '');
+    const ticker = req.params.ticker?.toUpperCase();
     const range = String(req.query.range || "3mo");
 
     const { startDate, endDate } = getDateRange(range);

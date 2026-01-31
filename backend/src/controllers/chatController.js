@@ -78,17 +78,15 @@ function cleanTicker(rawTicker) {
 
   let ticker = rawTicker.toUpperCase().trim();
 
-  // .IS uzantısını kaldır (örn: AAPL.IS -> AAPL)
-  if (ticker.endsWith(".IS")) {
-    const baseTicker = ticker.replace(".IS", "");
-    log.debug("TICKER", `".IS" uzantısı kaldırıldı: ${ticker} -> ${baseTicker}`);
-    ticker = baseTicker;
-  }
-
-  // Diğer borsa uzantılarını da temizle
-  ticker = ticker.replace(/\.(NS|BO|L|T|SS|SZ|HK|AX|TO|SA)$/i, "");
+  // .IS uzantısını kaldır (örn: AAPL.IS -> AAPL) - REMOVED for US Focus
+  // if (ticker.endsWith(".IS")) {
+  //   const baseTicker = ticker.replace(".IS", "");
+  //   log.debug("TICKER", `".IS" uzantısı kaldırıldı: ${ticker} -> ${baseTicker}`);
+  //   ticker = baseTicker;
+  // }
 
   return ticker;
+
 }
 
 /**

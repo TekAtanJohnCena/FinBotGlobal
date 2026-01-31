@@ -1,53 +1,32 @@
-import { useState, useEffect, useContext, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext, useRef, useMemo } from "react";
 import { AuthContext } from "../context/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
+import { useQuery } from '@tanstack/react-query';
+import api from "../lib/api";
 import {
-  Wallet,
-  TrendingUp,
-  TrendingDown,
-  Sparkles,
-  Send,
-  Clock,
-  DollarSign,
-  Coffee,
-  ShoppingBag,
-  Zap,
-  Gift,
-  Car,
-  Home,
-  Plane,
-  CreditCard,
-  PlusCircle,
-  Trash2,
-  RefreshCw,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Timer,
-  LineChart,
-  ArrowUpRight,
-  ArrowDownRight,
-  HandCoins,
-  Banknote
+  Wallet, TrendingUp, TrendingDown, Send, Clock,
+  CreditCard, PlusCircle, Trash2, RefreshCw, Eye, EyeOff,
+  LineChart, HandCoins, Banknote,
+  PieChart as PieIcon, ArrowLeftRight, Activity, Download
 } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-// Category detection and icons
+// --- CONFIGURATION ---
 const CATEGORIES = {
-  income: { label: "Gelir", color: "emerald", icon: TrendingUp, keywords: ["maaş", "harçlık", "bayram", "hediye", "ödeme aldım", "kazandım", "gelir"] },
-  expense: { label: "Gider", color: "rose", icon: TrendingDown, keywords: ["market", "fatura", "yemek", "kahve", "kira", "alışveriş", "aldım", "ödedim", "harcadım"] },
-  debt_out: { label: "Borç Verdim", color: "amber", icon: HandCoins, keywords: ["borç verdim", "arkadaşa", "verdiğim"] },
-  debt_in: { label: "Borç Aldım", color: "purple", icon: CreditCard, keywords: ["borç aldım", "aldığım borç", "ödeyeceğim"] }
+  income: { label: "Gelir", color: "#10b981", bg: "bg-emerald-500/20", text: "text-emerald-400", icon: TrendingUp, keywords: ["maaş", "harçlık", "bayram", "hediye", "ödeme", "kazanç", "gelir"] },
+  expense: { label: "Gider", color: "#f43f5e", bg: "bg-rose-500/20", text: "text-rose-400", icon: TrendingDown, keywords: ["market", "fatura", "yemek", "kira", "alışveriş", "harcama", "gider"] },
+  investment: { label: "Yatırım", color: "#8b5cf6", bg: "bg-violet-500/20", text: "text-violet-400", icon: LineChart, keywords: ["hisse", "altın", "döviz", "fon", "kripto", "yatırım"] },
+  debt_out: { label: "Borç Verdim", color: "#f59e0b", bg: "bg-amber-500/20", text: "text-amber-400", icon: HandCoins, keywords: ["borç ver", "verdim"] },
+  debt_in: { label: "Borç Aldım", color: "#6366f1", bg: "bg-indigo-500/20", text: "text-indigo-400", icon: CreditCard, keywords: ["borç al", "aldım"] }
 };
 
-// Smart text parser
 const parseEntry = (text) => {
   const lowerText = text.toLowerCase().trim();
   let type = "expense";
   let amount = 0;
   let description = text;
 
-  const amountMatch = text.match(/(\d+[\.,]?\d*)\s*(tl|₺)?/i);
+  const amountMatch = text.match(/(\d+[.,]?\d*)\s*(tl|₺|\$)?/i);
   if (amountMatch) {
     amount = parseFloat(amountMatch[1].replace(",", "."));
     description = text.replace(amountMatch[0], "").trim();
@@ -65,282 +44,282 @@ const parseEntry = (text) => {
 
 export default function WalletPage() {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
   const inputRef = useRef(null);
 
+  // State
   const [entries, setEntries] = useState([]);
   const [inputText, setInputText] = useState("");
-  const [isTimeMachine, setIsTimeMachine] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
-  const [totalBalance, setTotalBalance] = useState(0);
-  const [projectedWealth, setProjectedWealth] = useState(0);
 
-  useEffect(() => { loadData(); }, []);
+  // --- INTEGRATED DATA START ---
+  // Fetch Portfolio Data to merge with Wallet
+  const { data: portfolioRes } = useQuery({
+    queryKey: ['portfolio'],
+    queryFn: async () => (await api.get('/portfolio')).data,
+    staleTime: 60000,
+  });
 
+  const portfolioValue = portfolioRes?.totals?.totalValue || 0;
+  const portfolioPnL = portfolioRes?.totals?.totalPnl || 0;
+  // --- INTEGRATED DATA END ---
+
+  // Load Wallet Data
   useEffect(() => {
-    const total = entries.reduce((acc, e) => {
-      if (e.type === "income" || e.type === "debt_in") return acc + e.amount;
-      if (e.type === "expense" || e.type === "debt_out") return acc - e.amount;
-      return acc;
-    }, 0);
-    setTotalBalance(total);
-    const avgMonthlyNet = total / Math.max(1, getMonthsOfData());
-    setProjectedWealth(total + (avgMonthlyNet * 60 * 1.08));
-  }, [entries]);
-
-  const getMonthsOfData = () => {
-    if (entries.length === 0) return 1;
-    const oldest = new Date(Math.min(...entries.map(e => new Date(e.date))));
-    return Math.max(1, (new Date() - oldest) / (1000 * 60 * 60 * 24 * 30));
-  };
-
-  const getUserKey = () => user?.email || user?._id || "guest";
-
-  const loadData = () => {
-    const saved = localStorage.getItem(`finbot_wallet_v2_${getUserKey()}`);
+    const saved = localStorage.getItem(`finbot_wallet_v2_${user?.email || "guest"}`);
     if (saved) {
       setEntries(JSON.parse(saved).entries || []);
     } else {
-      setEntries([
-        { id: "1", type: "income", amount: 35000, description: "Maaş", date: new Date().toISOString(), rawText: "Maaş 35000TL" },
-        { id: "2", type: "expense", amount: 2500, description: "Market alışverişi", date: new Date(Date.now() - 86400000).toISOString(), rawText: "Market 2500TL" },
-        { id: "3", type: "expense", amount: 450, description: "Elektrik faturası", date: new Date(Date.now() - 172800000).toISOString(), rawText: "Elektrik faturası 450" },
-        { id: "4", type: "debt_out", amount: 500, description: "Arkadaşa borç", date: new Date(Date.now() - 259200000).toISOString(), rawText: "Arkadaşa borç 500TL" },
-        { id: "ai_insight", type: "ai_insight", message: "Bu ayki tasarrufunla 5 yıl önceki Apple hissesinden +$2,450 kârdaydın! 📈", date: new Date(Date.now() - 345600000).toISOString() }
-      ]);
+      // Default Data
+      const defaults = [
+        { id: "1", type: "income", amount: 35000, description: "Maaş", date: new Date().toISOString(), status: "completed" },
+        { id: "2", type: "expense", amount: 2500, description: "Market", date: new Date(Date.now() - 86400000).toISOString(), status: "completed" },
+        { id: "3", type: "investment", amount: 5000, description: "Borsa Transfer", date: new Date(Date.now() - 172800000).toISOString(), status: "completed" }
+      ];
+      setEntries(defaults);
+      localStorage.setItem(`finbot_wallet_v2_${user?.email || "guest"}`, JSON.stringify({ entries: defaults }));
     }
-  };
+  }, [user]);
 
-  const saveData = (newEntries) => {
-    localStorage.setItem(`finbot_wallet_v2_${getUserKey()}`, JSON.stringify({ entries: newEntries }));
-    setEntries(newEntries);
-  };
+  // Derived Calculations
+  const { netWealth, assetAllocation } = useMemo(() => {
+    const cash = entries.reduce((acc, e) => {
+      if (["income", "debt_in"].includes(e.type)) return acc + e.amount;
+      if (["expense", "debt_out", "investment"].includes(e.type)) return acc - e.amount;
+      return acc;
+    }, 0);
 
-  const handleSubmit = (e) => {
+    const wealth = cash + portfolioValue;
+
+    const allocation = [
+      { name: "Nakit", value: cash > 0 ? cash : 0, color: "#10b981" },
+      { name: "Portföy", value: portfolioValue, color: "#6366f1" } // Portfolio (Stocks)
+    ].filter(i => i.value > 0);
+
+    return { cashBalance: cash, netWealth: wealth, assetAllocation: allocation };
+  }, [entries, portfolioValue]);
+
+  // Actions
+  const handleAddEntry = (e) => {
     e?.preventDefault();
     if (!inputText.trim()) return;
     const parsed = parseEntry(inputText);
-    if (parsed.amount <= 0) { toast.error("Lütfen geçerli bir tutar girin"); return; }
-    const newEntry = { id: Date.now().toString(), ...parsed, date: new Date().toISOString() };
-    saveData([newEntry, ...entries]);
+    if (parsed.amount <= 0) { toast.error("Geçersiz tutar"); return; }
+
+    const newEntry = {
+      id: Date.now().toString(),
+      ...parsed,
+      date: new Date().toISOString(),
+      status: "completed"
+    };
+
+    const newEntries = [newEntry, ...entries];
+    setEntries(newEntries);
+    localStorage.setItem(`finbot_wallet_v2_${user?.email || "guest"}`, JSON.stringify({ entries: newEntries }));
     setInputText("");
-    toast.success(`${CATEGORIES[parsed.type].label}: ₺${parsed.amount.toLocaleString('tr-TR')}`);
+    toast.success("İşlem Eklendi");
   };
 
-  const deleteEntry = (id) => { saveData(entries.filter(e => e.id !== id)); toast.success("Silindi"); };
-
-  const getCategoryColor = (type) => ({
-    income: "from-emerald-500/20 to-emerald-500/5 border-emerald-500/40",
-    expense: "from-rose-500/20 to-rose-500/5 border-rose-500/40",
-    debt_out: "from-amber-500/20 to-amber-500/5 border-amber-500/40",
-    debt_in: "from-purple-500/20 to-purple-500/5 border-purple-500/40",
-    ai_insight: "from-indigo-500/20 to-purple-500/5 border-indigo-500/40"
-  }[type] || "from-rose-500/20 to-rose-500/5 border-rose-500/40");
-
-  const getTextColor = (type) => ({ income: "text-emerald-400", expense: "text-rose-400", debt_out: "text-amber-400", debt_in: "text-purple-400" }[type] || "text-slate-300");
-
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const diff = new Date() - date;
-    if (diff < 86400000) return "Bugün";
-    if (diff < 172800000) return "Dün";
-    if (diff < 604800000) return date.toLocaleDateString('tr-TR', { weekday: 'long' });
-    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+  const deleteEntry = (id) => {
+    const newEntries = entries.filter(e => e.id !== id);
+    setEntries(newEntries);
+    localStorage.setItem(`finbot_wallet_v2_${user?.email || "guest"}`, JSON.stringify({ entries: newEntries }));
+    toast.success("Silindi");
   };
-
-  const groupEntriesByDate = () => {
-    const groups = {};
-    entries.forEach(entry => {
-      const dateKey = formatDate(entry.date);
-      if (!groups[dateKey]) groups[dateKey] = [];
-      groups[dateKey].push(entry);
-    });
-    return groups;
-  };
-
-  const monthlyIncome = entries.filter(e => e.type === "income").reduce((a, e) => a + e.amount, 0);
-  const monthlyExpense = entries.filter(e => e.type === "expense").reduce((a, e) => a + e.amount, 0);
-  const groupedEntries = groupEntriesByDate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0e1a] via-[#0d1321] to-[#0a0e1a] text-white">
-      <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#fff', borderRadius: '16px' } }} />
+    <div className="flex flex-col h-full w-full bg-[#0a0f1c] text-white font-sans overflow-hidden">
+      <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#fff' } }} />
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-32">
+      {/* --- SCROLLABLE CONTENT --- */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 pb-32 lg:pb-8">
+        <div className="max-w-5xl mx-auto space-y-6">
 
-        {/* HEADER */}
-        <div className="pt-6 pb-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <Wallet className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg lg:text-2xl font-bold text-white">Hibrit Cüzdan</h1>
-                <p className="text-[10px] lg:text-xs text-slate-500 uppercase tracking-wider font-medium">Akıllı Finans Takibi</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsTimeMachine(!isTimeMachine)}
-              className={`flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-[10px] lg:text-xs font-bold uppercase tracking-wide transition-all ${isTimeMachine ? "bg-purple-500/20 text-purple-400 border border-purple-500/40" : "bg-slate-800/50 text-slate-400 border border-slate-700"}`}
-            >
-              <Timer className="w-3 h-3 lg:w-4 lg:h-4" />
-              {isTimeMachine ? "Zaman Makinesi" : "Güncel"}
-            </button>
-          </div>
+          {/* 1. HEADER & BALANCE CARD */}
+          <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#1e222d] to-[#13151b] border border-slate-800 p-6 lg:p-8 shadow-2xl">
+            {/* Background Effects */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-          {/* Desktop: 3-Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-            {/* Balance Card - 2 columns */}
-            <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl p-6 lg:p-8 border border-slate-700/50 shadow-2xl">
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
-
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs lg:text-sm text-slate-400 uppercase tracking-wider font-medium">
-                    {isTimeMachine ? "5 Yıllık Projeksiyon" : "Mevcut Bakiye"}
-                  </p>
-                  <button onClick={() => setShowBalance(!showBalance)} className="text-slate-500 hover:text-white transition">
-                    {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  </button>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 w-fit">
+                  <Wallet className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Toplam Varlıklar</span>
                 </div>
+                <button onClick={() => setShowBalance(!showBalance)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white">
+                  {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
 
-                <div className="flex items-baseline gap-2 mb-4 lg:mb-6">
-                  <span className="text-4xl lg:text-6xl font-black text-white tracking-tight">
-                    {showBalance ? `₺${(isTimeMachine ? projectedWealth : totalBalance).toLocaleString('tr-TR', { maximumFractionDigits: 0 })}` : "••••••"}
+              <div className="flex flex-col gap-1 mb-8">
+                <h1 className="text-4xl lg:text-6xl font-black tracking-tighter text-white">
+                  {showBalance ? `₺${netWealth.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}` : "••••••"}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-bold flex items-center gap-1 ${portfolioPnL >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                    {portfolioPnL >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    Portföy Etkisi: {portfolioPnL >= 0 ? "+" : ""}${Math.abs(portfolioPnL).toLocaleString()}
                   </span>
-                  {isTimeMachine && (
-                    <span className="text-emerald-400 text-sm lg:text-base font-bold flex items-center gap-1">
-                      <ArrowUpRight className="w-4 h-4" /> +{((projectedWealth / Math.max(1, totalBalance) - 1) * 100).toFixed(0)}%
-                    </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div className="bg-emerald-500/10 rounded-xl px-3 py-2 border border-emerald-500/20">
-                    <div className="flex items-center gap-1.5 mb-0.5"><ArrowUpRight className="w-3 h-3 text-emerald-400" /><span className="text-[10px] text-emerald-300/80 uppercase font-bold">Gelir</span></div>
-                    <p className="text-sm lg:text-base font-bold text-emerald-400">₺{monthlyIncome.toLocaleString('tr-TR')}</p>
-                  </div>
-                  <div className="bg-rose-500/10 rounded-xl px-3 py-2 border border-rose-500/20">
-                    <div className="flex items-center gap-1.5 mb-0.5"><ArrowDownRight className="w-3 h-3 text-rose-400" /><span className="text-[10px] text-rose-300/80 uppercase font-bold">Gider</span></div>
-                    <p className="text-sm lg:text-base font-bold text-rose-400">₺{monthlyExpense.toLocaleString('tr-TR')}</p>
-                  </div>
-                  <div className="hidden lg:block bg-amber-500/10 rounded-xl px-3 py-2 border border-amber-500/20">
-                    <div className="flex items-center gap-1.5 mb-0.5"><HandCoins className="w-3 h-3 text-amber-400" /><span className="text-[10px] text-amber-300/80 uppercase font-bold">Net</span></div>
-                    <p className="text-sm lg:text-base font-bold text-amber-400">₺{(monthlyIncome - monthlyExpense).toLocaleString('tr-TR')}</p>
-                  </div>
-                  <div className="hidden lg:block bg-purple-500/10 rounded-xl px-3 py-2 border border-purple-500/20">
-                    <div className="flex items-center gap-1.5 mb-0.5"><LineChart className="w-3 h-3 text-purple-400" /><span className="text-[10px] text-purple-300/80 uppercase font-bold">İşlem</span></div>
-                    <p className="text-sm lg:text-base font-bold text-purple-400">{entries.filter(e => e.type !== 'ai_insight').length}</p>
-                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Quick Actions Panel - Desktop */}
-            <div className="hidden lg:flex flex-col gap-4">
-              <div className="flex-1 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-2xl p-5 border border-slate-700/50">
-                <h3 className="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" />Hızlı Eylemler</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {[{ label: "Market", emoji: "🛒", text: "Market " }, { label: "Fatura", emoji: "⚡", text: "Fatura " }, { label: "Maaş", emoji: "💰", text: "Maaş " }, { label: "Borç", emoji: "💳", text: "Borç verdim " }].map((action) => (
-                    <button key={action.label} onClick={() => { setInputText(action.text); inputRef.current?.focus(); }} className="p-3 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 rounded-xl text-left transition group">
-                      <span className="text-xl mb-1 block">{action.emoji}</span>
-                      <span className="text-xs font-medium text-slate-400 group-hover:text-white">{action.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl p-4 border border-indigo-500/30">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center"><Sparkles className="w-4 h-4 text-white" /></div>
-                  <div><p className="text-[10px] text-indigo-400 font-bold uppercase mb-1">AI İpucu</p><p className="text-xs text-slate-400 leading-relaxed">Sadece yaz: "Market 500TL" veya "Maaş 35000"</p></div>
-                </div>
+              {/* ACTION HUB */}
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: "Ekle", icon: PlusCircle, color: "text-emerald-400", bg: "bg-emerald-500/10", action: () => inputRef.current?.focus() },
+                  { label: "Çek", icon: Download, color: "text-rose-400", bg: "bg-rose-500/10", action: () => toast("Çekim işlemi simülasyonu") },
+                  { label: "Transfer", icon: ArrowLeftRight, color: "text-indigo-400", bg: "bg-indigo-500/10", action: () => toast("Transfer işlemi simülasyonu") },
+                  { label: "Dönüştür", icon: RefreshCw, color: "text-amber-400", bg: "bg-amber-500/10", action: () => toast("Döviz dönüşüm") },
+                ].map((btn, idx) => (
+                  <button key={idx} onClick={btn.action} className="flex flex-col items-center gap-2 group">
+                    <div className={`w-14 h-14 ${btn.bg} rounded-2xl flex items-center justify-center border border-white/5 group-hover:scale-105 transition-transform shadow-lg`}>
+                      <btn.icon className={`w-6 h-6 ${btn.color}`} />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-white transition-colors">{btn.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* SMART FEED - 2 Columns on Desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          {Object.entries(groupedEntries).map(([dateLabel, dayEntries]) => (
-            <div key={dateLabel} className="lg:contents">
-              {dayEntries.map((entry) => {
-                if (entry.type === "ai_insight") {
-                  return (
-                    <div key={entry.id} className="relative bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-4 border border-indigo-500/30 shadow-lg shadow-indigo-500/5">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg"><Sparkles className="w-4 h-4 text-white" /></div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-1">Zaman Makinesi İçgörüsü</p>
-                          <p className="text-sm text-slate-200 leading-relaxed">{entry.message}</p>
-                        </div>
-                      </div>
-                      <button onClick={() => navigate("/portfolio")} className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-xl text-indigo-300 text-xs font-bold transition">
-                        Simülasyonu Keşfet <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  );
-                }
-                const IconComponent = CATEGORIES[entry.type]?.icon || DollarSign;
+          {/* 2. ANALYTICS SECTION (Allocation & PnL) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Asset Allocation Chart */}
+            <div className="bg-[#1e222d] border border-slate-800 rounded-3xl p-6 relative">
+              <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <PieIcon size={14} className="text-indigo-400" /> Varlık Dağılımı
+              </h3>
+              <div className="h-48 flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={assetAllocation} innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
+                      {assetAllocation.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1e222d', borderRadius: '12px', border: '1px solid #334155', color: '#fff' }}
+                      itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-center gap-4 mt-2">
+                {assetAllocation.map(i => (
+                  <div key={i.name} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: i.color }} />
+                    <span className="text-xs font-bold text-slate-400">{i.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Simulated PnL / Activity Chart */}
+            <div className="bg-[#1e222d] border border-slate-800 rounded-3xl p-6">
+              <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Activity size={14} className="text-emerald-400" /> Hareket Analizi (7 Gün)
+              </h3>
+              <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={entries.slice(0, 7).reverse()}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} vertical={false} />
+                    <XAxis dataKey="type" hide />
+                    <YAxis hide />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                      contentStyle={{ backgroundColor: '#1e222d', borderRadius: '12px', border: '1px solid #334155', color: '#fff' }}
+                    />
+                    <Bar dataKey="amount" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. TRANSACTION HISTORY */}
+          <div>
+            <div className="flex items-center justify-between mb-4 px-1">
+              <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Clock size={16} className="text-slate-500" /> Son İşlemler
+              </h3>
+              <button onClick={() => setEntries([])} className="text-[10px] font-bold text-rose-500 hover:text-rose-400 uppercase tracking-widest bg-rose-500/10 px-3 py-1.5 rounded-lg transition-colors">
+                Geçmişi Temizle
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {entries.map((entry) => {
+                const Cat = CATEGORIES[entry.type] || CATEGORIES.expense;
+                const Icon = Cat.icon;
                 return (
-                  <div key={entry.id} className={`relative bg-gradient-to-r ${getCategoryColor(entry.type)} backdrop-blur-sm rounded-2xl p-4 border shadow-lg group`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${entry.type === "income" ? "bg-emerald-500/20" : entry.type === "expense" ? "bg-rose-500/20" : entry.type === "debt_out" ? "bg-amber-500/20" : "bg-purple-500/20"}`}>
-                          <IconComponent className={`w-5 h-5 ${getTextColor(entry.type)}`} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-white truncate">{entry.description}</p>
-                          <p className="text-[10px] text-slate-500 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatDate(entry.date)} • {new Date(entry.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                            <span className={`ml-1 px-1.5 py-0.5 rounded ${entry.type === "income" ? "bg-emerald-500/20 text-emerald-400" : entry.type === "expense" ? "bg-rose-500/20 text-rose-400" : entry.type === "debt_out" ? "bg-amber-500/20 text-amber-400" : "bg-purple-500/20 text-purple-400"}`}>
-                              {CATEGORIES[entry.type]?.label}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-lg font-bold ${getTextColor(entry.type)}`}>
-                          {entry.type === "income" || entry.type === "debt_in" ? "+" : "-"}₺{entry.amount.toLocaleString('tr-TR')}
+                  <div key={entry.id} className="group relative bg-[#1e222d] hover:bg-[#252a37] border border-slate-800 rounded-2xl p-4 transition-all flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl ${Cat.bg} flex items-center justify-center border border-white/5`}>
+                      <Icon className={`w-6 h-6 ${Cat.text}`} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="text-sm font-bold text-white truncate capitalize">{entry.description}</h4>
+                        <span className={`text-sm font-black ${["income", "debt_in"].includes(entry.type) ? "text-emerald-400" : "text-rose-400"}`}>
+                          {["income", "debt_in"].includes(entry.type) ? "+" : "-"}₺{entry.amount.toLocaleString('tr-TR')}
                         </span>
-                        <button onClick={() => deleteEntry(entry.id)} className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-slate-700/50 rounded-lg transition"><Trash2 className="w-4 h-4 text-slate-500" /></button>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                        <span className="bg-slate-800 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider text-slate-400 border border-slate-700/50">
+                          {entry.status === "completed" ? "Tamamlandı" : "İşleniyor"}
+                        </span>
+                        <span>{new Date(entry.date).toLocaleDateString("tr-TR", { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </div>
+
+                    <button onClick={() => deleteEntry(entry.id)} className="absolute right-4 opacity-0 group-hover:opacity-100 p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all">
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 );
               })}
-            </div>
-          ))}
-        </div>
 
-        {entries.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 mx-auto mb-4 bg-slate-800 rounded-2xl flex items-center justify-center"><Banknote className="w-8 h-8 text-slate-600" /></div>
-            <p className="text-slate-500 text-sm">Henüz işlem yok</p>
-            <p className="text-slate-600 text-xs mt-1">Aşağıdan harcama veya gelir ekle</p>
+              {entries.length === 0 && (
+                <div className="text-center py-20 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700">
+                  <Banknote className="w-12 h-12 mx-auto text-slate-600 mb-3" />
+                  <p className="text-sm font-bold text-slate-500">Henüz işlem bulunmuyor</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+        </div>
       </div>
 
-      {/* FLOATING INPUT BAR */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a0e1a] via-[#0a0e1a]/95 to-transparent pt-16">
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-          <div className="relative bg-slate-800/90 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl shadow-black/50">
-            <input ref={inputRef} type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="Borç, harçlık veya gider yaz..." className="w-full bg-transparent px-5 py-4 pr-14 text-white placeholder:text-slate-500 focus:outline-none text-sm lg:text-base" />
-            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all active:scale-95">
-              <Send className="w-5 h-5" />
+      {/* --- FLOATING INPUT BAR --- */}
+      <div className="bg-[#1e222d] border-t border-slate-800 p-4 pb-8 lg:pb-4 safe-area-bottom z-20">
+        <div className="max-w-2xl mx-auto">
+          <form onSubmit={handleAddEntry} className="relative">
+            <input
+              ref={inputRef}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              disabled={false}
+              placeholder="Örn: Market 500, Maaş 35000..."
+              className="w-full bg-[#0a0f1c] text-white px-5 py-4 rounded-2xl border border-slate-700 focus:border-emerald-500 focus:outline-none placeholder:text-slate-600 font-medium text-sm transition-colors pr-14 shadow-inner"
+            />
+            <button type="submit" className="absolute right-2 top-2 p-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white transition-colors shadow-lg shadow-emerald-600/20">
+              <Send size={18} />
             </button>
-          </div>
-          <div className="flex justify-center gap-2 mt-3 lg:hidden">
-            {[{ label: "Market", emoji: "🛒" }, { label: "Fatura", emoji: "⚡" }, { label: "Borç", emoji: "💳" }, { label: "Harçlık", emoji: "🎁" }].map((tag) => (
-              <button key={tag.label} type="button" onClick={() => setInputText(tag.label + " ")} className="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-full text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1">
-                <span>{tag.emoji}</span><span>{tag.label}</span>
+          </form>
+          {/* Quick Tags Mobile */}
+          <div className="flex gap-2 mt-3 overflow-x-auto no-scrollbar lg:justify-center">
+            {["🛒 Market", "⚡ Fatura", "💰 Maaş", "🎁 Hediyem"].map(tag => (
+              <button
+                key={tag}
+                onClick={() => setInputText(tag + " ")}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-400 whitespace-nowrap transition-colors"
+              >
+                {tag}
               </button>
             ))}
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

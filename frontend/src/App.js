@@ -8,6 +8,7 @@ import AppLayout from "./layouts/AppLayout";
 const Landing = lazy(() => import("./pages/Landing"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const PricingSubscription = lazy(() => import("./pages/PricingSubscription"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const AcademyCourseView = lazy(() => import("./pages/AcademyCourseView"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -32,7 +33,7 @@ const WalletPage = lazy(() => import("./pages/Wallet"));
 const FinancialsPage = lazy(() => import("./pages/Financials"));
 const MarketsPage = lazy(() => import("./pages/Markets"));
 const CalendarPage = lazy(() => import("./pages/Calendar"));
-const NewsPage = lazy(() => import("./pages/Kap"));
+const NewsPage = lazy(() => import("./pages/News"));
 
 // --- LAYOUT ---
 // import AppLayout moved to top
@@ -88,6 +89,7 @@ function App() {
           <Route path="/app" element={<MobileApp />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/pricing" element={<PricingSubscription />} />
           <Route
             element={
               <ProtectedRoute>
@@ -104,7 +106,6 @@ function App() {
             <Route path="/markets" element={<MarketsPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/news" element={<NewsPage />} />
-            <Route path="/kap" element={<Navigate to="/news" replace />} />
             <Route path="/academy" element={<AcademyCourseView />} />
             <Route path="/support" element={<Support />} />
             <Route path="/settings" element={<Settings />} />

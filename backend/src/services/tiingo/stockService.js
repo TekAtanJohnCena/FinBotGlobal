@@ -1,7 +1,6 @@
-// PATH: backend/src/services/tiingo/stockService.js
-import tiingoClient from './tiingoClient.js';
-import cache from '../cache/cacheService.js';
-import logger from '../../utils/logger.js';
+// ... (start of file)
+import { formatTicker, isDelisted } from '../../utils/tickerFormatter.js';
+// ...
 
 const PRICE_TTL = 15 * 1000;    // 15 seconds for prices
 const PROFILE_TTL = 24 * 60 * 60 * 1000; // 24 hours for profiles
@@ -13,7 +12,7 @@ const SEARCH_TTL = 5 * 60 * 1000; // 5 minutes for search
  * @returns {Promise<Object>} - Price data
  */
 export async function getPrice(ticker) {
-    const normalizedTicker = ticker?.toUpperCase().replace('.IS', '');
+    const normalizedTicker = formatTicker(ticker);
     if (!normalizedTicker) {
         throw new Error('Ticker is required');
     }
@@ -63,7 +62,7 @@ export async function getPrice(ticker) {
  * @returns {Promise<Object>} - Company profile data
  */
 export async function getProfile(ticker) {
-    const normalizedTicker = ticker?.toUpperCase().replace('.IS', '');
+    const normalizedTicker = formatTicker(ticker);
     if (!normalizedTicker) {
         throw new Error('Ticker is required');
     }
@@ -88,6 +87,7 @@ export async function getProfile(ticker) {
             startDate: data.startDate,
             endDate: data.endDate,
             exchangeCode: data.exchangeCode,
+            isDelisted: isDelisted(data.ticker),
             source: 'tiingo'
         };
 
@@ -146,7 +146,7 @@ export async function searchTicker(query) {
  * @returns {Promise<Array>} - Array of price points
  */
 export async function getHistoricalPrices(ticker, startDate, endDate) {
-    const normalizedTicker = ticker?.toUpperCase().replace('.IS', '');
+    const normalizedTicker = formatTicker(ticker);
 
     // Real API call
     try {
@@ -178,7 +178,7 @@ export async function getBatchPrices(tickers) {
     if (!tickers || !tickers.length) return {};
 
     try {
-        const tickerString = tickers.map(t => t.toUpperCase()).join(',');
+        const tickerString = tickers.map(t => formatTicker(t)).join(',');
         const client = tiingoClient.getClient();
         const response = await client.get(`/iex/${tickerString}`);
 

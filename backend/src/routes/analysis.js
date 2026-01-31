@@ -8,6 +8,7 @@ import express from "express";
 import { analyzeStock, getStockSummary, compareStocks } from "../controllers/stockAnalysisController.js";
 import { getPrice, getProfile } from "../services/tiingo/stockService.js";
 import { getFundamentals } from "../services/tiingo/fundamentalsService.js";
+import { getDistributions, getDistributionYield, getSplits } from "../services/tiingo/corporateActionsService.js";
 import { analyzeQuarter } from "../services/analysis.js";
 
 const router = express.Router();
@@ -28,10 +29,13 @@ router.get("/:ticker", async (req, res) => {
     }
 
     // Fetch data from Tiingo
-    const [priceData, profileData, fundamentalsData] = await Promise.all([
+    const [priceData, profileData, fundamentalsData, distributions, dividendYield, splits] = await Promise.all([
       getPrice(normalizedTicker).catch(() => null),
       getProfile(normalizedTicker).catch(() => null),
-      getFundamentals(normalizedTicker).catch(() => null)
+      getFundamentals(normalizedTicker).catch(() => null),
+      getDistributions(normalizedTicker).catch(() => []),
+      getDistributionYield(normalizedTicker).catch(() => null),
+      getSplits(normalizedTicker).catch(() => [])
     ]);
 
     if (!priceData && !fundamentalsData) {
@@ -59,8 +63,11 @@ router.get("/:ticker", async (req, res) => {
         eps: fundamentalsData?.eps,
         roe: fundamentalsData?.roe,
         roa: fundamentalsData?.roa,
-        debtToEquity: fundamentalsData?.debtToEquity
+        debtToEquity: fundamentalsData?.debtToEquity,
+        dividendYield: dividendYield
       },
+      dividends: distributions,
+      splits: splits, // Add split history
       analysis: analysis?.ratios,
       comments: analysis?.comments,
       source: priceData?.source || 'tiingo'

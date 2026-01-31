@@ -59,7 +59,7 @@ export const translations = {
     app: {
       title: "Finbot Mobil",
       subtitle: "Her Yerden Akıllı Finans",
-      description: "Finbot artık cebinizde! iOS ve Android cihazlarınızda BIST hisselerini analiz edin, portföyünüzü takip edin ve anlık bildirimler alın.",
+      description: "Finbot artık cebinizde! iOS ve Android cihazlarınızda ABD hisselerini analiz edin, portföyünüzü takip edin ve anlık bildirimler alın.",
       downloadNow: "Şimdi İndir",
       comingSoon: "Çok Yakında",
       availableOn: "Şurada Mevcut:",
@@ -320,7 +320,8 @@ export const translations = {
       kap: "KAP",
       settings: "Ayarlar",
       logout: "Çıkış Yap",
-      profile: "Profil"
+      profile: "Profil",
+      support: "Destek"
     }
   },
 
@@ -642,7 +643,8 @@ export const translations = {
       kap: "KAP",
       settings: "Settings",
       logout: "Logout",
-      profile: "Profile"
+      profile: "Profile",
+      support: "Support"
     }
   },
 
@@ -703,7 +705,7 @@ export const translations = {
     app: {
       title: "Finbot للجوال",
       subtitle: "تمويل ذكي في كل مكان",
-      description: "Finbot الآن في جيبك! قم بتحليل أسهم BIST، تتبع محفظتك، واستقبل الإشعارات الفورية على أجهزة iOS و Android.",
+      description: "Finbot الآن في جيبك! قم بتحليل الأسهم الأمريكية، تتبع محفظتك، واستقبل الإشعارات الفورية على أجهزة iOS و Android.",
       downloadNow: "تحميل الآن",
       comingSoon: "قريباً",
       availableOn: "متوفر على:",
@@ -769,7 +771,7 @@ export const translations = {
       monthlyEquivalent: "المعادل الشهري",
       contactUs: "اتصل بنا",
       contactSubtitle: "اتصل بنا للحصول على عرض أسعار المؤسسات",
-      tagline: "يركز على BIST • مساعدة بالذكاء الاصطناعي",
+      tagline: "يركز على الأسواق الأمريكية • مساعدة بالذكاء الاصطناعي",
 
       free: {
         badge: "البداية",
@@ -778,7 +780,7 @@ export const translations = {
         cta: "جرب الآن",
         features: [
           "3 حقوق استعلام ذكية يومية",
-          "الوصول إلى جميع أسهم BIST",
+          "الوصول إلى الأسهم الأمريكية",
           "مقارنة سريعة (مثل: THYAO vs PGSUS)",
           "تحليل الميزانية العمومية لآخر 5 أرباع",
           "ملخص الذكاء الاصطناعي الأساسي"
@@ -965,7 +967,8 @@ export const translations = {
       kap: "KAP",
       settings: "الإعدادات",
       logout: "تسجيل الخروج",
-      profile: "الملف الشخصي"
+      profile: "الملف الشخصي",
+      support: "الدعم"
     }
   }
 };

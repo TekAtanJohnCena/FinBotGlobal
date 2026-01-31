@@ -2,6 +2,8 @@
 import tiingoClient from './tiingoClient.js';
 import cache from '../cache/cacheService.js';
 
+import { formatTicker } from '../../utils/tickerFormatter.js';
+
 const NEWS_TTL = 5 * 60 * 1000; // 5 minutes
 
 /**
@@ -11,7 +13,7 @@ const NEWS_TTL = 5 * 60 * 1000; // 5 minutes
  * @returns {Promise<Array>} - Array of news articles
  */
 export async function getNews(ticker, limit = 20) {
-    const cacheKey = ticker ? `news:${ticker.toUpperCase()}` : 'news:all';
+    const cacheKey = ticker ? `news:${formatTicker(ticker)}` : 'news:all';
     const cached = cache.get(cacheKey);
     if (cached) {
         console.log(`📦 Cache hit: ${cacheKey}`);
@@ -23,7 +25,7 @@ export async function getNews(ticker, limit = 20) {
         const client = tiingoClient.getClient();
         const params = { limit };
         if (ticker) {
-            params.tickers = ticker.toUpperCase();
+            params.tickers = formatTicker(ticker);
         }
 
         const response = await client.get('/tiingo/news', { params });
@@ -68,9 +70,9 @@ export async function getNewsForTickers(tickers, limit = 5) {
 
     for (const ticker of tickers) {
         try {
-            results[ticker.toUpperCase()] = await getNews(ticker, limit);
+            results[formatTicker(ticker)] = await getNews(ticker, limit);
         } catch (error) {
-            results[ticker.toUpperCase()] = [];
+            results[formatTicker(ticker)] = [];
         }
     }
 

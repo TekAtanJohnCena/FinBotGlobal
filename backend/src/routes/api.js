@@ -2,6 +2,10 @@ import express from 'express';
 import axios from 'axios';
 import { getBatchPrices } from '../services/tiingo/stockService.js';
 import cacheManager from '../utils/cacheManager.js';
+import Stock from '../models/Stock.js';
+import { INITIAL_US_STOCKS } from '../data/us/initialStocks.js'; // Import for fallback
+
+import { formatTicker } from '../utils/tickerFormatter.js';
 // NOTE: OpenAI removed - use /api/ai/translate endpoint instead
 
 const router = express.Router();
@@ -55,6 +59,25 @@ const getAssetType = (symbol) => {
 // ==================== ENDPOINTS ====================
 
 /**
+ * NEW: GET /api/search
+ * Proxy for Tiingo Utilities Search API
+ * Query: ?query=...
+ */
+router.get('/search', async (req, res) => {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ ok: false, error: 'Query required.' });
+
+    try {
+        console.log(`🔍 Searching Tiingo for: ${query}`);
+        const response = await axios.get(`https://api.tiingo.com/tiingo/utilities/search?query=${query}&token=${TIINGO_API_KEY}`);
+        res.json({ ok: true, data: response.data });
+    } catch (error) {
+        console.error('❌ Search error:', error.message);
+        res.status(500).json({ ok: false, error: 'Search failed.' });
+    }
+});
+
+/**
  * NEW: GET /api/tiingo-tickers
  * Fetch all active US stock tickers with metadata
  */
@@ -91,107 +114,222 @@ router.get('/tiingo-tickers', async (req, res) => {
 });
 
 /**
- * A) GET /api/screener-fundamentals?page=1&limit=50
- * Market cap sorted screener with pagination
+ * A) GET /api/screener-fundamentals?page=1&limit=50&sector=...&industry=...&search=...
+ * Market cap sorted screener with pagination and filters
  */
 router.get('/screener-fundamentals', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    const cacheKey = `page_${page}_limit_${limit}`;
+    const { sector, industry, search, type } = req.query;
+
+    // Cache key includes filters to ensure isolation
+    const cacheKey = `screener_p${page}_l${limit}_s${sector || 'all'}_i${industry || 'all'}_q${search || 'none'}_t${type || 'all'}`;
     const now = Date.now();
 
     // Check page cache
-    if (screenerCache[cacheKey] && screenerCacheTimestamp && (now - screenerCacheTimestamp) < SCREENER_CACHE_DURATION) {
-        console.log(`📦 Screener page ${page}: From cache`);
+    if (screenerCache[cacheKey] && (now - (screenerCacheTimestamp || 0)) < SCREENER_CACHE_DURATION) {
+        console.log(`📦 Screener: Serving ${cacheKey} from cache`);
+        // Force re-validation header
+        res.set('Cache-Control', 'no-cache');
         return res.json({ ...screenerCache[cacheKey], cached: true });
     }
 
     try {
-        // Hardcoded top 200 stocks by market cap (popular stocks)
-        const topStocks = [
-            'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK.B', 'LLY', 'V',
-            'UNH', 'XOM', 'JNJ', 'WMT', 'JPM', 'MA', 'PG', 'AVGO', 'HD', 'CVX',
-            'MRK', 'COST', 'ABBV', 'KO', 'PEP', 'ADBE', 'CRM', 'NFLX', 'BAC', 'TMO',
-            'ORCL', 'CSCO', 'MCD', 'ACN', 'LIN', 'AMD', 'NKE', 'QCOM', 'TXN', 'DIS',
-            'ABT', 'CMCSA', 'WFC', 'PM', 'INTC', 'VZ', 'AMGN', 'DHR', 'NEE', 'UNP',
-            'IBM', 'INTU', 'HON', 'COP', 'RTX', 'GE', 'NOW', 'UPS', 'LOW', 'CAT',
-            'ELV', 'SPGI', 'PFE', 'AMAT', 'GS', 'MS', 'T', 'BKNG', 'SBUX', 'AXP',
-            'DE', 'BLK', 'GILD', 'TJX', 'MDT', 'SYK', 'ISRG', 'VRTX', 'LMT', 'PLD',
-            'BA', 'REGN', 'ADI', 'C', 'ETN', 'CVS', 'CB', 'CI', 'MDLZ', 'AMT',
-            'BSX', 'SCHW', 'TMUS', 'MO', 'LRCX', 'FI', 'ZTS', 'PGR', 'MMC', 'DUK',
-            'SO', 'EOG', 'BDX', 'PYPL', 'TT', 'ITW', 'BMY', 'EQIX', 'NOC', 'AON',
-            'SLB', 'PANW', 'MU', 'APH', 'SHW', 'CL', 'TDG', 'WM', 'MCO', 'CME',
-            'SNPS', 'HCA', 'ICE', 'USB', 'GD', 'PSA', 'APD', 'MSI', 'KLAC', 'CDNS',
-            'NSC', 'PH', 'ORLY', 'WELL', 'MCK', 'MAR', 'PNC', 'CCI', 'ECL', 'HUM',
-            'TGT', 'GM', 'F', 'MRNA', 'BIIB', 'ADP', 'CHTR', 'EMR', 'ADSK', 'ROP',
-            'SRE', 'OXY', 'AJG', 'TRV', 'CARR', 'AFL', 'NXPI', 'KMB', 'NEM', 'GIS',
-            'CMG', 'AIG', 'MCHP', 'ABNB', 'AZO', 'FDX', 'DLR', 'COF', 'FCX', 'PSX',
-            'PAYX', 'MPC', 'O', 'FTNT', 'SPG', 'TEL', 'MNST', 'SYY', 'KDP', 'AEP',
-            'HES', 'ROST', 'D', 'VLO', 'CPRT', 'CTSH', 'KMI', 'DHI', 'IQV', 'ODFL'
-        ];
+        // Build Query
+        let query = { isActive: true };
+        if (sector) query.sector = sector;
+        if (industry) query.industry = industry;
+        if (type) query.assetType = type;
+        if (search) {
+            query.$or = [
+                { symbol: { $regex: search, $options: 'i' } },
+                { name: { $regex: search, $options: 'i' } }
+            ];
+        }
 
-        const totalStocks = topStocks.length;
+        // 1. Fetch from Database
+        const totalStocks = await Stock.countDocuments(query);
+        const stocks = await Stock.find(query)
+            .sort({ popularityScore: -1, symbol: 1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        const pageTickers = stocks.map(s => s.symbol);
         const totalPages = Math.ceil(totalStocks / limit);
-        const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        const pageTickers = topStocks.slice(startIndex, endIndex);
 
-        console.log(`🔄 Screener page ${page}/${totalPages}: Fetching ${pageTickers.length} stocks`);
+        // FALLBACK: If DB is empty, use seed data (memory)
+        if (totalStocks === 0 && !search && page === 1) {
+            console.log('⚠️ DB Empty - Using Fallback Seed Data');
+            let fallbackData = INITIAL_US_STOCKS;
 
-        const results = await Promise.all(pageTickers.map(async (ticker) => {
-            try {
-                const [priceRes, fundRes] = await Promise.all([
-                    axios.get(`https://api.tiingo.com/iex/?tickers=${ticker}&token=${TIINGO_API_KEY}`),
+            // Apply memory filters
+            if (sector) fallbackData = fallbackData.filter(s => s.sector === sector);
+            if (industry) fallbackData = fallbackData.filter(s => s.industry === industry);
+            if (type) fallbackData = fallbackData.filter(s => s.assetType === type);
+
+            const fallbackTotal = fallbackData.length;
+            const fallbackResults = fallbackData.slice((page - 1) * limit, page * limit);
+
+            // We need to fetch prices for these too
+            if (fallbackResults.length > 0) {
+                const tickers = fallbackResults.map(s => s.symbol);
+                // Reuse the batch fetch logic below by setting stocks = fallbackResults (compatible structure)
+                // But wait, the logic below expects mongoose docs or objects with symbol
+                // Let's just override `stocks` and `pageTickers` and proceed to batch fetch
+
+                // However, logic below uses `stocks` array to map.
+                // So we continue...
+
+                // Update query results vars effectively
+                // We can't update const, so we return early or refactor.
+                // Refactoring to proceed with fallback data:
+
+                // Let's restart the flow with fallback data
+                // Or better: handle fallback in separate block and reuse fetching logic?
+                // Easiest is to recursively call self or just copy fetch logic.
+                // Let's copy fetch logic for robustness or restructure.
+
+                // Re-assigning to let the below logic run
+                // But `stocks` is const.
+                // I will return the recursion/function call? No.
+                // I will duplicate logic for now (safer than big refactor).
+                // Actually, I can just continue execution if i make `stocks` let.
+                // But `stocks` is awaited.
+
+                // Let's use a flag.
+            }
+
+            // Simpler: Return simple fallback if no prices needed? 
+            // Screener needs prices.
+
+            // Let's just return logic for fallback here
+            const fbSubList = fallbackData.slice((page - 1) * limit, page * limit);
+            const fbTickers = fbSubList.map(s => s.symbol);
+
+            if (fbTickers.length === 0) return res.json({ ok: true, data: [], totalStocks: 0, totalPages: 0, cached: false });
+
+            console.log(`🔄 Screener Fallback: Fetching data for ${fbTickers.length} stocks`);
+
+            const [pricesRes, fundResults] = await Promise.all([
+                axios.get(`https://api.tiingo.com/iex/?tickers=${fbTickers.join(',')}&token=${TIINGO_API_KEY}`),
+                Promise.allSettled(fbTickers.map(ticker =>
                     axios.get(`https://api.tiingo.com/tiingo/fundamentals/${ticker}/daily?token=${TIINGO_API_KEY}`)
-                ]);
+                ))
+            ]);
 
-                const p = priceRes.data[0] || {};
-                const fArray = fundRes.data || [];
-                const f = fArray[fArray.length - 1] || {};
+            const pricesData = pricesRes.data || [];
 
+            const finalResults = fbSubList.map((stock, index) => {
+                const ticker = stock.symbol;
+                const p = pricesData.find(pd => pd.ticker.toLowerCase() === ticker.toLowerCase()) || {};
                 const lastPrice = p.last || p.tngoLast || p.prevClose || 0;
                 const changeP = p.prevClose ? ((lastPrice - p.prevClose) / p.prevClose) * 100 : 0;
 
+                const fundRes = fundResults[index];
+                const fundData = (fundRes.status === 'fulfilled' && fundRes.value.data && fundRes.value.data.length > 0)
+                    ? fundRes.value.data[fundRes.value.data.length - 1] : {};
+
                 return {
                     symbol: ticker,
-                    name: ticker,
+                    name: stock.name,
+                    sector: stock.sector,
+                    industry: stock.industry,
                     lastPrice: lastPrice,
                     changePercent: changeP,
-                    marketCap: f.marketCap || 0,
-                    peRatio: f.peRatio || 0,
-                    pbRatio: f.pbRatio || 0,
-                    dividendYield: 0,
-                    beta: 0,
-                    roe: 0
+                    marketCap: fundData.marketCap || 0,
+                    peRatio: fundData.peRatio || 0,
+                    pbRatio: fundData.pbRatio || 0,
+                    dividendYield: fundData.divYield || 0,
+                    popularityScore: 0
                 };
-            } catch (err) {
-                console.error(`❌ Error ${ticker}:`, err.message);
-                return null;
-            }
-        }));
+            });
 
-        const validResults = results.filter(r => r !== null);
+            return res.json({
+                ok: true,
+                data: finalResults,
+                page,
+                limit,
+                totalStocks: fallbackTotal,
+                totalPages: Math.ceil(fallbackTotal / limit),
+                cached: false
+            });
+        }
+
+        if (pageTickers.length === 0) {
+            return res.json({
+                ok: true,
+                data: [],
+                page,
+                limit,
+                totalStocks,
+                totalPages,
+                cached: false
+            });
+        }
+
+        console.log(`🔄 Screener: Fetching data for ${pageTickers.length} stocks (Filter: ${sector || 'None'})`);
+
+        // 2. Optimized Batch Fetching
+        // Fetch Daily Fundamentals (Market Cap, ratios) in parallel
+        // For prices, we use IEX batch endpoint for performance
+        const [pricesRes, fundResults] = await Promise.all([
+            axios.get(`https://api.tiingo.com/iex/?tickers=${pageTickers.join(',')}&token=${TIINGO_API_KEY}`),
+            Promise.allSettled(pageTickers.map(ticker =>
+                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${ticker}/daily?token=${TIINGO_API_KEY}`)
+            ))
+        ]);
+
+        const pricesData = pricesRes.data || [];
+
+        const finalResults = stocks.map((stock, index) => {
+            const ticker = stock.symbol;
+
+            // Match price data
+            const p = pricesData.find(pd => pd.ticker.toLowerCase() === ticker.toLowerCase()) || {};
+            const lastPrice = p.last || p.tngoLast || p.prevClose || 0;
+            const changeP = p.prevClose ? ((lastPrice - p.prevClose) / p.prevClose) * 100 : 0;
+
+            // Match fundamental data
+            const fundRes = fundResults[index];
+            const fundData = (fundRes.status === 'fulfilled' && fundRes.value.data && fundRes.value.data.length > 0)
+                ? fundRes.value.data[fundRes.value.data.length - 1] : {};
+
+            return {
+                symbol: ticker,
+                name: stock.name,
+                sector: stock.sector,
+                industry: stock.industry,
+                lastPrice: lastPrice,
+                changePercent: changeP,
+                marketCap: fundData.marketCap || 0,
+                peRatio: fundData.peRatio || 0,
+                pbRatio: fundData.pbRatio || 0,
+                dividendYield: fundData.divYield || 0,
+                popularityScore: stock.popularityScore || 0
+            };
+        });
 
         const response = {
             ok: true,
-            data: validResults,
-            page: page,
-            limit: limit,
-            totalStocks: totalStocks,
-            totalPages: totalPages,
+            data: finalResults,
+            page,
+            limit,
+            totalStocks,
+            totalPages,
             cached: false
         };
 
+        // Update cache
         screenerCache[cacheKey] = response;
         screenerCacheTimestamp = now;
 
-        console.log(`✅ Screener page ${page}: Cached ${validResults.length} stocks`);
         res.json(response);
     } catch (error) {
         console.error('❌ Screener error:', error.message);
-        res.status(500).json({ ok: false, error: 'Screener failed.' });
+        res.status(500).json({ ok: false, error: 'Screener calculation failed.' });
     }
 });
+
 
 /**
  * B) GET /api/global-news
@@ -214,14 +352,14 @@ router.get('/global-news', async (req, res) => {
 router.get('/stock-analysis/:symbol', async (req, res) => {
     const { symbol } = req.params;
     const { range = '1y', lang = 'en' } = req.query; // Default range='1y', lang='en'
-    const normalizedSymbol = symbol.toLowerCase();
+    const normalizedSymbol = formatTicker(symbol); // Use shared utility
 
-    // TIINGO API FORMAT: Convert dots to dashes (BRK.B -> BRK-B)
-    const apiSymbol = normalizedSymbol.replace(/\./g, '-');
+    // TIINGO API FORMAT: formatTicker already does dot-to-hyphen conversion
+    const apiSymbol = normalizedSymbol;
 
     const type = getAssetType(normalizedSymbol);
     const now = Date.now();
-    // Include lang in cache key so translations are cached separately
+    // Cache key: Ensure it is unique per ticker/range/lang
     const analysisCacheKey = `analysis_${normalizedSymbol}_${range}_${lang}`;
     console.log(`🔑 Cache Key: ${analysisCacheKey} | API Symbol: ${apiSymbol}`);
 
@@ -285,6 +423,9 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             financials: { summary: { revenue: 0, netIncome: 0 }, history: [] },
             news: []
         };
+
+        // METADATA (Declared here to be accessible for persistence)
+        let stockMetadata = {};
 
         if (type === 'CRYPTO') {
             const [priceRes, historyRes] = await Promise.all([
@@ -354,8 +495,11 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             // GUARD: Ensure all responses are proper arrays/objects
             const historyRaw = (historyRes.status === 'fulfilled' && Array.isArray(historyRes.value.data))
                 ? historyRes.value.data : [];
-            const meta = (metaRes.status === 'fulfilled' && metaRes.value.data)
+
+            // Assign to outer scope 'stockMetadata'
+            stockMetadata = (metaRes.status === 'fulfilled' && metaRes.value.data)
                 ? metaRes.value.data : {};
+
             const rawStatements = (statementsRes.status === 'fulfilled' && Array.isArray(statementsRes.value.data))
                 ? statementsRes.value.data : [];
             const newsData = (newsRes.status === 'fulfilled' && Array.isArray(newsRes.value.data))
@@ -397,13 +541,13 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
 
 
             responseData.fundamentals = {
-                marketCap: latestFund.marketCap || latestDaily.marketCap || meta.marketCap || 0,
+                marketCap: latestFund.marketCap || latestDaily.marketCap || stockMetadata.marketCap || 0,
                 peRatio: latestFund.peRatio || latestDaily.peRatio || 0,
                 pbRatio: latestFund.pbRatio || latestDaily.pbRatio || 0,
                 dividendYield: latestFund.divYield || latestFund.trailingDiv1Y || 0,
                 roe: latestFund.roe || 0,
                 beta: latestFund.beta || 0,
-                description: meta.description || ""
+                description: stockMetadata.description || ""
             };
 
             // NOTE: Auto-translation removed
@@ -472,6 +616,31 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
 
         if (isValidData) {
             cacheManager.set(analysisCacheKey, responseData);
+
+            // PERSISTENCE: Save to DB
+            // Only save if it looks like a valid US stock or explicit asset
+            if (stockMetadata.ticker) {
+                try {
+                    await Stock.findOneAndUpdate(
+                        { symbol: stockMetadata.ticker.toUpperCase() },
+                        {
+                            symbol: stockMetadata.ticker.toUpperCase(),
+                            name: stockMetadata.name || stockMetadata.ticker,
+                            exchange: stockMetadata.exchangeCode || 'NASDAQ', // Default fallback
+                            sector: stockMetadata.sector || 'Unknown',
+                            industry: stockMetadata.industry || 'Unknown',
+                            description: stockMetadata.description,
+                            isActive: true,
+                            assetType: type === 'STOCK' && (stockMetadata.sector === '' || stockMetadata.description?.toLowerCase().includes('etf')) ? 'ETF' : 'Stock', // Simple heuristic, can be improved
+                            // Update popularity or last accessed if we had that field
+                        },
+                        { upsert: true, new: true, setDefaultsOnInsert: true }
+                    );
+                    console.log(`💾 Persisted ${stockMetadata.ticker} to Database`);
+                } catch (dbErr) {
+                    console.error(`⚠️ Failed to persist ${stockMetadata.ticker}:`, dbErr.message);
+                }
+            }
         } else {
             console.warn(`⚠️ Skipping cache for ${symbol}: Invalid data (history: ${responseData.history?.length || 0}, price: ${responseData.price})`);
         }
