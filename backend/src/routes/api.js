@@ -4,6 +4,7 @@ import { getBatchPrices } from '../services/tiingo/stockService.js';
 import cacheManager from '../utils/cacheManager.js';
 import Stock from '../models/Stock.js';
 import { INITIAL_US_STOCKS } from '../data/us/initialStocks.js'; // Import for fallback
+import { getCachedFundamentals } from '../scripts/fundamentalsCacheJob.js';
 
 import { formatTicker } from '../utils/tickerFormatter.js';
 // NOTE: OpenAI removed - use /api/ai/translate endpoint instead
@@ -116,11 +117,31 @@ router.get('/tiingo-tickers', async (req, res) => {
 /**
  * A) GET /api/screener-fundamentals?page=1&limit=50&sector=...&industry=...&search=...
  * Market cap sorted screener with pagination and filters
+ * OPTIMIZED: First checks pre-cached fundamentals for instant response
  */
 router.get('/screener-fundamentals', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const { sector, industry, search, type } = req.query;
+
+    // FAST PATH: Check pre-cached fundamentals first (no filters for default view)
+    if (!sector && !industry && !search && !type && page === 1) {
+        const cachedFundamentals = getCachedFundamentals();
+        if (cachedFundamentals && cachedFundamentals.stocks) {
+            console.log(`⚡ Screener: Serving from pre-cached fundamentals (${cachedFundamentals.stocks.length} stocks)`);
+            const paginatedData = cachedFundamentals.stocks.slice(0, limit);
+            return res.json({
+                ok: true,
+                data: paginatedData,
+                page: 1,
+                limit,
+                totalStocks: cachedFundamentals.totalStocks,
+                totalPages: Math.ceil(cachedFundamentals.totalStocks / limit),
+                cached: true,
+                cacheUpdatedAt: cachedFundamentals.updatedAt
+            });
+        }
+    }
 
     // Cache key includes filters to ensure isolation
     const cacheKey = `screener_p${page}_l${limit}_s${sector || 'all'}_i${industry || 'all'}_q${search || 'none'}_t${type || 'all'}`;
@@ -476,14 +497,18 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
             }
 
             // FETCH STOCK DATA (Missing Logic Restored)
-            // FETCH STOCK DATA (Refactored to Promise.allSettled for robustness)
+            // FETCH STOCK DATA - FAST PATH (Essential data with 3s timeout)
             // NOTE: Using apiSymbol (with dashes) for Tiingo API compatibility
+            // Separated into fast (prices, meta, fundDaily) and slow (statements, news) with shorter timeout
+            const FAST_TIMEOUT = 3000;  // 3 seconds max for essential data
+            const SLOW_TIMEOUT = 2000;  // 2 seconds for non-essential (can fail)
+
             const results = await Promise.allSettled([
-                axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}/prices?startDate=${startDate}&resampleFreq=${resampleFreq}&token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}?token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/statements?token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${apiSymbol}&token=${TIINGO_API_KEY}`),
-                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/daily?token=${TIINGO_API_KEY}`)
+                axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}/prices?startDate=${startDate}&resampleFreq=${resampleFreq}&token=${TIINGO_API_KEY}`, { timeout: FAST_TIMEOUT }),
+                axios.get(`https://api.tiingo.com/tiingo/daily/${apiSymbol}?token=${TIINGO_API_KEY}`, { timeout: FAST_TIMEOUT }),
+                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/statements?token=${TIINGO_API_KEY}`, { timeout: SLOW_TIMEOUT }),
+                axios.get(`https://api.tiingo.com/tiingo/news?tickers=${apiSymbol}&limit=5&token=${TIINGO_API_KEY}`, { timeout: SLOW_TIMEOUT }),
+                axios.get(`https://api.tiingo.com/tiingo/fundamentals/${apiSymbol}/daily?token=${TIINGO_API_KEY}`, { timeout: FAST_TIMEOUT })
             ]);
 
             const historyRes = results[0];

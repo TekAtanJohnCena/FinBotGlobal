@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { formatTicker } from '../lib/tickerUtils';
 import api from "../lib/api";
@@ -39,6 +39,7 @@ import ReactApexChart from 'react-apexcharts';
 const Screener = () => {
   const { symbol } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -139,7 +140,13 @@ const Screener = () => {
       height: 350,
       toolbar: { show: true, tools: { download: false, selection: true, zoom: true, pan: true } },
       background: 'transparent',
-      animations: { enabled: true },
+      animations: {
+        enabled: true,
+        speed: 300,
+        animateGradually: { enabled: false },
+        dynamicAnimation: { enabled: true, speed: 200 }
+      },
+      redrawOnParentResize: true,
       foreColor: isCandle ? '#333' : '#cbd5e1',
       events: {
         click: function (event, chartContext, config) {
@@ -288,34 +295,66 @@ const Screener = () => {
     }
   };
 
-  // React Query Hook for Stock Analysis
-  const { data: queryData, isLoading: isQueryLoading } = useQuery({
-    queryKey: ['stockAnalysis', symbol, activeRange, language],
+  // Range map for API calls - defined outside query for reuse
+  const rangeMap = {
+    "Gün içi": "1y",
+    "1 Hafta": "1m",
+    "1 Ay": "1m",
+    "3 Ay": "3m",
+    "6 Ay": "6m",
+    "1 Yıl": "1y",
+    "3 Yıl": "3y",
+    "5 Yıl": "5y",
+    "Tümü": "max"
+  };
+
+  // ⚡ DEBOUNCED PREFETCH: Load stock data on hover with 150ms delay
+  // Prevents API flooding when rapidly moving mouse over stock list
+  const prefetchTimerRef = useRef(null);
+
+  const prefetchStockData = useCallback((tickerSymbol) => {
+    if (!tickerSymbol) return;
+
+    // Clear any pending prefetch
+    if (prefetchTimerRef.current) {
+      clearTimeout(prefetchTimerRef.current);
+    }
+
+    // Debounce: Only prefetch if mouse stays over item for 150ms
+    prefetchTimerRef.current = setTimeout(() => {
+      // Always prefetch 5Y data - matches main query pattern
+      queryClient.prefetchQuery({
+        queryKey: ['stockAnalysis', tickerSymbol, language],
+        queryFn: async () => {
+          const response = await api.get(`/stock-analysis/${tickerSymbol}?range=5y&lang=${language}`);
+          if (!response.data.ok) throw new Error("API Error");
+          return response.data.data;
+        },
+        staleTime: 10 * 60 * 1000,
+      });
+    }, 150);
+  }, [queryClient, language]);
+
+  // React Query Hook for Stock Analysis - OPTIMIZED
+  // ⚡ ALWAYS FETCH 5Y DATA - range switching is now instant (client-side filtering)
+  const { data: queryData, isLoading: isQueryLoading, isFetching } = useQuery({
+    queryKey: ['stockAnalysis', symbol, language],  // Removed activeRange!
     queryFn: async () => {
       if (!symbol) return null;
 
-      const rangeMap = {
-        "Gün içi": "1y",
-        "1 Hafta": "1m",
-        "1 Ay": "1m",
-        "3 Ay": "3m",
-        "6 Ay": "6m",
-        "1 Yıl": "1y",
-        "3 Yıl": "3y",
-        "5 Yıl": "5y",
-        "Tümü": "max"
-      };
+      // Always fetch 5 years of data - ranges are filtered client-side
+      console.log(`🚀 Fetching Full Analysis: ${symbol} (5Y data) | Lang: ${language}`);
 
-      const backendRange = rangeMap[activeRange] || "1y";
-      console.log(`🚀 Fetching Analysis: ${symbol} | Range: ${activeRange} -> ${backendRange} | Lang: ${language}`);
-
-      const response = await api.get(`/stock-analysis/${symbol}?range=${backendRange}&lang=${language}`);
+      const response = await api.get(`/stock-analysis/${symbol}?range=5y&lang=${language}`);
       if (!response.data.ok) throw new Error("API Error");
 
       return response.data.data;
     },
     enabled: !!symbol,
-    staleTime: 60000,
+    staleTime: 10 * 60 * 1000,       // 10 minutes - data considered fresh
+    gcTime: 60 * 60 * 1000,          // 1 hour - keep in cache longer
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     placeholderData: keepPreviousData,
   });
 
@@ -598,6 +637,7 @@ const Screener = () => {
                   <div
                     key={item.ticker || item.symbol} // Tiingo uses 'ticker', local state uses 'symbol'
                     onClick={() => handleStockClick(item.ticker || item.symbol)}
+                    onMouseEnter={() => prefetchStockData(item.ticker || item.symbol)}
                     className="px-4 py-3 hover:bg-[#323846] cursor-pointer border-b border-slate-800 flex items-center justify-between group"
                   >
                     <div>
@@ -631,6 +671,7 @@ const Screener = () => {
                     navigate(`/screener/${stock.symbol}`);
                     setIsSidebarOpen(false);
                   }}
+                  onMouseEnter={() => prefetchStockData(stock.symbol)}
                   className={`p-4 cursor-pointer border-b border-slate-800/40 transition-all flex items-center justify-between group ${symbol === stock.symbol ? 'bg-indigo-600/10 border-l-4 border-l-indigo-500 shadow-inner' : 'hover:bg-[#1e222d] border-l-4 border-l-transparent'}`}
                 >
                   <div className="flex items-center gap-3">
@@ -662,8 +703,51 @@ const Screener = () => {
 
       {/* RIGHT CONTENT: ANALYSIS & CHART */}
       <div className="flex-1 flex flex-col overflow-y-auto bg-[#0a0f1c] custom-scrollbar">
-        {symbol ? (
-          <div className="p-4 md:p-6 space-y-6 md:space-y-8 animate-in fade-in duration-700 mt-14 lg:mt-0">
+        {symbol && isFetching ? (
+          /* LOADING SKELETON */
+          <div className="p-4 md:p-6 space-y-6 md:space-y-8 mt-14 lg:mt-0 animate-pulse">
+            {/* Header Skeleton */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 bg-[#1e222d] border border-slate-800 rounded-2xl gap-4">
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-700 rounded-xl md:rounded-2xl"></div>
+                <div className="space-y-2">
+                  <div className="h-8 md:h-10 w-32 bg-slate-700 rounded-lg"></div>
+                  <div className="h-4 w-48 bg-slate-800 rounded"></div>
+                </div>
+              </div>
+              <div className="text-right space-y-2">
+                <div className="h-10 w-32 bg-slate-700 rounded-lg"></div>
+                <div className="h-4 w-24 bg-slate-800 rounded ml-auto"></div>
+              </div>
+            </div>
+
+            {/* Chart Skeleton */}
+            <div className="bg-[#1e222d] border border-slate-800 rounded-2xl p-3 md:p-6">
+              <div className="flex gap-2 mb-4">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="h-8 w-16 bg-slate-700 rounded-lg"></div>
+                ))}
+              </div>
+              <div className="h-[280px] md:h-[400px] bg-slate-800/50 rounded-xl flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                  <RefreshCw className="w-8 h-8 animate-spin text-indigo-500" />
+                  <span className="text-slate-400 text-sm">Yükleniyor...</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Metrics Skeleton */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-[#1e222d] border border-slate-800 rounded-xl p-4">
+                  <div className="h-4 w-20 bg-slate-700 rounded mb-2"></div>
+                  <div className="h-6 w-16 bg-slate-600 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : symbol ? (
+          <div className="p-4 md:p-6 space-y-6 md:space-y-8 animate-in fade-in duration-300 mt-14 lg:mt-0">
             {/* TOP HEADER INFO */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 bg-[#1e222d] border border-slate-800 rounded-2xl shadow-xl gap-4">
               <div className="flex items-center gap-4 md:gap-6">
@@ -765,7 +849,7 @@ const Screener = () => {
                 </div>
               </div>
 
-              <div className="h-[280px] md:h-[400px] w-full relative">
+              <div className="h-[280px] md:h-[400px] w-full relative transition-all duration-300 ease-in-out">
                 {analysisLoading ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-[#1e222d]/80 z-20 backdrop-blur-sm rounded-xl">
                     <RefreshCw className="w-10 h-10 animate-spin text-indigo-500" />
