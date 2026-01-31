@@ -60,6 +60,25 @@ const getAssetType = (symbol) => {
 // ==================== ENDPOINTS ====================
 
 /**
+ * GET /api/prices/batch
+ * Get batch prices for multiple tickers
+ * Query: ?tickers=AAPL,MSFT,GOOGL
+ */
+router.get('/prices/batch', async (req, res) => {
+    const { tickers } = req.query;
+    if (!tickers) return res.status(400).json({ ok: false, error: 'Tickers required.' });
+
+    try {
+        const tickerList = tickers.split(',').map(t => t.trim().toUpperCase());
+        const prices = await getBatchPrices(tickerList);
+        return res.json({ ok: true, data: prices });
+    } catch (err) {
+        console.error('❌ Batch price fetch error:', err.message);
+        return res.status(500).json({ ok: false, error: 'Batch price fetch failed' });
+    }
+});
+
+/**
  * NEW: GET /api/search
  * Proxy for Tiingo Utilities Search API
  * Query: ?query=...
