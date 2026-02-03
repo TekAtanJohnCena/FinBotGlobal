@@ -110,10 +110,10 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
                             <div
                                 key={tier}
                                 className={`p-3 rounded-xl text-center ${tier === currentPlan
-                                        ? 'bg-slate-800 border border-slate-700'
-                                        : tier === recommendedPlan
-                                            ? 'bg-gradient-to-b from-indigo-500/20 to-purple-500/20 border border-indigo-500/30'
-                                            : 'bg-slate-800/50'
+                                    ? 'bg-slate-800 border border-slate-700'
+                                    : tier === recommendedPlan
+                                        ? 'bg-gradient-to-b from-indigo-500/20 to-purple-500/20 border border-indigo-500/30'
+                                        : 'bg-slate-800/50'
                                     }`}
                             >
                                 <div className="text-[10px] font-black text-slate-500 uppercase mb-1">

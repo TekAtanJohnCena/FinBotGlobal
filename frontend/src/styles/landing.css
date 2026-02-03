@@ -75,7 +75,8 @@ html {
 .lang-dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   background: rgba(10, 12, 15, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
@@ -83,19 +84,19 @@ html {
   min-width: 180px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(40px);
-  z-index: 1000;
+  z-index: 9999;
   animation: slideDown 0.2s ease;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateX(-50%) translateY(-10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -137,20 +138,50 @@ html {
   font-size: 14px;
 }
 
-/* RTL Support */
-.page-dark.rtl {
-  direction: rtl;
+/* Mobil Dil Seçici - Inline Butonlar */
+.mobile-lang-selector {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
 }
 
-.page-dark.rtl .lang-dropdown {
-  right: auto;
-  left: 0;
+.mobile-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  justify-content: center;
 }
 
-.page-dark.rtl .lang-name {
-  text-align: right;
+.mobile-lang-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
+.mobile-lang-btn.active {
+  background: rgba(0, 229, 160, 0.15);
+  border-color: rgba(0, 229, 160, 0.4);
+  color: #00e5a0;
+}
+
+.mobile-lang-btn .lang-flag {
+  font-size: 18px;
+}
+
+.mobile-lang-btn .lang-code {
+  font-weight: 600;
+  text-transform: uppercase;
+}
 
 .page-dark {
   color: #e8eaed;
