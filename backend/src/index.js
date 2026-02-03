@@ -51,6 +51,7 @@ if (process.env.NODE_ENV !== 'production') {
 // ===== Middleware & CORS =====
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:5000',
   'https://finbot.com.tr',
   'https://www.finbot.com.tr',
   process.env.CLIENT_URL
@@ -103,10 +104,31 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });
 
-// Root Route
-app.get("/", (req, res) => {
-  res.send("🚀 FinBot API is running correctly on port " + (process.env.PORT || 3000));
-});
+// ===== PRODUCTION: Static File Serving =====
+if (process.env.NODE_ENV === 'production') {
+  import('path').then(path => {
+    import('url').then(({ fileURLToPath }) => {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+
+      // Serve frontend build files
+      app.use(express.static(path.join(__dirname, '../../frontend/build')));
+
+      // Handle React routing - send all non-API requests to index.html
+      app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api')) return next();
+        res.sendFile(path.join(__dirname, '../../frontend/build/index.html'));
+      });
+    });
+  });
+}
+
+// Root Route (Development only)
+if (process.env.NODE_ENV !== 'production') {
+  app.get("/", (req, res) => {
+    res.send("🚀 FinBot API is running correctly on port " + (process.env.PORT || 5000));
+  });
+}
 
 // ===== Error Handling (MUST BE LAST) =====
 app.use(notFoundHandler);

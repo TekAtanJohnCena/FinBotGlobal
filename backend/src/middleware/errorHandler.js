@@ -19,8 +19,14 @@ export const asyncHandler = (fn) => (req, res, next) => {
 /**
  * Not Found Handler
  * 404 handler for undefined routes
+ * Suppresses WebSocket errors in development
  */
 export const notFoundHandler = (req, res, next) => {
+    // Suppress WebSocket 404s in development (from HMR)
+    if (req.originalUrl.includes('/ws') || req.originalUrl.includes('/sockjs-node')) {
+        return res.status(404).end();
+    }
+
     const error = new Error(`Not Found - ${req.originalUrl}`);
     error.statusCode = 404;
     next(error);

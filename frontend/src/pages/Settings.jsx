@@ -537,6 +537,13 @@ export default function Settings() {
 
         switch (activeTab) {
             case "account":
+                // Survey data labels for display
+                const experienceLabels = { beginner: "Yeni Başlayan", intermediate: "Orta Seviye", advanced: "Uzman" };
+                const riskLabels = { conservative: "Muhafazakar", moderate: "Dengeli", aggressive: "Agresif" };
+                const goalLabels = { "short-term": "Kısa Vadeli", "long-term": "Uzun Vadeli", retirement: "Emeklilik", income: "Pasif Gelir" };
+                const budgetLabels = { "0-1000": "$0 - $1,000", "1000-5000": "$1,000 - $5,000", "5000-10000": "$5,000 - $10,000", "10000+": "$10,000+" };
+                const sectorLabels = { tech: "Teknoloji", healthcare: "Sağlık", finance: "Finans", energy: "Enerji", consumer: "Tüketici", industrial: "Sanayi", realestate: "Gayrimenkul", crypto: "Kripto" };
+
                 return (
                     <div>
                         <SectionHeader title="Account Information" description="Manage your personal account details." />
@@ -555,6 +562,66 @@ export default function Settings() {
                             </FormRow>
                             <FormRow label="Created At"><span className="text-sm text-zinc-500 dark:text-zinc-400">{createdAt}</span></FormRow>
                         </Card>
+
+                        {/* Financial Profile Section - LOCKED */}
+                        {profile?.isProfileComplete && profile?.surveyData && (
+                            <div className="mt-6">
+                                <SectionHeader
+                                    title="Finansal Profil"
+                                    description="Bu bilgiler bir kez doldurulabilir ve değiştirilemez."
+                                />
+                                <Card className="relative">
+                                    {/* Locked Badge */}
+                                    <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+                                        <LockClosedIcon className="w-3.5 h-3.5 text-amber-500" />
+                                        <span className="text-xs font-medium text-amber-500">Kilitli</span>
+                                    </div>
+
+                                    <FormRow label="Yatırım Deneyimi">
+                                        <Input
+                                            value={experienceLabels[profile.surveyData.investmentExperience] || "-"}
+                                            onChange={() => { }}
+                                            disabled
+                                        />
+                                    </FormRow>
+                                    <FormRow label="Risk Toleransı">
+                                        <Input
+                                            value={riskLabels[profile.surveyData.riskTolerance] || "-"}
+                                            onChange={() => { }}
+                                            disabled
+                                        />
+                                    </FormRow>
+                                    <FormRow label="Yatırım Hedefi">
+                                        <Input
+                                            value={goalLabels[profile.surveyData.investmentGoals] || "-"}
+                                            onChange={() => { }}
+                                            disabled
+                                        />
+                                    </FormRow>
+                                    <FormRow label="Aylık Bütçe">
+                                        <Input
+                                            value={budgetLabels[profile.surveyData.monthlyBudget] || "-"}
+                                            onChange={() => { }}
+                                            disabled
+                                        />
+                                    </FormRow>
+                                    {profile.surveyData.preferredSectors?.length > 0 && (
+                                        <FormRow label="İlgilenilen Sektörler">
+                                            <div className="flex flex-wrap gap-1.5 max-w-xs justify-end">
+                                                {profile.surveyData.preferredSectors.map(sector => (
+                                                    <span
+                                                        key={sector}
+                                                        className="px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                                                    >
+                                                        {sectorLabels[sector] || sector}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </FormRow>
+                                    )}
+                                </Card>
+                            </div>
+                        )}
                     </div>
                 );
 

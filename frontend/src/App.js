@@ -1,5 +1,5 @@
 import React, { useContext, Suspense, lazy } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import AppLayout from "./layouts/AppLayout";
@@ -18,6 +18,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Support = lazy(() => import("./pages/Support"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 // --- SAYFALAR (Legal) ---
 const KVKKText = lazy(() => import('./pages/legal/KVKKText'));
@@ -41,10 +42,12 @@ const NewsPage = lazy(() => import("./pages/News"));
 /**
  * 🛡️ KORUMA KALKANI (Protected Route)
  * Kullanıcı giriş yapmamışsa Login sayfasına atar.
+ * Profil tamamlanmamışsa Onboarding sayfasına yönlendirir.
  * Yüklenme durumunda bekleme ekranı gösterir.
  */
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
+  const location = useLocation();
 
   if (loading) {
     // Daha şık, merkezi bir yükleme ekranı
@@ -58,6 +61,12 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Onboarding redirect - profil tamamlanmamışsa onboarding'e yönlendir
+  // (Onboarding sayfasında iken döngüyü önle)
+  if (!user.isProfileComplete && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return children;
@@ -90,6 +99,17 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/pricing" element={<PricingSubscription />} />
+
+          {/* Onboarding - Protected but without AppLayout */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             element={
               <ProtectedRoute>

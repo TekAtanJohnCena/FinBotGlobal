@@ -17,12 +17,19 @@ export const getUserProfile = async (req, res) => {
       username: req.user.username,
       email: req.user.email,
       fullName: req.user.fullName || "",
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      phoneNumber: req.user.phoneNumber,
       subscriptionTier: req.user.subscriptionTier || "FREE",
       subscriptionStatus: req.user.subscriptionStatus || "INACTIVE",
       createdAt: req.user.createdAt,
       updatedAt: req.user.updatedAt,
       avatar: req.user.avatar,
       settings: req.user.settings || {},
+      // Onboarding status
+      isProfileComplete: req.user.isProfileComplete || false,
+      profileCompletedAt: req.user.profileCompletedAt,
+      surveyData: req.user.surveyData || {},
     };
 
     res.json(userProfile);
@@ -176,5 +183,93 @@ export const getUserSettings = async (req, res) => {
   } catch (error) {
     console.error("Error fetching settings:", error);
     res.status(500).json({ message: "Ayarlar alınamadı.", error: error.message });
+  }
+};
+
+/**
+ * Complete user profile (Onboarding Survey)
+ * POST /api/user/complete-profile
+ * 
+ * RULES:
+ * - Only works if isProfileComplete === false
+ * - Once completed, survey data becomes READ-ONLY (Gatekeeper pattern)
+ */
+export const completeProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Kullanıcı bulunamadı." });
+    }
+
+    // Gatekeeper: Already completed?
+    if (user.isProfileComplete) {
+      return res.status(403).json({
+        ok: false,
+        message: "Profil anketi zaten tamamlanmış. Değiştirilemez."
+      });
+    }
+
+    const {
+      investmentExperience,
+      riskTolerance,
+      investmentGoals,
+      preferredSectors,
+      monthlyBudget
+    } = req.body;
+
+    // Validate required fields
+    if (!investmentExperience || !riskTolerance || !investmentGoals || !monthlyBudget) {
+      return res.status(400).json({
+        ok: false,
+        message: "Tüm zorunlu alanlar doldurulmalıdır."
+      });
+    }
+
+    // Save survey data
+    user.surveyData = {
+      investmentExperience,
+      riskTolerance,
+      investmentGoals,
+      preferredSectors: preferredSectors || [],
+      monthlyBudget
+    };
+    user.isProfileComplete = true;
+    user.profileCompletedAt = new Date();
+
+    await user.save();
+
+    console.log("✅ Profile completed for user:", user.email);
+
+    // Async: Trigger cache preload for Screener performance
+    // (non-blocking - user doesn't wait for this)
+    setImmediate(async () => {
+      try {
+        const { refreshFundamentalsCache } = await import("../scripts/fundamentalsCacheJob.js");
+        if (refreshFundamentalsCache) {
+          console.log("🚀 Triggering fundamentals cache for new user:", user.email);
+          refreshFundamentalsCache();
+        }
+      } catch (err) {
+        console.log("⚠️ Cache preload skipped:", err.message);
+      }
+    });
+
+    res.json({
+      ok: true,
+      message: "Profil başarıyla tamamlandı.",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isProfileComplete: user.isProfileComplete,
+        surveyData: user.surveyData
+      }
+    });
+  } catch (error) {
+    console.error("Error completing profile:", error);
+    res.status(500).json({ message: "Profil tamamlanamadı.", error: error.message });
   }
 };

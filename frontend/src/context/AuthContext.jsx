@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
 import api from "../lib/api";
-import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
@@ -101,6 +100,18 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  // PROFIL TAMAMLA (Onboarding Survey - One-time)
+  const completeProfile = async (surveyData) => {
+    const res = await api.post("/user/complete-profile", surveyData);
+
+    // Update user state with completed profile
+    const updatedUser = { ...user, isProfileComplete: true, surveyData };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
+
+    return res.data;
+  };
+
   // ÇIKIŞ YAP
   const logout = () => {
     localStorage.removeItem("token");
@@ -111,7 +122,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, googleLogin, register, logout, verifyEmail }}>
+    <AuthContext.Provider value={{ user, setUser, loading, login, googleLogin, register, logout, verifyEmail, completeProfile }}>
       {!loading && children}
     </AuthContext.Provider>
   );

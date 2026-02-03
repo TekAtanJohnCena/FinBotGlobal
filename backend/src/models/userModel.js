@@ -83,6 +83,31 @@ const userSchema = new mongoose.Schema(
       theme: { type: String, enum: ["light", "dark", "system"], default: "dark" },
       numberFormat: { type: String, enum: ["compact", "full"], default: "compact" },
       chartAnimations: { type: Boolean, default: true }
+    },
+
+    // Onboarding/Survey Status
+    isProfileComplete: { type: Boolean, default: false },
+    profileCompletedAt: { type: Date },
+
+    // Survey Data (One-time fill, locked after completion)
+    surveyData: {
+      investmentExperience: { 
+        type: String, 
+        enum: ["beginner", "intermediate", "advanced"] 
+      },
+      riskTolerance: { 
+        type: String, 
+        enum: ["conservative", "moderate", "aggressive"] 
+      },
+      investmentGoals: { 
+        type: String, 
+        enum: ["short-term", "long-term", "retirement", "income"] 
+      },
+      preferredSectors: [{ type: String }],
+      monthlyBudget: { 
+        type: String, 
+        enum: ["0-1000", "1000-5000", "5000-10000", "10000+"] 
+      }
     }
   },
   { timestamps: true }

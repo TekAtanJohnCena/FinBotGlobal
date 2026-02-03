@@ -6,7 +6,8 @@ import {
     getUserSettings,
     updateUserSettings,
     changePassword,
-    deleteAccount
+    deleteAccount,
+    completeProfile
 } from "../controllers/userController.js";
 import { protect } from "../middleware/auth.js";
 import { getUserQuotaStatus } from "../middleware/quotaMiddleware.js";
@@ -17,6 +18,9 @@ const router = express.Router();
 // Profile routes
 router.get("/profile", protect, getUserProfile);
 router.put("/profile", protect, updateUserProfile);
+
+// Onboarding - Profile Completion (One-time only)
+router.post("/complete-profile", protect, completeProfile);
 
 // Settings routes
 router.get("/settings", protect, getUserSettings);

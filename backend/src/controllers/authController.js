@@ -171,6 +171,7 @@ export const login = asyncHandler(async (req, res) => {
       avatar: user.avatar,
       subscriptionTier: user.subscriptionTier || "FREE",
       subscriptionStatus: user.subscriptionStatus || "INACTIVE",
+      isProfileComplete: user.isProfileComplete || false,
     },
   });
 });
@@ -271,6 +272,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
       authType: user.authType,
       subscriptionTier: user.subscriptionTier || "FREE",
       subscriptionStatus: user.subscriptionStatus || "INACTIVE",
+      isProfileComplete: user.isProfileComplete || false,
     },
   });
 });
@@ -413,6 +415,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
       authType: user.authType,
       subscriptionTier: user.subscriptionTier,
       subscriptionStatus: user.subscriptionStatus,
+      isProfileComplete: user.isProfileComplete || false,
     }
   });
 });
