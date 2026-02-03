@@ -36,6 +36,8 @@ import stockRoutes from "./routes/stocks.js"; // US Stock Database
 import { protect } from "./middleware/auth.js";
 import { getChatHistory } from "./controllers/chatController.js";
 import cacheManager from "./utils/cacheManager.js";
+import { seedInitialStocks } from "./scripts/seedStocks.js";
+import { startFundamentalsCacheJob } from "./scripts/fundamentalsCacheJob.js";
 
 const app = express();
 app.set('trust proxy', 1);
@@ -119,7 +121,15 @@ if (!MONGO_URI) {
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => logger.info("✅ MongoDB Connected!"))
+  .then(async () => {
+    logger.info("✅ MongoDB Connected!");
+
+    // Seed initial stocks if database is empty
+    await seedInitialStocks();
+
+    // Start background job to cache fundamentals every 6 hours
+    startFundamentalsCacheJob();
+  })
   .catch((e) => {
     logger.error(`❌ MongoDB Connection Error: ${e.message}`);
     if (process.env.NODE_ENV === "production") {

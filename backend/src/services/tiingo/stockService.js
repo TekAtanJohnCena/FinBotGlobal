@@ -1,5 +1,6 @@
 // ... (start of file)
 import { formatTicker, isDelisted } from '../../utils/tickerFormatter.js';
+import logger from '../../utils/logger.js';
 // ...
 
 const PRICE_TTL = 15 * 1000;    // 15 seconds for prices

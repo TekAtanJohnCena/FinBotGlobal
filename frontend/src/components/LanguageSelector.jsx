@@ -8,8 +8,7 @@ const LanguageSelector = ({ className = '' }) => {
 
     const languages = [
         { code: 'tr', flag: '🇹🇷', name: 'Türkçe' },
-        { code: 'en', flag: '🇬🇧', name: 'English' },
-        { code: 'ar', flag: '🇸🇦', name: 'العربية' }
+        { code: 'en', flag: '🇬🇧', name: 'English' }
     ];
 
     const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
@@ -130,16 +129,18 @@ const styles = {
     dropdown: {
         position: 'absolute',
         top: 'calc(100% + 8px)',
-        right: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
         minWidth: '160px',
-        background: 'rgba(20, 20, 20, 0.95)',
+        background: 'rgba(20, 20, 20, 0.98)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
         borderRadius: '10px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-        overflow: 'hidden',
-        animation: 'fadeIn 0.15s ease'
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+        overflow: 'visible',
+        animation: 'fadeIn 0.15s ease',
+        zIndex: 9999
     },
     dropdownItem: {
         display: 'flex',

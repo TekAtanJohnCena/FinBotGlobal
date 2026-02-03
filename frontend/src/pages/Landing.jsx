@@ -276,8 +276,7 @@ function LanguageSelector() {
 
   const languages = [
     { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' }
+    { code: 'en', name: 'English', flag: '🇬🇧' }
   ];
 
   const currentLang = languages.find(lang => lang.code === language);
@@ -311,6 +310,31 @@ function LanguageSelector() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Mobil için Inline Dil Seçici */
+function MobileLanguageSelector() {
+  const { language, changeLanguage } = useContext(LanguageContext);
+
+  const languages = [
+    { code: 'tr', name: 'TR', flag: '🇹🇷' },
+    { code: 'en', name: 'EN', flag: '🇬🇧' }
+  ];
+
+  return (
+    <div className="mobile-lang-selector">
+      {languages.map(lang => (
+        <button
+          key={lang.code}
+          className={`mobile-lang-btn ${language === lang.code ? 'active' : ''}`}
+          onClick={() => changeLanguage(lang.code)}
+        >
+          <span className="lang-flag">{lang.flag}</span>
+          <span className="lang-code">{lang.name}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -491,7 +515,7 @@ export default function Landing() {
                 </a>
               </li>
               <li className="mt-3">
-                <LanguageSelector />
+                <MobileLanguageSelector />
               </li>
             </ul>
           </div>

@@ -12,19 +12,12 @@ export const LanguageProvider = ({ children }) => {
   // Save language preference to localStorage
   useEffect(() => {
     localStorage.setItem('finbot-language', language);
-    
-    // Set document direction for Arabic
-    if (language === 'ar') {
-      document.documentElement.dir = 'rtl';
-      document.documentElement.lang = 'ar';
-    } else {
-      document.documentElement.dir = 'ltr';
-      document.documentElement.lang = language;
-    }
+    document.documentElement.dir = 'ltr';
+    document.documentElement.lang = language;
   }, [language]);
 
   const changeLanguage = (newLanguage) => {
-    if (['tr', 'en', 'ar'].includes(newLanguage)) {
+    if (['tr', 'en'].includes(newLanguage)) {
       setLanguage(newLanguage);
     }
   };

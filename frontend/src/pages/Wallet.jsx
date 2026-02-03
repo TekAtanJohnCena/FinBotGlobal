@@ -83,8 +83,9 @@ export default function WalletPage() {
   // Derived Calculations
   const { netWealth, assetAllocation } = useMemo(() => {
     const cash = entries.reduce((acc, e) => {
-      if (["income", "debt_in"].includes(e.type)) return acc + e.amount;
-      if (["expense", "debt_out", "investment"].includes(e.type)) return acc - e.amount;
+      const amount = e.amount ?? 0;
+      if (["income", "debt_in"].includes(e.type)) return acc + amount;
+      if (["expense", "debt_out", "investment"].includes(e.type)) return acc - amount;
       return acc;
     }, 0);
 
@@ -261,7 +262,7 @@ export default function WalletPage() {
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="text-sm font-bold text-white truncate capitalize">{entry.description}</h4>
                         <span className={`text-sm font-black ${["income", "debt_in"].includes(entry.type) ? "text-emerald-400" : "text-rose-400"}`}>
-                          {["income", "debt_in"].includes(entry.type) ? "+" : "-"}₺{entry.amount.toLocaleString('tr-TR')}
+                          {["income", "debt_in"].includes(entry.type) ? "+" : "-"}₺{(entry.amount ?? 0).toLocaleString('tr-TR')}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
