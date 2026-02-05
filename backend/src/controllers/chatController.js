@@ -4,17 +4,24 @@
 
 import "dotenv/config";
 import axios from "axios";
-import OpenAI from "openai";
+// import OpenAI from "openai"; // REMOVED
 import cacheManager from "../utils/cacheManager.js"; // Import Cache Manager
 import { incrementFinbotUsage } from "../middleware/quotaMiddleware.js";
+import { createChatCompletion } from "../services/bedrockService.js";
 
 
 // MODELS
 import Chat from "../models/Chat.js";
 import Portfolio from "../models/Portfolio.js";
 
-// OpenAI Client
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// OpenAI Client - Switched to Bedrock (Claude 3.5 Sonnet)
+const openai = {
+  chat: {
+    completions: {
+      create: createChatCompletion
+    }
+  }
+};
 
 /* =========================
    CONSOLE LOG HELPER
@@ -405,7 +412,8 @@ Sen **AntiGravity**, finansal verileri sıkıcı tablolardan kurtarıp modern, a
 - **Dil:** Kullanıcının dilini algıla (TR/EN) ve %100 uyum sağla.
 
 # VERİ KAYNAĞI: TIINGO API 📡
-Tüm verileri **Tiingo API** üzerinden canlı çekmelisin:
+Tüm verileri **Tiingo API** üzerinden canlı çekmelisin.
+Veriler sana `< financial_context > ` XML etiketleri içinde sunulacaktır. Bu verileri analizinde temel al.
 1.  **Fiyat & Piyasa Değeri (Market Cap)**
 2.  **Bilanço:** Net Kâr, Özkaynak, Hasılat, Toplam Aktifler.
 3.  **FAVÖK (EBITDA):** Operasyonel kârlılık için kritik.
@@ -459,18 +467,18 @@ Kullanıcı "Analiz", "Rapor" veya "Detay" istediyse şu JSON yapısını metnin
   "data": {
     "ticker": "SYMBOL",
     "financial_status": {
-      "net_income": "XX.XXB",
-      "equity": "XX.XXB",
-      "total_assets": "XX.XXB",
-      "revenue": "XX.XXB"
+      "net_income": "24.5B",
+      "equity": "10.2B",
+      "total_assets": "150.5B",
+      "revenue": "54.2B"
     },
     "important_news": [
       "News Title 1",
       "News Title 2",
       "News Title 3"
     ],
-    "market_cap": "XX.XXB",
-    "ebitda": "XX.XXB",
+    "market_cap": "85.4B",
+    "ebitda": "18.2B",
     "price_outlook": "Text Summary"
   }
 }
@@ -479,29 +487,44 @@ Kullanıcı "Analiz", "Rapor" veya "Detay" istediyse şu JSON yapısını metnin
 # KISITLAMALAR
 1. AL/SAT tavsiyesi VERME, objektif ol
 2. Rakamları B (milyar), M (milyon) formatında göster
+3. Her zaman veri kaynağını belirt (Tiingo API)
+4. JSON çıktıdaki değerleri ASLA "XX.XX" şeklinde bırakma, <financial_context> içindeki gerçek verileri kullan. Veri yoksa "N/A" yaz.
+\`\`\`
+
+# KISITLAMALAR
+1. AL/SAT tavsiyesi VERME, objektif ol
+2. Rakamları B (milyar), M (milyon) formatında göster
 3. Her zaman veri kaynağını belirt (Tiingo API)`;
 
+  // CLAUDE 3.5 SONNET CONTEXT OPTIMIZATION (XML)
   const financialBlock = `
-FİNANSAL VERİLER (Kaynak: Tiingo API)
-Hisse: ${ticker}
-Dönem: ${metrics?.date || "Son Dönem"}
+<financial_context>
+  <metadata>
+    <ticker>${ticker}</ticker>
+    <period>${metrics?.date || "Son Dönem"}</period>
+    <source>Tiingo API</source>
+  </metadata>
 
-📈 GELİR TABLOSU:
-- Gelir (Revenue): ${formatNumberDisplay(metrics?.revenue)} USD
-- Brüt Kâr (Gross Profit): ${formatNumberDisplay(metrics?.grossProfit)} USD
-- Net Kâr (Net Income): ${formatNumberDisplay(metrics?.netIncome)} USD
-- EBITDA: ${formatNumberDisplay(metrics?.ebitda)} USD
+  <income_statement>
+    <revenue>${formatNumberDisplay(metrics?.revenue)} USD</revenue>
+    <gross_profit>${formatNumberDisplay(metrics?.grossProfit)} USD</gross_profit>
+    <net_income>${formatNumberDisplay(metrics?.netIncome)} USD</net_income>
+    <ebitda>${formatNumberDisplay(metrics?.ebitda)} USD</ebitda>
+  </income_statement>
 
-📋 BİLANÇO:
-- Toplam Varlık (Total Assets): ${formatNumberDisplay(metrics?.totalAssets)} USD
-- Toplam Yükümlülük (Total Liabilities): ${formatNumberDisplay(metrics?.totalLiabilities)} USD
-- Özkaynak (Equity): ${formatNumberDisplay(metrics?.totalEquity)} USD
-- Toplam Borç (Total Debt): ${formatNumberDisplay(metrics?.totalDebt)} USD
-- Nakit (Cash): ${formatNumberDisplay(metrics?.cash)} USD
+  <balance_sheet>
+    <total_assets>${formatNumberDisplay(metrics?.totalAssets)} USD</total_assets>
+    <total_liabilities>${formatNumberDisplay(metrics?.totalLiabilities)} USD</total_liabilities>
+    <equity>${formatNumberDisplay(metrics?.totalEquity)} USD</equity>
+    <total_debt>${formatNumberDisplay(metrics?.totalDebt)} USD</total_debt>
+    <cash>${formatNumberDisplay(metrics?.cash)} USD</cash>
+  </balance_sheet>
 
-💵 NAKİT AKIŞI:
-- Faaliyetlerden Nakit: ${formatNumberDisplay(metrics?.operatingCashFlow)} USD
-- Serbest Nakit Akışı: ${formatNumberDisplay(metrics?.freeCashFlow)} USD`;
+  <cash_flow>
+    <operating_cash_flow>${formatNumberDisplay(metrics?.operatingCashFlow)} USD</operating_cash_flow>
+    <free_cash_flow>${formatNumberDisplay(metrics?.freeCashFlow)} USD</free_cash_flow>
+  </cash_flow>
+</financial_context>`.trim();
 
   try {
     log.info("OPENAI", "API çağrısı yapılıyor (gpt-4o)...");
@@ -583,6 +606,12 @@ async function getChatResponse(question, history = []) {
       params: { ticker },
       financialData: null
     };
+  }
+
+  // DATA VALIDITY CHECK
+  if (!metrics.netIncome && !metrics.revenue && !metrics.totalAssets) {
+    log.warn("AŞAMA 3", "Veri geldi ancak temel metrikler (Gelir, Kâr) boş!");
+    // Proceed but logs will show warning
   }
 
   // AŞAMA 4: Frontend İçin Data Mapping

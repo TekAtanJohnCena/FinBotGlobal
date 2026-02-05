@@ -37,8 +37,9 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            // Backend URL (Port 5000)
-            const response = await axios.put(`http://localhost:5000/api/auth/resetpassword/${token}`, { password });
+            // Backend URL (App Runner)
+            const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
+            const response = await axios.put(`${API_URL}/api/auth/resetpassword/${token}`, { password });
 
             setMessage('Şifreniz başarıyla güncellendi! Giriş sayfasına yönlendiriliyorsunuz...');
 

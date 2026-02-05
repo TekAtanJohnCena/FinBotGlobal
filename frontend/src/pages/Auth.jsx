@@ -419,7 +419,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+      const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
       const token = localStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/api/subscription/upgrade`, {

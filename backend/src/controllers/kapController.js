@@ -1,9 +1,18 @@
 // PATH: backend/src/controllers/kapController.js
 import "dotenv/config";
-import { OpenAI } from "openai";
+import "dotenv/config";
+// import { OpenAI } from "openai"; // REMOVED
 import { fetchKapNews } from "../services/kapScraperService.js";
+import { createChatCompletion } from "../services/bedrockService.js";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// OpenAI Client - Switched to Bedrock (Claude 3.5 Sonnet)
+const openai = {
+  chat: {
+    completions: {
+      create: createChatCompletion
+    }
+  }
+};
 
 /**
  * KAP haberlerini getirir
@@ -12,15 +21,15 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function getKapNews(req, res) {
   try {
     console.log(`📰 KAP haberleri çekiliyor (Borsagundem RSS - tüm mevcut haberler)`);
-    
+
     // Scraper servisinden haberleri çek
     const news = await fetchKapNews();
-    
+
     if (!news || !Array.isArray(news) || news.length === 0) {
       console.warn('⚠️ Hiç haber çekilemedi');
       return res.status(200).json([]);
     }
-    
+
     console.log(`✅ Toplam ${news.length} haber başarıyla çekildi`);
     res.json(news);
   } catch (error) {
@@ -44,8 +53,8 @@ export async function analyzeKapNews(req, res) {
 
     // Validasyon
     if (!title || !summary) {
-      return res.status(400).json({ 
-        error: "title ve summary alanları zorunludur" 
+      return res.status(400).json({
+        error: "title ve summary alanları zorunludur"
       });
     }
 
@@ -64,7 +73,7 @@ Yanıtını sadece valid bir JSON objesi olarak ver.`;
     // Token tasarrufu için metin kısaltma
     const shortSummary = summary.substring(0, 300);
     const shortTitle = title.substring(0, 150);
-    
+
     // --- USER PROMPT ---
     // Yeni 'prediction' tanımı ile modelin çıktısı yönlendiriliyor.
     const userPrompt = `KAP Haberi Analizi:
@@ -98,12 +107,12 @@ Bu haberi analiz et ve aşağıdaki JSON şemasına tam uyarak yanıt ver:
     try {
       const content = completion.choices?.[0]?.message?.content?.trim() || "{}";
       analysis = JSON.parse(content);
-      
+
       // Eksik alan kontrolü
       if (!analysis.sentiment || !analysis.score || !analysis.prediction) {
         throw new Error("Eksik analiz sonucu");
       }
-      
+
       // Sentiment normalizasyonu (Büyük/küçük harf veya İngilizce gelirse diye)
       const sentimentMap = {
         "olumlu": "Olumlu",
@@ -113,21 +122,21 @@ Bu haberi analiz et ve aşağıdaki JSON şemasına tam uyarak yanıt ver:
         "negative": "Olumsuz",
         "neutral": "Nötr"
       };
-      
+
       const normalizedSentiment = sentimentMap[analysis.sentiment.toLowerCase()] || analysis.sentiment;
-      
+
       // Skor normalizasyonu (1-10 arası)
       const score = Math.max(1, Math.min(10, parseInt(analysis.score) || 5));
-      
+
       // Prediction temizliği
       const prediction = analysis.prediction.substring(0, 200).trim();
-      
+
       analysis = {
         sentiment: normalizedSentiment,
         score: score,
         prediction: prediction
       };
-      
+
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       // Fallback: Analiz başarısız olursa güvenli bir varsayılan döndür.
@@ -139,12 +148,12 @@ Bu haberi analiz et ve aşağıdaki JSON şemasına tam uyarak yanıt ver:
     }
 
     res.json(analysis);
-    
+
   } catch (error) {
     console.error("KAP Analysis Error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Analiz sırasında bir hata oluştu",
-      details: error.message 
+      details: error.message
     });
   }
 }

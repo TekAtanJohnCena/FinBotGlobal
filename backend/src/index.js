@@ -54,6 +54,7 @@ const allowedOrigins = [
   'http://localhost:5000',
   'https://finbot.com.tr',
   'https://www.finbot.com.tr',
+  'https://d1qj4pwn1ro8oy.cloudfront.net', // CloudFront distribution
   process.env.CLIENT_URL
 ].filter(Boolean);
 
@@ -168,16 +169,24 @@ process.on("SIGTERM", () => {
   });
 });
 
+
 // ===== Start Server =====
 const PORT = process.env.PORT || 5000;
 
-// Only start server if not in test mode
-if (process.env.NODE_ENV !== 'test') {
+// Only start server if not in test mode AND not running in AWS Lambda
+// When deployed to Lambda, serverless-http handles the HTTP processing
+const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+if (process.env.NODE_ENV !== 'test' && !isLambda) {
   app.listen(PORT, () => {
     logger.info(`🚀 Server running on port ${PORT}`);
     logger.info(`📋 Environment: ${process.env.NODE_ENV || "development"}`);
     logger.info(`🔒 Rate limiting: Enabled`);
   });
+} else if (isLambda) {
+  logger.info(`🔷 Running in AWS Lambda mode`);
+  logger.info(`📋 Environment: ${process.env.NODE_ENV || "production"}`);
 }
 
 export default app;
+

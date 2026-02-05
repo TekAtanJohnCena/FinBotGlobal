@@ -8,68 +8,68 @@ import LanguageSelector from "../components/LanguageSelector";
 import logo from "../images/logo1.png";
 
 const Contact = () => {
-    const { t } = useContext(LanguageContext);
+  const { t } = useContext(LanguageContext);
 
-    // Form state
-    const [companyName, setCompanyName] = useState("");
-    const [contactName, setContactName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [employeeCount, setEmployeeCount] = useState("");
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
+  // Form state
+  const [companyName, setCompanyName] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [employeeCount, setEmployeeCount] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        // Validasyonlar
-        if (!companyName.trim() || !contactName.trim() || !email.trim() || !message.trim()) {
-            toast.error('Lütfen zorunlu alanları doldurun');
-            return;
-        }
+    // Validasyonlar
+    if (!companyName.trim() || !contactName.trim() || !email.trim() || !message.trim()) {
+      toast.error('Lütfen zorunlu alanları doldurun');
+      return;
+    }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            toast.error('Geçerli bir e-posta adresi girin');
-            return;
-        }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Geçerli bir e-posta adresi girin');
+      return;
+    }
 
-        setLoading(true);
+    setLoading(true);
 
-        try {
-            // API call (şimdilik mock)
-            // const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
-            // await fetch(`${API_URL}/api/contact`, {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify({ companyName, contactName, email, phone, employeeCount, message })
-            // });
+    try {
+      // API call (şimdilik mock)
+      // const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
+      // await fetch(`${API_URL}/api/contact`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ companyName, contactName, email, phone, employeeCount, message })
+      // });
 
-            // Simüle edilmiş gecikme
-            await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simüle edilmiş gecikme
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-            console.log('Enterprise Contact Form Submitted:', {
-                companyName,
-                contactName,
-                email,
-                phone,
-                employeeCount,
-                message,
-                submittedAt: new Date().toISOString()
-            });
+      console.log('Enterprise Contact Form Submitted:', {
+        companyName,
+        contactName,
+        email,
+        phone,
+        employeeCount,
+        message,
+        submittedAt: new Date().toISOString()
+      });
 
-            setSubmitted(true);
-            toast.success('Mesajınız başarıyla gönderildi!');
-        } catch (error) {
-            console.error('Contact form error:', error);
-            toast.error('Bir hata oluştu, lütfen tekrar deneyin');
-        } finally {
-            setLoading(false);
-        }
-    };
+      setSubmitted(true);
+      toast.success('Mesajınız başarıyla gönderildi!');
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast.error('Bir hata oluştu, lütfen tekrar deneyin');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const styles = `
+  const styles = `
     /* GLOBAL */
     html, body {
       margin: 0 !important;
@@ -489,234 +489,234 @@ const Contact = () => {
     }
   `;
 
-    if (submitted) {
-        return (
-            <>
-                <style>{styles}</style>
-                <Toaster position="top-center" toastOptions={{ style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' } }} />
-
-                <div className="contact-wrapper">
-                    <div className="contact-form-side">
-                        <div className="contact-form-container">
-                            <Link to="/">
-                                <img src={logo} alt="Finbot" className="contact-logo" />
-                            </Link>
-
-                            <div className="success-container">
-                                <div className="success-icon">✓</div>
-                                <h2 className="success-title">Mesajınız Alındı!</h2>
-                                <p className="success-message">
-                                    Enterprise ekibimiz en kısa sürede sizinle iletişime geçecektir.
-                                    Genellikle 24 saat içinde dönüş yapıyoruz.
-                                </p>
-                                <Link to="/" className="btn-secondary">
-                                    ← Ana Sayfaya Dön
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </>
-        );
-    }
-
+  if (submitted) {
     return (
-        <>
-            <style>{styles}</style>
+      <>
+        <style>{styles}</style>
+        <Toaster position="top-center" toastOptions={{ style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' } }} />
 
-            <Toaster
-                position="top-center"
-                toastOptions={{
-                    style: {
-                        background: '#1a1a1a',
-                        color: '#fff',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '8px',
-                    },
-                }}
-            />
+        <div className="contact-wrapper">
+          <div className="contact-form-side">
+            <div className="contact-form-container">
+              <Link to="/">
+                <img src={logo} alt="Finbot" className="contact-logo" />
+              </Link>
 
-            <div className="contact-wrapper">
-                <div className="contact-form-side">
-                    <div className="contact-form-container">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                            <Link to="/">
-                                <img src={logo} alt="Finbot" className="contact-logo" style={{ margin: 0 }} />
-                            </Link>
-                            <LanguageSelector />
-                        </div>
-
-                        <div className="contact-header">
-                            <div className="contact-badge">
-                                <span>🏢</span>
-                                <span>Enterprise</span>
-                            </div>
-                            <h1 className="contact-title">Kurumsal Çözümler</h1>
-                            <p className="contact-subtitle">
-                                Şirketinize özel yapay zeka destekli finansal analiz çözümleri için ekibimizle iletişime geçin.
-                            </p>
-                        </div>
-
-                        <form onSubmit={handleSubmit}>
-                            {/* Şirket Adı / Yetkili */}
-                            <div className="form-row">
-                                <div>
-                                    <label className="form-label">
-                                        Şirket Adı <span className="required">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="glass-input"
-                                        value={companyName}
-                                        onChange={(e) => setCompanyName(e.target.value)}
-                                        placeholder="ABC Holding A.Ş."
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="form-label">
-                                        Yetkili Adı <span className="required">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="glass-input"
-                                        value={contactName}
-                                        onChange={(e) => setContactName(e.target.value)}
-                                        placeholder="Ad Soyad"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* E-posta / Telefon */}
-                            <div className="form-row">
-                                <div>
-                                    <label className="form-label">
-                                        Kurumsal E-posta <span className="required">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className="glass-input"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="yetkili@sirket.com"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="form-label">Telefon</label>
-                                    <input
-                                        type="tel"
-                                        className="glass-input"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="+90 5XX XXX XX XX"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Çalışan Sayısı */}
-                            <div className="form-group">
-                                <label className="form-label">Çalışan Sayısı</label>
-                                <select
-                                    className="glass-input glass-select"
-                                    value={employeeCount}
-                                    onChange={(e) => setEmployeeCount(e.target.value)}
-                                >
-                                    <option value="">Seçiniz</option>
-                                    <option value="1-10">1-10 Kişi</option>
-                                    <option value="11-50">11-50 Kişi</option>
-                                    <option value="51-200">51-200 Kişi</option>
-                                    <option value="201-500">201-500 Kişi</option>
-                                    <option value="500+">500+ Kişi</option>
-                                </select>
-                            </div>
-
-                            {/* Mesaj */}
-                            <div className="form-group">
-                                <label className="form-label">
-                                    Mesajınız <span className="required">*</span>
-                                </label>
-                                <textarea
-                                    className="glass-input glass-textarea"
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Hangi çözümlerle ilgileniyorsunuz? İhtiyaçlarınızı kısaca açıklayın..."
-                                    required
-                                />
-                            </div>
-
-                            <button type="submit" className="btn-primary" disabled={loading}>
-                                {loading ? (
-                                    <>
-                                        <span className="spinner" />
-                                        Gönderiliyor...
-                                    </>
-                                ) : (
-                                    <>📩 Mesaj Gönder</>
-                                )}
-                            </button>
-                        </form>
-
-                        <p className="contact-footer">
-                            Bireysel planlar için{" "}
-                            <Link to="/#pricing" className="contact-link">fiyatlandırma sayfamızı</Link>
-                            {" "}ziyaret edin.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="contact-info-side">
-                    <div className="info-card">
-                        <h3 className="info-card-title">Neden Enterprise?</h3>
-
-                        <div className="info-item">
-                            <div className="info-icon">🔐</div>
-                            <div className="info-content">
-                                <h4>Özel Güvenlik</h4>
-                                <p>On-premise kurulum, SSO entegrasyonu ve özel veri izolasyonu</p>
-                            </div>
-                        </div>
-
-                        <div className="info-item">
-                            <div className="info-icon">⚡</div>
-                            <div className="info-content">
-                                <h4>Sınırsız Kullanım</h4>
-                                <p>Tüm kullanıcılar için sınırsız API çağrısı ve analiz</p>
-                            </div>
-                        </div>
-
-                        <div className="info-item">
-                            <div className="info-icon">🎯</div>
-                            <div className="info-content">
-                                <h4>Özel Eğitim</h4>
-                                <p>Şirketinize özel AI model eğitimi ve özelleştirme</p>
-                            </div>
-                        </div>
-
-                        <div className="info-item">
-                            <div className="info-icon">🤝</div>
-                            <div className="info-content">
-                                <h4>Dedicated Destek</h4>
-                                <p>7/24 öncelikli teknik destek ve hesap yöneticisi</p>
-                            </div>
-                        </div>
-
-                        <div className="enterprise-features">
-                            <h5>Enterprise Özellikleri</h5>
-                            <div className="feature-list">
-                                <span className="feature-tag">✓ API Erişimi</span>
-                                <span className="feature-tag">✓ Özel Raporlar</span>
-                                <span className="feature-tag">✓ SLA Garantisi</span>
-                                <span className="feature-tag">✓ Audit Logs</span>
-                                <span className="feature-tag">✓ Multi-tenant</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <div className="success-container">
+                <div className="success-icon">✓</div>
+                <h2 className="success-title">Mesajınız Alındı!</h2>
+                <p className="success-message">
+                  Enterprise ekibimiz en kısa sürede sizinle iletişime geçecektir.
+                  Genellikle 24 saat içinde dönüş yapıyoruz.
+                </p>
+                <Link to="/" className="btn-secondary">
+                  ← Ana Sayfaya Dön
+                </Link>
+              </div>
             </div>
-        </>
+          </div>
+        </div>
+      </>
     );
+  }
+
+  return (
+    <>
+      <style>{styles}</style>
+
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: '#1a1a1a',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '8px',
+          },
+        }}
+      />
+
+      <div className="contact-wrapper">
+        <div className="contact-form-side">
+          <div className="contact-form-container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <Link to="/">
+                <img src={logo} alt="Finbot" className="contact-logo" style={{ margin: 0 }} />
+              </Link>
+              <LanguageSelector />
+            </div>
+
+            <div className="contact-header">
+              <div className="contact-badge">
+                <span>🏢</span>
+                <span>Enterprise</span>
+              </div>
+              <h1 className="contact-title">Kurumsal Çözümler</h1>
+              <p className="contact-subtitle">
+                Şirketinize özel yapay zeka destekli finansal analiz çözümleri için ekibimizle iletişime geçin.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              {/* Şirket Adı / Yetkili */}
+              <div className="form-row">
+                <div>
+                  <label className="form-label">
+                    Şirket Adı <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="glass-input"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    placeholder="ABC Holding A.Ş."
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="form-label">
+                    Yetkili Adı <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="glass-input"
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    placeholder="Ad Soyad"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* E-posta / Telefon */}
+              <div className="form-row">
+                <div>
+                  <label className="form-label">
+                    Kurumsal E-posta <span className="required">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    className="glass-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="yetkili@sirket.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Telefon</label>
+                  <input
+                    type="tel"
+                    className="glass-input"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+90 5XX XXX XX XX"
+                  />
+                </div>
+              </div>
+
+              {/* Çalışan Sayısı */}
+              <div className="form-group">
+                <label className="form-label">Çalışan Sayısı</label>
+                <select
+                  className="glass-input glass-select"
+                  value={employeeCount}
+                  onChange={(e) => setEmployeeCount(e.target.value)}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="1-10">1-10 Kişi</option>
+                  <option value="11-50">11-50 Kişi</option>
+                  <option value="51-200">51-200 Kişi</option>
+                  <option value="201-500">201-500 Kişi</option>
+                  <option value="500+">500+ Kişi</option>
+                </select>
+              </div>
+
+              {/* Mesaj */}
+              <div className="form-group">
+                <label className="form-label">
+                  Mesajınız <span className="required">*</span>
+                </label>
+                <textarea
+                  className="glass-input glass-textarea"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Hangi çözümlerle ilgileniyorsunuz? İhtiyaçlarınızı kısaca açıklayın..."
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? (
+                  <>
+                    <span className="spinner" />
+                    Gönderiliyor...
+                  </>
+                ) : (
+                  <>📩 Mesaj Gönder</>
+                )}
+              </button>
+            </form>
+
+            <p className="contact-footer">
+              Bireysel planlar için{" "}
+              <Link to="/#pricing" className="contact-link">fiyatlandırma sayfamızı</Link>
+              {" "}ziyaret edin.
+            </p>
+          </div>
+        </div>
+
+        <div className="contact-info-side">
+          <div className="info-card">
+            <h3 className="info-card-title">Neden Enterprise?</h3>
+
+            <div className="info-item">
+              <div className="info-icon">🔐</div>
+              <div className="info-content">
+                <h4>Özel Güvenlik</h4>
+                <p>On-premise kurulum, SSO entegrasyonu ve özel veri izolasyonu</p>
+              </div>
+            </div>
+
+            <div className="info-item">
+              <div className="info-icon">⚡</div>
+              <div className="info-content">
+                <h4>Sınırsız Kullanım</h4>
+                <p>Tüm kullanıcılar için sınırsız API çağrısı ve analiz</p>
+              </div>
+            </div>
+
+            <div className="info-item">
+              <div className="info-icon">🎯</div>
+              <div className="info-content">
+                <h4>Özel Eğitim</h4>
+                <p>Şirketinize özel AI model eğitimi ve özelleştirme</p>
+              </div>
+            </div>
+
+            <div className="info-item">
+              <div className="info-icon">🤝</div>
+              <div className="info-content">
+                <h4>Dedicated Destek</h4>
+                <p>7/24 öncelikli teknik destek ve hesap yöneticisi</p>
+              </div>
+            </div>
+
+            <div className="enterprise-features">
+              <h5>Enterprise Özellikleri</h5>
+              <div className="feature-list">
+                <span className="feature-tag">✓ API Erişimi</span>
+                <span className="feature-tag">✓ Özel Raporlar</span>
+                <span className="feature-tag">✓ SLA Garantisi</span>
+                <span className="feature-tag">✓ Audit Logs</span>
+                <span className="feature-tag">✓ Multi-tenant</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default Contact;

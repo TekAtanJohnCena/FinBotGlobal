@@ -11,11 +11,20 @@
  */
 
 import "dotenv/config";
-import { OpenAI } from "openai";
+import "dotenv/config";
+// import { OpenAI } from "openai"; // REMOVED
 import aiCacheManager from "../utils/aiCacheManager.js";
+import { createChatCompletion } from "../services/bedrockService.js";
 
-// OpenAI Client - Single instance
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// OpenAI Client - Switched to Bedrock (Claude 3.5 Sonnet)
+// Mock OpenAI interface using Bedrock service
+const openai = {
+    chat: {
+        completions: {
+            create: createChatCompletion
+        }
+    }
+};
 
 // Language mappings
 const LANG_NAMES = {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Backend adresin (Backend 5000 portunda çalışıyorsa)
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = 'https://kabc8j4wap.us-east-1.awsapprunner.com/api/auth';
 
 // Kayıt Olma İsteği
 const register = async (userData) => {

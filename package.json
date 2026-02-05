@@ -1,0 +1,25 @@
+{
+    "name": "finbot-global-aws",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "FinBotGlobal - AWS Deployment with SST v3",
+    "scripts": {
+        "dev": "sst dev",
+        "deploy": "sst deploy --stage production",
+        "deploy:dev": "sst deploy --stage dev",
+        "remove": "sst remove",
+        "console": "sst console"
+    },
+    "keywords": [
+        "finbot",
+        "aws",
+        "sst",
+        "serverless"
+    ],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "sst": "^3.3.26"
+    }
+}

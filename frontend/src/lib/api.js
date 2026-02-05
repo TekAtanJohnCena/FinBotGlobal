@@ -2,7 +2,7 @@ import axios from "axios";
 
 // ✅ Production'da backend farklı domain'de olabilir
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com',
   withCredentials: true, // ✅ PROD için zorunlu (cookie-based auth)
 });
 
