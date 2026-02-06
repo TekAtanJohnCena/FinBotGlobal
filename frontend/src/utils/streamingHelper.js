@@ -39,34 +39,53 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
 
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
-                    try {
-                        const data = JSON.parse(line.slice(6));
+                    const jsonStr = line.slice(6);
+                    if (!jsonStr.trim()) continue;
 
-                        if (data.type === 'financialData') {
-                            financialDataReceived = data.data;
-                        } else if (data.type === 'text') {
-                            fullText += data.content;
-                            const currentText = fullText;
-                            setMessages((prev) => {
-                                const newMessages = [...prev];
-                                newMessages[botMessageIndex] = {
-                                    sender: "bot",
-                                    text: currentText,
-                                    isStreaming: true
-                                };
-                                return newMessages;
-                            });
-                            scrollToBottom();
-                        } else if (data.type === 'done') {
-                            if (!chatId && data.chatId) {
-                                setActiveChatId(data.chatId);
-                                fetchHistory();
-                            }
-                        } else if (data.error) {
-                            throw new Error(data.error);
+                    let data;
+                    try {
+                        data = JSON.parse(jsonStr);
+                    } catch (e) {
+                        console.warn('Non-JSON stream line:', jsonStr);
+                        continue;
+                    }
+
+                    if (data.type === 'financialData') {
+                        financialDataReceived = data.data;
+                    } else if (data.type === 'text') {
+                        fullText += data.content;
+                        // Closure issue fix: create local variable
+                        const currentText = fullText;
+                        setMessages((prev) => {
+                            const newMessages = [...prev];
+                            newMessages[botMessageIndex] = {
+                                sender: "bot",
+                                text: currentText,
+                                isStreaming: true
+                            };
+                            return newMessages;
+                        });
+                        scrollToBottom();
+                    } else if (data.type === 'done') {
+                        if (!chatId && data.chatId) {
+                            setActiveChatId(data.chatId);
+                            fetchHistory();
                         }
-                    } catch (parseError) {
-                        console.error('Parse error:', parseError);
+                    } else if (data.error) {
+                        // Backend explicitly sent an error
+                        console.error('Backend Stream Error:', data.error);
+                        // Stop stream and show error in UI
+                        setMessages((prev) => {
+                            const newMessages = [...prev];
+                            newMessages[botMessageIndex] = {
+                                sender: "bot",
+                                text: `⚠️ ${data.error}`,
+                                isStreaming: false,
+                                isError: true
+                            };
+                            return newMessages;
+                        });
+                        return { success: false, error: data.error };
                     }
                 }
             }
