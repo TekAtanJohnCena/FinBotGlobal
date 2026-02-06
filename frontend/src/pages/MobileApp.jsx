@@ -86,7 +86,7 @@ function NativeLanguageSelector() {
    ========================================= */
 
 export default function MobileApp() {
-  const { t, language } = useContext(LanguageContext);
+  const { language } = useContext(LanguageContext);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const isRTL = language === 'ar';

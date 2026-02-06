@@ -58,12 +58,7 @@ export const config = {
 
     // Tiingo API
     tiingoApiKey: getOptional('TIINGO_API_KEY', null),
-    tiingoMockMode: getOptional('TIINGO_MOCK_MODE', 'true') === 'true',
 
-    // Polygon API (backup)
-    polygonApiKey: getOptional('POLYGON_API_KEY', null),
-    polygonTier: getOptional('POLYGON_TIER', 'free'),
-    useMockData: getOptional('USE_MOCK_DATA', 'true') === 'true',
 
     // OAuth
     googleClientId: getOptional('GOOGLE_CLIENT_ID', null),
@@ -91,7 +86,6 @@ if (config.isDev) {
     console.log('📋 Environment Configuration:');
     console.log(`   Mode: ${config.env}`);
     console.log(`   Port: ${config.port}`);
-    console.log(`   Tiingo Mock: ${config.tiingoMockMode}`);
     console.log(`   MongoDB: ${config.mongoUri ? '✅ Connected' : '❌ Missing'}`);
     console.log(`   SMTP: ${config.smtp.host}:${config.smtp.port} (${config.smtp.email ? '✅ Configured' : '❌ Missing Email'})`);
 }

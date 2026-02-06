@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from "../lib/api";
 import {
-  Newspaper,
   RefreshCw,
   ExternalLink,
   Clock,
@@ -13,8 +12,7 @@ import {
   Loader2,
   ChevronRight,
   Filter,
-  Building2,
-  Calendar,
+
   Search,
   X
 } from 'lucide-react';
@@ -31,7 +29,7 @@ const NewsPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [tickerSearch, setTickerSearch] = useState("");
 
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -59,11 +57,11 @@ const NewsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedStock]);
 
   useEffect(() => {
     fetchNews();
-  }, [selectedStock]);
+  }, [fetchNews]);
 
   const analyzeNews = async (newsItem) => {
     // Token kontrolü

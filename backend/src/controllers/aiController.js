@@ -11,8 +11,7 @@
  */
 
 import "dotenv/config";
-import "dotenv/config";
-// import { OpenAI } from "openai"; // REMOVED
+
 import aiCacheManager from "../utils/aiCacheManager.js";
 import { createChatCompletion } from "../services/bedrockService.js";
 

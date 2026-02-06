@@ -3,7 +3,7 @@ import {
     Calendar as CalendarIcon,
     DollarSign,
     PieChart,
-    ArrowRight,
+
     Clock,
     ChevronRight,
     TrendingUp,
@@ -13,62 +13,10 @@ import {
 const Calendar = () => {
     const [filter, setFilter] = useState("This Week");
 
-    const MOCK_EVENTS = [
-        {
-            id: 1,
-            symbol: "NVDA",
-            name: "NVIDIA Corp.",
-            date: "Feb 25, 2026",
-            type: "Earnings",
-            timing: "After Market",
-            expectation: "EPS: $4.59",
-            impact: "High",
-            week: "This Week"
-        },
-        {
-            id: 2,
-            symbol: "AAPL",
-            name: "Apple Inc.",
-            date: "Feb 12, 2026",
-            type: "Dividend",
-            expectation: "Amount: $0.24",
-            impact: "Medium",
-            week: "This Week"
-        },
-        {
-            id: 3,
-            symbol: "TSLA",
-            name: "Tesla, Inc.",
-            date: "Mar 02, 2026",
-            type: "Earnings",
-            timing: "After Market",
-            expectation: "EPS: $0.78",
-            impact: "High",
-            week: "Next Week"
-        },
-        {
-            id: 4,
-            symbol: "KO",
-            name: "Coca-Cola Co.",
-            date: "Mar 15, 2026",
-            type: "Dividend",
-            expectation: "Amount: $0.48",
-            impact: "Low",
-            week: "Next Week"
-        },
-        {
-            id: 5,
-            symbol: "MSFT",
-            name: "Microsoft",
-            date: "Feb 20, 2026",
-            type: "Split",
-            expectation: "Ratio: 2-for-1",
-            impact: "High",
-            week: "Next Week"
-        }
-    ];
+    // TODO: Fetch real calendar events from Tiingo API
+    const events = [];
 
-    const filteredEvents = MOCK_EVENTS.filter(e => e.week === filter);
+    const filteredEvents = events.filter(e => e.week === filter);
 
     const getEventIcon = (type) => {
         switch (type) {
@@ -98,8 +46,8 @@ const Calendar = () => {
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all ${filter === f
-                                        ? 'bg-[#0f111a] text-white shadow-lg border border-slate-700/50'
-                                        : 'text-slate-500 hover:text-slate-300'
+                                    ? 'bg-[#0f111a] text-white shadow-lg border border-slate-700/50'
+                                    : 'text-slate-500 hover:text-slate-300'
                                     }`}
                             >
                                 {f}
@@ -125,8 +73,8 @@ const Calendar = () => {
                                     <div className="flex items-center gap-2">
                                         <span className="text-lg font-black text-slate-100">{event.symbol}</span>
                                         <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${event.impact === 'High' ? 'bg-rose-500/10 text-rose-500' :
-                                                event.impact === 'Medium' ? 'bg-amber-500/10 text-amber-500' :
-                                                    'bg-emerald-500/10 text-emerald-500'
+                                            event.impact === 'Medium' ? 'bg-amber-500/10 text-amber-500' :
+                                                'bg-emerald-500/10 text-emerald-500'
                                             }`}>
                                             {event.impact} Impact
                                         </span>

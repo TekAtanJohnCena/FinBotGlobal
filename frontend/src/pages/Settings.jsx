@@ -23,7 +23,7 @@ import {
     LockClosedIcon,
     PlusIcon,
     ArrowDownTrayIcon,
-    ArrowPathIcon,
+
     ExclamationTriangleIcon,
     CheckCircleIcon,
 } from "@heroicons/react/24/outline";
@@ -369,7 +369,7 @@ const PasswordModal = ({ isOpen, onClose, onSubmit }) => {
 
 // Main Settings Component
 export default function Settings() {
-    const { user, logout } = useContext(AuthContext);
+    const { logout } = useContext(AuthContext);
     const { profile, loading: profileLoading, refetch } = useUserProfile();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("account");

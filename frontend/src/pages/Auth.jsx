@@ -138,7 +138,7 @@ const Auth = () => {
   const [cardCVC, setCardCVC] = useState("");
   const [cardHolder, setCardHolder] = useState("");
 
-  const [verificationPending, setVerificationPending] = useState(false);
+
   const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -315,7 +315,7 @@ const Auth = () => {
       await verifyEmail(email, otpCode);
       toast.success("E-posta doğrulandı! Hoş geldiniz.");
 
-      setVerificationPending(false);
+
       setIsRegistered(true);
 
       // Eğer plan parametresi varsa ödeme adımına, yoksa plan seçimine
@@ -432,7 +432,7 @@ const Auth = () => {
           planName: selectedPlan.nameKey.toUpperCase(),
           interval: 'monthly',
           paymentDetails: {
-            cardToken: 'mock_token_' + Date.now(),
+            cardToken: 'stripe_token_placeholder', // TODO: Integrate Stripe.js for real tokenization
             last4: cardNumber.slice(-4),
             brand: 'visa'
           }

@@ -17,7 +17,7 @@ const ForgotPassword = () => {
     try {
       // Backend URL (App Runner)
       const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
-      const response = await axios.post(`${API_URL}/api/auth/forgotpassword`, { email });
+      await axios.post(`${API_URL}/api/auth/forgotpassword`, { email });
 
       setMessage('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen mail kutunuzu kontrol edin.');
       setEmail('');

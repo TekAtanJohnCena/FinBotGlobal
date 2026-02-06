@@ -19,8 +19,7 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 
 // ROUTE IMPORTS
 import authRoutes from "./routes/authRoutes.js";
-import priceRoutes from "./routes/priceRoutes.js";
-import financeRoutes from "./routes/finance.js";
+
 import financeChartRoutes from "./routes/financeChart.js";
 import portfolioRoutes from "./routes/portfolio.js";
 import walletRoutes from "./routes/walletRoutes.js";
@@ -85,8 +84,7 @@ app.use(generalLimiter); // Apply global rate limit
 
 // ===== Routes =====
 app.use("/api/auth", authLimiter, authRoutes);
-app.use("/api/price", tiingoLimiter, priceRoutes);
-app.use("/api/finance", tiingoLimiter, financeRoutes); // quote, profile
+
 app.use("/api/finance", tiingoLimiter, financeChartRoutes); // chart
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/wallet", walletRoutes);

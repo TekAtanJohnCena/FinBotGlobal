@@ -1,12 +1,12 @@
 // PATH: src/pages/Support.jsx
 // -----------------------------------------------------------------------------
 
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+
 import {
     ChevronDownIcon,
-    ChevronUpIcon,
+
     EnvelopeIcon,
     ChatBubbleLeftRightIcon,
     QuestionMarkCircleIcon,
@@ -61,7 +61,7 @@ const AccordionItem = ({ question, answer, isOpen, onToggle }) => {
 };
 
 export default function Support() {
-    const { user } = useContext(AuthContext);
+
     const [openIndex, setOpenIndex] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [contactForm, setContactForm] = useState({ subject: "", message: "" });

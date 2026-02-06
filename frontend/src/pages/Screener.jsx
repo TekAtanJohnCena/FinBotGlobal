@@ -296,17 +296,7 @@ const Screener = () => {
   };
 
   // Range map for API calls - defined outside query for reuse
-  const rangeMap = {
-    "Gün içi": "1y",
-    "1 Hafta": "1m",
-    "1 Ay": "1m",
-    "3 Ay": "3m",
-    "6 Ay": "6m",
-    "1 Yıl": "1y",
-    "3 Yıl": "3y",
-    "5 Yıl": "5y",
-    "Tümü": "max"
-  };
+
 
   // ⚡ DEBOUNCED PREFETCH: Load stock data on hover with 150ms delay
   // Prevents API flooding when rapidly moving mouse over stock list

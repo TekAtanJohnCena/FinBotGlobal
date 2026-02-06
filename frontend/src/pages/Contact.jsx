@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { LanguageContext } from "../context/LanguageContext";
+
 import toast, { Toaster } from 'react-hot-toast';
 import LanguageSelector from "../components/LanguageSelector";
 
@@ -8,7 +8,7 @@ import LanguageSelector from "../components/LanguageSelector";
 import logo from "../images/logo1.png";
 
 const Contact = () => {
-  const { t } = useContext(LanguageContext);
+
 
   // Form state
   const [companyName, setCompanyName] = useState("");

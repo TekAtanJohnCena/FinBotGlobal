@@ -45,8 +45,8 @@ export default function AnalysisCard({ a, theme = "dark" }) {
 
   const ticker = d.ticker || d.symbol || a.ticker || a.symbol || "UNKNOWN";
   const year = d.year || d.fiscalYear || a.year || new Date().getFullYear();
-  const quarter = d.quarter || d.fiscalQuarter || a.quarter || "Q?";
-  const reportDate = d.date || a.date;
+  const quarter = d.quarter || d.fiscalQuarter || a.quarter || "Q?"; // Fiscal quarter
+
 
   // Haberler dizisi
   const newsList = d.news || d.articles || a.news || a.articles || [];

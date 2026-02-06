@@ -10,7 +10,7 @@ import {
   PlusIcon,
   TrashIcon,
   PencilSquareIcon,
-  ArrowRightOnRectangleIcon,
+
   Bars3Icon, // Hamburger menü ikonu
   XMarkIcon  // Menü kapatma ikonu
 } from "@heroicons/react/24/solid";
@@ -19,7 +19,7 @@ import AnalysisCard from "../components/AnalysisCard";
 import TypingIndicator from "../components/TypingIndicator";
 import StructuredResponse from "../components/StructuredResponse";
 import QuotaDisplay from "../components/QuotaDisplay";
-import { Link } from "react-router-dom";
+
 import "../styles/structuredResponse.css";
 import logo from "../images/logo1.png";
 // ----------------------------- Global CSS ------------------------
@@ -88,7 +88,7 @@ export default function ChatWithHistory() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+
   const scrollRef = useRef(null);
 
   // --------------------------- Fetch history --------------------------------
@@ -248,12 +248,7 @@ export default function ChatWithHistory() {
     }
   }
   // 👇 ÇIKIŞ YAPMA FONKSİYONU
-  const handleLogout = () => {
-    if (window.confirm("Çıkış yapmak istiyor musunuz?")) {
-      logout();
-      navigate("/login");
-    }
-  };
+
 
   // --------------------------- Suggestions ----------------------------------
   const suggestions = useMemo(() => [

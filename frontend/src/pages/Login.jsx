@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import toast, { Toaster } from 'react-hot-toast';
 
 // GOOGLE IMPORT
@@ -17,7 +17,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const { login, googleLogin } = useContext(AuthContext);
-  const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
