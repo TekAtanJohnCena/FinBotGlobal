@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import sendMessageWithStreaming from "../utils/streamingHelper";
 import { AuthContext } from "../context/AuthContext"; // Auth Context
 
 import {
@@ -15,7 +16,7 @@ import {
   XMarkIcon  // Menü kapatma ikonu
 } from "@heroicons/react/24/solid";
 
-import AnalysisCard from "../components/AnalysisCard";
+
 import TypingIndicator from "../components/TypingIndicator";
 import StructuredResponse from "../components/StructuredResponse";
 import QuotaDisplay from "../components/QuotaDisplay";
@@ -141,70 +142,42 @@ export default function ChatWithHistory() {
     const t = input.trim();
     if (!t) return;
 
-    // 1. Önce kullanıcının mesajını ekrana bas
+    // 1. Kullanıcı mesajını ekle
     setMessages((p) => [...p, { sender: "user", text: t }]);
     setInput("");
     setIsLoading(true);
 
-    try {
-      // 2. Mesajı gönder
-      const res = await api.post("/chat", {
-        message: t,
-        chatId: activeChatId || undefined
-      });
+    // 2. Boş bir bot mesajı oluştur (Streaming için placeholder)
+    const botMessageIndex = messages.length + 1; // User mesajından sonraki index
+    setMessages((prev) => [...prev, { sender: "bot", text: "", isStreaming: true }]);
 
-      let currentChatId = activeChatId;
+    // 3. Streaming Helper'ı çağır
+    const result = await sendMessageWithStreaming(
+      t,
+      activeChatId,
+      setMessages,
+      setActiveChatId,
+      fetchHistory,
+      scrollToBottom,
+      botMessageIndex
+    );
 
-      // 3. Eğer yeni bir sohbet ise ID'yi güncelle
-      if (!activeChatId && res.data?.chatId) {
-        currentChatId = res.data.chatId;
-        setActiveChatId(currentChatId);
-
-        // Backend artık otomatik isimlendirme yapıyor, manuel rename'e gerek yok.
-        fetchHistory();
-      }
-
-      // 4. Botun cevabını ekrana bas
-      if (Array.isArray(res.data?.messages)) {
-        setMessages(res.data.messages);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: res.data?.reply || "Yanıt alınamadı." }
-        ]);
-      }
-
-      scrollToBottom();
-
-    } catch (err) {
-      console.error("Mesaj gönderilemedi:", err);
-      if (err.response?.status === 401) {
-        logout();
-        navigate("/login");
-        return;
-      }
-
-      // 429: Günlük limit aşıldı
-      if (err.response?.status === 429) {
-        const quotaData = err.response?.data?.data;
-        setMessages((prev) => [
-          ...prev,
-          {
+    if (!result.success) {
+      // Hata durumu
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        if (newMessages[botMessageIndex]) {
+          newMessages[botMessageIndex] = {
             sender: "bot",
-            text: `⚠️ **Günlük sorgu hakkınız doldu!**\n\nBugün için ${quotaData?.limit || 5} sorgu hakkınızı kullandınız.\n\n**Daha fazla sorgu için:**\n- Yarın (UTC 00:00'da) haklarınız yenilenecek\n- [Planınızı yükselterek](/pricing) daha fazla sorgu hakkı kazanabilirsiniz`,
-            isQuotaError: true
-          }
-        ]);
-        return;
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "Bağlantı hatası. Lütfen tekrar deneyin." }
-      ]);
-    } finally {
-      setIsLoading(false);
+            text: "Bağlantı hatası. Lütfen tekrar deneyin.",
+            isStreaming: false
+          };
+        }
+        return newMessages;
+      });
     }
+
+    setIsLoading(false);
   }
 
   // ...
@@ -539,12 +512,7 @@ export default function ChatWithHistory() {
                       </div>
                     )}
 
-                    {/* Analiz Tablosu (Mobilde taşmayı önlemek için overflow-x-auto ekledik) */}
-                    {m.type === "analysis" && m.analysis && (
-                      <div className="mt-3 w-full overflow-x-auto rounded-lg">
-                        <AnalysisCard a={m.analysis} theme="dark" />
-                      </div>
-                    )}
+
                   </Bubble>
                 ))}
 

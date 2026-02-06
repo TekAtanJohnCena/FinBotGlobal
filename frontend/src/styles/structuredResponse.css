@@ -1,210 +1,189 @@
 /* PATH: src/styles/structuredResponse.css */
-/* Gemini Dark Mode Theme + Mobile-First Responsive */
+/* FinBot Premium Magazine Theme */
 
-/* ---------------- 1. GENEL YAPILANDIRMA ---------------- */
+/* ---------------- ROOT VARIABLES ---------------- */
+:root {
+  --finbot-bg-dark: #1E1F20;
+  --finbot-accent: #34D399; /* Emerald 400 */
+  --finbot-accent-dim: rgba(52, 211, 153, 0.1);
+  --finbot-text-main: #E3E3E3;
+  --finbot-text-dim: #9CA3AF;
+  --finbot-border: rgba(255, 255, 255, 0.1);
+  --finbot-card-bg: rgba(30, 31, 32, 0.7);
+}
+
 .structured-response {
   width: 100%;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #E3E3E3;
-  /* Gemini kırık beyaz */
-  line-height: 1.5;
-  font-size: 14px;
-  /* Mobile-first: küçük başla */
+  color: var(--finbot-text-main);
+  line-height: 1.7;
+  font-size: 15px;
 }
 
-@media (min-width: 768px) {
-  .structured-response {
-    font-size: 16px;
-    line-height: 1.6;
-  }
+/* ---------------- 1. TYPOGRAPHY (Magazine Style) ---------------- */
+
+/* H1 - Ana Başlıklar */
+.structured-response h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-top: 2rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--finbot-accent);
+  color: white;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #fff, #a7f3d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 
-/* ---------------- 2. KART TASARIMI (Premium Fintech Style) ---------------- */
-.response-card {
-  background: rgba(18, 18, 18, 0.7);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+/* H2 - Alt Başlıklar */
+.structured-response h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 1.75rem;
   margin-bottom: 1rem;
-}
-
-.response-card:hover {
-  border-color: rgba(138, 180, 248, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(138, 180, 248, 0.05);
-  transform: translateY(-2px);
-}
-
-.response-card-header {
+  color: #34D399; /* Emerald 400 */
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-@media (min-width: 768px) {
-  .response-card-header {
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-  }
-}
-
-.response-card-icon {
-  font-size: 1.25rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-@media (min-width: 768px) {
-  .response-card-icon {
-    font-size: 1.5rem;
-  }
-}
-
-.response-card-title {
-  font-size: 0.875rem;
+/* H3 - Küçük Başlıklar */
+.structured-response h3 {
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
-  margin: 0;
-  line-height: 1.2;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #D1D5DB;
 }
 
-@media (min-width: 768px) {
-  .response-card-title {
-    font-size: 1rem;
-    font-weight: 700;
-  }
+/* Paragraflar */
+.structured-response p {
+  margin-bottom: 1rem;
+  color: #D1D5DB;
 }
 
-.response-card-content {
-  padding: 0.875rem;
-  font-size: 14px;
-}
+/* ---------------- 2. FINANCIAL CHIPS (Code Blocks) ---------------- */
 
-@media (min-width: 768px) {
-  .response-card-content {
-    padding: 1.25rem;
-    font-size: 15px;
-  }
-}
-
-.response-card-content p {
-  margin: 0 0 0.625rem 0;
-  line-height: 1.6;
-}
-
-.response-card-content p:last-child {
-  margin-bottom: 0;
-}
-
-/* Vurgulanan Kelimeler (Strong/Bold) - Gemini Style */
-.response-card-content strong,
-.response-card-content b {
-  color: #8AB4F8;
-  /* Gemini mavi vurgu */
+/* Satır içi kod blokları ($143.7B gibi) */
+.structured-response code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: rgba(52, 211, 153, 0.15); /* Emerald tint */
+  color: #6EE7B7; /* Emerald 300 */
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+  font-size: 0.9em;
   font-weight: 600;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  white-space: nowrap;
 }
 
-/* Listeler - Mobile-first */
-.response-card-content ul,
-.response-card-content ol {
-  margin: 0.5rem 0;
-  padding-left: 1.25rem;
-  color: rgba(255, 255, 255, 0.9);
-}
+/* ---------------- 3. EXCEL-STYLE TABLES ---------------- */
 
-@media (min-width: 768px) {
-
-  .response-card-content ul,
-  .response-card-content ol {
-    margin: 0.75rem 0;
-    padding-left: 1.5rem;
-  }
-}
-
-.response-card-content li {
-  margin: 0.375rem 0;
-  line-height: 1.5;
-}
-
-@media (min-width: 768px) {
-  .response-card-content li {
-    margin: 0.5rem 0;
-    line-height: 1.6;
-  }
-}
-
-/* ---------------- 3. TABLOLAR (Premium Fintech Style) ---------------- */
-.response-card-content table {
+.structured-response table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin: 1.25rem 0;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  background: #18181B; /* Zinc 900 */
   border-radius: 12px;
   overflow: hidden;
-  font-size: 0.85rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--finbot-border);
 }
 
-@media (max-width: 768px) {
-  .response-card-content table {
+.structured-response thead {
+  background: rgba(52, 211, 153, 0.1);
+  border-bottom: 2px solid rgba(52, 211, 153, 0.2);
+}
+
+.structured-response th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #34D399;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.structured-response td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #D1D5DB;
+}
+
+.structured-response tr:last-child td {
+  border-bottom: none;
+}
+
+.structured-response tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Mobilde tablo kaydırma */
+@media (max-width: 640px) {
+  .structured-response table {
     display: block;
     overflow-x: auto;
-    font-size: 0.75rem;
     white-space: nowrap;
   }
 }
 
-.response-card-content th {
-  background: rgba(138, 180, 248, 0.1);
-  color: #8AB4F8;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* ---------------- 4. BLOCKQUOTES (Strategic Note) ---------------- */
+
+.structured-response blockquote {
+  border-left: 4px solid var(--finbot-accent);
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.05) 0%, transparent 100%);
+  border-radius: 0 8px 8px 0;
+  color: #E5E7EB;
+  font-style: italic;
+  font-size: 1.05rem;
 }
 
-.response-card-content td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: #E3E3E3;
+/* ---------------- 5. LISTS ---------------- */
+
+.structured-response ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
 }
 
-.response-card-content tr:last-child td {
-  border-bottom: none;
+.structured-response ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #D1D5DB;
 }
 
-.response-card-content tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
+.structured-response ul li::before {
+  content: "•";
+  color: var(--finbot-accent);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: bold;
+  font-size: 1.2em;
 }
 
-/* Color Coding for Comparison */
-.response-card-content td:contains("+"),
-.response-card-content td:contains("%") {
-  font-weight: 500;
+.structured-response ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: #D1D5DB;
 }
 
-/* Note: content-based coloring is hard with pure CSS for MD tables, 
-   but we can style specific keywords if they emerge from MD.
-   Actually, AI will use symbols or we can use specific table logic. */
-
-/* Premium Card Enhancements */
-.response-card {
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
+.structured-response li strong {
+  color: white;
 }
 
-.response-card-header {
-  border-left: 3px solid #8AB4F8;
+/* ---------------- 6. DIVIDER (HR) ---------------- */
+.structured-response hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--finbot-border), transparent);
+  margin: 2rem 0;
 }
-
-/* ---------------- 4. KOD BLOKLARI... (rest of the file) ---------------- */

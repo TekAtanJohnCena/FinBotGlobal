@@ -41,11 +41,12 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
                             financialDataReceived = data.data;
                         } else if (data.type === 'text') {
                             fullText += data.content;
+                            const currentText = fullText;
                             setMessages((prev) => {
                                 const newMessages = [...prev];
                                 newMessages[botMessageIndex] = {
                                     sender: "bot",
-                                    text: fullText,
+                                    text: currentText,
                                     isStreaming: true
                                 };
                                 return newMessages;

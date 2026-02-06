@@ -2,6 +2,7 @@
 /**
  * Amazon Bedrock Service - Claude 3.5 Sonnet Integration
  * Provides AI capabilities using AWS Bedrock Runtime API
+ * Includes Retry Logic & Exponential Backoff for Rate Limits
  */
 
 import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelWithResponseStreamCommand } from "@aws-sdk/client-bedrock-runtime";
@@ -15,190 +16,185 @@ const bedrockClient = new BedrockRuntimeClient({
 // This allows on-demand throughput access to Claude 3.5 Sonnet
 const MODEL_ID = process.env.ANTHROPIC_MODEL_ID || "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
 
+// Retry Configuration
+const MAX_RETRIES = 3;
+const INITIAL_BACKOFF_MS = 1000;
+
+/**
+ * Sleep helper for backoff
+ */
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 /**
  * Call Claude via Bedrock with OpenAI-compatible interface
- * @param {Array} messages - Array of {role, content} messages
- * @param {Object} options - Optional parameters (temperature, max_tokens)
- * @returns {Promise<Object>} Response in OpenAI format
  */
 export async function invokeClaude(messages, options = {}) {
-    try {
-        const {
-            temperature = 0.4,
-            max_tokens = 1200,
-            system = null
-        } = options;
+    let attempt = 0;
 
-        // Convert OpenAI format to Claude format
-        const claudeMessages = messages
-            .filter(m => m.role !== 'system')
-            .map(m => ({ role: m.role, content: m.content }));
+    while (attempt <= MAX_RETRIES) {
+        try {
+            const {
+                temperature = 0.4,
+                max_tokens = 1200,
+                system = null
+            } = options;
 
-        // Extract system message if exists
-        const systemMessage = system || messages.find(m => m.role === 'system')?.content;
+            // Convert OpenAI format to Claude format
+            const claudeMessages = messages
+                .filter(m => m.role !== 'system')
+                .map(m => ({ role: m.role, content: m.content }));
 
-        // Prepare Bedrock request payload
-        const requestBody = {
-            anthropic_version: "bedrock-2023-05-31",
-            max_tokens,
-            temperature,
-            messages: claudeMessages
-        };
+            // Extract system message if exists
+            const systemMessage = system || messages.find(m => m.role === 'system')?.content;
 
-        if (systemMessage) {
-            requestBody.system = systemMessage;
-        }
+            // Prepare Bedrock request payload
+            const requestBody = {
+                anthropic_version: "bedrock-2023-05-31",
+                max_tokens,
+                temperature,
+                messages: claudeMessages
+            };
 
-        console.log(`🔷 [Bedrock] Invoking Claude 3.5 Sonnet (${claudeMessages.length} messages)...`);
-
-        // DEBUG: Log prompt content to verify Tiingo data
-        const lastUserMsg = claudeMessages[claudeMessages.length - 1];
-        if (lastUserMsg && lastUserMsg.content) {
-            const hasFinancialContext = lastUserMsg.content.includes('<financial_context>');
-            console.log("📊 [Bedrock] Financial Data Check:");
-            console.log(`   - Has <financial_context>: ${hasFinancialContext ? '✅ YES' : '❌ NO'}`);
-            if (hasFinancialContext) {
-                const match = lastUserMsg.content.match(/<net_income>(.*?)<\/net_income>/);
-                console.log(`   - Sample Data (Net Income): ${match ? match[1] : 'Not found'}`);
-            } else {
-                console.log("   - WARNING: Financial context missing in prompt!");
+            if (systemMessage) {
+                requestBody.system = systemMessage;
             }
-        }
 
-        const command = new InvokeModelCommand({
-            modelId: MODEL_ID,
-            contentType: "application/json",
-            accept: "application/json",
-            body: JSON.stringify(requestBody)
-        });
+            console.log(`🔷 [Bedrock] Invoking Claude 3.5 Sonnet (Attempt ${attempt + 1}/${MAX_RETRIES + 1})...`);
 
-        const response = await bedrockClient.send(command);
-        const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+            const command = new InvokeModelCommand({
+                modelId: MODEL_ID,
+                contentType: "application/json",
+                accept: "application/json",
+                body: JSON.stringify(requestBody)
+            });
 
-        // Convert Claude response to OpenAI format
-        const content = responseBody.content?.[0]?.text || "";
+            const response = await bedrockClient.send(command);
+            const responseBody = JSON.parse(new TextDecoder().decode(response.body));
 
-        console.log(`✅ [Bedrock] Response received (${content.length} chars)`);
+            const content = responseBody.content?.[0]?.text || "";
+            console.log(`✅ [Bedrock] Response received (${content.length} chars)`);
 
-        return {
-            choices: [
-                {
-                    message: {
-                        role: "assistant",
-                        content: content
-                    },
-                    finish_reason: responseBody.stop_reason
+            return {
+                choices: [
+                    {
+                        message: { role: "assistant", content: content },
+                        finish_reason: responseBody.stop_reason
+                    }
+                ],
+                model: MODEL_ID,
+                usage: {
+                    prompt_tokens: responseBody.usage?.input_tokens || 0,
+                    completion_tokens: responseBody.usage?.output_tokens || 0,
+                    total_tokens: (responseBody.usage?.input_tokens || 0) + (responseBody.usage?.output_tokens || 0)
                 }
-            ],
-            model: MODEL_ID,
-            usage: {
-                prompt_tokens: responseBody.usage?.input_tokens || 0,
-                completion_tokens: responseBody.usage?.output_tokens || 0,
-                total_tokens: (responseBody.usage?.input_tokens || 0) + (responseBody.usage?.output_tokens || 0)
+            };
+
+        } catch (error) {
+            const isThrottling = error.name === 'ThrottlingException' || error.message.includes('Too many requests');
+
+            if (isThrottling && attempt < MAX_RETRIES) {
+                const delay = INITIAL_BACKOFF_MS * Math.pow(2, attempt); // 1s, 2s, 4s...
+                console.warn(`⚠️ [Bedrock] Rate limit hit. Retrying in ${delay}ms...`);
+                await sleep(delay);
+                attempt++;
+                continue;
             }
-        };
 
-    } catch (error) {
-        console.error("❌ [Bedrock] Error:", error.message);
-
-        // Re-throw with additional context
-        const bedrockError = new Error(`Bedrock API Error: ${error.message}`);
-        bedrockError.status = error.$metadata?.httpStatusCode || 500;
-        bedrockError.code = error.name;
-        bedrockError.originalError = error;
-
-        throw bedrockError;
+            console.error("❌ [Bedrock] Error:", error.message);
+            throw new Error(`Bedrock API Error: ${error.message}`);
+        }
     }
 }
 
 /**
  * Stream Claude response via Bedrock (async generator)
- * @param {Array} messages - Array of {role, content} messages
- * @param {Object} options - Optional parameters (temperature, max_tokens)
- * @yields {string} Text chunks as they arrive
  */
 export async function* invokeClaudeStream(messages, options = {}) {
-    try {
-        const {
-            temperature = 0.4,
-            max_tokens = 1200,
-            system = null
-        } = options;
+    let attempt = 0;
 
-        // Convert OpenAI format to Claude format
-        const claudeMessages = messages
-            .filter(m => m.role !== 'system')
-            .map(m => ({ role: m.role, content: m.content }));
+    while (attempt <= MAX_RETRIES) {
+        try {
+            const {
+                temperature = 0.4,
+                max_tokens = 1200,
+                system = null
+            } = options;
 
-        // Extract system message if exists
-        const systemMessage = system || messages.find(m => m.role === 'system')?.content;
+            const claudeMessages = messages
+                .filter(m => m.role !== 'system')
+                .map(m => ({ role: m.role, content: m.content }));
 
-        // Prepare Bedrock request payload
-        const requestBody = {
-            anthropic_version: "bedrock-2023-05-31",
-            max_tokens,
-            temperature,
-            messages: claudeMessages
-        };
+            const systemMessage = system || messages.find(m => m.role === 'system')?.content;
 
-        if (systemMessage) {
-            requestBody.system = systemMessage;
-        }
+            const requestBody = {
+                anthropic_version: "bedrock-2023-05-31",
+                max_tokens,
+                temperature,
+                messages: claudeMessages
+            };
 
-        console.log(`🔷 [Bedrock Stream] Invoking Claude 3.5 Sonnet (${claudeMessages.length} messages)...`);
+            if (systemMessage) {
+                requestBody.system = systemMessage;
+            }
 
-        const command = new InvokeModelWithResponseStreamCommand({
-            modelId: MODEL_ID,
-            contentType: "application/json",
-            accept: "application/json",
-            body: JSON.stringify(requestBody)
-        });
+            console.log(`🔷 [Bedrock Stream] Invoking Claude 3.5 Sonnet (Attempt ${attempt + 1}/${MAX_RETRIES + 1})...`);
 
-        const response = await bedrockClient.send(command);
+            const command = new InvokeModelWithResponseStreamCommand({
+                modelId: MODEL_ID,
+                contentType: "application/json",
+                accept: "application/json",
+                body: JSON.stringify(requestBody)
+            });
 
-        // Process streaming response
-        for await (const event of response.body) {
-            if (event.chunk) {
-                const chunk = JSON.parse(new TextDecoder().decode(event.chunk.bytes));
+            const response = await bedrockClient.send(command);
 
-                // Claude streaming format
-                if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
-                    yield chunk.delta.text;
+            for await (const event of response.body) {
+                if (event.chunk) {
+                    const chunk = JSON.parse(new TextDecoder().decode(event.chunk.bytes));
+                    if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+                        yield chunk.delta.text;
+                    }
                 }
             }
+
+            console.log(`✅ [Bedrock Stream] Stream completed`);
+            return; // Success, exit retry loop
+
+        } catch (error) {
+            const isThrottling = error.name === 'ThrottlingException' || error.message.includes('Too many requests');
+
+            if (isThrottling && attempt < MAX_RETRIES) {
+                const delay = INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+                console.warn(`⚠️ [Bedrock Stream] Rate limit hit. Retrying in ${delay}ms...`);
+                await sleep(delay);
+                attempt++;
+                continue;
+            }
+
+            console.error("❌ [Bedrock Stream] Error:", error.message);
+
+            // If failed after retries, yield detailed error message to frontend
+            if (attempt === MAX_RETRIES) {
+                yield "\n\n**⚠️ Sistem Yoğunluğu:** Şu anda FinBot sunucuları çok yoğun.\nLütfen 10-15 saniye bekleyip tekrar deneyin. 🛑";
+                throw new Error(`Bedrock Stream Error: ${error.message}`);
+            }
+
+            throw error;
         }
-
-        console.log(`✅ [Bedrock Stream] Stream completed`);
-
-    } catch (error) {
-        console.error("❌ [Bedrock Stream] Error:", error.message);
-        throw new Error(`Bedrock Stream Error: ${error.message}`);
     }
 }
 
 /**
  * Create chat completion (OpenAI-compatible wrapper)
- * @param {Object} params - Parameters matching OpenAI chat.completions.create()
- * @returns {Promise<Object>} Response in OpenAI format
  */
 export async function createChatCompletion(params) {
     const { messages, temperature, max_tokens, model, stream = false } = params;
 
-    // If streaming requested, return async generator
     if (stream) {
-        return invokeClaudeStream(messages, {
-            temperature,
-            max_tokens,
-            model
-        });
+        return invokeClaudeStream(messages, { temperature, max_tokens, model });
     }
 
-    // Otherwise, use regular invocation
-    return await invokeClaude(messages, {
-        temperature,
-        max_tokens,
-        model
-    });
+    return await invokeClaude(messages, { temperature, max_tokens, model });
 }
 
 export default {
