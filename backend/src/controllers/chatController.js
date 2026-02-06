@@ -943,7 +943,7 @@ Tablodan sonra **"### 🎯 FinBot Stratejik Notu"** başlığı altında, verile
 
     } catch (error) {
       log.error("STREAM", "AI Hatası:", error.message);
-      res.write(`data: ${JSON.stringify({ error: "AI yanıt hatası" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: `AI Hatası: ${error.message}` })}\n\n`);
       res.end();
     }
 
