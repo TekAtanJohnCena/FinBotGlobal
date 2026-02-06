@@ -60,6 +60,14 @@ const getAssetType = (symbol) => {
 // ==================== ENDPOINTS ====================
 
 /**
+ * GET /api
+ * Root API Endpoint - Health/Status Check
+ */
+router.get('/', (req, res) => {
+    res.json({ ok: true, message: 'FinBot API Root', env: process.env.NODE_ENV });
+});
+
+/**
  * GET /api/prices/batch
  * Get batch prices for multiple tickers
  * Query: ?tickers=AAPL,MSFT,GOOGL
