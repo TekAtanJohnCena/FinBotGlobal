@@ -895,15 +895,9 @@ Tablodan sonra **"### 🎯 FinBot Stratejik Notu"** başlığı altında, verile
 - **Yatırım Tavsiyesi:** Her yanıtın sonuna "Bu bilgiler bilgilendirme amaçlıdır, yatırım tavsiyesi değildir." notunu ekle.
 `;
 
-      // Claude Prompt Caching (Bedrock Adapter)
-      const systemPrompt = [{
-        type: "text",
-        text: systemPromptText,
-        cache_control: { type: "ephemeral" }
-      }];
-
+      // Claude Prompt Caching Disabled - Reverted to simple text
       const messages = [
-        { role: "system", content: systemPrompt },
+        { role: "system", content: systemPromptText },
         ...prevMsgs.filter(m => m.text?.trim()).slice(-6).map(m => ({
           role: m.sender === "user" ? "user" : "assistant",
           content: m.text.trim()
