@@ -628,7 +628,6 @@ const Register = () => {
                 onError={() => toast.error("Google bağlantısı başarısız.")}
                 theme="filled_black"
                 shape="pill"
-                width="100%"
                 text="signup_with"
               />
             </div>

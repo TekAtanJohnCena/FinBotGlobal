@@ -53,8 +53,8 @@ export const config = {
     // Authentication
     jwtSecret: getRequired('JWT_SECRET', isProd ? null : 'dev_secret_change_in_prod'),
 
-    // AI APIs
-    openaiKey: getRequired('OPENAI_API_KEY', null),
+    // AI APIs (Using AWS Bedrock/Claude instead of OpenAI)
+    // openaiKey: getRequired('OPENAI_API_KEY', null),
 
     // Tiingo API
     tiingoApiKey: getOptional('TIINGO_API_KEY', null),

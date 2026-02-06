@@ -404,97 +404,126 @@ Bu şirketin son 5 yıllık gelir büyümesini görmek ister misiniz?
 
 async function getAIAnalysis(ticker, metrics, question, history = []) {
   log.divider();
-  log.info("OPENAI", `${ticker} için AI analizi başlıyor...`);
+  log.info("AI", `${ticker} için AI analizi başlıyor...`);
 
-  const systemPrompt = `# KİMLİK VE VİZYON
-Sen **AntiGravity**, finansal verileri sıkıcı tablolardan kurtarıp modern, anlaşılır ve estetik bir deneyime dönüştüren yeni nesil bir finans asistanısın.
-- **Ton:** Profesyonel, akıcı, emojilerle zenginleştirilmiş (🚀, 📉, 💎) ve **modern**.
-- **Dil:** Kullanıcının dilini algıla (TR/EN) ve %100 uyum sağla.
+  const systemPrompt = `# 🤖 KİMLİK VE VİZYON
+Sen **FinBot AI**, finansal verileri modern ve anlaşılır şekilde analiz eden AI asistanısın.
 
-# VERİ KAYNAĞI: TIINGO API 📡
-Tüm verileri **Tiingo API** üzerinden canlı çekmelisin.
-Veriler sana `< financial_context > ` XML etiketleri içinde sunulacaktır. Bu verileri analizinde temel al.
-1.  **Fiyat & Piyasa Değeri (Market Cap)**
-2.  **Bilanço:** Net Kâr, Özkaynak, Hasılat, Toplam Aktifler.
-3.  **FAVÖK (EBITDA):** Operasyonel kârlılık için kritik.
-4.  **Haberler:** Şirketle ilgili **son 3 önemli haberi** mutlaka bul.
+**Ton:** Profesyonel ama samimi, emoji'lerle zenginleştirilmiş 🚀📊💎
+**Dil:** Kullanıcının dilini algıla (TR/EN) ve %100 uyum sağla
+**Stil:** Akıcı, doğal, sohbet tarzı
+**Rol:** Sadece "veri okuyan" değil, "stratejik içgörü" sağlayan bir uzman gibi davran.
 
-# YANIT TASARIMI VE KURALLARI (STİL)
+# 📡 VERİ KAYNAĞI
+Tüm veriler **Tiingo API** üzerinden canlı çekiliyor. Veriler sana \`<financial_context>\` XML etiketleri içinde sunulacak. Varsa bu verileri kullan, yoksa genel finansal bilginle yanıtla.
 
-**1. BAŞLIK FORMATI:**
-Asla ## veya ### kullanma. Başlıkları **BÜYÜK HARF VE KALIN** yaz, hemen altına bir ayırma çizgisi (___) çek.
-*Örnek:*
-**FİNANSAL ÖZET**
+# 🎯 SORU TİPİ VE YANIT STRATEJİSİ
+
+Eğer kullanıcı **FİNANSAL VERİ İÇEREN** bir soru sorduysa, yorumlarını desteklemek için rakamları cümle içinde kullan. Ancak **ASLA TABLO OLUŞTURMA**.
+
+Aşağıdaki senaryolardan hangisi uygunsa o formatı benimse:
+
+## 📊 SENARYO 1: DETAYLI HİSSE ANALİZİ
+**Soru:** "Apple bilançosu nasıl?", "Tesla alınır mı?", "THYAO yorumu"
+**Amaç:** Kullanıcıya şirketin röntgenini çekmek.
+
+**Yanıt Şablonu:**
+**📊 FİNANSAL GÖRÜNÜM**
 ___
+Şirketin genel durumunu 2-3 cümleyle özetle. (Örn: "Güçlü nakit akışı dikkat çekiyor...")
 
-**2. METİN STİLİ:**
-- Yanıtların "kısa ve öz" olmasın; **detaylı, açıklayıcı ve doyurucu** paragraflar kur.
-- Önemli rakamları ve kelimeleri **kalın (bold)** yaparak öne çıkar.
-- Kullanıcıya okurken "bilgileniyorum ve keyif alıyorum" hissi ver.
-
-# YANIT AKIŞI
-
-**PİYASA GÖRÜNÜMÜ**
+**🔍 KRİTİK ANALİZ**
 ___
-Kullanıcının sorduğu hisse hakkında giriş yap. Fiyat hareketini, piyasadaki genel havayı ve yatırımcı psikolojisini anlat. Rakamları cümle içinde eriterek kullan.
-*Örnek:* "Apple (AAPL) bugün teknoloji sektöründeki satış baskısına rağmen **güçlü duruşunu** koruyor. Hissenin anlık fiyatı **185.40$** seviyelerinde seyrederken, yatırımcılar yaklaşan bilanço dönemine odaklanmış durumda..."
+• 📈 **Büyüme Hikayesi:** Gelirler artıyor mu? Pazar payı ne durumda?
+• 💰 **Karlılık Analizi:** Marjlar iyileşiyor mu? Verimlilik nasıl?
+• 🏦 **Finansal Sağlık:** Borçluluk yönetilebilir seviyede mi?
+• ⚡ **Nakit Gücü:** İşletme nakit akışı ve yatırım kapasitesi.
 
-**TEMEL VERİLER**
+**⚠️ RİSKLER VE FIRSATLAR**
 ___
-Verileri kullanıcıya net bir **Markdown Tablosu** olarak sun.
+• [Risk/Fırsat 1]
+• [Risk/Fırsat 2]
 
-| Gösterge 💎 | Değer 💵 | Durum 📈 |
-| :--- | :--- | :--- |
-| **Piyasa Değeri** | [Değer] | [Yorum: Dev/Orta vb.] |
-| **Net Kâr** | [Değer] | [Yorum] |
-| **Özkaynak** | [Değer] | [Yorum] |
-| **FAVÖK (EBITDA)** | [Değer] | [Yorum] |
-| **Hasılat** | [Değer] | [Yorum] |
-
-**ÖNEMLİ GELİŞMELER**
+**🎯 SONUÇ KARARI**
 ___
-Şirketle ilgili son 3 haberi listele ve her birinin hisseye olası etkisini 1 cümle ile özetle.
-* 🗞️ **[Haber Başlığı 1]:** ...
-* 🗞️ **[Haber Başlığı 2]:** ...
-* 🗞️ **[Haber Başlığı 3]:** ...
+Yatırımcı gözüyle nötr ve dengeli bir kapanış cümlesi.
 
-**UI TETİKLEYİCİ (SİSTEM JSON)**
-Kullanıcı "Analiz", "Rapor" veya "Detay" istediyse şu JSON yapısını metnin en sonuna ekle:
+---
 
-\`\`\`json
-{
-  "component_type": "stock_analysis_card_v2",
-  "data": {
-    "ticker": "SYMBOL",
-    "financial_status": {
-      "net_income": "24.5B",
-      "equity": "10.2B",
-      "total_assets": "150.5B",
-      "revenue": "54.2B"
-    },
-    "important_news": [
-      "News Title 1",
-      "News Title 2",
-      "News Title 3"
-    ],
-    "market_cap": "85.4B",
-    "ebitda": "18.2B",
-    "price_outlook": "Text Summary"
-  }
-}
-\`\`\`
+## 🎓 SENARYO 2: FİNANSAL OKURYAZARLIK (EĞİTİM)
+**Soru:** "F/K nedir?", "Short işlem ne demek?", "Temettü verimi nasıl hesaplanır?"
+**Amaç:** Kullanıcıyı eğitmek.
 
-# KISITLAMALAR
-1. AL/SAT tavsiyesi VERME, objektif ol
-2. Rakamları B (milyar), M (milyon) formatında göster
-3. Her zaman veri kaynağını belirt (Tiingo API)
-4. JSON çıktıdaki değerleri ASLA "XX.XX" şeklinde bırakma, <financial_context> içindeki gerçek verileri kullan. Veri yoksa "N/A" yaz.
-\`\`\`
+**Yanıt Şablonu:**
+Tanımı en sade haliyle yap. Karmaşık terimleri günlük hayattan örneklerle açıkla.
+Örnek: "F/K oranı, bir şirkete yatırdığınız parayı kaç yılda amorti edeceğinizi gösteren basit bir çarpan gibidir. � Düşük olması genellikle 'ucuz' demektir."
 
-# KISITLAMALAR
-1. AL/SAT tavsiyesi VERME, objektif ol
-2. Rakamları B (milyar), M (milyon) formatında göster
-3. Her zaman veri kaynağını belirt (Tiingo API)`;
+---
+
+## ⚖️ SENARYO 3: KARŞILAŞTIRMA (BATTLE)
+**Soru:** "Apple mı Microsoft mu?", "Hangi banka daha ucuz?", "Tesla vs Ford"
+**Amaç:** İki varlığı kafa kafaya kıyaslamak.
+
+**Yanıt Şablonu:**
+**⚖️ KARŞILAŞTIRMA: [A] vs [B]**
+___
+• **Büyüme:** Hangisi daha hızlı büyüyor?
+• **Ucuzluk:** Hangisinin çarpanları (F/K, PD/DD) daha cazip?
+• **Risk:** Hangisi daha güvenli liman?
+• **Kazanan:** Hangi vadede hangisi öne çıkıyor?
+
+---
+
+## 📋 SENARYO 4: HİSSE KEŞFİ (SCREENER)
+**Soru:** "Ucuz teknoloji hisseleri", "Patlama yapacak hisseler", "Temettü verenler"
+**Amaç:** Kullanıcıya fikir vermek ve liste sunmak.
+
+**Yanıt Şablonu:**
+**📋 ÖNE ÇIKAN ADAYLAR**
+___
+1. **[Hisse Kodu]:** [Kısa Gerekçe] (Örn: "Düşük borç, yüksek büyüme")
+2. **[Hisse Kodu]:** [Kısa Gerekçe]
+3. **[Hisse Kodu]:** [Kısa Gerekçe]
+4. **[Hisse Kodu]:** [Kısa Gerekçe]
+
+**💡 İPUCU:** Bu hisseleri detaylı incelemek için isimlerini yazabilirsiniz.
+
+---
+
+## 🧠 SENARYO 5: STRATEJİ VE YORUM
+**Soru:** "Enflasyon borsayı nasıl etkiler?", "Portföyümü nasıl çeşitlendirmeliyim?"
+**Amaç:** Makroekonomik veya stratejik rehberlik.
+
+**Yanıt Şablonu:**
+Maddeler halinde, sebep-sonuç ilişkisine dayalı stratejik yorum yap.
+• **Durum:** Şu anki piyasa koşulu ne?
+• **Etki:** Bu durum varlıkları nasıl etkiler?
+• **Aksiyon:** Yatırımcı ne yapmalı?
+
+---
+
+# 📋 ALTIN KURALLAR
+
+✅ **YAP:**
+- Verileri cümle içinde erit (Örn: "50M$ nakit ile...")
+- Emojileri yerinde kullan (Aşırıya kaçma)
+- Bold (**kalın**) metinle anahtar kelimeleri vurgula
+- Objektif ol, veri odaklı konuş
+
+❌ **YAPMA:**
+- KESİNLİKLE TABLO OLUŞTURMA (Markdown tablosu yasak)
+- Sadece rakam listesi yapma
+- "Yatırım tavsiyesidir" deme (Yasal uyarı)
+- Veri yoksa uydurma, "Veriye erişilemiyor" de.
+
+# 📌 HATIRLATMA
+Temel metrikler (Gelir, Kar vb.) kullanıcıya görsel olarak zaten sunuluyor olabilir. Sen bu sayıları tekrar listelemek yerine, **bu sayıların ne anlama geldiğini** yorumla.
+
+# 🔢 RAKAM FORMATLARI
+- Milyar: **143.7B**
+- Milyon: **42.1M**
+- Oran: **%15.2** veya **2.5x**
+`;
 
   // CLAUDE 3.5 SONNET CONTEXT OPTIMIZATION (XML)
   const financialBlock = `
@@ -527,7 +556,7 @@ Kullanıcı "Analiz", "Rapor" veya "Detay" istediyse şu JSON yapısını metnin
 </financial_context>`.trim();
 
   try {
-    log.info("OPENAI", "API çağrısı yapılıyor (gpt-4o)...");
+    log.info("AI", "Claude API çağrısı yapılıyor...");
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -544,22 +573,22 @@ Kullanıcı "Analiz", "Rapor" veya "Detay" istediyse şu JSON yapısını metnin
     });
 
     const reply = completion.choices?.[0]?.message?.content?.trim();
-    log.info("OPENAI", `Yanıt alındı (${reply?.length || 0} karakter)`);
+    log.info("AI", `Yanıt alındı (${reply?.length || 0} karakter)`);
 
     return reply || getFallbackAnalysis(ticker, metrics);
 
   } catch (error) {
-    // Detailed OpenAI error logging
+    // Detailed AI error logging
     const status = error.response?.status || error.status || 'N/A';
     const errorCode = error.code || error.error?.code || 'UNKNOWN';
     const errorType = error.error?.type || error.type || 'unknown_error';
     const errorMessage = error.response?.data?.error?.message || error.message || 'No message';
 
-    log.error("OPENAI", `API Hatası (Status: ${status}, Code: ${errorCode}, Type: ${errorType})`);
-    log.error("OPENAI", `Detay: ${errorMessage}`);
+    log.error("AI", `API Hatası (Status: ${status}, Code: ${errorCode}, Type: ${errorType})`);
+    log.error("AI", `Detay: ${errorMessage}`);
 
     if (status === 429) {
-      log.warn("OPENAI", "Rate limit veya kota aşımı! OpenAI hesabınızı kontrol edin.");
+      log.warn("AI", "Rate limit veya kota aşımı! AWS Bedrock hesabınızı kontrol edin.");
     }
 
     // QUOTA (429) veya diğer hatalarda Fallback kullan
@@ -619,7 +648,7 @@ async function getChatResponse(question, history = []) {
   const financialData = createFinancialDataForFrontend(ticker, metrics);
 
   // AŞAMA 5: AI Analizi (Fallback Korumalı)
-  log.info("AŞAMA 5", "OpenAI analizi...");
+  log.info("AŞAMA 5", "AI analizi...");
   const aiReply = await getAIAnalysis(ticker, metrics, question, history);
 
   log.divider();
@@ -706,7 +735,13 @@ export const sendMessage = async (req, res) => {
 
   } catch (error) {
     log.error("ENDPOINT", "SUNUCU HATASI:", error.message);
-    return res.status(500).json({ message: "Sunucu hatası." });
+    console.error("Full error stack:", error.stack);
+    console.error("Error details:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    return res.status(500).json({ message: "Sunucu hatası.", error: error.message });
   }
 };
 
@@ -755,6 +790,237 @@ export const renameChat = async (req, res) => {
     res.json({ ok: true, title: chat.title });
   } catch (e) {
     res.status(500).json({ ok: false, message: "Sunucu hatası" });
+  }
+};
+
+
+/* =========================
+   ENDPOINT: sendMessageStream (SSE)
+   ========================= */
+
+export const sendMessageStream = async (req, res) => {
+  log.divider();
+  console.log("📡📡📡 [ENDPOINT] /api/chat/stream ÇAĞRILDI 📡📡📡");
+  log.divider();
+
+  try {
+    const { message, chatId } = req.body;
+    const userId = req.user._id;
+
+    log.info("ENDPOINT", "User ID (Stream):", userId);
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ message: "Mesaj boş olamaz" });
+    }
+
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Get or create chat
+    let chat;
+    if (chatId) {
+      chat = await Chat.findOne({ _id: chatId, user: userId });
+      if (!chat) {
+        res.write(`data: ${JSON.stringify({ error: "Sohbet bulunamadı" })}\n\n`);
+        return res.end();
+      }
+    } else {
+      const title = message.length > 50 ? message.substring(0, 50) + "..." : message;
+      chat = new Chat({ user: userId, messages: [], title: title });
+    }
+
+    // Add user message
+    chat.messages.push({ sender: "user", text: message });
+
+    // Extract ticker and get financial data
+    const ticker = extractTickerFromMessage(message);
+    let financialData = null;
+    let metrics = null;
+    let financialBlock = "";
+
+    if (ticker) {
+      log.info("ENDPOINT", `Ticker detected: ${ticker}`);
+      const tiingoData = await fetchTiingoFundamentals(ticker);
+
+      if (tiingoData) {
+        metrics = parseMetrics(tiingoData);
+        financialData = createFinancialDataForFrontend(ticker, metrics);
+
+        // Send financial data first
+        res.write(`data: ${JSON.stringify({ type: "financialData", data: financialData })}\n\n`);
+
+        financialBlock = `
+<financial_context>
+  <metadata>
+    <ticker>${ticker}</ticker>
+    <period>${metrics?.date || "Son Dönem"}</period>
+    <source>Tiingo API</source>
+  </metadata>
+
+  <income_statement>
+    <revenue>${formatNumberDisplay(metrics?.revenue)} USD</revenue>
+    <gross_profit>${formatNumberDisplay(metrics?.grossProfit)} USD</gross_profit>
+    <net_income>${formatNumberDisplay(metrics?.netIncome)} USD</net_income>
+    <ebitda>${formatNumberDisplay(metrics?.ebitda)} USD</ebitda>
+  </income_statement>
+
+  <balance_sheet>
+    <total_assets>${formatNumberDisplay(metrics?.totalAssets)} USD</total_assets>
+    <total_liabilities>${formatNumberDisplay(metrics?.totalLiabilities)} USD</total_liabilities>
+    <equity>${formatNumberDisplay(metrics?.totalEquity)} USD</equity>
+    <total_debt>${formatNumberDisplay(metrics?.totalDebt)} USD</total_debt>
+    <cash>${formatNumberDisplay(metrics?.cash)} USD</cash>
+  </balance_sheet>
+
+  <cash_flow>
+    <operating_cash_flow>${formatNumberDisplay(metrics?.operatingCashFlow)} USD</operating_cash_flow>
+    <free_cash_flow>${formatNumberDisplay(metrics?.freeCashFlow)} USD</free_cash_flow>
+  </cash_flow>
+</financial_context>`.trim();
+      } else {
+        log.warn("ENDPOINT", `Ticker ${ticker} detected but no data found. Proceeding as general query.`);
+      }
+    } else {
+      log.info("ENDPOINT", "No ticker detected. Proceeding as general/discovery query.");
+    }
+
+    // Stream AI response
+    const prevMsgs = chat.messages.filter(m => m.text?.trim()).slice(-10);
+    let fullReply = "";
+
+    try {
+      const systemPrompt = `# 🤖 KİMLİK VE VİZYON
+Sen **FinBot AI**, finansal verileri modern ve anlaşılır şekilde analiz eden AI asistanısın.
+
+**Ton:** Profesyonel ama samimi, emoji'lerle zenginleştirilmiş 🚀📊💎
+**Dil:** Kullanıcının dilini algıla (TR/EN) ve %100 uyum sağla
+**Stil:** Akıcı, doğal, sohbet tarzı
+
+# 📡 VERİ KAYNAĞI
+Tüm veriler **Tiingo API** üzerinden canlı çekiliyor. Veriler sana \`<financial_context>\` XML etiketleri içinde sunulacak.
+
+# 🎨 YANIT FORMATI
+
+**ÖNEMLİ:** Temel metrikler (gelir, kâr, özkaynak vb.) AnalysisCard.jsx'te görsel olarak gösteriliyor. Sen sadece YORUM ve ANALİZ yap!
+
+## Yanıt Yapısı:
+
+**📊 FİNANSAL DURUM**
+___
+Şirketin genel finansal sağlığını 2-3 cümle ile özetle. Rakamları doğal şekilde cümle içinde kullan.
+Örnek: "Apple, 143.76B USD gelir ile güçlü bir performans sergiliyor ve 42.10B USD net kâr elde ediyor."
+
+**🔍 ANALİZ NOKTALARI**
+___
+• 📈 **Büyüme:** Gelir trendleri ve pazar pozisyonu hakkında kısa yorum
+• 💰 **Karlılık:** Kar marjları ve verimlilik hakkında değerlendirme
+• 🏦 **Bilanço Gücü:** Likidite ve borç durumu hakkında görüş
+• ⚡ **Operasyonel Verimlilik:** EBITDA ve nakit akışı değerlendirmesi
+
+**⚠️ DİKKAT EDİLMESİ GEREKENLER**
+___
+• Önemli risk faktörü 1
+• Önemli risk faktörü 2
+• Önemli risk faktörü 3
+
+**🎯 DEĞERLENDİRME**
+___
+1-2 cümle ile genel görüş. Objektif ve dengeli ol.
+
+# 📋 KURALLAR
+
+✅ **YAP:**
+- Emoji kullan ama abartma (📊💰🚀📈📉⚡💎🏦)
+- Bold ile önemli noktaları vurgula
+- Doğal, akıcı cümleler kur
+- Rakamları cümle içinde kullan
+- Hızlı ve öz yanıt ver (kullanıcı beklemeden)
+
+❌ **YAPMA:**
+- Tablo oluşturma
+- Metrik listesi yapma (AnalysisCard'da var)
+- \`***\` veya \`*...*\` şeklinde yorum yapma
+- AL/SAT tavsiyesi verme
+- Uzun paragraflar yazma
+- "Güçlü", "Zayıf" gibi tek kelimelik yorumlar
+
+# 💬 YORUM STİLİ
+
+**KÖTÜ:** 
+• Net Kâr: 42.10B USD - *Yüksek kârlılık devam ediyor*
+
+**İYİ:**
+• 💰 **Karlılık:** Şirket 42.10B USD net kâr ile sektör ortalamasının üzerinde performans gösteriyor
+
+# 🔢 RAKAM FORMATI
+- Milyar: **143.76B**
+- Milyon: **42.10M**
+- Oran: **2.5x** veya **15.2%**
+
+# 📌 KRİTİK
+- Tüm değerleri \`<financial_context>\` içinden al
+- Veri yoksa "Veri mevcut değil" de, asla uydurma
+- Hızlı yanıt ver, kullanıcıyı bekleme
+`;
+
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...prevMsgs.filter(m => m.text?.trim()).slice(-6).map(m => ({
+          role: m.sender === "user" ? "user" : "assistant",
+          content: m.text.trim()
+        })),
+        {
+          role: "user",
+          content: `Soru: "${message}"\n\n${financialBlock ? financialBlock + '\n\n' : ''}Türkçe analiz yap.`
+        }
+      ];
+
+      const streamGenerator = await openai.chat.completions.create({
+        model: "gpt-4o",
+        temperature: 0.4,
+        max_tokens: 1200,
+        messages,
+        stream: true
+      });
+
+      for await (const chunk of streamGenerator) {
+        if (chunk) {
+          fullReply += chunk;
+          res.write(`data: ${JSON.stringify({ type: "text", content: chunk })}\n\n`);
+        }
+      }
+
+      // Add disclaimer
+      const reply = withDisclaimer(fullReply);
+
+      // Save to database
+      chat.messages.push({ sender: "bot", type: "text", text: reply });
+      if (financialData) {
+        chat.messages.push({ sender: "bot", type: "analysis", analysis: financialData, financialData });
+      }
+      chat.updatedAt = new Date();
+      await chat.save();
+
+      // Increment usage
+      await incrementFinbotUsage(userId);
+
+      // Send completion
+      res.write(`data: ${JSON.stringify({ type: "done", chatId: chat._id, title: chat.title })}\n\n`);
+      res.end();
+
+    } catch (error) {
+      log.error("STREAM", "AI Hatası:", error.message);
+      res.write(`data: ${JSON.stringify({ error: "AI yanıt hatası" })}\n\n`);
+      res.end();
+    }
+
+  } catch (error) {
+    log.error("ENDPOINT", "STREAM HATASI:", error.message);
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Sunucu hatası" });
+    }
   }
 };
 

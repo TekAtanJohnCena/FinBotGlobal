@@ -2,6 +2,7 @@
 import express from "express";
 import {
   sendMessage,
+  sendMessageStream,
   getChatHistory,
   getChatById,
   renameChat,
@@ -20,6 +21,8 @@ const router = express.Router();
 // Note: This router is mounted at "/api/chat" in index.js
 // POST /api/chat -> sendMessage (mesaj gönder)
 router.post("/", protect, checkFinbotQuota, aiRateLimiter, validate(chatMessageSchema), sendMessage);
+// POST /api/chat/stream -> sendMessageStream (streaming mesaj)
+router.post("/stream", protect, checkFinbotQuota, aiRateLimiter, validate(chatMessageSchema), sendMessageStream);
 // GET /api/chat/history -> getChatHistory (geçmiş sohbetler)
 router.get("/history", protect, getChatHistory);
 // GET /api/chat/:id -> getChatById (tek sohbet detayı)
