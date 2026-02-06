@@ -53,7 +53,7 @@ const allowedOrigins = [
   'http://localhost:5000',
   'https://finbot.com.tr',
   'https://www.finbot.com.tr',
-  'https://d1qj4pwn1ro8oy.cloudfront.net', // CloudFront distribution
+  'https://d2l004ta5k2mvv.cloudfront.net', // CloudFront distribution
   process.env.CLIENT_URL
 ].filter(Boolean);
 
