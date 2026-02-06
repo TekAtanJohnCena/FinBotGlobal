@@ -1,7 +1,12 @@
 // Streaming helper function
 async function sendMessageWithStreaming(message, chatId, setMessages, setActiveChatId, fetchHistory, scrollToBottom, botMessageIndex) {
     try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/chat/stream`, {
+        // Fix for Double API Path Bug
+        let baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+        if (baseUrl.endsWith('/api')) baseUrl = baseUrl.slice(0, -4);
+
+        const response = await fetch(`${baseUrl}/api/chat/stream`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
