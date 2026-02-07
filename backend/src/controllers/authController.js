@@ -33,8 +33,8 @@ const generateAccessToken = (userId) => {
 const setAuthCookie = (res, token) => {
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,        // HTTPS zorunlu (Render + Domain)
-    sameSite: "none",    // Frontend & Backend farklı domain
+    secure: true,        // HTTPS zorunlu (Render + Domain)
+    sameSite: "none",    // ✅ İŞTE BU! (Frontend & Backend farklı domain)
     maxAge: 15 * 60 * 1000, // 15 dakika
   });
 };
