@@ -341,7 +341,7 @@ function MobileLanguageSelector() {
 
 export default function Landing() {
   // 👇 CONTEXT'TEN KULLANICI BİLGİSİNİ VE DİL BİLGİSİNİ ÇEKİYORUZ
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { t, language } = useContext(LanguageContext);
 
   const [active, setActive] = useState("home");
@@ -537,13 +537,23 @@ export default function Landing() {
               {/* 👇 GÜNCELLENEN BUTON KISMI */}
               <div className="d-flex flex-wrap gap-3">
                 {user ? (
-                  // DURUM 1: Giriş Yapılmışsa -> Chat'e Yönlendir
-                  <Link
-                    to="/chat"
-                    className="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold btn-hover-white"
-                  >
-                    {t('hero.startButton')}
-                  </Link>
+                  // DURUM 1: Giriş Yapılmışsa -> Chat'e Yönlendir + Çıkış Yap
+                  <>
+                    <Link
+                      to="/chat"
+                      className="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold btn-hover-white"
+                    >
+                      {t('hero.startButton')}
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="btn btn-outline-danger btn-lg rounded-pill px-4 btn-hover-white"
+                      style={{ borderColor: 'rgba(239,68,68,0.5)', color: 'rgba(239,68,68,0.9)' }}
+                    >
+                      <i className="bi bi-box-arrow-right me-2"></i>
+                      Çıkış Yap
+                    </button>
+                  </>
                 ) : (
                   // DURUM 2: Giriş Yapılmamışsa -> Kayıt Ol / Paketleri Gör
                   <>

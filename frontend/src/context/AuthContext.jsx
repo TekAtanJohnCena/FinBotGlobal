@@ -10,6 +10,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkUser = async () => {
       try {
+        // Token expiry check helper
+        const isTokenExpired = (token) => {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.exp * 1000 < Date.now();
+          } catch {
+            return true; // Invalid token format = expired
+          }
+        };
+
         // 1. URL'den token kontrolü (Google Redirect senaryosu için)
         const searchParams = new URLSearchParams(window.location.search);
         const tokenFromUrl = searchParams.get("token");
@@ -19,6 +29,15 @@ export const AuthProvider = ({ children }) => {
 
         // URL'de token varsa (Google'dan dönülmüşse) onu önceliklendir
         if (tokenFromUrl) {
+          // Check if new token is expired
+          if (isTokenExpired(tokenFromUrl)) {
+            console.warn("Token from URL is expired, clearing...");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+          }
+
           storedToken = tokenFromUrl;
           localStorage.setItem("token", tokenFromUrl);
 
@@ -29,8 +48,17 @@ export const AuthProvider = ({ children }) => {
           api.defaults.headers.common["Authorization"] = `Bearer ${tokenFromUrl}`;
         }
 
-        // 2. Token varsa (Localde veya URL'den gelen)
+        // 2. Token varsa (Localde veya URL'den gelen) - önce expiry kontrolü
         if (storedToken) {
+          // Check if stored token is expired
+          if (isTokenExpired(storedToken)) {
+            console.warn("Stored token is expired, clearing session...");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            delete api.defaults.headers.common["Authorization"];
+            return; // Don't set user
+          }
+
           api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
 
           // User verisini güvenli şekilde parse et

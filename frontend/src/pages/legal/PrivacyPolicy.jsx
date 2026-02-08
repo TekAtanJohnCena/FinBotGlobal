@@ -4,10 +4,10 @@ const PrivacyPolicy = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg my-10 text-gray-800">
       <h1 className="text-3xl font-bold mb-6 text-blue-900">GİZLİLİK POLİTİKASI VE AYDINLATMA METNİ (PRIVACY POLICY)</h1>
-      <p className="text-sm text-gray-500 mb-4">Son Güncelleme Tarihi: 22 Ocak 2026</p>
+      <p className="text-sm text-gray-500 mb-4">Son Güncelleme Tarihi: 8 Şubat 2026</p>
 
       <p className="mb-6">
-        [Şirketinizin Tam Resmi Unvanı] ("FinBot") olarak, kişisel verilerinizin güvenliğine ve gizliliğine önem veriyoruz. Bu politika, verilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklar.
+        Emre Ercan - FinBot Yazılım ve Danışmanlık ("FinBot") olarak, kişisel verilerinizin güvenliğine ve gizliliğine önem veriyoruz. Bu politika, verilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklar.
       </p>
 
       <div className="space-y-6">
@@ -82,9 +82,15 @@ const PrivacyPolicy = () => {
 
         <section>
           <h2 className="text-xl font-semibold mb-3 text-blue-800">7. VERİ GÜVENLİĞİ</h2>
-          <p>
+          <p className="mb-3">
             Kişisel verilerinizi korumak için endüstri standardı güvenlik önlemleri kullanıyoruz. Ancak, internet üzerinden iletilen hiçbir verinin %100 güvenli olduğunu garanti edemeyiz.
           </p>
+          <div className="mt-3 bg-green-50 p-3 rounded border-l-4 border-green-500">
+            <p className="font-semibold text-green-800">KREDİ KARTI GÜVENLİĞİ</p>
+            <p className="text-sm mt-1">
+              Kredi kartı bilgileriniz sistemimizde saklanmamakta olup, tüm ödeme işlemleri güvenli Shopier altyapısı üzerinden gerçekleşmektedir. Ödeme bilgileriniz 256-bit SSL sertifikası ile şifrelenir ve doğrudan ödeme kuruluşu tarafından işlenir.
+            </p>
+          </div>
         </section>
 
         <section>
@@ -105,8 +111,9 @@ const PrivacyPolicy = () => {
           <h2 className="text-xl font-semibold mb-3 text-gray-800">10. İLETİŞİM</h2>
           <p className="mb-2">Gizlilik politikamız hakkında sorularınız varsa, bizimle iletişime geçebilirsiniz:</p>
           <ul className="space-y-1 ml-4">
-            <li><strong>E-posta:</strong> <a href="mailto:iletisim@finbot.com" className="text-blue-600 underline">iletisim@finbot.com</a></li>
-            <li><strong>Adres:</strong> İstanbul, Türkiye</li>
+            <li><strong>E-posta:</strong> <a href="mailto:destek@finbot.com.tr" className="text-blue-600 underline">destek@finbot.com.tr</a></li>
+            <li><strong>Firma:</strong> Emre Ercan - FinBot Yazılım ve Danışmanlık</li>
+            <li><strong>Adres:</strong> Adnan Kahveci Mah. Ayfer Sok. No:15, Beylikdüzü / İstanbul</li>
           </ul>
         </section>
       </div>

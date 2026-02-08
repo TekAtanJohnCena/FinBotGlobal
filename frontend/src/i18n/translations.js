@@ -15,16 +15,16 @@ export const translations = {
 
     // Hero Section
     hero: {
-      title: "Wall Street Artık",
-      titleAccent: "Türkçe Konuşuyor",
-      titleEnd: "",
-      subtitle: "Apple, Tesla, Nvidia... Hangi ABD hissesini neden alman gerektiğini FinBot'a sor. Dolar bazlı kazan, enflasyondan korun.",
-      startButton: "Finbot'u Başlat 🚀",
-      tryFreeButton: "🚀 Ücretsiz Analize Başla",
-      viewPlansButton: "📊 Paketleri Gör",
-      bullet1: "NASDAQ, NYSE, S&P 500 kapsam",
-      bullet2: "Dolar bazlı getiri takibi",
-      bullet3: "10-K/10-Q raporları Türkçe"
+      title: "Yapay Zeka Destekli",
+      titleAccent: "Finansal Veri Analizi",
+      titleEnd: "ve Raporlama Asistanı",
+      subtitle: "Geçmiş verileri analiz et, stratejini güçlendir. ABD piyasalarındaki şirketlerin finansal tablolarını, teknik göstergelerini ve raporlarını Türkçe incele.",
+      startButton: "Analize Başla 📊",
+      tryFreeButton: "📊 Ücretsiz Deneyin",
+      viewPlansButton: "📋 Paketleri Gör",
+      bullet1: "NASDAQ, NYSE, S&P 500 veri kapsamı",
+      bullet2: "Teknik gösterge analizi",
+      bullet3: "10-K/10-Q raporları Türkçe özet"
     },
 
     // Features
@@ -234,23 +234,35 @@ export const translations = {
 
     // Footer
     footer: {
-      description: "Wall Street'e Türkçe erişim sağlayan yapay zekâ destekli finans asistanı. ABD hisselerini hızla anlamanıza, karşılaştırmanıza ve dolar bazlı yatırım yapmanıza yardım eder.",
+      description: "Yapay zekâ destekli finansal veri analiz ve raporlama asistanı. ABD piyasalarındaki şirketlerin finansal verilerini incelemenize, teknik göstergelerini analiz etmenize ve raporlarını Türkçe anlamanıza yardımcı olur.",
       quickLinks: "Hızlı Linkler",
       home: "Ana Sayfa",
       packages: "Paketler",
       features: "Özellikler",
       contact: "İletişim",
-      legal: "Hukuk",
+      legal: "Yasal",
       kvkk: "KVKK Aydınlatma Metni",
       privacy: "Gizlilik Politikası",
       cookies: "Çerez Politikası",
-      terms: "Kullanım Şartları",
-      social: "Sosyal",
+      terms: "Kullanım Koşulları",
+      distanceSales: "Mesafeli Satış Sözleşmesi",
+      refundPolicy: "İptal ve İade Koşulları",
+      social: "Sosyal Medya",
       copyright: "© {year} FinBot — Tüm hakları saklıdır.",
       kvkkShort: "KVKK",
       privacyShort: "Gizlilik",
       cookiesShort: "Çerez",
-      termsShort: "Şartlar"
+      termsShort: "Koşullar",
+      // Company Info
+      companyInfo: "Firma Bilgileri",
+      companyName: "Emre Ercan - FinBot Yazılım ve Danışmanlık",
+      companyAddress: "Adnan Kahveci Mah. Ayfer Sok. No:15, Beylikdüzü / İstanbul",
+      taxOffice: "Vergi Dairesi: Büyükçekmece V.D.",
+      // Payment & Security
+      paymentSecurity: "Güvenli Ödeme",
+      sslStatement: "Tüm ödemeler 256-bit SSL sertifikası ile şifrelenmiş Shopier altyapısı üzerinden güvenle gerçekleşmektedir.",
+      // Legal Disclaimer
+      disclaimer: "Burada yer alan bilgi, yorum ve tavsiyeler yatırım danışmanlığı kapsamında değildir. Sitemizde sunulan veriler sadece eğitim ve analiz amaçlıdır. FinBot, kullanıcıların bu verilerle yapacağı işlemlerden sorumlu tutulamaz."
     },
 
     // Authentication
@@ -557,7 +569,7 @@ export const translations = {
 
     // Footer
     footer: {
-      description: "AI-powered financial assistant providing access to Wall Street. Helps you quickly understand, compare US stocks, and invest in dollar-based assets.",
+      description: "AI-powered financial data analysis and reporting assistant. Helps you analyze US market companies' financial data, technical indicators, and understand reports in plain language.",
       quickLinks: "Quick Links",
       home: "Home",
       packages: "Packages",
@@ -568,12 +580,24 @@ export const translations = {
       privacy: "Privacy Policy",
       cookies: "Cookie Policy",
       terms: "Terms of Use",
-      social: "Social",
+      distanceSales: "Distance Sales Agreement",
+      refundPolicy: "Cancellation & Refund Policy",
+      social: "Social Media",
       copyright: "© {year} FinBot — All rights reserved.",
       kvkkShort: "KVKK",
       privacyShort: "Privacy",
       cookiesShort: "Cookies",
-      termsShort: "Terms"
+      termsShort: "Terms",
+      // Company Info
+      companyInfo: "Company Information",
+      companyName: "Emre Ercan - FinBot Software & Consulting",
+      companyAddress: "Adnan Kahveci Mah. Ayfer Sok. No:15, Beylikdüzü / Istanbul",
+      taxOffice: "Tax Office: Büyükçekmece",
+      // Payment & Security
+      paymentSecurity: "Secure Payment",
+      sslStatement: "All payments are securely processed through Shopier infrastructure with 256-bit SSL encryption.",
+      // Legal Disclaimer
+      disclaimer: "The information, comments and recommendations contained herein do not constitute investment advice. The data provided on our site is for educational and analysis purposes only. FinBot cannot be held responsible for transactions made by users with this data."
     },
 
     // Authentication

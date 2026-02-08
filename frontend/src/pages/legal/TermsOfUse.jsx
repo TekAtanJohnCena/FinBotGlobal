@@ -10,7 +10,7 @@ const TermsOfUse = () => {
         <section>
           <h2 className="text-xl font-semibold mb-2">1. TARAFLAR</h2>
           <p>
-            İşbu Sözleşme, İstanbul, Türkiye adresinde mukim [Şirketinizin Tam Resmi Unvanı] ("FinBot" veya "Şirket") ile FinBot web sitesi, mobil uygulaması veya API hizmetlerine ("Platform") erişen kullanıcı ("Kullanıcı") arasında akdedilmiştir.
+            İşbu Sözleşme, Adnan Kahveci Mah. Ayfer Sok. No:15, Beylikdüzü / İstanbul adresinde mukim Emre Ercan - FinBot Yazılım ve Danışmanlık ("FinBot" veya "Şirket") ile FinBot web sitesi, mobil uygulaması veya API hizmetlerine ("Platform") erişen kullanıcı ("Kullanıcı") arasında akdedilmiştir.
           </p>
         </section>
 
@@ -27,7 +27,7 @@ const TermsOfUse = () => {
         <section className="bg-red-50 p-4 border-l-4 border-red-500 rounded">
           <h2 className="text-xl font-bold text-red-700 mb-2">3. YATIRIM TAVSİYESİ DEĞİLDİR (SORUMLULUK REDDİ)</h2>
           <p className="mb-3">
-            <strong>3.1. Bilgi Amaçlıdır:</strong> Platform üzerindeki hiçbir veri, grafik, sohbet çıktısı veya rapor; Sermaye Piyasası Kurulu (SPK), SEC veya diğer finansal otoriteler kapsamında bir "Yatırım Danışmanlığı" veya "Yatırım Tavsiyesi" değildir.
+            <strong>3.1. Bilgi Amaçlıdır:</strong> Platform üzerindeki hiçbir veri, grafik, sohbet çıktısı veya rapor; Sermaye Piyasası Kurulu (SPK), SEC veya diğer finansal otoriteler kapsamında bir "Yatırım Danışmanlığı" veya "Yatırım Tavsiyesi" değildir. FinBot, bir eğitim amaçlı finansal veri analiz ve raporlama aracıdır.
           </p>
           <p>
             <strong>3.2. Kullanıcı Sorumluluğu:</strong> Finansal kararlar (alım-satım, tutma vb.) tamamen Kullanıcı'nın kendi inisiyatifindedir. Kullanıcı, FinBot'un sağladığı bilgilere dayanarak yaptığı işlemlerden doğabilecek maddi/manevi zararlardan Şirket'in sorumlu tutulamayacağını kabul eder.

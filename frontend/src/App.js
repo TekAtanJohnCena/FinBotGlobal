@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import AppLayout from "./layouts/AppLayout";
+import CookieConsent from "./components/CookieConsent";
 
 // --- SAYFALAR (Public) ---
 const Landing = lazy(() => import("./pages/Landing"));
@@ -25,6 +26,8 @@ const KVKKText = lazy(() => import('./pages/legal/KVKKText'));
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
 const CookiePolicy = lazy(() => import('./pages/legal/CookiePolicy'));
 const TermsOfUse = lazy(() => import('./pages/legal/TermsOfUse'));
+const DistanceSalesAgreement = lazy(() => import('./pages/legal/DistanceSalesAgreement'));
+const RefundPolicy = lazy(() => import('./pages/legal/RefundPolicy'));
 
 // --- SAYFALAR (Private / Korumalı) ---
 const ChatWithHistory = lazy(() => import("./pages/ChatWithHistory"));
@@ -89,6 +92,7 @@ function App() {
 
   return (
     <LanguageProvider>
+      <CookieConsent />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
           {/* =================================================
@@ -136,6 +140,8 @@ function App() {
           <Route path="/legal/privacy" element={<PrivacyPolicy />} />
           <Route path="/legal/cookies" element={<CookiePolicy />} />
           <Route path="/legal/terms" element={<TermsOfUse />} />
+          <Route path="/mesafeli-satis-sozlesmesi" element={<DistanceSalesAgreement />} />
+          <Route path="/iptal-iade-kosullari" element={<RefundPolicy />} />
           {/* Legacy redirects */}
           <Route path="/kvkk-aydinlatma" element={<Navigate to="/legal/kvkk" replace />} />
           <Route path="/gizlilik-politikasi" element={<Navigate to="/legal/privacy" replace />} />
