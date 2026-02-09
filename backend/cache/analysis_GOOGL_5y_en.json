@@ -2,18 +2,8 @@
   "data": {
     "symbol": "GOOGL",
     "name": "Alphabet Inc - Class A",
-    "price": 331.25,
+    "price": 322.86,
     "history": [
-      {
-        "date": "2021-02-08T00:00:00.000Z",
-        "open": 2100,
-        "high": 2115,
-        "low": 2063.35,
-        "close": 2084.52,
-        "adjClose": 103.4380357889,
-        "price": 2084.52,
-        "volume": 1441443
-      },
       {
         "date": "2021-02-09T00:00:00.000Z",
         "open": 2074.8,
@@ -12553,11 +12543,21 @@
         "adjClose": 331.25,
         "price": 331.25,
         "volume": 88205849
+      },
+      {
+        "date": "2026-02-06T00:00:00.000Z",
+        "open": 327.18,
+        "high": 330.38,
+        "low": 319.92,
+        "close": 322.86,
+        "adjClose": 322.86,
+        "price": 322.86,
+        "volume": 56380484
       }
     ],
     "fundamentals": {
-      "marketCap": 3997193750000,
-      "peRatio": 30.2428217447,
+      "marketCap": 3895951620000,
+      "peRatio": 29.4768224257,
       "description": "Google Inc. (Google) is a global technology company. The Company's business is primarily focused around key areas, such as search, advertising, operating systems and platforms, enterprise and hardware products. The Company generates revenue primarily by delivering online advertising. The Company also generates revenues from Motorola by selling hardware products. The Company provides its products and services in more than 100 languages and in more than 50 countries, regions, and territories. Effective May 16, 2014, Google Inc acquired Quest Visual Inc. Effective May 20, 2014, Google Inc acquired Enterproid Inc, doing business as Divide. In June 2014, Google Inc acquired mDialog Corp. Effective June 25, 2014, Google Inc acquired Appurify Inc, a San Francisco-based developer of mobile bugging application software."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1770390721583
+  "timestamp": 1770671581746
 }

@@ -2,18 +2,8 @@
   "data": {
     "symbol": "TSLA",
     "name": "Tesla Inc",
-    "price": 397.21,
+    "price": 411.11,
     "history": [
-      {
-        "date": "2021-02-08T00:00:00.000Z",
-        "open": 869.67,
-        "high": 877.77,
-        "low": 854.75,
-        "close": 863.42,
-        "adjClose": 287.8066666667,
-        "price": 863.42,
-        "volume": 20161719
-      },
       {
         "date": "2021-02-09T00:00:00.000Z",
         "open": 855.12,
@@ -12553,11 +12543,21 @@
         "adjClose": 397.21,
         "price": 397.21,
         "volume": 72819838
+      },
+      {
+        "date": "2026-02-06T00:00:00.000Z",
+        "open": 400.87,
+        "high": 414.55,
+        "low": 397.751,
+        "close": 411.11,
+        "adjClose": 411.11,
+        "price": 411.11,
+        "volume": 62677144
       }
     ],
     "fundamentals": {
-      "marketCap": 1321048631324.07,
-      "peRatio": 348.194156912,
+      "marketCap": 1367277517745.37,
+      "peRatio": 360.3788923947,
       "description": "Tesla Motors, Inc. (Tesla) designs, develops, manufactures and sells electric vehicles and advanced electric vehicle powertrain components. Tesla owns its sales and service network. The Company is engaged in commercially producing a federally-compliant electric vehicle, the Tesla Roadster. addition to developing its Model S and future vehicle manufacturing capabilities at the Tesla Factory, the Company is designing, developing and manufacturing lithium-ion battery packs, electric motors, gearboxes and components both for its vehicles and for its original equipment manufacturer customers. These activities occur at its electric powertrain manufacturing facility in Palo Alto, California and at the Tesla Factory. The Company provides services for the development of electric powertrain components and sells electric powertrain components to other automotive manufacturers."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1770390735325
+  "timestamp": 1770671594654
 }
