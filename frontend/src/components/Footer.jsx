@@ -134,22 +134,9 @@ export default function Footer() {
                 <text x="8" y="16" fill="white" fontFamily="Arial" fontWeight="bold" fontSize="9">TROY</text>
               </svg>
 
-              {/* Shopier */}
-              <div className="payment-logo-text" style={{
-                fontSize: '12px',
-                fontWeight: '600',
-                color: 'rgba(255,255,255,0.7)',
-                padding: '4px 8px',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '4px'
-              }}>
-                Shopier
-              </div>
+            
             </div>
-            <p className="text-soft small mb-0" style={{ fontSize: '0.75rem' }}>
-              <i className="bi bi-shield-lock me-1"></i>
-              {t('footer.sslStatement')}
-            </p>
+          
           </div>
         </div>
 

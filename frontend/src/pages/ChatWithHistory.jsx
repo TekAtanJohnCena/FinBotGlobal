@@ -20,6 +20,7 @@ import {
 import TypingIndicator from "../components/TypingIndicator";
 import StructuredResponse from "../components/StructuredResponse";
 import QuotaDisplay from "../components/QuotaDisplay";
+import ThinkingAccordion from "../components/ThinkingAccordion";
 
 import "../styles/structuredResponse.css";
 import logo from "../images/logo1.png";
@@ -149,7 +150,14 @@ export default function ChatWithHistory() {
 
     // 2. Boş bir bot mesajı oluştur (Streaming için placeholder)
     const botMessageIndex = messages.length + 1; // User mesajından sonraki index
-    setMessages((prev) => [...prev, { sender: "bot", text: "", isStreaming: true }]);
+
+    setMessages((prev) => [...prev, {
+      sender: "bot",
+      text: "",
+      thought: "FinBot analiz isteğini aldı, işlem başlatılıyor...\n", // Initial thought
+      isStreaming: true,
+      isThinking: true // Start in thinking mode
+    }]);
 
     // 3. Streaming Helper'ı çağır
     const result = await sendMessageWithStreaming(
@@ -238,11 +246,13 @@ export default function ChatWithHistory() {
         }`}
     >
       {role === "bot" && (
-        <img
-          src={logo}
-          alt="FinBot"
-          className="w-8 h-8 md:w-10 md:h-10 rounded-full shrink-0 self-start"
-        />
+        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full shrink-0 self-start overflow-hidden shadow-lg shadow-emerald-500/20">
+          <img
+            src={logo}
+            alt="FinBot"
+            className="w-full h-full object-cover"
+          />
+        </div>
       )}
 
       <div
@@ -437,15 +447,58 @@ export default function ChatWithHistory() {
           </ul>
         </div>
 
-        {/* Bottom spacing for mobile nav */}
-        <div className="h-16 md:hidden shrink-0" />
-      </aside>
+
+
+        {/* User Profile & Settings Section (Fixed at bottom) */}
+        <div className="p-4 border-t border-white/5 bg-[#131314]">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/20">
+              {user?.username?.substring(0, 2).toUpperCase() || 'FB'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white truncate">{user?.username || 'Kullanıcı'}</div>
+              <div className="text-xs text-zinc-500 truncate">{user?.email || ''}</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setShowSettingsModal(true)}
+              className="flex items-center justify-center gap-2 p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M7.84 1.804A1 1 0 018.82 1h2.36a1 1 0 01.98.804l.331 1.652a6.993 6.993 0 011.929 1.115l1.598-.54a1 1 0 011.186.447l1.18 2.044a1 1 0 01-.205 1.251l-1.267 1.113a7.047 7.047 0 010 2.228l1.267 1.113a1 1 0 01.206 1.25l-1.18 2.045a1 1 0 01-1.187.447l-1.598-.54a6.993 6.993 0 01-1.929 1.115l-.33 1.652a1 1 0 01-.98.804H8.82a1 1 0 01-.98-.804l-.331-1.652a6.993 6.993 0 01-1.929-1.115l-1.598.54a1 1 0 01-1.186-.447l-1.18-2.044a1 1 0 01.205-1.251l1.267-1.114a7.042 7.042 0 010-2.227L1.821 7.773a1 1 0 01-.206-1.25l1.18-2.045a1 1 0 011.187-.447l1.598.54A6.993 6.993 0 017.51 3.456l.33-1.652zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+              </svg>
+              Ayarlar
+            </button>
+            <button
+              onClick={logout}
+              className="flex items-center justify-center gap-2 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              Çıkış
+            </button>
+          </div>
+          <button
+            onClick={() => setShowSupportModal(true)}
+            className="w-full mt-2 flex items-center justify-center gap-2 p-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Yardım & Destek
+          </button>
+        </div>
+
+      </aside >
 
       {/* ---------------- Main Chat Area ---------------- */}
-      <main className="relative flex-1 flex flex-col bg-[#131314] h-full w-full max-w-full overflow-hidden">
+      < main className="relative flex-1 flex flex-col bg-[#131314] h-full w-full max-w-full overflow-hidden" >
 
         {/* Mobile Header (Gemini Style) */}
-        <div className="md:hidden flex items-center justify-between p-3 bg-[#1E1F20] shrink-0 z-20">
+        < div className="md:hidden flex items-center justify-between p-3 bg-[#1E1F20] shrink-0 z-20" >
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -465,10 +518,10 @@ export default function ChatWithHistory() {
           >
             <PlusIcon className="w-5 h-5" />
           </button>
-        </div>
+        </div >
 
         {/* Chat Scroll Area (Tüm içerik bu kaydırılabilir alanda) */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto chat-scroll scroll-smooth">
+        < div ref={scrollRef} className="flex-1 overflow-y-auto chat-scroll scroll-smooth" >
 
           <div className="mx-auto w-full max-w-[1180px] px-4 md:px-8">
 
@@ -499,25 +552,46 @@ export default function ChatWithHistory() {
             {messages.length > 0 && (
               <div className="pt-4 md:pt-6 pb-40 md:pb-40 space-y-3 md:space-y-6">
                 {messages.map((m, i) => (
-                  <Bubble key={i} role={m.sender === "user" ? "user" : "bot"}>
-
-                    {/* Metin İçeriği */}
-                    {m.text && (
-                      <div className="text-[15px] md:text-[16px]">
-                        {m.sender === "bot" ? (
-                          <StructuredResponse text={m.text} />
-                        ) : (
-                          <div className="whitespace-pre-line">{m.text}</div>
-                        )}
+                  <div key={i} className="flex flex-col w-full">
+                    {/* Render Thinking Block if exists */}
+                    {m.thought && (
+                      <div className={`flex w-full ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
+                        <div className="flex gap-3 w-full max-w-[85%] md:max-w-[600px] ml-11 md:ml-14">
+                          <div className="w-full">
+                            <ThinkingAccordion
+                              thoughtText={m.thought}
+                              isThinking={m.isThinking}
+                              isFinished={!m.isStreaming}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
 
+                    <Bubble role={m.sender === "user" ? "user" : "bot"}>
 
-                  </Bubble>
+                      {/* Metin İçeriği */}
+                      {m.text ? (
+                        <div className="text-[15px] md:text-[16px]">
+                          {m.sender === "bot" ? (
+                            <StructuredResponse text={m.text} />
+                          ) : (
+                            <div className="whitespace-pre-line">{m.text}</div>
+                          )}
+                        </div>
+                      ) : (
+                        m.sender === "bot" && <TypingIndicator />
+                      )}
+
+
+                      {/* ... */}
+
+                    </Bubble>
+                  </div>
                 ))}
 
-                {/* Yazıyor Animasyonu */}
-                {isLoading && (
+                {/* Yazıyor Animasyonu - Sadece son mesaj bot değilse göster (çakışmayı önlemek için) */}
+                {isLoading && messages[messages.length - 1]?.sender !== "bot" && (
                   <Bubble role="bot">
                     <TypingIndicator />
                   </Bubble>

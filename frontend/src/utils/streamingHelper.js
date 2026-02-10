@@ -52,6 +52,23 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
 
                     if (data.type === 'financialData') {
                         financialDataReceived = data.data;
+                    } else if (data.type === 'thought') {
+                        // Handle Thinking/Status updates
+                        setMessages((prev) => {
+                            const newMessages = [...prev];
+                            // Initialize thought buffer if not exists
+                            const currentThought = newMessages[botMessageIndex]?.thought || "";
+
+                            newMessages[botMessageIndex] = {
+                                ...newMessages[botMessageIndex],
+                                sender: "bot",
+                                thought: currentThought + data.content + "\n", // Append new thought line
+                                isStreaming: true,
+                                isThinking: true // Flag to show thinking UI
+                            };
+                            return newMessages;
+                        });
+                        scrollToBottom();
                     } else if (data.type === 'text') {
                         fullText += data.content;
                         // Closure issue fix: create local variable
@@ -59,9 +76,11 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
                         setMessages((prev) => {
                             const newMessages = [...prev];
                             newMessages[botMessageIndex] = {
+                                ...newMessages[botMessageIndex],
                                 sender: "bot",
                                 text: currentText,
-                                isStreaming: true
+                                isStreaming: true,
+                                isThinking: false // Switch off thinking when text starts
                             };
                             return newMessages;
                         });
@@ -94,11 +113,17 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
         // Finalize messages
         setMessages((prev) => {
             const newMessages = [...prev];
-            newMessages[botMessageIndex] = {
-                sender: "bot",
-                text: fullText,
-                isStreaming: false
-            };
+
+            // Ensure final state is correct
+            if (newMessages[botMessageIndex]) {
+                newMessages[botMessageIndex] = {
+                    ...newMessages[botMessageIndex],
+                    sender: "bot",
+                    text: fullText,
+                    isStreaming: false,
+                    isThinking: false
+                };
+            }
 
             if (financialDataReceived) {
                 newMessages.push({
