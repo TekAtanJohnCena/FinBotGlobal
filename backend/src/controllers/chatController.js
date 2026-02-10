@@ -13,6 +13,7 @@ import { createChatCompletion } from "../services/bedrockService.js";
 // MODELS
 import Chat from "../models/Chat.js";
 import Portfolio from "../models/Portfolio.js";
+import { SYSTEM_PROMPT } from "../prompts/systemPrompt.js";
 
 // OpenAI Client - Switched to Bedrock (Claude 3.5 Sonnet)
 const openai = {
@@ -475,8 +476,6 @@ export const sendMessage = async (req, res) => {
 /* =========================
    ENDPOINT: sendMessageStream (SSE) - PRIMARY
    ========================= */
-
-import { SYSTEM_PROMPT } from "../prompts/systemPrompt.js";
 
 /* =========================
    ENDPOINT: sendMessageStream (SSE) - PRIMARY
