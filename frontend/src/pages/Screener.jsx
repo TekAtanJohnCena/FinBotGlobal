@@ -767,7 +767,7 @@ const Screener = () => {
               <div className="flex flex-col gap-4 mb-4 md:mb-8">
                 <div className="flex items-center gap-2">
                   <Activity className="text-indigo-400 w-4 h-4 md:w-5 md:h-5" />
-                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-400">Teknik Analiz Görünümü</span>
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-400">Temel Analiz Görünümü</span>
                 </div>
 
                 <div className="flex flex-wrap gap-2 md:gap-4 items-center">

@@ -21,6 +21,9 @@ import TypingIndicator from "../components/TypingIndicator";
 import StructuredResponse from "../components/StructuredResponse";
 import QuotaDisplay from "../components/QuotaDisplay";
 import ThinkingAccordion from "../components/ThinkingAccordion";
+import PendingPlanModal from "../components/PendingPlanModal";
+import PaymentModal from "../components/PaymentModal";
+import { getPendingPlan, clearPendingPlan, isPendingPlanValid } from "../hooks/usePaymentFlow";
 
 import "../styles/structuredResponse.css";
 import logo from "../images/logo1.png";
@@ -91,7 +94,50 @@ export default function ChatWithHistory() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
 
+  // Payment flow state - for pending plan modal
+  const [showPendingPlanModal, setShowPendingPlanModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState(null);
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
+
   const scrollRef = useRef(null);
+
+  // Check for pending plan on mount (Scenario 1: user registered after selecting plan)
+  useEffect(() => {
+    if (!user) return;
+
+    const plan = getPendingPlan();
+    if (plan && isPendingPlanValid(plan)) {
+      // User has a pending plan from before registration
+      setPendingPlan(plan);
+      setShowPendingPlanModal(true);
+    } else if (plan) {
+      // Plan expired, clear it
+      clearPendingPlan();
+    }
+  }, [user]);
+
+  // Handle pending plan modal actions
+  const handleContinueToPayment = () => {
+    if (pendingPlan) {
+      setSelectedPlanForPayment(pendingPlan);
+      setShowPendingPlanModal(false);
+      setShowPaymentModal(true);
+      clearPendingPlan(); // Clear from localStorage
+    }
+  };
+
+  const handleDismissPendingPlan = () => {
+    setShowPendingPlanModal(false);
+    clearPendingPlan();
+    setPendingPlan(null);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    setSelectedPlanForPayment(null);
+    window.location.reload(); // Refresh to update subscription status
+  };
 
   // --------------------------- Fetch history --------------------------------
   // 1. Önce fonksiyonu tanımlıyoruz (Sıralama önemli!)
@@ -723,6 +769,28 @@ export default function ChatWithHistory() {
           </div>
         )
       }
+
+      {/* Pending Plan Modal - Shows after registration when user had selected a plan */}
+      <PendingPlanModal
+        isOpen={showPendingPlanModal}
+        onClose={handleDismissPendingPlan}
+        pendingPlan={pendingPlan}
+        onContinueToPayment={handleContinueToPayment}
+        userName={user?.firstName || user?.username}
+      />
+
+      {/* Payment Modal - For completing the purchase */}
+      {selectedPlanForPayment && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          planKey={selectedPlanForPayment.key}
+          planName={selectedPlanForPayment.name}
+          price={selectedPlanForPayment.price}
+          period={selectedPlanForPayment.period}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </div >
   );
 }

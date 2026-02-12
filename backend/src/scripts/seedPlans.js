@@ -44,23 +44,23 @@ const PLANS_DATA = [
         displayName: "Plus",
         displayNameTR: "Plus",
         price: {
-            monthly: 99,
-            yearly: 948, // 79/month * 12 = ~20% discount
+            monthly: 369,
+            yearly: 3542, // 20% discount
             currency: "TRY"
         },
         limits: {
-            dailyQueries: 50,
+            dailyQueries: 20,  // 4x more than FREE
             dailyNewsAnalysis: 5,
             dataHistoryYears: 10
         },
         features: [
-            "Günlük 50 Finbot sorgusu",
+            "Günlük 20 Finbot sorgusu (4x daha fazla)",
             "Günlük 5 haber analizi",
             "10 yıllık geçmiş veri",
             "Gelişmiş portföy analizi",
             "Öncelikli e-posta desteği",
             "Fiyat uyarıları",
-            "Teknik analiz göstergeleri"
+            "Temel analiz göstergeleri"
         ],
         sortOrder: 1,
         isActive: true
@@ -70,23 +70,23 @@ const PLANS_DATA = [
         displayName: "Pro",
         displayNameTR: "Pro",
         price: {
-            monthly: 249,
-            yearly: 2388, // 199/month * 12 = ~20% discount
+            monthly: 449,
+            yearly: 4310, // 20% discount
             currency: "TRY"
         },
         limits: {
-            dailyQueries: 150,
+            dailyQueries: 50,  // 10x more than FREE
             dailyNewsAnalysis: 30,
             dataHistoryYears: 25
         },
         features: [
-            "Günlük 150 Finbot sorgusu",
+            "Günlük 50 Finbot sorgusu (10x daha fazla)",
             "Günlük 30 haber analizi",
             "20+ yıllık geçmiş veri",
             "Profesyonel portföy analitiği",
             "7/24 öncelikli destek",
             "Gelişmiş fiyat uyarıları",
-            "Tam teknik analiz paketi",
+            "Tam temel analiz paketi",
             "API erişimi",
             "Özel raporlar"
         ],

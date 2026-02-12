@@ -1,12 +1,22 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { LanguageContext } from "../context/LanguageContext";
-import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 import { Check, Shield, Zap, TrendingUp, Building2, HelpCircle, Mail, LifeBuoy } from 'lucide-react';
+import PaymentModal from "../components/PaymentModal";
+import { savePendingPlan } from "../hooks/usePaymentFlow";
 
 const PricingSubscription = () => {
   const { t } = useContext(LanguageContext);
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const [period, setPeriod] = useState("monthly");
   const nf = useMemo(() => new Intl.NumberFormat("tr-TR"), []);
+
+  // Payment Modal State
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const plans = [
     {
@@ -43,6 +53,47 @@ const PricingSubscription = () => {
   const calculateMonthlyEquivalent = (monthlyPrice) => {
     const yearlyPrice = Math.round(monthlyPrice * 12 * 0.80);
     return Math.round(yearlyPrice / 12);
+  };
+
+  // Handle plan selection
+  const handlePlanSelect = (planKey, monthlyPrice) => {
+    // Enterprise goes to contact
+    if (planKey === 'enterprise') {
+      navigate('/contact');
+      return;
+    }
+
+    // Free plan
+    if (planKey === 'free') {
+      if (user) {
+        navigate('/chat');
+      } else {
+        navigate('/register');
+      }
+      return;
+    }
+
+    // Paid plans (plus, pro)
+    const price = calcPrice(monthlyPrice);
+
+    if (user) {
+      // User is logged in - show payment modal
+      setSelectedPlan({
+        key: planKey,
+        name: planKey === 'plus' ? 'Plus' : 'Pro',
+        price: price,
+        period: period
+      });
+      setShowPaymentModal(true);
+    } else {
+      // Guest user - save plan and redirect to register
+      savePendingPlan(planKey, period);
+      navigate('/register');
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    window.location.reload();
   };
 
   return (
@@ -185,9 +236,9 @@ const PricingSubscription = () => {
                 ))}
               </div>
 
-              <a
-                href={plan.key === 'enterprise' ? '/contact' : `/auth?plan=${plan.key}`}
-                className={`w-full py-3.5 rounded-xl font-bold transition-all text-center ${plan.key === 'free'
+              <button
+                onClick={() => handlePlanSelect(plan.key, plan.monthly)}
+                className={`w-full py-3.5 rounded-xl font-bold transition-all text-center cursor-pointer ${plan.key === 'free'
                   ? 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
                   : plan.key === 'enterprise'
                     ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/20'
@@ -197,7 +248,7 @@ const PricingSubscription = () => {
                   }`}
               >
                 {t(`pricing.${plan.key}.cta`)}
-              </a>
+              </button>
             </div>
           ))}
         </div>
@@ -211,6 +262,19 @@ const PricingSubscription = () => {
         </div>
 
       </div>
+
+      {/* Payment Modal */}
+      {selectedPlan && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          planKey={selectedPlan.key}
+          planName={selectedPlan.name}
+          price={selectedPlan.price}
+          period={selectedPlan.period}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 };

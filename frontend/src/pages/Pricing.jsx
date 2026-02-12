@@ -1,11 +1,27 @@
 import React, { useMemo, useState, useContext } from "react";
 import { LanguageContext } from "../context/LanguageContext";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import PaymentModal from "../components/PaymentModal";
+import { savePendingPlan } from "../hooks/usePaymentFlow";
 
 export default function Pricing() {
     const { t } = useContext(LanguageContext);
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
     const [period, setPeriod] = useState("monthly");
     const nf = useMemo(() => new Intl.NumberFormat("tr-TR"), []);
     const calcYearly = (m) => Math.round(m * 12 * 0.80); // %20 indirim
+
+    // Payment Modal State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+
+    // Check if redirected after login for checkout
+    const checkoutMode = searchParams.get('checkout') === '1';
+    const preselectedPlan = searchParams.get('plan');
 
     const plans = [
         {
@@ -29,6 +45,54 @@ export default function Pricing() {
             highlight: false
         }
     ];
+
+    // Handle plan selection - direct implementation without hook dependency
+    const handlePlanSelect = (planKey, monthly) => {
+        console.log('handlePlanSelect called:', { planKey, monthly, user, period });
+
+        // Enterprise always goes to contact
+        if (planKey === 'enterprise') {
+            navigate('/contact');
+            return;
+        }
+
+        // Free plan
+        if (planKey === 'free') {
+            if (user) {
+                navigate('/chat');
+            } else {
+                navigate('/register');
+            }
+            return;
+        }
+
+        // Paid plans (plus, pro)
+        const price = period === 'monthly' ? monthly : calcYearly(monthly);
+        console.log('Paid plan selected:', { planKey, price, user: !!user });
+
+        if (user) {
+            // User is logged in - show payment modal directly
+            console.log('Setting selectedPlan and showing modal');
+            setSelectedPlan({
+                key: planKey,
+                name: planKey === 'plus' ? 'Plus' : 'Pro',
+                price: price,
+                period: period
+            });
+            setShowPaymentModal(true);
+            console.log('Modal should be visible now');
+        } else {
+            // Guest user - save plan and redirect to register
+            console.log('Guest user - redirecting to register');
+            savePendingPlan(planKey, period);
+            navigate('/register');
+        }
+    };
+
+    const handlePaymentSuccess = () => {
+        // Refresh page or update user state after successful payment
+        window.location.reload();
+    };
 
     const Price = ({ monthly, planKey }) => {
         if (monthly === null) {
@@ -99,7 +163,7 @@ export default function Pricing() {
                 <div className="row g-4">
                     {plans.map((p) => (
                         <div className="col-md-6 col-lg-3" key={p.key}>
-                            <div className={`price-card h-100 d-flex flex-column p-4 rounded-4 ${p.highlight ? "price-card-popular" : ""}`}>
+                            <div className={`price-card h-100 d-flex flex-column p-4 rounded-4 ${p.highlight ? "price-card-popular" : ""} ${checkoutMode && preselectedPlan === p.key ? "border-success border-2" : ""}`}>
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <span className="badge bg-secondary-subtle text-secondary-emphasis">{t(`pricing.${p.key}.badge`)}</span>
                                     {p.highlight && <span className="badge bg-warning text-dark">{t('pricing.plus.badgePopular')}</span>}
@@ -120,9 +184,12 @@ export default function Pricing() {
                                     ))}
                                 </ul>
 
-                                <a href={p.key === 'enterprise' ? '/contact' : `/auth?plan=${p.key}`} className={`btn btn-${p.key === 'free' ? 'outline-light' : p.key === 'plus' ? 'primary' : p.key === 'pro' ? 'success' : 'dark'} w-100 mt-auto`}>
+                                <button
+                                    onClick={() => handlePlanSelect(p.key, p.monthly)}
+                                    className={`btn btn-${p.key === 'free' ? 'outline-light' : p.key === 'plus' ? 'primary' : p.key === 'pro' ? 'success' : 'dark'} w-100 mt-auto`}
+                                >
                                     {t(`pricing.${p.key}.cta`)}
-                                </a>
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -134,6 +201,20 @@ export default function Pricing() {
                     </span>
                 </div>
             </div>
+
+            {/* Payment Modal Popup */}
+            {selectedPlan && (
+                <PaymentModal
+                    isOpen={showPaymentModal}
+                    onClose={() => setShowPaymentModal(false)}
+                    planKey={selectedPlan.key}
+                    planName={selectedPlan.name}
+                    price={selectedPlan.price}
+                    period={selectedPlan.period}
+                    onPaymentSuccess={handlePaymentSuccess}
+                />
+            )}
         </section>
     );
 }
+

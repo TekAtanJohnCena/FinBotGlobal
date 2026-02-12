@@ -133,9 +133,9 @@ export const translations = {
         subtitle: "Piyasaları öğrenmek isteyenler için.",
         cta: "Hemen Dene",
         features: [
-          "Günlük 5 Yapay Zeka Sorusu",
+          "Yapay Zeka Soruları",
           "Temel Şirket Profilleri",
-          "Son 1 Yıllık Geçmiş Veri",
+          "Sınırlı Geçmiş Veri",
           "15dk Gecikmeli Veri",
           "Sınırlı Haber Erişimi"
         ]
@@ -148,9 +148,9 @@ export const translations = {
         subtitle: "Bilinçli kararlar almak isteyenler için.",
         cta: "Plus'a Yükselt",
         features: [
-          "Günlük 50 Yapay Zeka Sorusu",
-          "Son 10 Yıllık Geçmiş Veri (Derin Analiz)",
-          "Sınırsız Şirket Karnesi (Özetler)",
+          "4x Daha Fazla Yapay Zeka Sorusu",
+          "10 Yıllık Geçmiş Veri (Derin Analiz)",
+          "Sınırsız Temel Analiz Raporları",
           "Portföy Entegrasyonu & Kâr/Zarar",
           "Reklamsız Deneyim"
         ]
@@ -162,10 +162,10 @@ export const translations = {
         subtitle: "Traderlar ve veri odaklı uzmanlar için.",
         cta: "Pro Avantajını Seç",
         features: [
-          "Sınırsız Yapay Zeka Sorusu (Wall Street Modu)",
-          "Son 20+ Yıllık Geçmiş Veri (Tam Arşiv)",
+          "10x Daha Fazla Yapay Zeka Sorusu",
+          "20+ Yıllık Geçmiş Veri (Tam Arşiv)",
           "Canlı Veri (Real-Time) Akışı",
-          "Detaylı Teknik İndikatörler",
+          "Detaylı Temel Analiz İndikatörleri",
           "Öncelikli Destek Hattı"
         ]
       },
@@ -191,7 +191,7 @@ export const translations = {
       items: [
         {
           q: "FinBot nedir?",
-          a: "FinBot, ABD Borsaları (Nasdaq, NYSE) hisseleri başta olmak üzere finansal verileri anlık olarak analiz eden, kullanıcıya anlaşılır şekilde sunan yapay zekâ destekli bir finans asistanıdır. Temel analiz, teknik analiz, bilanço yorumlama ve şirket karşılaştırma gibi işlemleri saniyeler içinde yapar."
+          a: "FinBot, ABD Borsaları (Nasdaq, NYSE) hisseleri başta olmak üzere finansal verileri anlık olarak analiz eden, kullanıcıya anlaşılır şekilde sunan yapay zekâ destekli bir finans asistanıdır. Temel analiz, bilanço yorumlama, oran analizi ve şirket karşılaştırma gibi işlemleri saniyeler içinde yapar."
         },
         {
           q: "FinBot hangi verileri kullanıyor?",
@@ -215,7 +215,7 @@ export const translations = {
         },
         {
           q: "FinBot hangi analizleri yapabiliyor?",
-          a: "Temel analiz (bilanço, gelir tablosu, oran analizi), Teknik analiz (grafik, indikatör, trend tespiti), Şirket karşılaştırmaları, Sürdürülebilirlik skorlaması, Özel raporlar ve uyarı sistemi"
+          a: "Temel analiz (bilanço, gelir tablosu, oran analizi, finansal sağlık değerlendirmesi), Şirket karşılaştırmaları, Sektör analizleri, Sürdürülebilirlik skorlaması, Özel raporlar ve fiyat uyarı sistemi"
         },
         {
           q: "FinBot ücretli mi?",

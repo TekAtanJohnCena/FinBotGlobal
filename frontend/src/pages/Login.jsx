@@ -18,6 +18,19 @@ const Login = () => {
 
   const { login, googleLogin } = useContext(AuthContext);
 
+  // Get plan from URL if redirected from pricing
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedPlan = urlParams.get('plan');
+  const billingPeriod = urlParams.get('period') || 'monthly';
+
+  // Redirect helper - preserves plan selection
+  const getRedirectUrl = () => {
+    if (selectedPlan && selectedPlan !== 'free') {
+      return `/pricing?plan=${selectedPlan}&period=${billingPeriod}&checkout=1`;
+    }
+    return '/chat';
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +44,7 @@ const Login = () => {
     try {
       await login(identifier.trim(), password);
       toast.success('Giriş başarılı! Yönlendiriliyorsunuz...');
-      window.location.href = "/chat";
+      window.location.href = getRedirectUrl();
     } catch (err) {
       const errorMessage = err.response?.data?.message
         || err.response?.data?.errors?.[0]?.message
@@ -46,7 +59,7 @@ const Login = () => {
       setLoading(true);
       await googleLogin(credentialResponse.credential);
       toast.success("Google ile giriş başarılı! 🚀");
-      window.location.href = "/chat";
+      window.location.href = getRedirectUrl();
     } catch (error) {
       console.error(error);
       toast.error("Google girişi sırasında bir hata oluştu.");
