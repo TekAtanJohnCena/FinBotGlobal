@@ -1,12 +1,15 @@
 import axios from "axios";
 
 const getBaseUrl = () => {
+  // In development, use relative path so setupProxy.js forwards to localhost:5000
+  if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_URL) {
+    return '/api';
+  }
+
   let url = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
-  // Remove trailing slash if exists
   if (url.endsWith('/')) {
     url = url.slice(0, -1);
   }
-  // Append /api only if not already present
   if (!url.endsWith('/api')) {
     url += '/api';
   }

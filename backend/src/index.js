@@ -30,6 +30,7 @@ import newsRoutes from "./routes/news.js";
 import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"; // Subscription Management
 import stockRoutes from "./routes/stocks.js"; // US Stock Database
+import financeAnalysisRoutes from "./routes/financeAnalysisRoutes.js"; // Finance Analysis
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -88,6 +89,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/finance", tiingoLimiter, financeChartRoutes); // chart
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/wallet", walletRoutes);
+app.use("/api/wallet", financeAnalysisRoutes); // Finance Analysis endpoints
 app.use("/api/chat", chatRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api", apiRoutes);

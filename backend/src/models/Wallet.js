@@ -60,6 +60,17 @@ const WalletSchema = new mongoose.Schema(
         category: { type: String, default: "Diğer" },
       },
     ],
+    // Analiz Geçmişi
+    analyses: [
+      {
+        date: { type: Date, default: Date.now },
+        monthlyIncome: { type: Number, default: 0 },
+        totalExpense: { type: Number, default: 0 },
+        transactionCount: { type: Number, default: 0 },
+        healthStatus: { type: String, default: "unknown" },
+        burnDay: { type: Number, default: 30 },
+      },
+    ],
   },
   { timestamps: true }
 );
