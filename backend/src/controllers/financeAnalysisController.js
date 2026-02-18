@@ -7,8 +7,10 @@ import {
     extractTransactionsFromPDF,
     runFullAnalysis,
     CATEGORY_RULES,
+    normalizeTransactions,
 } from "../services/financeAnalysisService.js";
 import Wallet from "../models/Wallet.js";
+import Transaction from "../models/Transaction.js";
 
 // Multer config - memory storage for PDF
 const upload = multer({
@@ -101,7 +103,31 @@ export const analyzeStatement = async (req, res) => {
         analysis.bankDetected = bankDetected;
         analysis.pdfInfo = pdfInfo;
 
-        // Save to MongoDB (Wallet model)
+        // Save individual transactions to MongoDB
+        try {
+            // Remove old PDF-sourced transactions for this user to avoid duplicates
+            await Transaction.deleteMany({ user: req.user._id, source: "pdf" });
+            const txDocs = analysis.transactions.map(t => ({
+                user: req.user._id,
+                description: t.description,
+                originalDescription: t.originalDescription || t.description,
+                amount: t.amount,
+                totalAmount: t.totalAmount || null,
+                date: new Date(t.date),
+                type: "expense",
+                category: t.category || "yasam_tarzi",
+                currency: t.currency || "TL",
+                isInstallment: t.isInstallment || false,
+                installmentCurrent: t.installmentCurrent || null,
+                installmentTotal: t.installmentTotal || null,
+                source: "pdf",
+            }));
+            if (txDocs.length > 0) await Transaction.insertMany(txDocs);
+        } catch (dbErr) {
+            console.error("Transaction DB save error (non-critical):", dbErr.message);
+        }
+
+        // Save summary to Wallet model
         try {
             const wallet = await Wallet.findOne({ user: req.user._id });
             if (wallet) {
@@ -168,12 +194,42 @@ export const analyzeManual = async (req, res) => {
             description: t.description || "Bilinmeyen",
             amount: parseFloat(t.amount) || 0,
             currency: t.currency || "TL",
+            type: t.type || "expense",
+            category: t.category || "yasam_tarzi",
+            isInstallment: t.isInstallment || false,
+            installmentCurrent: t.installmentCurrent || null,
+            installmentTotal: t.installmentTotal || null,
+            totalAmount: t.totalAmount || null,
         }));
 
         const analysis = await runFullAnalysis(cleanTransactions, monthlyIncome);
         analysis.bankDetected = "Manuel Giriş";
 
-        // Save to MongoDB
+        // Save individual transactions to MongoDB
+        try {
+            // Remove old manual transactions to avoid duplicates on re-analysis
+            await Transaction.deleteMany({ user: req.user._id, source: "manual" });
+            const txDocs = analysis.transactions.map(t => ({
+                user: req.user._id,
+                description: t.description,
+                originalDescription: t.originalDescription || t.description,
+                amount: t.amount,
+                totalAmount: t.totalAmount || null,
+                date: new Date(t.date),
+                type: t.type || "expense",
+                category: t.category || "yasam_tarzi",
+                currency: t.currency || "TL",
+                isInstallment: t.isInstallment || false,
+                installmentCurrent: t.installmentCurrent || null,
+                installmentTotal: t.installmentTotal || null,
+                source: "manual",
+            }));
+            if (txDocs.length > 0) await Transaction.insertMany(txDocs);
+        } catch (dbErr) {
+            console.error("Transaction DB save error (non-critical):", dbErr.message);
+        }
+
+        // Save summary to Wallet model
         try {
             const wallet = await Wallet.findOne({ user: req.user._id });
             if (wallet) {

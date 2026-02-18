@@ -31,6 +31,7 @@ import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"; // Subscription Management
 import stockRoutes from "./routes/stocks.js"; // US Stock Database
 import financeAnalysisRoutes from "./routes/financeAnalysisRoutes.js"; // Finance Analysis
+import transactionRoutes from "./routes/transactionRoutes.js"; // Transaction CRUD
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -97,6 +98,7 @@ app.use("/api/news", newsRoutes);
 app.use("/api/ai", aiRoutes); // Dedicated AI endpoints (lazy-loaded)
 app.use("/api/subscription", subscriptionRoutes); // Subscription Management
 app.use("/api/stocks", stockRoutes); // US Stock Database
+app.use("/api/transactions", transactionRoutes); // Transaction CRUD
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);

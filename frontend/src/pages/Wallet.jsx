@@ -4,7 +4,7 @@
 // Financial Engineering Dashboard - No LLM, Pure Algorithms
 // ═══════════════════════════════════════════════════════════════
 
-import { useState, useContext, useCallback, useRef } from "react";
+import { useState, useContext, useCallback, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../lib/api";
@@ -82,6 +82,30 @@ export function WalletPage() {
   const [manualDesc, setManualDesc] = useState("");
   const [manualAmount, setManualAmount] = useState("");
   const [manualCategory, setManualCategory] = useState("yasam_tarzi");
+  const [manualType, setManualType] = useState("expense"); // "income" | "expense"
+  const [manualIsInstallment, setManualIsInstallment] = useState(false);
+  const [manualInstallmentTotal, setManualInstallmentTotal] = useState("6");
+  const [manualInstallmentCurrent, setManualInstallmentCurrent] = useState("1");
+  const [manualEntryError, setManualEntryError] = useState("");
+
+  // Load persisted transactions on mount
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await api.get("/transactions");
+        if (res.data?.success && res.data.transactions?.length > 0) {
+          const txns = res.data.transactions;
+          setTransactions(txns);
+          runLocalAnalysis(txns, monthlyIncome);
+        }
+      } catch (err) {
+        // Not critical — user may not have any saved transactions yet
+        console.log("No persisted transactions found.");
+      }
+    };
+    fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ─── ANALYSIS FUNCTIONS ───
   const runAnalysis = useCallback(async (txns, income) => {
@@ -309,33 +333,76 @@ export function WalletPage() {
     runLocalAnalysis(DEMO_TRANSACTIONS, monthlyIncome);
   }, [monthlyIncome, runLocalAnalysis]);
 
-  // Add Manual Entry
-  const addManualEntry = useCallback(() => {
-    if (!manualDesc.trim() || !manualAmount) return;
-    const newTx = {
-      date: new Date().toISOString(),
-      description: manualDesc,
-      amount: parseFloat(manualAmount.replace(",", ".")) || 0,
-      category: manualCategory,
-    };
-    const updated = [...transactions, newTx];
-    setTransactions(updated);
-    setManualDesc("");
-    setManualAmount("");
-    toast.success("İşlem eklendi!");
-
-    if (updated.length >= 1) {
-      runLocalAnalysis(updated, monthlyIncome);
+  // Add Manual Entry — calls backend API for persistence
+  const addManualEntry = useCallback(async () => {
+    setManualEntryError("");
+    if (!manualDesc.trim()) {
+      setManualEntryError("Açıklama zorunludur.");
+      return;
     }
-  }, [manualDesc, manualAmount, manualCategory, transactions, monthlyIncome, runLocalAnalysis]);
+    const parsedAmount = parseFloat(manualAmount.replace(",", "."));
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      setManualEntryError("Geçerli bir tutar giriniz.");
+      return;
+    }
+    const parsedTotal = parseInt(manualInstallmentTotal) || 1;
+    const parsedCurrent = parseInt(manualInstallmentCurrent) || 1;
+    if (manualIsInstallment && parsedTotal < 2) {
+      setManualEntryError("Taksit sayısı en az 2 olmalıdır.");
+      return;
+    }
 
-  // Remove transaction
-  const removeTx = useCallback((idx) => {
+    try {
+      const res = await api.post("/transactions", {
+        description: manualDesc.trim(),
+        amount: parsedAmount,
+        type: manualType,
+        category: manualType === "income" ? "gelir" : manualCategory,
+        isInstallment: manualIsInstallment,
+        installmentTotal: parsedTotal,
+        installmentCurrent: parsedCurrent,
+        date: new Date().toISOString(),
+        source: "manual",
+      });
+
+      if (res.data?.success) {
+        // Reload all transactions from API
+        const allRes = await api.get("/transactions");
+        if (allRes.data?.success) {
+          const txns = allRes.data.transactions;
+          setTransactions(txns);
+          runLocalAnalysis(txns, monthlyIncome);
+        }
+        setManualDesc("");
+        setManualAmount("");
+        setManualIsInstallment(false);
+        setManualInstallmentTotal("6");
+        setManualInstallmentCurrent("1");
+        toast.success(res.data.message || "İşlem eklendi!");
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || "İşlem eklenemedi.";
+      setManualEntryError(msg);
+      toast.error(msg);
+    }
+  }, [manualDesc, manualAmount, manualCategory, manualType, manualIsInstallment, manualInstallmentTotal, manualInstallmentCurrent, monthlyIncome, runLocalAnalysis]);
+
+  // Remove transaction — calls DELETE API
+  const removeTx = useCallback(async (idx) => {
+    const tx = (analysisResult?.transactions || transactions)[idx];
+    try {
+      if (tx?._id) {
+        // If it's a recurring installment, ask to delete group (handled silently: delete just this one)
+        await api.delete(`/transactions/${tx._id}`);
+      }
+    } catch (err) {
+      console.error("Delete error:", err.message);
+    }
     const updated = transactions.filter((_, i) => i !== idx);
     setTransactions(updated);
     if (updated.length > 0) runLocalAnalysis(updated, monthlyIncome);
     else setAnalysisResult(null);
-  }, [transactions, monthlyIncome, runLocalAnalysis]);
+  }, [transactions, monthlyIncome, runLocalAnalysis, analysisResult]);
 
   // Computed values
   const metrics = analysisResult?.metrics;
@@ -454,35 +521,117 @@ export function WalletPage() {
               {/* Manual Entry Form */}
               {showManualEntry && (
                 <div className="bg-[#0d0f18] rounded-2xl border border-zinc-800 p-4 mb-4 animate-in slide-in-from-top-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  {/* Income / Expense toggle */}
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => { setManualType("expense"); setManualEntryError(""); }}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${manualType === "expense"
+                        ? "bg-rose-500/20 text-rose-400 border-rose-500/30"
+                        : "bg-zinc-900 text-zinc-500 border-zinc-700 hover:text-white"
+                        }`}
+                    >
+                      💸 Gider
+                    </button>
+                    <button
+                      onClick={() => { setManualType("income"); setManualEntryError(""); }}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${manualType === "income"
+                        ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                        : "bg-zinc-900 text-zinc-500 border-zinc-700 hover:text-white"
+                        }`}
+                    >
+                      💰 Gelir
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     <input
                       value={manualDesc}
-                      onChange={(e) => setManualDesc(e.target.value)}
-                      placeholder="Açıklama (ör: Market)"
+                      onChange={(e) => { setManualDesc(e.target.value); setManualEntryError(""); }}
+                      placeholder="Açıklama (ör: Market, Maaş)"
                       className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50"
                     />
                     <input
                       value={manualAmount}
-                      onChange={(e) => setManualAmount(e.target.value)}
-                      placeholder="Tutar (ör: 1500)"
+                      onChange={(e) => { setManualAmount(e.target.value); setManualEntryError(""); }}
+                      placeholder={manualIsInstallment ? "Toplam tutar (ör: 4000)" : "Tutar (ör: 1500)"}
+                      type="number"
+                      min="0"
                       className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50"
                     />
-                    <select
-                      value={manualCategory}
-                      onChange={(e) => setManualCategory(e.target.value)}
-                      className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
-                    >
-                      {Object.entries(CATEGORY_CONFIG).map(([key, c]) => (
-                        <option key={key} value={key}>{c.icon} {c.label}</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={addManualEntry}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl px-4 py-2.5 text-sm transition"
-                    >
-                      Ekle
-                    </button>
                   </div>
+
+                  {manualType === "expense" && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                      <select
+                        value={manualCategory}
+                        onChange={(e) => setManualCategory(e.target.value)}
+                        className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
+                      >
+                        {Object.entries(CATEGORY_CONFIG).map(([key, c]) => (
+                          <option key={key} value={key}>{c.icon} {c.label}</option>
+                        ))}
+                      </select>
+
+                      {/* Installment toggle */}
+                      <label className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 border border-zinc-700 rounded-xl cursor-pointer hover:border-zinc-600 transition">
+                        <input
+                          type="checkbox"
+                          checked={manualIsInstallment}
+                          onChange={(e) => setManualIsInstallment(e.target.checked)}
+                          className="w-4 h-4 accent-emerald-500"
+                        />
+                        <span className="text-sm text-zinc-300 font-medium">💳 Taksitli</span>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Installment fields */}
+                  {manualIsInstallment && manualType === "expense" && (
+                    <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-amber-500/5 border border-amber-500/15 rounded-xl">
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block mb-1">Kaçıncı Taksit</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={manualInstallmentCurrent}
+                          onChange={(e) => setManualInstallmentCurrent(e.target.value)}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block mb-1">Toplam Taksit</label>
+                        <input
+                          type="number"
+                          min="2"
+                          value={manualInstallmentTotal}
+                          onChange={(e) => setManualInstallmentTotal(e.target.value)}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+                        />
+                      </div>
+                      <div className="col-span-2 text-[10px] text-amber-400/70">
+                        💡 Toplam tutarı girin. Aylık taksit: ₺{manualAmount && !isNaN(parseFloat(manualAmount)) && parseInt(manualInstallmentTotal) > 1
+                          ? (parseFloat(manualAmount) / parseInt(manualInstallmentTotal)).toLocaleString("tr-TR", { maximumFractionDigits: 2 })
+                          : "—"} • Gelecek taksitler otomatik oluşturulur.
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Validation error */}
+                  {manualEntryError && (
+                    <div className="mb-3 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
+                      <AlertTriangle size={12} /> {manualEntryError}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={addManualEntry}
+                    className={`w-full font-bold rounded-xl px-4 py-2.5 text-sm transition ${manualType === "income"
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                      : "bg-rose-600 hover:bg-rose-500 text-white"
+                      }`}
+                  >
+                    {manualType === "income" ? "+ Gelir Ekle" : manualIsInstallment ? "+ Taksitli Gider Ekle" : "+ Gider Ekle"}
+                  </button>
                 </div>
               )}
 
@@ -770,27 +919,25 @@ function BurnRateMeter({ data, show, topCategory }) {
 
 // ─── FINANCIAL HEATMAP ───
 function FinancialHeatmap({ data, show }) {
-  // Use state for modal
   const [selectedMonth, setSelectedMonth] = useState(null);
-
-  // If no data, render empty placeholder grid or return null
-  // But we want to show 12 months structure ideally
   const stats = data || [];
 
-  // Generate 12 months for current year (or from data context)
   const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1; // 1-indexed
   const months = [
-    { id: 1, name: "Ocak" }, { id: 2, name: "Şubat" }, { id: 3, name: "Mart" },
-    { id: 4, name: "Nisan" }, { id: 5, name: "Mayıs" }, { id: 6, name: "Haziran" },
-    { id: 7, name: "Temmuz" }, { id: 8, name: "Ağustos" }, { id: 9, name: "Eylül" },
-    { id: 10, name: "Ekim" }, { id: 11, name: "Kasım" }, { id: 12, name: "Aralık" }
+    { id: 1, name: "Ocak" }, { id: 2, name: "\u015eubat" }, { id: 3, name: "Mart" },
+    { id: 4, name: "Nisan" }, { id: 5, name: "May\u0131s" }, { id: 6, name: "Haziran" },
+    { id: 7, name: "Temmuz" }, { id: 8, name: "A\u011fustos" }, { id: 9, name: "Eyl\u00fcl" },
+    { id: 10, name: "Ekim" }, { id: 11, name: "Kas\u0131m" }, { id: 12, name: "Aral\u0131k" }
   ];
 
-  // Map data to months
   const monthsData = months.map(m => {
     const found = stats.find(d => d.month.endsWith(`-${String(m.id).padStart(2, '0')}`));
+    // Real days in month using JS Date (handles leap years automatically)
+    const daysInMonth = new Date(currentYear, m.id, 0).getDate();
     return {
       ...m,
+      daysInMonth,
       data: found || { totalSpend: 0, days: [] }
     };
   });
@@ -800,13 +947,7 @@ function FinancialHeatmap({ data, show }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {monthsData.map((m) => {
           const days = m.data.days || [];
-          // Pad to 35 cells for grid consistency
-          const paddedDays = [...days];
-          while (paddedDays.length < 35) {
-            paddedDays.push({ day: paddedDays.length + 1, total: 0, count: 0, intensity: 0 });
-          }
-
-          const isFuture = m.id > new Date().getMonth() + 1 && currentYear === new Date().getFullYear();
+          const isFuture = m.id > currentMonth && currentYear === new Date().getFullYear();
           const opacityClass = isFuture ? "opacity-30 grayscale pointer-events-none" : "hover:border-emerald-500/30 cursor-pointer";
 
           return (
@@ -819,28 +960,22 @@ function FinancialHeatmap({ data, show }) {
                 <span className="text-xs font-bold text-zinc-300 group-hover:text-emerald-400 transition">{m.name}</span>
                 <span className="text-[10px] text-zinc-500">{m.data.totalSpend > 0 && show ? fmt(m.data.totalSpend) : ""}</span>
               </div>
-              <div className="grid gap-1 pointer-events-none" style={{ gridTemplateColumns: "repeat(7, 1fr)" }}>
-                {/* Headers */}
-                {["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"].map((d) => (
+              <div className="grid gap-0.5" style={{ gridTemplateColumns: "repeat(7, 1fr)" }}>
+                {["Pt", "Sa", "\u00c7a", "Pe", "Cu", "Ct", "Pz"].map((d) => (
                   <div key={d} className="text-center text-[6px] font-bold text-zinc-600 uppercase pb-0.5">{d}</div>
                 ))}
-                {paddedDays.slice(0, 35).map((d, idx) => {
-                  let bg = "bg-zinc-800/40"; // empty default
-                  if (d.total > 0) {
-                    if (d.intensity > 0.8) bg = "bg-red-500";
-                    else if (d.intensity > 0.6) bg = "bg-orange-500";
-                    else if (d.intensity > 0.4) bg = "bg-amber-500";
-                    else if (d.intensity > 0.2) bg = "bg-emerald-600";
+                {/* Only render real days in month, no padding beyond */}
+                {Array.from({ length: m.daysInMonth }, (_, i) => i + 1).map((dayNum) => {
+                  const dayData = days.find(d => d.day === dayNum) || { total: 0, intensity: 0 };
+                  let bg = "bg-zinc-800/40";
+                  if (dayData.total > 0) {
+                    if (dayData.intensity > 0.8) bg = "bg-red-500";
+                    else if (dayData.intensity > 0.6) bg = "bg-orange-500";
+                    else if (dayData.intensity > 0.4) bg = "bg-amber-500";
+                    else if (dayData.intensity > 0.2) bg = "bg-emerald-600";
                     else bg = "bg-emerald-900";
                   }
-                  if (d.day > 31) return <div key={idx} />;
-
-                  return (
-                    <div
-                      key={idx}
-                      className={`aspect-square rounded-sm ${bg}`}
-                    />
-                  );
+                  return <div key={dayNum} className={`aspect-square rounded-sm ${bg}`} />;
                 })}
               </div>
             </div>
@@ -854,7 +989,7 @@ function FinancialHeatmap({ data, show }) {
         {["bg-emerald-900", "bg-emerald-600", "bg-amber-500", "bg-orange-500", "bg-red-500"].map((c, i) => (
           <div key={i} className={`w-4 h-4 rounded ${c}`} />
         ))}
-        <span className="text-[9px] text-zinc-600">Çok</span>
+        <span className="text-[9px] text-zinc-600">\u00c7ok</span>
       </div>
 
       {/* Detail Modal */}
@@ -871,67 +1006,60 @@ function FinancialHeatmap({ data, show }) {
             <div className="mb-6 flex items-baseline justify-between">
               <div>
                 <h3 className="text-2xl font-black text-white mb-1">{selectedMonth.name} Harcama Analizi</h3>
-                <p className="text-sm text-zinc-500">Günlük harcama yoğunluğu ve detaylar</p>
+                <p className="text-sm text-zinc-500">{selectedMonth.daysInMonth} g\u00fcnl\u00fck harcama yo\u011funlu\u011fu</p>
               </div>
               <div className="text-right">
                 <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Toplam Harcama</div>
-                <div className="text-3xl font-black text-emerald-400">{show ? fmt(selectedMonth.data.totalSpend) : "••••"}</div>
+                <div className="text-3xl font-black text-emerald-400">{show ? fmt(selectedMonth.data.totalSpend) : "\u2022\u2022\u2022\u2022"}</div>
               </div>
             </div>
 
-            {/* Large Grid */}
+            {/* Large Grid — real days only */}
             <div className="bg-black/40 rounded-2xl p-6 border border-white/5 mb-6">
               <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(7, 1fr)" }}>
-                {["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"].map((d) => (
+                {["Pazartesi", "Sal\u0131", "\u00c7ar\u015famba", "Per\u015fembe", "Cuma", "Cumartesi", "Pazar"].map((d) => (
                   <div key={d} className="text-center text-[10px] font-bold text-zinc-500 uppercase pb-2">{d}</div>
                 ))}
-                {(() => {
+                {Array.from({ length: selectedMonth.daysInMonth }, (_, i) => i + 1).map((dayNum) => {
                   const days = selectedMonth.data.days || [];
-                  const paddedDays = [...days];
-                  while (paddedDays.length < 35) paddedDays.push({ day: paddedDays.length + 1, total: 0, count: 0, intensity: 0 });
-
-                  return paddedDays.slice(0, 35).map((d, idx) => {
-                    let bg = "bg-zinc-800/30";
-                    let border = "border border-white/5";
-                    if (d.total > 0) {
-                      border = "border border-black/20";
-                      if (d.intensity > 0.8) bg = "bg-red-500";
-                      else if (d.intensity > 0.6) bg = "bg-orange-500";
-                      else if (d.intensity > 0.4) bg = "bg-amber-500";
-                      else if (d.intensity > 0.2) bg = "bg-emerald-600";
-                      else bg = "bg-emerald-900";
-                    }
-                    if (d.day > 31) return <div key={idx} />;
-
-                    return (
-                      <div
-                        key={idx}
-                        className={`aspect-square rounded-xl ${bg} ${border} flex flex-col items-center justify-center relative group hover:scale-105 transition-transform z-0 hover:z-10`}
-                      >
-                        <span className={`text-[10px] font-bold ${d.total > 0 ? "text-white/90" : "text-white/20"}`}>{d.day}</span>
-                        {d.total > 0 && (
-                          <div className="mt-1 text-[9px] font-bold text-white shadow-sm bg-black/20 px-1.5 rounded-full">
-                            {show ? fmt(d.total) : "***"}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  });
-                })()}
+                  const d = days.find(x => x.day === dayNum) || { day: dayNum, total: 0, count: 0, intensity: 0, transactions: [] };
+                  let bg = "bg-zinc-800/30";
+                  let border = "border border-white/5";
+                  if (d.total > 0) {
+                    border = "border border-black/20";
+                    if (d.intensity > 0.8) bg = "bg-red-500";
+                    else if (d.intensity > 0.6) bg = "bg-orange-500";
+                    else if (d.intensity > 0.4) bg = "bg-amber-500";
+                    else if (d.intensity > 0.2) bg = "bg-emerald-600";
+                    else bg = "bg-emerald-900";
+                  }
+                  return (
+                    <div
+                      key={dayNum}
+                      className={`aspect-square rounded-xl ${bg} ${border} flex flex-col items-center justify-center relative group hover:scale-105 transition-transform z-0 hover:z-10`}
+                    >
+                      <span className={`text-[10px] font-bold ${d.total > 0 ? "text-white/90" : "text-white/20"}`}>{d.day}</span>
+                      {d.total > 0 && (
+                        <div className="mt-1 text-[9px] font-bold text-white shadow-sm bg-black/20 px-1.5 rounded-full">
+                          {show ? fmt(d.total) : "***"}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="text-center">
               <p className="text-xs text-zinc-500">
-                Bu ay toplam <span className="text-white font-bold">{selectedMonth.data.days?.reduce((a, b) => a + b.count, 0) || 0} işlem</span> yapıldı.
-                En yoğun harcama günü: <span className="text-white font-bold">{
+                Bu ay toplam <span className="text-white font-bold">{selectedMonth.data.days?.reduce((a, b) => a + b.count, 0) || 0} i\u015flem</span> yap\u0131ld\u0131.
+                En yo\u011fun harcama g\u00fcn\u00fc: <span className="text-white font-bold">{
                   selectedMonth.data.days?.length > 0
                     ? selectedMonth.data.days.reduce((a, b) => a.total > b.total ? a : b).day
                     : "-"
-                }. gün</span>.
+                }. g\u00fcn</span>.
               </p>
             </div>
-
           </div>
         </div>
       )}
@@ -1076,17 +1204,42 @@ function TransactionList({ transactions, onRemove, show }) {
   return (
     <div className="space-y-2">
       {displayed.map((t, idx) => {
-        const cat = CATEGORY_CONFIG[t.category] || { label: "Diğer", color: "#999", icon: "📦" };
+        const isIncome = t.type === "income";
+        const cat = CATEGORY_CONFIG[t.category] || { label: "Di\u011fer", color: "#999", icon: isIncome ? "\ud83d\udcb0" : "\ud83d\udce6" };
         return (
-          <div key={idx} className="group flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.04] transition-all">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ backgroundColor: cat.color + "15" }}>
-              {cat.icon}
+          <div key={t._id || idx} className="group flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.04] transition-all">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ backgroundColor: (isIncome ? "#10b981" : cat.color) + "15" }}>
+              {isIncome ? "\ud83d\udcb0" : cat.icon}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold text-white truncate">{t.description}</div>
-              <div className="text-[10px] text-zinc-500">{t.categoryLabel || cat.label} • {new Date(t.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-white truncate">{t.description}</span>
+                {t.isInstallment && t.installmentCurrent && (
+                  <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/20">
+                    {t.installmentTotal
+                      ? `${t.installmentCurrent}/${t.installmentTotal}`
+                      : `${t.installmentCurrent}.Taksit`}
+                  </span>
+                )}
+                {isIncome && (
+                  <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">
+                    Gelir
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] text-zinc-500">
+                {isIncome ? "Gelir" : (t.categoryLabel || cat.label)} {"\u2022"} {new Date(t.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+                {t.isInstallment && t.totalAmount && (
+                  <span className="ml-1 text-amber-400/70">{"\u2022"} Toplam: {fmt(t.totalAmount)}</span>
+                )}
+                {t.isInstallment && !t.totalAmount && (
+                  <span className="ml-1 text-amber-400/70">{"\u2022"} Taksitli ödeme</span>
+                )}
+              </div>
             </div>
-            <div className="text-sm font-black text-rose-400">{show ? `-${fmt(t.amount)}` : "••"}</div>
+            <div className={`text-sm font-black ${isIncome ? "text-emerald-400" : "text-rose-400"}`}>
+              {show ? `${isIncome ? "+" : "-"}${fmt(t.amount)}` : "\u2022\u2022"}
+            </div>
             <button onClick={() => onRemove(idx)} className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-600 hover:text-red-400 rounded-lg transition-all">
               <Trash2 size={14} />
             </button>
@@ -1099,7 +1252,7 @@ function TransactionList({ transactions, onRemove, show }) {
           onClick={() => setExpanded(!expanded)}
           className="w-full text-center py-2 text-xs font-bold text-zinc-500 hover:text-white transition flex items-center justify-center gap-1"
         >
-          {expanded ? <><ChevronUp size={14} /> Daha Az</> : <><ChevronDown size={14} /> {transactions.length - 8} işlem daha</>}
+          {expanded ? <><ChevronUp size={14} /> Daha Az</> : <><ChevronDown size={14} /> {transactions.length - 8} i\u015flem daha</>}
         </button>
       )}
     </div>

@@ -4,11 +4,141 @@
 // -----------------------------------------------------------
 
 import { createRequire } from "module";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
 
 const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
+
+// ═══════════════════════════════════════════════════════════════
+// INSTALLMENT DETECTION
+// Handles ALL Turkish bank installment notations:
+//   [3/6]  (3/6)  3/6  Taksit 3/6  TAKSİT 3/6
+//   3.Taksit  3.Taks  3.Tak  3.TAK  3.Tk  05.Tak
+//   Taksit:3  3.T  (current/total or current-only)
+// Returns { isInstallment, current, total } or null
+// ═══════════════════════════════════════════════════════════════
+export function parseInstallmentInfo(description) {
+    if (!description) return null;
+    const d = description;
+
+    // Pattern 1: [3/6] or (3/6) — bracket notation
+    let m = d.match(/[\[(](\d+)\/(\d+)[\])]/);
+    if (m) return { isInstallment: true, current: parseInt(m[1]), total: parseInt(m[2]) };
+
+    // Pattern 2: "Taksit 3/6", "taksit:3/6", "TAKSİT 3/6", "TAKSİT:3/6"
+    m = d.match(/taks[i\u0131]t[:\s]*(\d+)\/(\d+)/i);
+    if (m) return { isInstallment: true, current: parseInt(m[1]), total: parseInt(m[2]) };
+
+    // Pattern 3: "3.Taksit", "3.Taks", "3.Tak", "3.TAK", "3.Tk", "05.Tak"
+    //   Full word or common abbreviations (case-insensitive)
+    m = d.match(/(\d+)\.\s*(?:taks[i\u0131]t|taks|tak|tk)(?!\w)/i);
+    if (m) {
+        // Try to also find total in the same description: e.g. "05.Tak 12" or "Tak 5/12"
+        const totalM = d.match(new RegExp(m[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s/]*(\\d+)'));
+        const total = totalM ? parseInt(totalM[1]) : null;
+        return { isInstallment: true, current: parseInt(m[1]), total };
+    }
+
+    // Pattern 4: Standalone "X/Y" where X and Y are small integers (e.g., "3/6", "05/12")
+    //   Must be surrounded by spaces or start/end of string to avoid matching dates
+    m = d.match(/(?:^|\s)(\d{1,2})\/(\d{1,2})(?:\s|$)/);
+    if (m) {
+        const cur = parseInt(m[1]), tot = parseInt(m[2]);
+        // Sanity check: current <= total, total <= 60 (reasonable installment count)
+        if (cur <= tot && tot <= 60 && tot >= 2) {
+            return { isInstallment: true, current: cur, total: tot };
+        }
+    }
+
+    // Pattern 5: "Taksit No: 3" or "Taksit: 3" (no total known)
+    m = d.match(/taks[i\u0131]t\s*(?:no[:\s]*)?[:\s]*(\d+)/i);
+    if (m) return { isInstallment: true, current: parseInt(m[1]), total: null };
+
+    return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// POST-PROCESS: Normalize transactions after parsing
+//
+// KEY DESIGN:
+//   - If transaction was already enriched by extractTransactionsFromPDF
+//     (has isInstallment/totalAmount set), preserve those values.
+//   - For non-enriched transactions (manual entries, etc.),
+//     apply fresh installment detection.
+//   - Always clean descriptions by removing installment notation.
+// ═══════════════════════════════════════════════════════════════
+export function normalizeTransactions(transactions) {
+    return transactions.map(t => {
+        // If already enriched by PDF pipeline, just clean description
+        if (t.isInstallment && (t.totalAmount || t.installmentCurrent)) {
+            const cleanDesc = cleanInstallmentNotation(t.description);
+            return {
+                ...t,
+                originalDescription: t.originalDescription || t.description,
+                description: cleanDesc || t.description,
+            };
+        }
+
+        const info = parseInstallmentInfo(t.description);
+        if (!info) return { ...t, isInstallment: false };
+
+        // Clean description: remove ALL installment notations
+        let cleanDesc = cleanInstallmentNotation(t.description);
+
+        // Look for parenthesized total amount in original description: e.g. "(3.999,00 TL)"
+        const parenTotalMatch = t.description.match(/\(([\\d.,]+)\s*TL\)/i);
+        let parenTotal = parenTotalMatch ? parseAmount(parenTotalMatch[1]) : null;
+
+        // Also look for explicit "Toplam: X TL" pattern
+        const explicitTotalMatch = t.description.match(/toplam[:\s]*([\d.,]+)/i);
+        let explicitTotal = explicitTotalMatch ? parseAmount(explicitTotalMatch[1]) : null;
+
+        const result = {
+            ...t,
+            isInstallment: true,
+            installmentCurrent: info.current,
+            installmentTotal: info.total,
+            originalDescription: t.description,
+            description: cleanDesc,
+        };
+
+        // Determine totalAmount and verify monthly amount
+        if (parenTotal && parenTotal > t.amount) {
+            result.totalAmount = parenTotal;
+            if (info.total && info.total > 1) {
+                const expectedMonthly = Math.round((parenTotal / info.total) * 100) / 100;
+                const diff = Math.abs(t.amount - expectedMonthly) / expectedMonthly;
+                if (diff > 0.05) {
+                    result.amount = expectedMonthly;
+                }
+            }
+        } else if (explicitTotal && explicitTotal > t.amount) {
+            result.totalAmount = explicitTotal;
+            if (info.total && info.total > 1) {
+                result.amount = Math.round((explicitTotal / info.total) * 100) / 100;
+            }
+        } else if (info.total && info.total > 1) {
+            result.totalAmount = Math.round(t.amount * info.total * 100) / 100;
+        }
+
+        return result;
+    });
+}
+
+// Helper: clean installment notation from description
+function cleanInstallmentNotation(desc) {
+    if (!desc) return desc;
+    return desc
+        .replace(/[\[(]\d+\/\d+[\])]/g, "")            // [3/6] (3/6)
+        .replace(/taks[i\u0131]t[:\s]*\d+\/\d+/gi, "")  // Taksit 3/6
+        .replace(/(\d+)\.\s*(?:taks[i\u0131]t|taks|tak|tk)(?!\w)/gi, "") // 3.Tak 05.Tak
+        .replace(/(?:^|\s)\d{1,2}\/\d{1,2}(?:\s|$)/g, " ") // standalone 3/6
+        .replace(/taks[i\u0131]t\s*(?:no[:\s]*)?[:\s]*\d+/gi, "") // Taksit No: 3
+        .replace(/\s{2,}/g, " ")
+        .trim();
+}
 
 // ═══════════════════════════════════════════════════════════════
 // 1. CATEGORIZATION RULES
@@ -78,6 +208,141 @@ const SKIP_PHRASES = [
 ];
 
 // ═══════════════════════════════════════════════════════════════
+// INSTALLMENT ENRICHMENT — Post-processing step
+// Scans the FULL raw PDF text to find:
+//   1. Installment fractions (X/Y like 05/12) near transaction descriptions
+//   2. Multiple amounts on the same line (monthly vs total)
+// This fixes the critical case where the bank shows the TOTAL purchase
+// price on the installment line, not the monthly installment.
+// ═══════════════════════════════════════════════════════════════
+function enrichInstallmentData(rawText, transactions) {
+    const lines = rawText.split("\n").map(l => l.trim()).filter(l => l.length > 5);
+
+    return transactions.map(t => {
+        const info = parseInstallmentInfo(t.description);
+
+        // If parser already stored _possibleTotalAmount (from 2-amount line),
+        // use it directly
+        if (info && t._possibleTotalAmount && t._possibleTotalAmount > t.amount) {
+            const enriched = { ...t };
+            enriched.isInstallment = true;
+            enriched.installmentCurrent = info.current;
+            enriched.totalAmount = t._possibleTotalAmount;
+
+            // Find installment total from fraction if available
+            let foundTotal = info.total;
+            if (!foundTotal) {
+                foundTotal = findInstallmentTotal(lines, t.description, info.current);
+            }
+            enriched.installmentTotal = foundTotal;
+
+            if (foundTotal && foundTotal > 1) {
+                // Verify: parsed amount should be ~= totalAmount / total
+                const expectedMonthly = Math.round((t._possibleTotalAmount / foundTotal) * 100) / 100;
+                // If parsed amount is close to expected monthly (±10%), it's correct
+                if (Math.abs(t.amount - expectedMonthly) / expectedMonthly < 0.10) {
+                    enriched.amount = t.amount; // Already correct
+                } else {
+                    // Use calculated monthly
+                    enriched.amount = expectedMonthly;
+                }
+            }
+            // If total unknown but we have 2 amounts, the smaller IS the monthly
+            // (already set by parser)
+
+            delete enriched._possibleTotalAmount;
+            return enriched;
+        }
+
+        // If installment detected but no _possibleTotalAmount, search raw text
+        if (info) {
+            const enriched = { ...t };
+            enriched.isInstallment = true;
+            enriched.installmentCurrent = info.current;
+            enriched.installmentTotal = info.total;
+
+            // Search for installment total if not known
+            if (!info.total) {
+                const foundTotal = findInstallmentTotal(lines, t.description, info.current);
+                if (foundTotal) enriched.installmentTotal = foundTotal;
+            }
+
+            // Search raw text for the matching line to find multiple amounts
+            const descKeywords = t.description.split(/\s+/)
+                .filter(w => w.length > 3 && !/^\d+$/.test(w))
+                .slice(0, 3)
+                .map(w => w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+            if (descKeywords.length > 0) {
+                for (const line of lines) {
+                    const lowerLine = line.toLowerCase();
+                    if (!descKeywords.every(kw => lowerLine.includes(kw))) continue;
+
+                    // Found matching line — look for amounts
+                    const amtMatches = [...line.matchAll(/([\d.]+,\d{2})/g)];
+                    const amounts = amtMatches
+                        .map(m => parseAmount(m[1]))
+                        .filter(a => a > 0 && a < 200000)
+                        .sort((a, b) => a - b);
+
+                    if (amounts.length >= 2) {
+                        // 2+ amounts found: smaller = monthly, larger = total
+                        enriched.amount = amounts[0];
+                        enriched.totalAmount = amounts[amounts.length - 1];
+                        console.log(`[INSTALL] Enriched "${t.description}": monthly=${amounts[0]}, total=${amounts[amounts.length - 1]}`);
+                        break;
+                    }
+
+                    // Only 1 amount — if we know the total installments, divide
+                    if (amounts.length === 1 && enriched.installmentTotal && enriched.installmentTotal > 1) {
+                        enriched.totalAmount = amounts[0];
+                        enriched.amount = Math.round((amounts[0] / enriched.installmentTotal) * 100) / 100;
+                        console.log(`[INSTALL] Divided "${t.description}": ${amounts[0]} / ${enriched.installmentTotal} = ${enriched.amount}`);
+                        break;
+                    }
+
+                    break;
+                }
+            }
+
+            delete enriched._possibleTotalAmount;
+            return enriched;
+        }
+
+        // Not an installment — return as-is
+        const clean = { ...t };
+        delete clean._possibleTotalAmount;
+        return clean;
+    });
+}
+
+// Helper: search raw text lines for installment fraction X/Y matching a given current number
+function findInstallmentTotal(lines, description, currentNum) {
+    const descKeywords = description.split(/\s+/)
+        .filter(w => w.length > 3 && !/^\d+$/.test(w))
+        .slice(0, 3)
+        .map(w => w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+    if (descKeywords.length === 0) return null;
+
+    for (const line of lines) {
+        const lowerLine = line.toLowerCase();
+        if (!descKeywords.every(kw => lowerLine.includes(kw))) continue;
+
+        // Look for X/Y fractions on this line
+        const fractions = [...line.matchAll(/(\d{1,2})\/(\d{1,2})/g)];
+        for (const fm of fractions) {
+            const cur = parseInt(fm[1]), tot = parseInt(fm[2]);
+            if (cur === currentNum && tot >= cur && tot <= 60 && tot >= 2) {
+                console.log(`[INSTALL] Found fraction ${cur}/${tot} for "${description}"`);
+                return tot;
+            }
+        }
+    }
+    return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // 2. UNIVERSAL PDF EXTRACTION ENGINE
 //    Works with ALL bank formats using proximity matching
 // ═══════════════════════════════════════════════════════════════
@@ -131,7 +396,7 @@ export async function extractTransactionsFromPDF(pdfBuffer) {
 
     // Deduplicate
     const seen = new Set();
-    const transactions = best.txns.filter(t => {
+    const deduped = best.txns.filter(t => {
         if (t.amount <= 0 || !t.description || t.description.length < 2) return false;
         // Create unique key: description(20chars)_amount_date
         const key = `${t.description.substring(0, 20)}_${t.amount}_${t.date}`;
@@ -140,11 +405,14 @@ export async function extractTransactionsFromPDF(pdfBuffer) {
         return true;
     });
 
+    // ── POST-PROCESS: Enrich installment data from raw text ──
+    const transactions = enrichInstallmentData(text, deduped);
+
     console.log(`[PDF] ✅ Final: ${transactions.length} transactions (strategy: ${best.name})`);
-    if (transactions.length > 0) {
-        console.log(`[PDF] First: ${transactions[0].date} | ${transactions[0].description} | ${transactions[0].amount}`);
-        console.log(`[PDF] Last:  ${transactions[transactions.length - 1].date} | ${transactions[transactions.length - 1].description} | ${transactions[transactions.length - 1].amount}`);
-    }
+    transactions.forEach(t => {
+        const tag = t.isInstallment ? ` [TAKSİT ${t.installmentCurrent}/${t.installmentTotal || "?"}]` : "";
+        console.log(`[PDF]   ${t.date.substring(0, 10)} | ${t.description}${tag} | ${t.amount}${t.totalAmount ? " (toplam:" + t.totalAmount + ")" : ""}`);
+    });
 
     return {
         transactions,
@@ -262,44 +530,60 @@ function parseByProximity(text) {
     const MAX_DIST = 400; // Increased to catch wide column layouts
 
     for (const date of dates) {
-        // Find the nearest amount AFTER this date (within MAX_DIST chars)
-        let bestAmt = null;
-        let bestDist = Infinity;
-
+        // Find ALL amounts AFTER this date within MAX_DIST chars
+        const nearbyAmounts = [];
         for (let i = 0; i < amounts.length; i++) {
             if (usedAmounts.has(i)) continue;
             const dist = amounts[i].pos - date.end;
-            if (dist > 0 && dist < MAX_DIST && dist < bestDist) {
-                bestDist = dist;
-                bestAmt = i;
+            if (dist > 0 && dist < MAX_DIST) {
+                nearbyAmounts.push({ idx: i, dist, value: amounts[i].value, raw: amounts[i].raw });
             }
         }
+        nearbyAmounts.sort((a, b) => a.dist - b.dist);
 
-        if (bestAmt === null) continue;
+        if (nearbyAmounts.length === 0) continue;
 
-        // Extract description: text between date and amount
-        let desc = text.substring(date.end, amounts[bestAmt].pos).trim();
-        // Clean up: remove extra whitespace, newlines
+        // Extract description: text between date and first amount
+        const firstAmtIdx = nearbyAmounts[0].idx;
+        let desc = text.substring(date.end, amounts[firstAmtIdx].pos).trim();
         desc = desc.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim();
-        // Remove secondary dates (like valör tarihi)
         desc = desc.replace(/\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?\s*/g, "").trim();
-        // Remove trailing special chars
         desc = desc.replace(/[*\/\-]+$/, "").trim();
-        // Remove reference numbers at end
         desc = desc.replace(/\s+\d{6,}$/, "").trim();
 
         if (desc.length < 2 || isSkipPhrase(desc)) continue;
         if (desc.length > 80) desc = desc.substring(0, 80);
 
-        const amount = amounts[bestAmt].value;
-        usedAmounts.add(bestAmt);
+        // Check if this is an installment transaction
+        const installInfo = parseInstallmentInfo(desc);
+        let selectedAmount, secondaryAmount;
 
-        txns.push({
+        if (installInfo && nearbyAmounts.length >= 2) {
+            // Installment with 2+ amounts: smaller = monthly, larger = total
+            const sorted = [...nearbyAmounts].sort((a, b) => a.value - b.value);
+            selectedAmount = sorted[0].value;
+            secondaryAmount = sorted[sorted.length - 1].value;
+            usedAmounts.add(sorted[0].idx);
+            usedAmounts.add(sorted[sorted.length - 1].idx);
+        } else {
+            selectedAmount = nearbyAmounts[0].value;
+            usedAmounts.add(nearbyAmounts[0].idx);
+        }
+
+        if (selectedAmount <= 0 || selectedAmount >= 200000) continue;
+
+        const txn = {
             date: safeDate(date.year, date.month - 1, date.day),
             description: desc,
-            amount,
+            amount: selectedAmount,
             currency: "TL",
-        });
+        };
+
+        if (secondaryAmount && secondaryAmount > selectedAmount) {
+            txn._possibleTotalAmount = secondaryAmount;
+        }
+
+        txns.push(txn);
     }
 
     return txns;
@@ -334,20 +618,18 @@ function parseLineByLine(text, requireFullDate) {
         }
 
         if (month < 1 || month > 12 || day < 1 || day > 31) continue;
+        // Validate day against actual days in month (fixes Feb 31 bug)
+        const daysInMonth = new Date(year, month, 0).getDate();
+        if (day > daysInMonth) continue;
 
         // Find amount(s) in the line
         const amtMatches = [...t.matchAll(/([\d.]+,\d{2})/g)];
         if (amtMatches.length === 0) continue;
 
-        // Use the last amount (usually the transaction amount, not balance)
-        const lastAmt = amtMatches[amtMatches.length - 1];
-        const amount = parseAmount(lastAmt[1]);
-        if (amount <= 0 || amount >= 200000) continue;
-
-        // Description: text between date and amount
+        // Description: text between date and first amount
         const dateEnd = dateMatch.index + dateMatch[0].length;
-        const amtStart = lastAmt.index;
-        let desc = t.substring(dateEnd, amtStart).trim();
+        const firstAmtStart = amtMatches[0].index;
+        let desc = t.substring(dateEnd, firstAmtStart).trim();
         // Remove secondary dates
         desc = desc.replace(/\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?\s*/g, "").trim();
         desc = desc.replace(/\s+/g, " ");
@@ -357,12 +639,39 @@ function parseLineByLine(text, requireFullDate) {
         if (desc.length < 2 || isSkipPhrase(desc)) continue;
         if (desc.length > 80) desc = desc.substring(0, 80);
 
-        txns.push({
+        // Smart amount selection for installment lines
+        const installInfo = parseInstallmentInfo(desc);
+        let amount, secondaryAmount;
+
+        if (installInfo && amtMatches.length >= 2) {
+            // Installment line with 2+ amounts:
+            //   smaller = monthly installment, larger = total purchase price
+            const parsedAmts = amtMatches.map(m => parseAmount(m[1])).filter(a => a > 0 && a < 200000).sort((a, b) => a - b);
+            if (parsedAmts.length >= 2) {
+                amount = parsedAmts[0]; // monthly (smaller)
+                secondaryAmount = parsedAmts[parsedAmts.length - 1]; // total (larger)
+            } else {
+                amount = parsedAmts[0] || parseAmount(amtMatches[amtMatches.length - 1][1]);
+            }
+        } else {
+            // Non-installment: use LAST amount (standard behavior)
+            amount = parseAmount(amtMatches[amtMatches.length - 1][1]);
+        }
+
+        if (!amount || amount <= 0 || amount >= 200000) continue;
+
+        const txn = {
             date: safeDate(year, month - 1, day),
             description: desc,
             amount,
             currency: "TL",
-        });
+        };
+
+        if (secondaryAmount && secondaryAmount > amount) {
+            txn._possibleTotalAmount = secondaryAmount;
+        }
+
+        txns.push(txn);
     }
 
     return txns;
@@ -617,14 +926,18 @@ export function getCategoryBreakdown(transactions) {
 // 9. FULL ANALYSIS PIPELINE
 // ═══════════════════════════════════════════════════════════════
 export async function runFullAnalysis(transactions, monthlyIncome) {
-    const categorized = categorizeTransactions(transactions);
-    const burnRate = calculateBurnRate(monthlyIncome, categorized);
+    // Normalize installments first
+    const normalized = normalizeTransactions(transactions);
+    const categorized = categorizeTransactions(normalized);
+    // Only count expenses for burn rate (exclude income-type transactions)
+    const expenseOnly = categorized.filter(t => t.type !== "income");
+    const burnRate = calculateBurnRate(monthlyIncome, expenseOnly);
     const opportunityCost = await calculateOpportunityCost(monthlyIncome);
-    const zombieSubscriptions = detectZombieSubscriptions(categorized);
-    const heatmapData = generateHeatmapData(categorized);
-    const categoryBreakdown = getCategoryBreakdown(categorized);
+    const zombieSubscriptions = detectZombieSubscriptions(expenseOnly);
+    const heatmapData = generateHeatmapData(expenseOnly);
+    const categoryBreakdown = getCategoryBreakdown(expenseOnly);
 
-    const totalExpense = categorized.reduce((s, t) => s + t.amount, 0);
+    const totalExpense = expenseOnly.reduce((s, t) => s + t.amount, 0);
     const gaugeValue = monthlyIncome > 0 ? Math.round(((monthlyIncome - totalExpense) / monthlyIncome) * 100) : 0;
 
     return {
@@ -655,8 +968,13 @@ function isSkipPhrase(line) {
 }
 
 function safeDate(year, month, day) {
-    try { const d = new Date(year, month, day); return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString(); }
-    catch { return new Date().toISOString(); }
+    try {
+        // Clamp day to actual days in month (month is 0-indexed here)
+        const maxDay = new Date(year, month + 1, 0).getDate();
+        const clampedDay = Math.min(day, maxDay);
+        const d = new Date(year, month, clampedDay);
+        return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+    } catch { return new Date().toISOString(); }
 }
 
 function findTransactionSectionStart(text) {
