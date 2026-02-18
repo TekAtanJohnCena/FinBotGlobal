@@ -4,7 +4,8 @@
 /* ---------------- ROOT VARIABLES ---------------- */
 :root {
   --finbot-bg-dark: #1E1F20;
-  --finbot-accent: #34D399; /* Emerald 400 */
+  --finbot-accent: #34D399;
+  /* Emerald 400 */
   --finbot-accent-dim: rgba(52, 211, 153, 0.1);
   --finbot-text-main: #E3E3E3;
   --finbot-text-dim: #9CA3AF;
@@ -14,10 +15,14 @@
 
 .structured-response {
   width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--finbot-text-main);
   line-height: 1.7;
   font-size: 15px;
+  overflow: hidden;
 }
 
 /* ---------------- 1. TYPOGRAPHY (Magazine Style) ---------------- */
@@ -44,7 +49,8 @@
   font-weight: 700;
   margin-top: 1.75rem;
   margin-bottom: 1rem;
-  color: #34D399; /* Emerald 400 */
+  color: #34D399;
+  /* Emerald 400 */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -70,28 +76,32 @@
 /* Satır içi kod blokları ($143.7B gibi) */
 .structured-response code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  background: rgba(52, 211, 153, 0.15); /* Emerald tint */
-  color: #6EE7B7; /* Emerald 300 */
+  background: rgba(52, 211, 153, 0.15);
+  color: #6EE7B7;
   padding: 0.15em 0.4em;
   border-radius: 6px;
   font-size: 0.9em;
   font-weight: 600;
   border: 1px solid rgba(52, 211, 153, 0.2);
-  white-space: nowrap;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ---------------- 3. EXCEL-STYLE TABLES ---------------- */
 
 .structured-response table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: 0.9rem;
-  background: #18181B; /* Zinc 900 */
+  background: #18181B;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--finbot-border);
+  display: block;
+  overflow-x: auto;
 }
 
 .structured-response thead {
@@ -126,9 +136,14 @@
 /* Mobilde tablo kaydırma */
 @media (max-width: 640px) {
   .structured-response table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
+    font-size: 0.8rem;
+  }
+
+  .structured-response th,
+  .structured-response td {
+    padding: 8px 10px;
+    white-space: normal;
+    word-break: break-word;
   }
 }
 
