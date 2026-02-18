@@ -1,5 +1,6 @@
 // PATH: backend/src/controllers/authController.js
-// Production-ready Authentication Controller (JWT + Google ID Token + Cookie)
+// Production-ready Authentication Controller
+// Access Token (15m, HttpOnly cookie) + Refresh Token (30d, HttpOnly cookie)
 
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
@@ -15,28 +16,102 @@ import { sendWelcomeEmail, sendPasswordResetEmail, sendVerificationEmail } from 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ==============================
-// JWT Generator
+// Token Generators
 // ==============================
 const generateAccessToken = (userId) => {
   return jwt.sign(
     { id: userId },
     process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
-    }
+    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" }
+  );
+};
+
+const generateRefreshToken = (userId) => {
+  return jwt.sign(
+    { id: userId },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "30d" }
   );
 };
 
 // ==============================
-// Helper: Set Auth Cookie (PROD SAFE)
+// Helper: Set BOTH tokens as HttpOnly Cookies
 // ==============================
-const setAuthCookie = (res, token) => {
-  res.cookie("token", token, {
+const IS_PROD = process.env.NODE_ENV === "production";
+
+const setTokenCookies = (res, accessToken, refreshToken) => {
+  // Access Token cookie — short-lived (15 min)
+  res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: true,        // HTTPS zorunlu (Render + Domain)
-    sameSite: "none",    // ✅ İŞTE BU! (Frontend & Backend farklı domain)
-    maxAge: 15 * 60 * 1000, // 15 dakika
+    secure: IS_PROD,
+    sameSite: IS_PROD ? "none" : "lax",
+    maxAge: 15 * 60 * 1000, // 15 minutes
+    path: "/",
   });
+
+  // Refresh Token cookie — long-lived (30 days)
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: IS_PROD ? "none" : "lax",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    path: "/api/auth", // Only sent to auth endpoints (security)
+  });
+};
+
+// Helper: Clear auth cookies
+const clearTokenCookies = (res) => {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: IS_PROD ? "none" : "lax",
+    path: "/",
+  });
+  res.clearCookie("refresh_token", {
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: IS_PROD ? "none" : "lax",
+    path: "/api/auth",
+  });
+  // Also clear legacy "token" cookie if exists
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: IS_PROD ? "none" : "lax",
+    path: "/",
+  });
+};
+
+// Helper: Build user response object
+const buildUserResponse = (user) => ({
+  id: user._id,
+  username: user.username,
+  email: user.email,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  avatar: user.avatar,
+  authType: user.authType,
+  subscriptionTier: user.subscriptionTier || "FREE",
+  subscriptionStatus: user.subscriptionStatus || "INACTIVE",
+  isProfileComplete: user.isProfileComplete || false,
+});
+
+// Helper: Issue tokens, save refresh token to DB, set cookies
+const issueTokens = async (res, user) => {
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+
+  // Save refresh token to user's refreshTokens array
+  // Keep max 5 refresh tokens per user (multi-device support)
+  if (!user.refreshTokens) user.refreshTokens = [];
+  user.refreshTokens.push({ token: refreshToken });
+  if (user.refreshTokens.length > 5) {
+    user.refreshTokens = user.refreshTokens.slice(-5);
+  }
+  await user.save({ validateBeforeSave: false });
+
+  setTokenCookies(res, accessToken, refreshToken);
+  return accessToken;
 };
 
 /* =====================================================
@@ -98,7 +173,6 @@ export const register = asyncHandler(async (req, res) => {
   try {
     await sendVerificationEmail(newUser.email, otpCode);
   } catch (error) {
-    // Mail atılamazsa kullanıcıyı sil ki tekrar deneyebilsin (veya logla)
     console.error("OTP send failed:", error);
     await User.findByIdAndDelete(newUser._id);
     return res.status(500).json({ message: "Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin." });
@@ -118,14 +192,12 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { identifier, password } = req.body;
 
-  // identifier can be either email or username
   if (!identifier || !password) {
     return res.status(400).json({
       message: "E-posta/Kullanıcı adı ve şifre gerekli.",
     });
   }
 
-  // Find user by email OR username
   const user = await User.findOne({
     $or: [
       { email: identifier.toLowerCase() },
@@ -143,7 +215,7 @@ export const login = asyncHandler(async (req, res) => {
   if (user.isVerified === false) {
     return res.status(401).json({
       message: "Lütfen önce e-posta adresinizi doğrulayın. (Mail kutunuzu kontrol edin)",
-      isNotVerified: true, // Frontend bu flag'i kullanabilir
+      isNotVerified: true,
       email: user.email
     });
   }
@@ -157,22 +229,12 @@ export const login = asyncHandler(async (req, res) => {
 
   console.log("✅ User logged in:", user.email);
 
-  const accessToken = generateAccessToken(user._id);
-  setAuthCookie(res, accessToken);
+  // Issue dual tokens + set cookies
+  const accessToken = await issueTokens(res, user);
 
   res.status(200).json({
-    token: accessToken,
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar,
-      subscriptionTier: user.subscriptionTier || "FREE",
-      subscriptionStatus: user.subscriptionStatus || "INACTIVE",
-      isProfileComplete: user.isProfileComplete || false,
-    },
+    token: accessToken, // Backward compat for frontend transition
+    user: buildUserResponse(user),
   });
 });
 
@@ -213,19 +275,16 @@ export const googleLogin = asyncHandler(async (req, res) => {
 
   const { name, email, picture, sub, given_name, family_name } = payload;
 
-  // Google'dan gelen ismi firstName ve lastName olarak ayır
   const firstName = given_name || name?.split(" ")[0] || "Google";
   const lastName = family_name || name?.split(" ").slice(1).join(" ") || "User";
 
   let user = await User.findOne({ email });
 
   if (user) {
-    // Mevcut kullanıcı - Google ID'yi güncelle
     if (!user.googleId) {
       user.googleId = sub;
       user.avatar = picture;
       user.authType = "google";
-      // firstName/lastName yoksa ekle
       if (!user.firstName) user.firstName = firstName;
       if (!user.lastName) user.lastName = lastName;
       await user.save();
@@ -234,9 +293,8 @@ export const googleLogin = asyncHandler(async (req, res) => {
       console.log("✅ Existing Google user logged in:", email);
     }
   } else {
-    // Yeni kullanıcı oluştur
     user = await User.create({
-      username: email.split("@")[0], // Email'den benzersiz username oluştur
+      username: email.split("@")[0],
       email,
       googleId: sub,
       avatar: picture,
@@ -245,11 +303,10 @@ export const googleLogin = asyncHandler(async (req, res) => {
       authType: "google",
       subscriptionTier: "FREE",
       subscriptionStatus: "INACTIVE",
-      isVerified: true, // Google ile gelen kullanıcılar doğrulanmış sayılır
+      isVerified: true,
     });
     console.log("✅ New Google user created:", email);
 
-    // Yeni kullanıcı için hoşgeldin maili gönder (Hata olsa bile giriş devam etsin)
     try {
       await sendWelcomeEmail(user.email, user.firstName || "Finbot Kullanıcısı");
     } catch (emailErr) {
@@ -257,23 +314,12 @@ export const googleLogin = asyncHandler(async (req, res) => {
     }
   }
 
-  const accessToken = generateAccessToken(user._id);
-  setAuthCookie(res, accessToken);
+  // Issue dual tokens + set cookies
+  const accessToken = await issueTokens(res, user);
 
   res.status(200).json({
-    token: accessToken,
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar,
-      authType: user.authType,
-      subscriptionTier: user.subscriptionTier || "FREE",
-      subscriptionStatus: user.subscriptionStatus || "INACTIVE",
-      isProfileComplete: user.isProfileComplete || false,
-    },
+    token: accessToken, // Backward compat
+    user: buildUserResponse(user),
   });
 });
 
@@ -298,16 +344,12 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   console.log("✅ Kullanıcı bulundu:", user.email);
 
-  // Şifre sıfırlama token'ı al
   const resetToken = user.getResetPasswordToken();
   console.log("🎫 Token üretildi");
 
-  // validateBeforeSave: false ekledik çünkü diğer zorunlu alanlar (firstName vb.) 
-  // bu save işleminde hata verebilir
   await user.save({ validateBeforeSave: false });
   console.log("💾 Kullanıcı token ile kaydedildi");
 
-  // URL oluştur (Path segment olarak)
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
   console.log("🔗 Sıfırlama linki oluşturuldu");
 
@@ -333,7 +375,6 @@ export const forgotPassword = asyncHandler(async (req, res) => {
    5. RESET PASSWORD
    ===================================================== */
 export const resetPassword = asyncHandler(async (req, res) => {
-  // Hashlenmiş token'ı parametreden alıp veritabanında ara
   const resetPasswordToken = crypto
     .createHash("sha256")
     .update(req.params.resetToken)
@@ -348,7 +389,6 @@ export const resetPassword = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Geçersiz veya süresi dolmuş token." });
   }
 
-  // Yeni şifreyi ayarla
   const hashedPassword = await bcrypt.hash(req.body.password, 12);
   user.password = hashedPassword;
   user.resetPasswordToken = undefined;
@@ -381,11 +421,9 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Geçersiz veya süresi dolmuş kod." });
   }
 
-  // Doğrulama başarılı
   user.isVerified = true;
   user.otpCode = undefined;
   user.otpExpires = undefined;
-  await user.save();
 
   console.log("✅ User verified email:", user.email);
 
@@ -396,26 +434,112 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     console.error("Welcome email failed:", err);
   }
 
-  // Giriş yap (Token üret)
-  const accessToken = generateAccessToken(user._id);
-  setAuthCookie(res, accessToken);
+  // Issue dual tokens + set cookies
+  const accessToken = await issueTokens(res, user);
 
   res.status(200).json({
     success: true,
     message: "E-posta başarıyla doğrulandı.",
-    token: accessToken,
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phoneNumber: user.phoneNumber,
-      birthDate: user.birthDate,
-      authType: user.authType,
-      subscriptionTier: user.subscriptionTier,
-      subscriptionStatus: user.subscriptionStatus,
-      isProfileComplete: user.isProfileComplete || false,
+    token: accessToken, // Backward compat
+    user: buildUserResponse(user),
+  });
+});
+
+/* =====================================================
+   7. REFRESH TOKEN — Silent access token renewal
+   ===================================================== */
+export const refreshTokenHandler = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookies?.refresh_token;
+
+  if (!incomingRefreshToken) {
+    return res.status(401).json({
+      message: "Refresh token bulunamadı.",
+      code: "NO_REFRESH_TOKEN",
+    });
+  }
+
+  // Verify the refresh token
+  let decoded;
+  try {
+    decoded = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    // Token expired or invalid — clear cookies and force re-login
+    clearTokenCookies(res);
+    return res.status(401).json({
+      message: "Refresh token geçersiz veya süresi dolmuş. Lütfen tekrar giriş yapın.",
+      code: "REFRESH_TOKEN_EXPIRED",
+    });
+  }
+
+  // Find user and verify the refresh token exists in their DB record
+  const user = await User.findById(decoded.id);
+  if (!user) {
+    clearTokenCookies(res);
+    return res.status(401).json({
+      message: "Kullanıcı bulunamadı.",
+      code: "USER_NOT_FOUND",
+    });
+  }
+
+  const tokenExists = user.refreshTokens?.some(rt => rt.token === incomingRefreshToken);
+  if (!tokenExists) {
+    // Possible token theft — clear ALL refresh tokens for this user
+    user.refreshTokens = [];
+    await user.save({ validateBeforeSave: false });
+    clearTokenCookies(res);
+    return res.status(401).json({
+      message: "Refresh token geçersiz. Güvenlik nedeniyle oturumunuz kapatıldı.",
+      code: "REFRESH_TOKEN_REUSE",
+    });
+  }
+
+  // Token rotation: remove old, issue new pair
+  user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== incomingRefreshToken);
+
+  const newAccessToken = generateAccessToken(user._id);
+  const newRefreshToken = generateRefreshToken(user._id);
+
+  user.refreshTokens.push({ token: newRefreshToken });
+  if (user.refreshTokens.length > 5) {
+    user.refreshTokens = user.refreshTokens.slice(-5);
+  }
+  await user.save({ validateBeforeSave: false });
+
+  setTokenCookies(res, newAccessToken, newRefreshToken);
+
+  console.log("🔄 Token refreshed for:", user.email);
+
+  res.status(200).json({
+    success: true,
+    message: "Token yenilendi.",
+    user: buildUserResponse(user),
+  });
+});
+
+/* =====================================================
+   8. LOGOUT — Clear cookies + remove refresh token from DB
+   ===================================================== */
+export const logoutHandler = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookies?.refresh_token;
+
+  if (incomingRefreshToken) {
+    try {
+      const decoded = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET);
+      const user = await User.findById(decoded.id);
+      if (user) {
+        user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== incomingRefreshToken);
+        await user.save({ validateBeforeSave: false });
+        console.log("🚪 User logged out:", user.email);
+      }
+    } catch {
+      // Token invalid — just clear cookies
     }
+  }
+
+  clearTokenCookies(res);
+
+  res.status(200).json({
+    success: true,
+    message: "Başarıyla çıkış yapıldı.",
   });
 });

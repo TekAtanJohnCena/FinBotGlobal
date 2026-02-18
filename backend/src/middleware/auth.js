@@ -1,79 +1,63 @@
 // PATH: backend/src/middleware/auth.js
-// Enhanced Authentication Middleware with Refresh Token Support
+// Authentication Middleware — reads token from HttpOnly cookie OR Authorization header
 
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 
 /**
- * Protect middleware - Verify JWT token
- * Enhanced with better error handling
+ * Protect middleware - Verify JWT access token
+ * Priority: 1) HttpOnly cookie  2) Authorization Bearer header
  */
 export const protect = async (req, res, next) => {
   let token;
 
-  // 1. Check for token in Authorization header
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    try {
-      // Extract token from "Bearer TOKEN"
-      token = req.headers.authorization.split(" ")[1];
+  // 1. Try HttpOnly cookie first (new system)
+  if (req.cookies?.access_token) {
+    token = req.cookies.access_token;
+  }
+  // 2. Fallback to Authorization header (backward compat + mobile)
+  else if (req.headers.authorization?.startsWith("Bearer")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-      if (!token) {
-        return res.status(401).json({ 
-          message: "Yetkisiz işlem, token yok." 
-        });
-      }
+  if (!token) {
+    return res.status(401).json({
+      message: "Yetkisiz işlem, token yok.",
+      code: "NO_TOKEN",
+    });
+  }
 
-      // 2. Verify token
-      let decoded;
-      try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
-      } catch (jwtError) {
-        if (jwtError.name === "TokenExpiredError") {
-          return res.status(401).json({ 
-            message: "Token süresi dolmuş. Lütfen tekrar giriş yapın.",
-            code: "TOKEN_EXPIRED"
-          });
-        }
-        if (jwtError.name === "JsonWebTokenError") {
-          return res.status(401).json({ 
-            message: "Geçersiz token.",
-            code: "INVALID_TOKEN"
-          });
-        }
-        throw jwtError;
-      }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // 3. Find user and attach to request
-      const user = await User.findById(decoded.id).select("-password");
-      
-      if (!user) {
-        return res.status(401).json({ 
-          message: "Kullanıcı bulunamadı.",
-          code: "USER_NOT_FOUND"
-        });
-      }
-
-      // Attach user to request
-      req.user = user;
-      req.userId = user._id; // Convenience property
-
-      next();
-    } catch (error) {
-      // Log error but don't expose details
-      console.error("Auth middleware error:", error);
-      return res.status(401).json({ 
-        message: "Yetkisiz işlem, token geçersiz.",
-        code: "AUTH_ERROR"
+    const user = await User.findById(decoded.id).select("-password -refreshTokens");
+    if (!user) {
+      return res.status(401).json({
+        message: "Kullanıcı bulunamadı.",
+        code: "USER_NOT_FOUND",
       });
     }
-  } else {
-    // No token provided
-    return res.status(401).json({ 
-      message: "Yetkisiz işlem, token yok.",
-      code: "NO_TOKEN"
+
+    req.user = user;
+    req.userId = user._id;
+    next();
+  } catch (jwtError) {
+    if (jwtError.name === "TokenExpiredError") {
+      return res.status(401).json({
+        message: "Token süresi dolmuş.",
+        code: "TOKEN_EXPIRED",
+      });
+    }
+    if (jwtError.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        message: "Geçersiz token.",
+        code: "INVALID_TOKEN",
+      });
+    }
+    console.error("Auth middleware error:", jwtError);
+    return res.status(401).json({
+      message: "Yetkisiz işlem, token geçersiz.",
+      code: "AUTH_ERROR",
     });
   }
 };
@@ -82,23 +66,26 @@ export const protect = async (req, res, next) => {
  * Optional authentication - Attach user if token is valid, but don't require it
  */
 export const optionalAuth = async (req, res, next) => {
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  let token;
+
+  if (req.cookies?.access_token) {
+    token = req.cookies.access_token;
+  } else if (req.headers.authorization?.startsWith("Bearer")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
+  if (token) {
     try {
-      const token = req.headers.authorization.split(" ")[1];
-      if (token) {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id).select("-password");
-        if (user) {
-          req.user = user;
-          req.userId = user._id;
-        }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select("-password -refreshTokens");
+      if (user) {
+        req.user = user;
+        req.userId = user._id;
       }
-    } catch (error) {
+    } catch {
       // Silently fail - this is optional auth
     }
   }
+
   next();
 };

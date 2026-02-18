@@ -8,6 +8,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 // SECURITY MIDDLEWARE
 import { securityHeaders } from "./middleware/security.js";
@@ -81,6 +82,7 @@ app.use((req, res, next) => {
 app.use(morgan("combined", { stream: morganStream }));
 app.use(securityHeaders);
 app.use(express.json());
+app.use(cookieParser());
 app.use(compression());
 app.use(generalLimiter); // Apply global rate limit
 

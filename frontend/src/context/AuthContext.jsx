@@ -7,132 +7,98 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ─── SESSION CHECK ON MOUNT ───
+  // Instead of decoding JWT client-side, we verify the session via API.
+  // If access_token cookie is valid → user data comes back.
+  // If expired → api.js interceptor will silently refresh.
+  // If refresh also fails → user stays null (not logged in).
   useEffect(() => {
-    const checkUser = async () => {
+    const checkSession = async () => {
       try {
-        // Token expiry check helper
-        const isTokenExpired = (token) => {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.exp * 1000 < Date.now();
-          } catch {
-            return true; // Invalid token format = expired
-          }
-        };
-
-        // 1. URL'den token kontrolü (Google Redirect senaryosu için)
+        // Backward compat: check if there's a token from URL (Google redirect)
         const searchParams = new URLSearchParams(window.location.search);
         const tokenFromUrl = searchParams.get("token");
 
-        let storedToken = localStorage.getItem("token");
-        let storedUser = localStorage.getItem("user");
-
-        // URL'de token varsa (Google'dan dönülmüşse) onu önceliklendir
         if (tokenFromUrl) {
-          // Check if new token is expired
-          if (isTokenExpired(tokenFromUrl)) {
-            console.warn("Token from URL is expired, clearing...");
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.history.replaceState({}, document.title, window.location.pathname);
-            return;
-          }
-
-          storedToken = tokenFromUrl;
           localStorage.setItem("token", tokenFromUrl);
-
-          // URL'i temizle (?token=... kısmını sil)
           window.history.replaceState({}, document.title, window.location.pathname);
-
-          // Token'ı header'a ekle
-          api.defaults.headers.common["Authorization"] = `Bearer ${tokenFromUrl}`;
         }
 
-        // 2. Token varsa (Localde veya URL'den gelen) - önce expiry kontrolü
-        if (storedToken) {
-          // Check if stored token is expired
-          if (isTokenExpired(storedToken)) {
-            console.warn("Stored token is expired, clearing session...");
-            localStorage.removeItem("token");
+        // Try to load user from localStorage cache first (instant render)
+        const cachedUser = localStorage.getItem("user");
+        if (cachedUser && cachedUser !== "undefined") {
+          try {
+            setUser(JSON.parse(cachedUser));
+          } catch {
             localStorage.removeItem("user");
-            delete api.defaults.headers.common["Authorization"];
-            return; // Don't set user
           }
+        }
 
-          api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
-
-          // User verisini güvenli şekilde parse et
-          if (storedUser && storedUser !== "undefined") {
-            try {
-              setUser(JSON.parse(storedUser));
-            } catch (e) {
-              console.error("JSON Parse Hatası:", e);
-              localStorage.removeItem("user");
-            }
-          }
+        // Verify session with backend (this will trigger refresh if needed)
+        const res = await api.get("/user/profile");
+        if (res.data) {
+          const userData = res.data.user || res.data;
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
         }
       } catch (error) {
-        console.error("Auth kontrol hatası:", error);
-        localStorage.clear();
+        // Session invalid — clear everything
+        console.log("Session check failed, user not authenticated.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    checkUser();
+    checkSession();
   }, []);
 
-  // GİRİŞ YAP (Email veya Username ile)
+  // ─── GİRİŞ YAP (Email veya Username ile) ───
   const login = async (identifier, password) => {
     const res = await api.post("/auth/login", { identifier, password });
-    const { token, user: userData } = res.data;
+    const { user: userData, token } = res.data;
 
-    localStorage.setItem("token", token);
+    // Backward compat: keep token in localStorage for now
+    if (token) localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(userData);
     return res.data;
   };
 
-  // GOOGLE LOGIN (Tekile düşürüldü ve temizlendi)
+  // ─── GOOGLE LOGIN ───
   const googleLogin = async (googleToken) => {
-    // Backend'e token'ı gönderiyoruz
     const res = await api.post("/auth/google", { token: googleToken });
-    const { token, user: userData } = res.data;
+    const { user: userData, token } = res.data;
 
-    // Gelen verileri kaydediyoruz
-    localStorage.setItem("token", token);
+    if (token) localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
     setUser(userData);
     return res.data;
   };
 
-  // KAYIT OL
+  // ─── KAYIT OL ───
   const register = async (formData) => {
     const res = await api.post("/auth/register", formData);
-    // Backend artık token dönmüyor, sadece success dönüyor
     return res.data;
   };
 
-  // E-POSTA DOĞRULAMA (OTP)
+  // ─── E-POSTA DOĞRULAMA (OTP) ───
   const verifyEmail = async (email, code) => {
     const res = await api.post("/auth/verify-email", { email, code });
-    const { token, user: userData } = res.data;
+    const { user: userData, token } = res.data;
 
-    localStorage.setItem("token", token);
+    if (token) localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(userData);
     return res.data;
   };
 
-  // PROFIL TAMAMLA (Onboarding Survey - One-time)
+  // ─── PROFIL TAMAMLA (Onboarding Survey) ───
   const completeProfile = async (surveyData) => {
     const res = await api.post("/user/complete-profile", surveyData);
 
-    // Update user state with completed profile
     const updatedUser = { ...user, isProfileComplete: true, surveyData };
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setUser(updatedUser);
@@ -140,11 +106,17 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  // ÇIKIŞ YAP
-  const logout = () => {
+  // ─── ÇIKIŞ YAP ───
+  const logout = async () => {
+    try {
+      // Tell backend to clear cookies + revoke refresh token
+      await api.post("/auth/logout");
+    } catch {
+      // Even if backend call fails, still clear client state
+    }
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    delete api.defaults.headers.common["Authorization"];
     setUser(null);
     window.location.href = "/login";
   };

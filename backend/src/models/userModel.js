@@ -40,6 +40,12 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 
+    // Refresh Tokens (birden fazla cihaz desteği)
+    refreshTokens: [{
+      token: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 30 } // 30 gün TTL
+    }],
+
     // Günlük Kullanım Kotaları (UTC gece yarısı sıfırlanır)
     usage: {
       finbotQueries: { type: Number, default: 0 },
@@ -91,22 +97,22 @@ const userSchema = new mongoose.Schema(
 
     // Survey Data (One-time fill, locked after completion)
     surveyData: {
-      investmentExperience: { 
-        type: String, 
-        enum: ["beginner", "intermediate", "advanced"] 
+      investmentExperience: {
+        type: String,
+        enum: ["beginner", "intermediate", "advanced"]
       },
-      riskTolerance: { 
-        type: String, 
-        enum: ["conservative", "moderate", "aggressive"] 
+      riskTolerance: {
+        type: String,
+        enum: ["conservative", "moderate", "aggressive"]
       },
-      investmentGoals: { 
-        type: String, 
-        enum: ["short-term", "long-term", "retirement", "income"] 
+      investmentGoals: {
+        type: String,
+        enum: ["short-term", "long-term", "retirement", "income"]
       },
       preferredSectors: [{ type: String }],
-      monthlyBudget: { 
-        type: String, 
-        enum: ["0-1000", "1000-5000", "5000-10000", "10000+"] 
+      monthlyBudget: {
+        type: String,
+        enum: ["0-1000", "1000-5000", "5000-10000", "10000+"]
       }
     }
   },

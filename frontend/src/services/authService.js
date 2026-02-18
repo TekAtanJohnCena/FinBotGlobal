@@ -1,49 +1,46 @@
-import axios from 'axios';
-
-// Backend adresin (Backend 5000 portunda çalışıyorsa)
-const API_URL = 'https://kabc8j4wap.us-east-1.awsapprunner.com/api/auth';
+import api from '../lib/api';
 
 // Kayıt Olma İsteği
 const register = async (userData) => {
-  const response = await axios.post(`${API_URL}/register`, userData);
-
-  // Eğer backend token dönerse onu kaydedelim (Opsiyonel, genelde login'de olur)
-  if (response.data.token) {
-    localStorage.setItem('user', JSON.stringify(response.data));
-  }
+  const response = await api.post('/auth/register', userData);
   return response.data;
 };
 
 // Giriş Yapma İsteği
 const login = async (userData) => {
-  const response = await axios.post(`${API_URL}/login`, userData);
-
-  // Backend'den gelen token ve kullanıcı verisini tarayıcı hafızasına (Local Storage) atıyoruz
-  if (response.data.token) {
-    localStorage.setItem('user', JSON.stringify(response.data));
+  const response = await api.post('/auth/login', userData);
+  if (response.data.user) {
+    localStorage.setItem('user', JSON.stringify(response.data.user));
   }
   return response.data;
 };
 
-// Çıkış Yapma (Sadece hafızayı temizler)
-const logout = () => {
+// Çıkış Yapma
+const logout = async () => {
+  try {
+    await api.post('/auth/logout');
+  } catch {
+    // Even if API fails, clear local state
+  }
   localStorage.removeItem('user');
+  localStorage.removeItem('token');
 };
 
 // Şu anki kullanıcıyı hafızadan getir
 const getCurrentUser = () => {
-  return JSON.parse(localStorage.getItem('user'));
-}
+  const user = localStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
+};
 
 // Şifremi Unuttum İsteği
 const forgotPassword = async (email) => {
-  const response = await axios.post(`${API_URL}/forgotpassword`, { email });
+  const response = await api.post('/auth/forgotpassword', { email });
   return response.data;
 };
 
 // Şifreyi Sıfırlama İsteği
 const resetPassword = async (token, password) => {
-  const response = await axios.put(`${API_URL}/resetpassword/${token}`, { password });
+  const response = await api.put(`/auth/resetpassword/${token}`, { password });
   return response.data;
 };
 

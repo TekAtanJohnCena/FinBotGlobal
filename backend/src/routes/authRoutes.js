@@ -1,6 +1,6 @@
 // PATH: backend/src/routes/authRoutes.js
 import express from "express";
-import { register, login, googleLogin, forgotPassword, resetPassword, verifyEmail } from "../controllers/authController.js";
+import { register, login, googleLogin, forgotPassword, resetPassword, verifyEmail, refreshTokenHandler, logoutHandler } from "../controllers/authController.js";
 import { validate, registerSchema, loginSchema, googleTokenSchema } from "../middleware/validate.js";
 import { authRateLimiter } from "../middleware/security.js";
 
@@ -17,6 +17,12 @@ router.post("/login", authRateLimiter, validate(loginSchema), login);
 
 // Google ile Giriş (with validation and rate limiting)
 router.post("/google", authRateLimiter, validate(googleTokenSchema), googleLogin);
+
+// Token Refresh — silently renew access token
+router.post("/refresh", refreshTokenHandler);
+
+// Logout — clear cookies + revoke refresh token
+router.post("/logout", logoutHandler);
 
 // Şifre Sıfırlama İstediği
 router.post("/forgotpassword", authRateLimiter, forgotPassword);
