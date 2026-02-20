@@ -16,25 +16,48 @@ import {
 
 // Türkçe Mali Kalem Eşleştirmesi
 const TURKISH_LABELS = {
-    // Gelir Tablosu
+    // ── Gelir Tablosu ──
     revenue: "Toplam Gelir",
     costOfRevenue: "Satışların Maliyeti",
     grossProfit: "Brüt Kâr",
+    operatingIncome: "Faaliyet Kârı",
     opExpenses: "Faaliyet Giderleri",
+    researchDevelopment: "Ar-Ge Giderleri",
+    sgaExpense: "Satış & Genel Yönetim",
     ebitda: "FAVÖK",
+    interestExpense: "Faiz Giderleri",
+    incomeTaxExpense: "Gelir Vergisi",
     netIncome: "Net Kâr",
-    // Bilanço
+    eps: "Hisse Başı Kazanç (EPS)",
+    epsDiluted: "Seyreltilmiş EPS",
+    sharesBasic: "Hisse Sayısı (Temel)",
+    sharesDiluted: "Hisse Sayısı (Seyreltilmiş)",
+    // ── Bilanço ──
     cashAndEquivalents: "Nakit ve Benzerleri",
+    shortTermInvestments: "Kısa Vadeli Yatırımlar",
+    accountsReceivable: "Alacaklar",
+    inventory: "Stoklar",
+    totalCurrentAssets: "Toplam Dönen Varlıklar",
     totalAssets: "Toplam Varlıklar",
-    totalLiabilities: "Toplam Borçlar",
+    accountsPayable: "Borçlar (Ticari)",
+    shortTermDebt: "Kısa Vadeli Borç",
+    totalCurrentLiabilities: "Toplam Kısa Vadeli Borçlar",
     longTermDebt: "Uzun Vadeli Borç",
+    totalLiabilities: "Toplam Borçlar",
+    retainedEarnings: "Dağıtılmamış Kârlar",
     totalEquity: "Toplam Özkaynak",
-    // Nakit Akışı
+    // ── Nakit Akışı ──
     netCashProvidedByOperatingActivities: "İşletme Nakit Akışı",
+    capitalExpenditures: "Sermaye Harcamaları (CapEx)",
+    freeCashFlow: "Serbest Nakit Akışı (FCF)",
+    depreciation: "Amortisman",
+    stockBasedCompensation: "Hisse Bazlı Tazminat",
     netCashUsedForInvestingActivities: "Yatırım Nakit Akışı",
     netCashUsedProvidedByFinancingActivities: "Finansman Nakit Akışı",
+    dividendsPaid: "Ödenen Temettüler",
+    shareRepurchase: "Hisse Geri Alımı",
     netChangeInCash: "Net Nakit Değişimi",
-    // Temettü
+    // ── Temettü ──
     exDate: "Temettü Tarihi (Ex-Date)",
     paymentDate: "Ödeme Tarihi",
     recordDate: "Kayıt Tarihi",
@@ -42,11 +65,59 @@ const TURKISH_LABELS = {
     frequency: "Sıklık"
 };
 
+// ── Section row configurations ──
+const INCOME_ROWS = [
+    { label: TURKISH_LABELS.revenue, key: "revenue" },
+    { label: TURKISH_LABELS.costOfRevenue, key: "costOfRevenue" },
+    { label: TURKISH_LABELS.grossProfit, key: "grossProfit", bold: true },
+    { label: TURKISH_LABELS.operatingIncome, key: "operatingIncome", bold: true },
+    { label: TURKISH_LABELS.opExpenses, key: "opExpenses" },
+    { label: TURKISH_LABELS.researchDevelopment, key: "researchDevelopment" },
+    { label: TURKISH_LABELS.sgaExpense, key: "sgaExpense" },
+    { label: TURKISH_LABELS.ebitda, key: "ebitda", bold: true },
+    { label: TURKISH_LABELS.interestExpense, key: "interestExpense" },
+    { label: TURKISH_LABELS.incomeTaxExpense, key: "incomeTaxExpense" },
+    { label: TURKISH_LABELS.netIncome, key: "netIncome", bold: true, color: "text-emerald-400" },
+    { label: TURKISH_LABELS.eps, key: "eps", isCurrency: false },
+    { label: TURKISH_LABELS.epsDiluted, key: "epsDiluted", isCurrency: false },
+    { label: TURKISH_LABELS.sharesBasic, key: "sharesBasic", isCurrency: false },
+    { label: TURKISH_LABELS.sharesDiluted, key: "sharesDiluted", isCurrency: false },
+];
+
+const BALANCE_ROWS = [
+    { label: TURKISH_LABELS.cashAndEquivalents, key: "cashAndEquivalents" },
+    { label: TURKISH_LABELS.shortTermInvestments, key: "shortTermInvestments" },
+    { label: TURKISH_LABELS.accountsReceivable, key: "accountsReceivable" },
+    { label: TURKISH_LABELS.inventory, key: "inventory" },
+    { label: TURKISH_LABELS.totalCurrentAssets, key: "totalCurrentAssets", bold: true },
+    { label: TURKISH_LABELS.totalAssets, key: "totalAssets", bold: true },
+    { label: TURKISH_LABELS.accountsPayable, key: "accountsPayable" },
+    { label: TURKISH_LABELS.shortTermDebt, key: "shortTermDebt" },
+    { label: TURKISH_LABELS.totalCurrentLiabilities, key: "totalCurrentLiabilities", bold: true },
+    { label: TURKISH_LABELS.longTermDebt, key: "longTermDebt" },
+    { label: TURKISH_LABELS.totalLiabilities, key: "totalLiabilities", bold: true },
+    { label: TURKISH_LABELS.retainedEarnings, key: "retainedEarnings" },
+    { label: TURKISH_LABELS.totalEquity, key: "totalEquity", bold: true, color: "text-blue-400" },
+];
+
+const CASHFLOW_ROWS = [
+    { label: TURKISH_LABELS.netCashProvidedByOperatingActivities, key: "netCashProvidedByOperatingActivities" },
+    { label: TURKISH_LABELS.capitalExpenditures, key: "capitalExpenditures" },
+    { label: TURKISH_LABELS.freeCashFlow, key: "freeCashFlow", bold: true, color: "text-emerald-400" },
+    { label: TURKISH_LABELS.depreciation, key: "depreciation" },
+    { label: TURKISH_LABELS.stockBasedCompensation, key: "stockBasedCompensation" },
+    { label: TURKISH_LABELS.netCashUsedForInvestingActivities, key: "netCashUsedForInvestingActivities" },
+    { label: TURKISH_LABELS.netCashUsedProvidedByFinancingActivities, key: "netCashUsedProvidedByFinancingActivities" },
+    { label: TURKISH_LABELS.dividendsPaid, key: "dividendsPaid" },
+    { label: TURKISH_LABELS.shareRepurchase, key: "shareRepurchase" },
+    { label: TURKISH_LABELS.netChangeInCash, key: "netChangeInCash", bold: true, color: "text-indigo-400" },
+];
+
 // Plan bazlı yıl limitleri (PRO = 999 means unlimited)
 const PLAN_YEAR_LIMITS = {
     FREE: 5,
     PLUS: 10,
-    PRO: 999  // Unlimited - show all available data
+    PRO: 999
 };
 
 const Financials = () => {
@@ -55,7 +126,6 @@ const Financials = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState("Income Statement");
     const [exportMenuOpen, setExportMenuOpen] = useState(false);
     const [userPlan, setUserPlan] = useState('FREE');
     const [yearLimit, setYearLimit] = useState(5);
@@ -81,11 +151,9 @@ const Financials = () => {
         const fetchFinancials = async () => {
             setLoading(true);
             try {
-                // Format ticker before API call
                 const formattedSymbol = formatTicker(symbol);
                 const response = await api.get(`/stock-analysis/${formattedSymbol}`);
                 if (response.data.ok) {
-                    // Sort history by date DESCENDING (Newest -> Oldest) for the table
                     const sortedHistory = (response.data.data.financials.history || []).sort((a, b) =>
                         new Date(b.date) - new Date(a.date)
                     );
@@ -105,59 +173,26 @@ const Financials = () => {
     }, [symbol]);
 
     // Format numbers to B/M (Billions/Millions)
-    const formatNumber = (val) => {
+    const formatNumber = (val, isCurrency = true) => {
         if (val === undefined || val === null || val === 0) return "-";
         const num = Number(val);
         const absNum = Math.abs(num);
         let formatted = "";
+        const prefix = isCurrency ? "$" : "";
 
         if (absNum >= 1e12) {
-            formatted = "$" + (absNum / 1e12).toFixed(2) + "T";
+            formatted = prefix + (absNum / 1e12).toFixed(2) + "T";
         } else if (absNum >= 1e9) {
-            formatted = "$" + (absNum / 1e9).toFixed(2) + "B";
+            formatted = prefix + (absNum / 1e9).toFixed(2) + "B";
         } else if (absNum >= 1e6) {
-            formatted = "$" + (absNum / 1e6).toFixed(1) + "M";
+            formatted = prefix + (absNum / 1e6).toFixed(1) + "M";
+        } else if (absNum >= 1e3 && isCurrency) {
+            formatted = prefix + (absNum / 1e3).toFixed(1) + "K";
         } else {
-            formatted = "$" + absNum.toLocaleString('en-US');
+            formatted = prefix + absNum.toLocaleString('en-US', { maximumFractionDigits: 2 });
         }
 
         return num < 0 ? `(${formatted})` : formatted;
-    };
-
-    const getRows = () => {
-        if (activeTab === "Income Statement") {
-            return [
-                { label: TURKISH_LABELS.revenue, key: "revenue" },
-                { label: TURKISH_LABELS.costOfRevenue, key: "costOfRevenue" },
-                { label: TURKISH_LABELS.grossProfit, key: "grossProfit", bold: true },
-                { label: TURKISH_LABELS.opExpenses, key: "opExpenses" },
-                { label: TURKISH_LABELS.ebitda, key: "ebitda", bold: true },
-                { label: TURKISH_LABELS.netIncome, key: "netIncome", bold: true, color: "text-emerald-400" },
-            ];
-        } else if (activeTab === "Balance Sheet") {
-            return [
-                { label: TURKISH_LABELS.cashAndEquivalents, key: "cashAndEquivalents" },
-                { label: TURKISH_LABELS.totalAssets, key: "totalAssets", bold: true },
-                { label: TURKISH_LABELS.totalLiabilities, key: "totalLiabilities", bold: true },
-                { label: TURKISH_LABELS.longTermDebt, key: "longTermDebt" },
-                { label: TURKISH_LABELS.totalEquity, key: "totalEquity", bold: true, color: "text-blue-400" },
-            ];
-        } else if (activeTab === "Dividends") {
-            return [
-                { label: TURKISH_LABELS.exDate, key: "exDate" },
-                { label: TURKISH_LABELS.paymentDate, key: "paymentDate" },
-                { label: TURKISH_LABELS.recordDate, key: "recordDate" },
-                { label: TURKISH_LABELS.amount, key: "distributionAmount", bold: true, color: "text-emerald-400" }, // specific key handling needed?
-                { label: TURKISH_LABELS.frequency, key: "frequency" },
-            ];
-        } else {
-            return [
-                { label: TURKISH_LABELS.netCashProvidedByOperatingActivities, key: "netCashProvidedByOperatingActivities" },
-                { label: TURKISH_LABELS.netCashUsedForInvestingActivities, key: "netCashUsedForInvestingActivities" },
-                { label: TURKISH_LABELS.netCashUsedProvidedByFinancingActivities, key: "netCashUsedProvidedByFinancingActivities" },
-                { label: TURKISH_LABELS.netChangeInCash, key: "netChangeInCash", bold: true, color: "text-indigo-400" },
-            ];
-        }
     };
 
     // CSV Export fonksiyonu
@@ -169,27 +204,24 @@ const Financials = () => {
         let filename = '';
 
         if (type === 'income') {
-            rows = getIncomeRows();
+            rows = INCOME_ROWS;
             filename = `${symbol}_gelir_tablosu.csv`;
         } else if (type === 'balance') {
-            rows = getBalanceRows();
+            rows = BALANCE_ROWS;
             filename = `${symbol}_bilanco.csv`;
         } else if (type === 'cashflow') {
-            rows = getCashFlowRows();
+            rows = CASHFLOW_ROWS;
             filename = `${symbol}_nakit_akisi.csv`;
         }
 
-        // CSV header
         const headers = ['Kalem', ...history.map(h => h.year || new Date(h.date).getFullYear())];
         let csvContent = headers.join(',') + '\n';
 
-        // CSV rows
         rows.forEach(row => {
             const values = [row.label, ...history.map(h => h[row.key] || 0)];
             csvContent += values.join(',') + '\n';
         });
 
-        // Download
         const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -202,29 +234,88 @@ const Financials = () => {
         setExportMenuOpen(false);
     }, [data, yearLimit, symbol]);
 
-    const getIncomeRows = () => [
-        { label: TURKISH_LABELS.revenue, key: "revenue" },
-        { label: TURKISH_LABELS.costOfRevenue, key: "costOfRevenue" },
-        { label: TURKISH_LABELS.grossProfit, key: "grossProfit" },
-        { label: TURKISH_LABELS.opExpenses, key: "opExpenses" },
-        { label: TURKISH_LABELS.ebitda, key: "ebitda" },
-        { label: TURKISH_LABELS.netIncome, key: "netIncome" },
-    ];
+    // ── Reusable table renderer ──
+    const renderStatementTable = (sectionTitle, sectionColor, rows, history) => (
+        <div className="mb-10">
+            {/* Section header */}
+            <div className="flex items-center gap-3 mb-4">
+                <div className={`w-1.5 h-6 rounded-full ${sectionColor}`}></div>
+                <h2 className="text-sm md:text-base font-black uppercase tracking-wide text-slate-200">{sectionTitle}</h2>
+                <div className="h-[1px] flex-1 bg-slate-800"></div>
+            </div>
 
-    const getBalanceRows = () => [
-        { label: TURKISH_LABELS.cashAndEquivalents, key: "cashAndEquivalents" },
-        { label: TURKISH_LABELS.totalAssets, key: "totalAssets" },
-        { label: TURKISH_LABELS.totalLiabilities, key: "totalLiabilities" },
-        { label: TURKISH_LABELS.longTermDebt, key: "longTermDebt" },
-        { label: TURKISH_LABELS.totalEquity, key: "totalEquity" },
-    ];
+            <div className="bg-[#1e222d] border border-slate-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr className="bg-[#242835] border-b border-slate-800">
+                                <th className="px-4 md:px-8 py-4 md:py-5 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 sticky left-0 bg-[#242835] z-20 min-w-[160px] md:min-w-[280px] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]">
+                                    Mali Kalemler (USD)
+                                </th>
+                                {history.map((stmt) => (
+                                    <th key={stmt.date} className="px-4 md:px-10 py-4 md:py-5 text-right text-[10px] md:text-xs font-black text-slate-300 min-w-[100px] md:min-w-[160px] uppercase tracking-tighter">
+                                        {stmt.year || new Date(stmt.date).getFullYear()}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40">
+                            {rows.map((row, idx) => (
+                                <tr
+                                    key={row.key}
+                                    className={`group transition-colors ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} hover:bg-indigo-500/5`}
+                                >
+                                    <td className={`px-4 md:px-8 py-3 md:py-4 text-xs md:text-sm sticky left-0 z-10 font-bold transition-all ${row.color || 'text-slate-300'} 
+                                    ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} group-hover:bg-[#202534] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]`}>
+                                        <div className="flex items-center gap-2 md:gap-3">
+                                            <div className={`w-1 h-1 rounded-full ${row.bold ? 'bg-indigo-500 scale-125' : 'bg-slate-700'}`}></div>
+                                            <span className={`${row.bold ? 'font-black' : 'font-semibold'} line-clamp-1`}>{row.label}</span>
+                                        </div>
+                                    </td>
+                                    {history.map((stmt, i) => {
+                                        const val = stmt[row.key];
+                                        const isNeg = val < 0;
 
-    const getCashFlowRows = () => [
-        { label: TURKISH_LABELS.netCashProvidedByOperatingActivities, key: "netCashProvidedByOperatingActivities" },
-        { label: TURKISH_LABELS.netCashUsedForInvestingActivities, key: "netCashUsedForInvestingActivities" },
-        { label: TURKISH_LABELS.netCashUsedProvidedByFinancingActivities, key: "netCashUsedProvidedByFinancingActivities" },
-        { label: TURKISH_LABELS.netChangeInCash, key: "netChangeInCash" },
-    ];
+                                        // Calculate YoY Change
+                                        let pctChange = null;
+                                        const prevYearStmt = history[i + 1];
+                                        if (prevYearStmt) {
+                                            const prevVal = prevYearStmt[row.key];
+                                            if (prevVal && prevVal !== 0) {
+                                                pctChange = ((val - prevVal) / Math.abs(prevVal)) * 100;
+                                            }
+                                        }
+
+                                        return (
+                                            <td
+                                                key={stmt.date}
+                                                className={`px-4 md:px-10 py-3 md:py-4 text-right font-mono text-xs md:text-sm ${row.bold ? 'text-slate-100 font-bold' : 'text-slate-400'} 
+                                                ${isNeg ? 'text-rose-400' : ''} group relative`}
+                                            >
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {formatNumber(val, row.isCurrency !== false)}
+
+                                                    {pctChange !== null && Math.abs(pctChange) > 0.01 && (
+                                                        <span className={`
+                                                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                                                        text-[9px] font-black px-1.5 py-0.5 rounded-md
+                                                        ${pctChange > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}
+                                                    `}>
+                                                            {pctChange > 0 ? '+' : ''}{pctChange.toFixed(1)}%
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
 
     if (loading) return (
         <div className="min-h-screen bg-[#0f111a] flex items-center justify-center">
@@ -248,7 +339,6 @@ const Financials = () => {
     const history = (data?.financials?.history || []).slice(0, yearLimit);
     const fullHistory = data?.financials?.history || [];
     const hasMoreData = fullHistory.length > yearLimit;
-    const rows = getRows();
 
     return (
         <div className="min-h-screen bg-[#0f111a] text-white font-sans selection:bg-indigo-500/30">
@@ -369,207 +459,109 @@ const Financials = () => {
                     </div>
                 )}
 
-                {/* NAVIGATION / TABS */}
-                <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-10">
-                    <div className="overflow-x-auto pb-2 md:pb-0">
-                        <div className="flex p-1 md:p-1.5 bg-[#1e222d] border border-slate-800/50 rounded-xl md:rounded-2xl shadow-inner w-fit min-w-full md:min-w-0">
-                            {["Income Statement", "Balance Sheet", "Cash Flow", "Dividends"].map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`flex-1 md:flex-none px-3 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl font-black text-[10px] md:text-xs uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === tab
-                                        ? 'bg-[#0f111a] text-white shadow-lg border border-slate-700/50'
-                                        : 'text-slate-500 hover:text-slate-300'
-                                        }`}
-                                >
-                                    {tab === "Income Statement" ? "Gelir Tablosu" :
-                                        tab === "Balance Sheet" ? "Bilanço" :
-                                            tab === "Cash Flow" ? "Nakit Akışı" : "Temettü"}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl w-fit">
-                        <Info size={14} className="text-indigo-400/80" />
-                        <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest">
-                            Görüntülenen: {history.length} Yıl • Plan: {userPlan === 'FREE' ? 'Ücretsiz' : userPlan === 'PLUS' ? 'Plus' : 'Pro'} {userPlan === 'PRO' && '(Sınırsız)'}
-                        </span>
-                    </div>
+                {/* INFO BAR */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-xl w-fit mb-8">
+                    <Info size={14} className="text-indigo-400/80" />
+                    <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest">
+                        Görüntülenen: {history.length} Yıl • Plan: {userPlan === 'FREE' ? 'Ücretsiz' : userPlan === 'PLUS' ? 'Plus' : 'Pro'} {userPlan === 'PRO' && '(Sınırsız)'}
+                    </span>
                 </div>
 
-                {activeTab === "Dividends" ? (
-                    <div>
-                        {/* WRAPPER FOR DIVIDENDS TAB CONTENT */}
-                        <div className="bg-[#1e222d] border border-slate-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
-                            <div className="overflow-x-auto custom-scrollbar">
-                                <table className="w-full text-left border-collapse min-w-[600px]">
-                                    <thead>
-                                        <tr className="bg-[#242835] border-b border-slate-800">
-                                            <th className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Temettü Tarihi (Ex-Date)</th>
-                                            <th className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Ödeme Tarihi</th>
-                                            <th className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Kayıt Tarihi</th>
-                                            <th className="px-4 md:px-8 py-4 md:py-6 text-right text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Dağıtım (Miktar)</th>
-                                            <th className="px-4 md:px-8 py-4 md:py-6 text-right text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Sıklık</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-800/40">
-                                        {(data?.dividends || []).length > 0 ? (
-                                            (data.dividends || []).slice(0, yearLimit * 4).map((div, idx) => (
-                                                // Assuming approx 4 dividends per year for yearLimit calculation or just show recent
-                                                <tr key={idx} className={`hover:bg-indigo-500/5 transition-colors ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'}`}>
-                                                    <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-bold text-slate-300">
-                                                        {new Date(div.exDate).toLocaleDateString('tr-TR')}
-                                                    </td>
-                                                    <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-medium text-slate-400">
-                                                        {new Date(div.paymentDate).toLocaleDateString('tr-TR')}
-                                                    </td>
-                                                    <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-mono text-slate-500">
-                                                        {new Date(div.recordDate).toLocaleDateString('tr-TR')}
-                                                    </td>
-                                                    <td className="px-4 md:px-8 py-4 md:py-5 text-right font-mono text-sm font-black text-emerald-400">
-                                                        ${div.amount || div.distributionAmount}
-                                                    </td>
-                                                    <td className="px-4 md:px-8 py-4 md:py-5 text-right text-xs font-black uppercase text-indigo-400">
-                                                        {div.frequency === 'Q' ? 'Çeyreklik' : div.frequency === 'A' ? 'Yıllık' : div.frequency === 'M' ? 'Aylık' : div.frequency}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="5" className="px-8 py-10 text-center text-slate-500 font-bold">
-                                                    Bu şirket için temettü geçmişi bulunamadı.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                {/* ── VERTICAL SCROLL LAYOUT — All 4 sections stacked ── */}
+                {renderStatementTable("Gelir Tablosu", "bg-emerald-500", INCOME_ROWS, history)}
+                {renderStatementTable("Bilanço", "bg-blue-500", BALANCE_ROWS, history)}
+                {renderStatementTable("Nakit Akışı", "bg-indigo-500", CASHFLOW_ROWS, history)}
 
-                        {/* SPLITS SECTION */}
-                        <div className="mt-8">
-                            <div className="flex items-center gap-2 mb-4">
-                                <h3 className="text-sm md:text-base font-black uppercase tracking-wide text-indigo-400">Hisse Bölünmeleri (Splits)</h3>
-                                <div className="h-[1px] flex-1 bg-slate-800"></div>
-                            </div>
-
-                            {data?.splits && data.splits.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {data.splits.map((split, i) => (
-                                        <div key={i} className="bg-[#1e222d] border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-lg hover:border-indigo-500/30 transition-colors">
-                                            <div>
-                                                <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Bölünme Tarihi</div>
-                                                <div className="text-sm font-bold text-slate-200">{new Date(split.exDate).toLocaleDateString('tr-TR')}</div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Oran</div>
-                                                <div className="text-lg font-black font-mono text-emerald-400">
-                                                    {split.splitFactor ?
-                                                        // Convert "0.2" to "5:1" or similar if possible, but Tiingo sends float ratio.
-                                                        // E.g. A 4-for-1 split is 0.25 on old price or 4.0? 
-                                                        // Tiingo docs: "numerator/denominator", e.g. 2-for-1 is 0.5? Check Tiingo specs.
-                                                        // Usually split factor is presented as X:Y.
-                                                        // Let's display raw factor and maybe strict logic if known.
-                                                        // Tiingo: "The split factor 1/splitRatio" e.g. 2:1 split is 0.5?
-                                                        // Actually Tiingo says "splitFactor".
-                                                        // Let's just show it. 
-                                                        // If factor < 1, e.g. 0.25 (4:1 split).
-                                                        // If factor > 1, e.g. 2 (Reverse Split 1:2)
-
-                                                        // Simple display:
-                                                        split.splitFactor < 1 ? `1:${1 / split.splitFactor}` : `${split.splitFactor}:1`
-                                                        : "—"
-                                                    }
-                                                </div>
-                                                <div className="text-[9px] font-bold text-slate-500 mt-0.5">
-                                                    Çarpan: {split.splitFactor}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="p-6 text-center text-slate-500 font-bold border border-slate-800 rounded-xl bg-[#1e222d]/50 border-dashed">
-                                    Geçmiş bölünme verisi bulunmuyor.
-                                </div>
-                            )}
-                        </div>
+                {/* ── DIVIDENDS SECTION ── */}
+                <div className="mb-10">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-1.5 h-6 rounded-full bg-amber-500"></div>
+                        <h2 className="text-sm md:text-base font-black uppercase tracking-wide text-slate-200">Temettü</h2>
+                        <div className="h-[1px] flex-1 bg-slate-800"></div>
                     </div>
-                ) : (
+
                     <div className="bg-[#1e222d] border border-slate-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
                         <div className="overflow-x-auto custom-scrollbar">
                             <table className="w-full text-left border-collapse min-w-[600px]">
                                 <thead>
                                     <tr className="bg-[#242835] border-b border-slate-800">
-                                        <th className="px-4 md:px-8 py-4 md:py-6 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 sticky left-0 bg-[#242835] z-20 min-w-[160px] md:min-w-[280px] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]">
-                                            Mali Kalemler (USD)
-                                        </th>
-                                        {history.map((stmt) => (
-                                            <th key={stmt.date} className="px-4 md:px-10 py-4 md:py-6 text-right text-[10px] md:text-xs font-black text-slate-300 min-w-[100px] md:min-w-[160px] uppercase tracking-tighter">
-                                                {stmt.year || new Date(stmt.date).getFullYear()}
-                                            </th>
-                                        ))}
+                                        <th className="px-4 md:px-8 py-4 md:py-5 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Temettü Tarihi (Ex-Date)</th>
+                                        <th className="px-4 md:px-8 py-4 md:py-5 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Ödeme Tarihi</th>
+                                        <th className="px-4 md:px-8 py-4 md:py-5 text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Kayıt Tarihi</th>
+                                        <th className="px-4 md:px-8 py-4 md:py-5 text-right text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Dağıtım (Miktar)</th>
+                                        <th className="px-4 md:px-8 py-4 md:py-5 text-right text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">Sıklık</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800/40">
-                                    {rows.map((row, idx) => (
-                                        <tr
-                                            key={row.key}
-                                            className={`group transition-colors ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} hover:bg-indigo-500/5`}
-                                        >
-                                            <td className={`px-4 md:px-8 py-3 md:py-5 text-xs md:text-sm sticky left-0 z-10 font-bold transition-all ${row.color || 'text-slate-300'} 
-                                            ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'} group-hover:bg-[#202534] shadow-[4px_0_10px_-2px_rgba(0,0,0,0.4)]`}>
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <div className={`w-1 h-1 rounded-full ${row.bold ? 'bg-indigo-500 scale-125' : 'bg-slate-700'}`}></div>
-                                                    <span className={`${row.bold ? 'font-black' : 'font-semibold'} line-clamp-1`}>{row.label}</span>
-                                                </div>
+                                    {(data?.dividends || []).length > 0 ? (
+                                        (data.dividends || []).slice(0, yearLimit * 4).map((div, idx) => (
+                                            <tr key={idx} className={`hover:bg-indigo-500/5 transition-colors ${idx % 2 === 0 ? 'bg-[#1e222d]' : 'bg-[#191d29]'}`}>
+                                                <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-bold text-slate-300">
+                                                    {new Date(div.exDate).toLocaleDateString('tr-TR')}
+                                                </td>
+                                                <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-medium text-slate-400">
+                                                    {new Date(div.paymentDate).toLocaleDateString('tr-TR')}
+                                                </td>
+                                                <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-mono text-slate-500">
+                                                    {new Date(div.recordDate).toLocaleDateString('tr-TR')}
+                                                </td>
+                                                <td className="px-4 md:px-8 py-4 md:py-5 text-right font-mono text-sm font-black text-emerald-400">
+                                                    ${div.amount || div.distributionAmount}
+                                                </td>
+                                                <td className="px-4 md:px-8 py-4 md:py-5 text-right text-xs font-black uppercase text-indigo-400">
+                                                    {div.frequency === 'Q' ? 'Çeyreklik' : div.frequency === 'A' ? 'Yıllık' : div.frequency === 'M' ? 'Aylık' : div.frequency}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="px-8 py-10 text-center text-slate-500 font-bold">
+                                                Bu şirket için temettü geçmişi bulunamadı.
                                             </td>
-                                            {history.map((stmt, i) => {
-                                                const val = stmt[row.key];
-                                                const isNeg = val < 0;
-
-                                                // Calculate YoY Change
-                                                let pctChange = null;
-                                                const prevYearStmt = history[i + 1]; // Previous year (since sorted descending)
-                                                if (prevYearStmt) {
-                                                    const prevVal = prevYearStmt[row.key];
-                                                    if (prevVal && prevVal !== 0) {
-                                                        pctChange = ((val - prevVal) / Math.abs(prevVal)) * 100;
-                                                    }
-                                                }
-
-                                                return (
-                                                    <td
-                                                        key={stmt.date}
-                                                        className={`px-4 md:px-10 py-3 md:py-5 text-right font-mono text-xs md:text-sm ${row.bold ? 'text-slate-100 font-bold' : 'text-slate-400'} 
-                                                        ${isNeg ? 'text-rose-400' : ''} group relative`}
-                                                    >
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            {formatNumber(val)}
-
-                                                            {/* Percentage Change Badge (Visible on Row Hover) */}
-                                                            {pctChange !== null && Math.abs(pctChange) > 0.01 && (
-                                                                <span className={`
-                                                                opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                                                                text-[9px] font-black px-1.5 py-0.5 rounded-md
-                                                                ${pctChange > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}
-                                                            `}>
-                                                                    {pctChange > 0 ? '+' : ''}{pctChange.toFixed(1)}%
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                );
-                                            })}
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                )
-                }
+
+                    {/* SPLITS SECTION */}
+                    <div className="mt-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            <h3 className="text-sm md:text-base font-black uppercase tracking-wide text-indigo-400">Hisse Bölünmeleri (Splits)</h3>
+                            <div className="h-[1px] flex-1 bg-slate-800"></div>
+                        </div>
+
+                        {data?.splits && data.splits.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {data.splits.map((split, i) => (
+                                    <div key={i} className="bg-[#1e222d] border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-lg hover:border-indigo-500/30 transition-colors">
+                                        <div>
+                                            <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Bölünme Tarihi</div>
+                                            <div className="text-sm font-bold text-slate-200">{new Date(split.exDate).toLocaleDateString('tr-TR')}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Oran</div>
+                                            <div className="text-lg font-black font-mono text-emerald-400">
+                                                {split.splitFactor ?
+                                                    split.splitFactor < 1 ? `1:${1 / split.splitFactor}` : `${split.splitFactor}:1`
+                                                    : "—"
+                                                }
+                                            </div>
+                                            <div className="text-[9px] font-bold text-slate-500 mt-0.5">
+                                                Çarpan: {split.splitFactor}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-6 text-center text-slate-500 font-bold border border-slate-800 rounded-xl bg-[#1e222d]/50 border-dashed">
+                                Geçmiş bölünme verisi bulunmuyor.
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 {/* Mobile Export Button */}
                 <div className="md:hidden mt-6">

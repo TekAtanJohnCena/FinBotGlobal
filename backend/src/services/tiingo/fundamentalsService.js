@@ -49,6 +49,8 @@ export async function getFundamentals(ticker) {
             totalLiabilities: latest.totalLiabilities,
             shareholderEquity: latest.totalEquity,
             operatingCashFlow: latest.cashFromOperatingActivities,
+            capitalExpenditures: latest.capitalExpenditures,
+            freeCashFlow: latest.freeCashFlow,
             eps: latest.eps,
             source: 'tiingo'
         };
@@ -62,6 +64,13 @@ export async function getFundamentals(ticker) {
         }
         if (result.totalLiabilities && result.shareholderEquity > 0) {
             result.debtToEquity = result.totalLiabilities / result.shareholderEquity;
+        }
+        if (result.revenue && result.grossProfit) {
+            result.grossMargin = (result.grossProfit / result.revenue) * 100;
+        }
+        if (result.totalLiabilities != null && result.totalAssets != null) {
+            // Net Debt approximation: totalLiabilities - (derive cash from totalAssets - totalLiabilities - equity)
+            result.netDebt = result.totalLiabilities - (result.shareholderEquity || 0);
         }
 
         cache.set(cacheKey, result, FUNDAMENTALS_TTL);

@@ -1,8 +1,11 @@
 // PATH: src/pages/Support.jsx
 // -----------------------------------------------------------------------------
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import api from "../lib/api";
+import toast, { Toaster } from "react-hot-toast";
 
 import {
     ChevronDownIcon,
@@ -18,7 +21,7 @@ import {
 const FAQ_DATA = [
     {
         question: "FinBot nedir?",
-        answer: "FinBot, yapay zeka destekli bir finansal asistan uygulamasıdır. Hisse senedi analizleri, piyasa verileri, portföy takibi ve finansal sorularınız için gerçek zamanlı yardım sunar. OpenAI teknolojisi ile desteklenen FinBot, karmaşık finansal verileri anlaşılır bilgilere dönüştürür."
+        answer: "FinBot, yapay zeka destekli bir finansal asistan uygulamasıdır. Hisse senedi analizleri, piyasa verileri, portföy takibi ve finansal sorularınız için gerçek zamanlı yardım sunar. AWS Bedrock ve Claude 4.5 teknolojisi ile desteklenen FinBot, karmaşık finansal verileri anlaşılır bilgilere dönüştürür."
     },
     {
         question: "Paketimi nasıl yükseltirim?",
@@ -61,25 +64,50 @@ const AccordionItem = ({ question, answer, isOpen, onToggle }) => {
 };
 
 export default function Support() {
-
+    const { user } = useContext(AuthContext);
     const [openIndex, setOpenIndex] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [contactForm, setContactForm] = useState({ subject: "", message: "" });
+    const [sending, setSending] = useState(false);
 
     const filteredFAQ = FAQ_DATA.filter(item =>
         item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.answer.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleContactSubmit = (e) => {
+    const handleContactSubmit = async (e) => {
         e.preventDefault();
-        console.log("Contact Form Submitted:", contactForm);
-        alert("Mesajınız gönderildi! En kısa sürede size dönüş yapacağız.");
-        setContactForm({ subject: "", message: "" });
+        setSending(true);
+
+        try {
+            const payload = {
+                contactName: user?.name || user?.firstName || "Finbot User",
+                email: user?.email || "unknown@finbot.user",
+                companyName: "FinBot Support Request",
+                subject: `Destek Talebi: ${contactForm.subject}`,
+                message: contactForm.message,
+                phone: user?.phone || "-"
+            };
+
+            const res = await api.post("/contact", payload);
+
+            if (res.data?.success) {
+                toast.success("Mesajınız destek ekibine iletildi!");
+                setContactForm({ subject: "", message: "" });
+            } else {
+                toast.error(res.data?.message || "Mesaj gönderilemedi.");
+            }
+        } catch (error) {
+            console.error("Support form error:", error);
+            toast.error("Bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+        } finally {
+            setSending(false);
+        }
     };
 
     return (
         <div className="min-h-screen bg-[#0b0c0f] text-white">
+            <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
             {/* Background Gradient */}
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px]" />
@@ -178,11 +206,11 @@ export default function Support() {
 
                             <div className="bg-black/30 rounded-xl px-4 py-3 mb-4">
                                 <p className="text-xs text-zinc-500 mb-1">E-posta</p>
-                                <p className="text-emerald-400 font-medium">support@finbot.com.tr</p>
+                                <p className="text-emerald-400 font-medium">destek@finbot.com.tr</p>
                             </div>
 
                             <a
-                                href="mailto:support@finbot.com.tr"
+                                href="mailto:destek@finbot.com.tr"
                                 className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-all hover:scale-[1.02] shadow-lg shadow-emerald-500/25"
                             >
                                 <EnvelopeIcon className="w-5 h-5" />
@@ -230,9 +258,10 @@ export default function Support() {
 
                                 <button
                                     type="submit"
-                                    className="w-full px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-all text-sm"
+                                    disabled={sending}
+                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-all hover:scale-[1.02] shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 >
-                                    Gönder
+                                    {sending ? "Gönderiliyor..." : "Gönder"}
                                 </button>
                             </form>
                         </div>
@@ -249,6 +278,6 @@ export default function Support() {
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 }

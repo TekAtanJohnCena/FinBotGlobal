@@ -78,20 +78,17 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  // ─── KAYIT OL ───
+  // ─── KAYIT OL (Auto-login — backend artık token döner) ───
   const register = async (formData) => {
     const res = await api.post("/auth/register", formData);
-    return res.data;
-  };
-
-  // ─── E-POSTA DOĞRULAMA (OTP) ───
-  const verifyEmail = async (email, code) => {
-    const res = await api.post("/auth/verify-email", { email, code });
     const { user: userData, token } = res.data;
 
+    // Auto-login: store token and user
     if (token) localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+    }
     return res.data;
   };
 
@@ -122,7 +119,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, googleLogin, register, logout, verifyEmail, completeProfile }}>
+    <AuthContext.Provider value={{ user, setUser, loading, login, googleLogin, register, logout, completeProfile }}>
       {!loading && children}
     </AuthContext.Provider>
   );

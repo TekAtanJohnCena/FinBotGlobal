@@ -1,36 +1,36 @@
 import mongoose from "mongoose";
 
+export const ALLOWED_CATEGORIES = [
+  "Maaş", "Yatırım", "Ek Gelir", "Freelance", "Kira Geliri", "Diğer",
+  "Gıda", "Kira", "Fatura", "Eğlence", "Sağlık", "Ulaşım", "Giyim", "Teknoloji", "Eğitim", "Tatil"
+];
+
 const WalletSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // Her kullanıcının bir wallet'ı olsun
+      unique: true,
     },
     // Finansal Özet
-    totalAssets: {
-      type: Number,
-      default: 0,
-    },
-    monthlyIncome: {
-      type: Number,
-      default: 0,
-    },
-    monthlyExpense: {
-      type: Number,
-      default: 0,
-    },
-    savings: {
-      type: Number,
-      default: 0,
-    },
-    healthScore: {
-      type: Number,
-      default: 50,
-      min: 0,
-      max: 100,
-    },
+    totalAssets: { type: Number, default: 0 },
+    monthlyIncome: { type: Number, default: 0 },
+    monthlyExpense: { type: Number, default: 0 },
+    savings: { type: Number, default: 0 },
+    healthScore: { type: Number, default: 50, min: 0, max: 100 },
+
+    // İşlemler (Yeni Eklenen)
+    transactions: [
+      {
+        type: { type: String, enum: ["income", "expense"], required: true },
+        category: { type: String, required: true },
+        amount: { type: Number, required: true },
+        description: { type: String, default: "" },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+
     // Birikim Hedefleri
     goals: [
       {
@@ -52,7 +52,7 @@ const WalletSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
-    // Harcama Kategorileri
+    // Harcama Kategorileri (Özet)
     expenses: [
       {
         name: { type: String, required: true },

@@ -1,6 +1,6 @@
 // PATH: backend/src/routes/authRoutes.js
 import express from "express";
-import { register, login, googleLogin, forgotPassword, resetPassword, verifyEmail, refreshTokenHandler, logoutHandler } from "../controllers/authController.js";
+import { register, login, googleLogin, forgotPassword, resetPassword, refreshTokenHandler, logoutHandler } from "../controllers/authController.js";
 import { validate, registerSchema, loginSchema, googleTokenSchema } from "../middleware/validate.js";
 import { authRateLimiter } from "../middleware/security.js";
 
@@ -9,8 +9,6 @@ const router = express.Router();
 // Kayıt Ol (with validation and rate limiting)
 router.post("/register", authRateLimiter, validate(registerSchema), register);
 
-// E-Posta Doğrulama (YENİ)
-router.post("/verify-email", authRateLimiter, verifyEmail);
 
 // Giriş Yap (with validation and rate limiting)
 router.post("/login", authRateLimiter, validate(loginSchema), login);

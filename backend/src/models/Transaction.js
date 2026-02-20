@@ -21,7 +21,12 @@ const TransactionSchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            enum: ["sabit_gider", "yasam_tarzi", "finansal_odeme", "yatirim_firsati", "gelir", "diger"],
+            enum: [
+                // PDF analysis categories (financeAnalysisService.js)
+                "sabit_gider", "yasam_tarzi", "finansal_odeme", "yatirim_firsati", "gelir", "diger",
+                // Wallet UI categories
+                "Maaş", "Hediye", "Fatura", "Market", "Ulaşım", "Abonelikler", "Yiyecek & İçecek", "Kira",
+            ],
             default: "yasam_tarzi",
         },
         currency: { type: String, default: "TL" },
@@ -44,7 +49,7 @@ const TransactionSchema = new mongoose.Schema(
         // Source
         source: {
             type: String,
-            enum: ["manual", "pdf", "demo"],
+            enum: ["manual", "pdf", "demo", "subscription_quick_add"],
             default: "manual",
         },
     },

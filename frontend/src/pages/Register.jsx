@@ -87,7 +87,7 @@ const Register = () => {
         password
       });
       toast.success(t('auth.registerSuccess'));
-      window.location.href = "/login";
+      window.location.href = "/chat";
     } catch (err) {
       const errorMessage = err.response?.data?.message
         || err.response?.data?.errors?.[0]?.message

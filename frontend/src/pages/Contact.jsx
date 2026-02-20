@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import toast, { Toaster } from 'react-hot-toast';
 import LanguageSelector from "../components/LanguageSelector";
+import api from "../lib/api";
 
 // GÖRSELLER
 import logo from "../images/logo1.png";
@@ -38,32 +39,24 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      // API call (şimdilik mock)
-      // const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
-      // await fetch(`${API_URL}/api/contact`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ companyName, contactName, email, phone, employeeCount, message })
-      // });
-
-      // Simüle edilmiş gecikme
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      console.log('Enterprise Contact Form Submitted:', {
+      const res = await api.post("/contact", {
         companyName,
         contactName,
         email,
         phone,
         employeeCount,
-        message,
-        submittedAt: new Date().toISOString()
+        message
       });
 
-      setSubmitted(true);
-      toast.success('Mesajınız başarıyla gönderildi!');
+      if (res.data?.success) {
+        setSubmitted(true);
+        toast.success(res.data.message || 'Mesajınız başarıyla gönderildi!');
+      } else {
+        throw new Error(res.data?.message || 'Mail gönderilemedi');
+      }
     } catch (error) {
       console.error('Contact form error:', error);
-      toast.error('Bir hata oluştu, lütfen tekrar deneyin');
+      toast.error(error.response?.data?.message || error.message || 'Bir hata oluştu, lütfen tekrar deneyin');
     } finally {
       setLoading(false);
     }

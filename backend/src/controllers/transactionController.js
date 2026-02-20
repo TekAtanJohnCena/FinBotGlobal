@@ -1,7 +1,6 @@
 // PATH: backend/src/controllers/transactionController.js
 // CRUD controller for individual transactions
 import Transaction from "../models/Transaction.js";
-import { runFullAnalysis } from "../services/financeAnalysisService.js";
 import { v4 as uuidv4 } from "uuid";
 
 /**

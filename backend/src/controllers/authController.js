@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import { asyncHandler } from "../utils/errorHandler.js";
-import { sendWelcomeEmail, sendPasswordResetEmail, sendVerificationEmail } from "../services/emailService.js";
+import { sendWelcomeEmail, sendPasswordResetEmail } from "../services/emailService.js";
 
 // ==============================
 // Google OAuth Client
@@ -146,11 +146,7 @@ export const register = asyncHandler(async (req, res) => {
   // Şifre hashleme
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  // 6 haneli OTP kodu üret
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika
-
-  // Yeni kullanıcı oluştur (Unverified)
+  // Yeni kullanıcı oluştur (Verified — email doğrulama bypass edildi)
   const newUser = await User.create({
     username: username.toLowerCase(),
     email: email.toLowerCase(),
@@ -162,27 +158,26 @@ export const register = asyncHandler(async (req, res) => {
     authType: "manual",
     subscriptionTier: "FREE",
     subscriptionStatus: "INACTIVE",
-    isVerified: false,
-    otpCode,
-    otpExpires
+    isVerified: true,
   });
 
-  console.log("✅ User registered (pending verification):", newUser.email);
+  console.log("✅ User registered & verified:", newUser.email);
 
-  // Doğrulama maili gönder
+  // Hoşgeldin maili gönder
   try {
-    await sendVerificationEmail(newUser.email, otpCode);
-  } catch (error) {
-    console.error("OTP send failed:", error);
-    await User.findByIdAndDelete(newUser._id);
-    return res.status(500).json({ message: "Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin." });
+    await sendWelcomeEmail(newUser.email, newUser.firstName);
+  } catch (err) {
+    console.error("Welcome email failed:", err);
   }
 
-  // Token DÖNME, sadece başarı mesajı dön
+  // Issue dual tokens + set cookies (auto-login)
+  const accessToken = await issueTokens(res, newUser);
+
   res.status(201).json({
     success: true,
-    message: "Kayıt başarılı! Lütfen e-postanıza gönderilen doğrulama kodunu giriniz.",
-    email: newUser.email
+    message: "Kayıt başarılı!",
+    token: accessToken,
+    user: buildUserResponse(newUser),
   });
 });
 
@@ -401,49 +396,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
-/* =====================================================
-   6. VERIFY EMAIL (OTP)
-   ===================================================== */
-export const verifyEmail = asyncHandler(async (req, res) => {
-  const { email, code } = req.body;
-
-  if (!email || !code) {
-    return res.status(400).json({ message: "E-posta ve doğrulama kodu gerekli." });
-  }
-
-  const user = await User.findOne({
-    email: email.toLowerCase(),
-    otpCode: code,
-    otpExpires: { $gt: Date.now() }
-  });
-
-  if (!user) {
-    return res.status(400).json({ message: "Geçersiz veya süresi dolmuş kod." });
-  }
-
-  user.isVerified = true;
-  user.otpCode = undefined;
-  user.otpExpires = undefined;
-
-  console.log("✅ User verified email:", user.email);
-
-  // Hoşgeldin maili gönder
-  try {
-    await sendWelcomeEmail(user.email, user.firstName);
-  } catch (err) {
-    console.error("Welcome email failed:", err);
-  }
-
-  // Issue dual tokens + set cookies
-  const accessToken = await issueTokens(res, user);
-
-  res.status(200).json({
-    success: true,
-    message: "E-posta başarıyla doğrulandı.",
-    token: accessToken, // Backward compat
-    user: buildUserResponse(user),
-  });
-});
+// NOTE: verifyEmail removed — registration now auto-verifies and issues tokens
 
 /* =====================================================
    7. REFRESH TOKEN — Silent access token renewal

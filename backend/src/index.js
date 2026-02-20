@@ -31,8 +31,8 @@ import newsRoutes from "./routes/news.js";
 import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"; // Subscription Management
 import stockRoutes from "./routes/stocks.js"; // US Stock Database
-import financeAnalysisRoutes from "./routes/financeAnalysisRoutes.js"; // Finance Analysis
 import transactionRoutes from "./routes/transactionRoutes.js"; // Transaction CRUD
+import { sendContactEmail } from "./services/emailService.js";
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -65,6 +65,11 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
+    // Allow any localhost origin
+    if (origin.startsWith('http://localhost:')) {
+      return callback(null, true);
+    }
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -92,7 +97,6 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/finance", tiingoLimiter, financeChartRoutes); // chart
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/wallet", walletRoutes);
-app.use("/api/wallet", financeAnalysisRoutes); // Finance Analysis endpoints
 app.use("/api/chat", chatRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api", apiRoutes);
@@ -107,6 +111,29 @@ app.get("/api/chats", protect, getChatHistory);
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
+});
+
+// POST /api/contact — Contact form email
+
+app.post("/api/contact", async (req, res) => {
+  try {
+    const { companyName, contactName, email, message, phone, employeeCount } = req.body;
+
+    // Validation
+    if (!contactName?.trim() || !email?.trim() || !message?.trim()) {
+      return res.status(400).json({ success: false, message: "Zorunlu alanlar eksik (isim, e-posta, mesaj)." });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: "Geçerli bir e-posta adresi girin." });
+    }
+
+    await sendContactEmail({ companyName, contactName, email, phone, employeeCount, message });
+    res.json({ success: true, message: "Mesajınız başarıyla iletildi!" });
+  } catch (error) {
+    console.error("[Contact] Email error:", error.message);
+    res.status(500).json({ success: false, message: "Mail gönderilemedi, lütfen tekrar deneyin." });
+  }
 });
 
 // ===== PRODUCTION: Static File Serving =====

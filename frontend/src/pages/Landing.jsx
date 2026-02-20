@@ -11,6 +11,8 @@ import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { LanguageContext } from "../context/LanguageContext";
+import api from "../lib/api";
+import toast, { Toaster } from "react-hot-toast";
 
 /* =========================================
    YARDIMCI BİLEŞENLER (MOCK, Placeholder vb.)
@@ -74,12 +76,48 @@ function ContactPanel() {
     isEmail(form.email) &&
     form.message.trim().length >= 6;
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (!valid) return setState("invalid");
+    if (!valid) {
+      setState("invalid");
+      toast.error("Lütfen tüm alanları doğru şekilde doldurunuz.");
+      return;
+    }
     setState("sending");
-    // Burada gerçek API çağrısını yapacaksın
-    setTimeout(() => setState("sent"), 800);
+
+    try {
+      const payload = {
+        contactName: form.name,
+        email: form.email,
+        message: form.message,
+        companyName: "Landing Page Ziyaretçisi"
+      };
+
+      const res = await api.post("/contact", payload);
+
+      // If status is 200, we consider it a success even if res.data.success is missing
+      if (res.status === 200 && (res.data?.success !== false)) {
+        setState("sent");
+        toast.success("Mesajınız başarıyla iletildi!");
+
+        // Scroll to the success message
+        const contactSection = document.getElementById('contact');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        console.warn("Contact API returned check failure:", res.data);
+        setState("invalid");
+        toast.error(res.data?.message || "Mesaj gönderilemedi.");
+      }
+    } catch (error) {
+
+      console.error("Form submission error:", error);
+      setState("invalid");
+
+      const errorMsg = error.response?.data?.message || "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+      toast.error(errorMsg);
+    }
   };
 
   return (
@@ -388,6 +426,7 @@ export default function Landing() {
 
   return (
     <div className={`min-h-screen w-full page-dark d-flex flex-column overflow-y-auto ${isRTL ? 'rtl' : ''}`}>
+      <Toaster position="top-right" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
       {/* NAVBAR */}
       <nav className="navbar navbar-dark fixed-top">
         <div className="container">

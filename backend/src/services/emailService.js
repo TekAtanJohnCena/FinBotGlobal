@@ -15,8 +15,15 @@ const transporter = nodemailer.createTransport({
     },
     tls: {
         rejectUnauthorized: false // To prevent certificate errors in some environments
-    }
+    },
+    debug: true,
+    logger: true
 });
+
+// Verify SMTP connection on startup
+transporter.verify()
+    .then(() => console.log('✅ SMTP bağlantısı başarılı — mail gönderilebilir'))
+    .catch((err) => console.error('❌ SMTP bağlantı hatası:', err.message));
 
 /**
  * Common layout wrapper for HTML emails
@@ -182,8 +189,46 @@ export const sendVerificationEmail = async (userEmail, code) => {
     }
 };
 
+/**
+ * Send Contact Form Email
+ * Sends the contact form data to destek@finbot.com.tr
+ * @param {Object} formData - { companyName, contactName, email, phone, employeeCount, message }
+ */
+export const sendContactEmail = async (formData) => {
+    const { companyName, contactName, email, phone, employeeCount, message } = formData;
+
+    const html = emailLayout(`
+        <h2>📬 Yeni İletişim Formu Mesajı</h2>
+        <table style="width:100%; border-collapse:collapse; margin:15px 0;">
+            <tr><td style="padding:8px 12px; border-bottom:1px solid #eee; color:#666; width:140px;"><strong>Şirket Adı</strong></td><td style="padding:8px 12px; border-bottom:1px solid #eee;">${companyName || '-'}</td></tr>
+            <tr><td style="padding:8px 12px; border-bottom:1px solid #eee; color:#666;"><strong>Yetkili Adı</strong></td><td style="padding:8px 12px; border-bottom:1px solid #eee;">${contactName}</td></tr>
+            <tr><td style="padding:8px 12px; border-bottom:1px solid #eee; color:#666;"><strong>E-posta</strong></td><td style="padding:8px 12px; border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+            <tr><td style="padding:8px 12px; border-bottom:1px solid #eee; color:#666;"><strong>Telefon</strong></td><td style="padding:8px 12px; border-bottom:1px solid #eee;">${phone || '-'}</td></tr>
+            <tr><td style="padding:8px 12px; border-bottom:1px solid #eee; color:#666;"><strong>Çalışan Sayısı</strong></td><td style="padding:8px 12px; border-bottom:1px solid #eee;">${employeeCount || '-'}</td></tr>
+        </table>
+        <h3 style="color:#004a99;">Mesaj</h3>
+        <div style="background:#f4f7f6; padding:15px; border-radius:8px; margin-top:10px; white-space:pre-wrap;">${message}</div>
+        <p style="margin-top:20px; font-size:12px; color:#999;">Bu mesaj finbot.com.tr iletişim formundan gönderilmiştir.</p>
+    `);
+
+    try {
+        await transporter.sendMail({
+            from: `Finbot İletişim <${config.smtp.email}>`, // Force auth user
+            to: config.smtp.email, // destek@finbot.com.tr
+            replyTo: email, // So replies go to the sender
+            subject: `Finbot Iletisim Formu: ${companyName || contactName}`, // No emoji
+            html
+        });
+        console.log(`✅ Destek mail gönderildi! From: "${email}", To: "${config.smtp.email}"`);
+    } catch (error) {
+        console.error(`❌ Error sending contact email:`, error);
+        throw error;
+    }
+};
+
 export default {
     sendWelcomeEmail,
     sendPasswordResetEmail,
-    sendVerificationEmail
+    sendVerificationEmail,
+    sendContactEmail
 };

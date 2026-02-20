@@ -626,23 +626,46 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
                 return {
                     date: statement.date,
                     year: statement.year,
-                    // Income Statement
+                    // ── Income Statement ──
                     revenue: findValue(incomeStatement, 'revenue', 'totalRevenue'),
                     costOfRevenue: findValue(incomeStatement, 'costRev', 'costOfRevenue'),
                     grossProfit: findValue(incomeStatement, 'grossProfit'),
+                    operatingIncome: findValue(incomeStatement, 'opinc', 'operatingIncome'),
                     opExpenses: findValue(incomeStatement, 'opex', 'operatingExpenses'),
+                    researchDevelopment: findValue(incomeStatement, 'rnd', 'researchDevelopment'),
+                    sgaExpense: findValue(incomeStatement, 'sgna', 'sga', 'sellingGeneralAdministrative'),
                     ebitda: findValue(incomeStatement, 'ebitda'),
+                    interestExpense: findValue(incomeStatement, 'intexp', 'interestExpense'),
+                    incomeTaxExpense: findValue(incomeStatement, 'taxExp', 'incomeTaxExpense'),
                     netIncome: findValue(incomeStatement, 'netinc', 'netIncComStock', 'consolidatedIncome'),
-                    // Balance Sheet
+                    eps: findValue(incomeStatement, 'eps', 'epsTot'),
+                    epsDiluted: findValue(incomeStatement, 'epsDil', 'epsDiluted'),
+                    sharesBasic: findValue(incomeStatement, 'sharesBasic', 'shareswaBas'),
+                    sharesDiluted: findValue(incomeStatement, 'shareswaDil', 'sharesBasicDil'),
+                    // ── Balance Sheet ──
                     cashAndEquivalents: findValue(balanceSheet, 'cashAndEq', 'cashAndEquivalents'),
+                    shortTermInvestments: findValue(balanceSheet, 'investmentsCurrent', 'stInvestments'),
+                    accountsReceivable: findValue(balanceSheet, 'acctRec', 'accountsReceivable'),
+                    inventory: findValue(balanceSheet, 'inventory'),
+                    totalCurrentAssets: findValue(balanceSheet, 'assetsCurrent', 'currentAssets'),
                     totalAssets: findValue(balanceSheet, 'totalAssets', 'assets'),
-                    totalLiabilities: findValue(balanceSheet, 'totalLiabilities', 'liabilities'),
+                    accountsPayable: findValue(balanceSheet, 'acctPay', 'accountsPayable'),
+                    shortTermDebt: findValue(balanceSheet, 'debtCurrent', 'shortTermDebt'),
+                    totalCurrentLiabilities: findValue(balanceSheet, 'liabilitiesCurrent', 'currentLiabilities'),
                     longTermDebt: findValue(balanceSheet, 'debtNonCurrent', 'debt'),
+                    totalLiabilities: findValue(balanceSheet, 'totalLiabilities', 'liabilities'),
+                    retainedEarnings: findValue(balanceSheet, 'retainedEarnings', 'retainedEarn'),
                     totalEquity: findValue(balanceSheet, 'equity', 'shareholdersEquity'),
-                    // Cash Flow
+                    // ── Cash Flow ──
                     netCashProvidedByOperatingActivities: findValue(cashFlow, 'ncfo'),
+                    capitalExpenditures: findValue(cashFlow, 'capex', 'capitalExpenditures'),
+                    freeCashFlow: findValue(cashFlow, 'fcf', 'freeCashFlow'),
+                    depreciation: findValue(cashFlow, 'depamor', 'depreciation'),
+                    stockBasedCompensation: findValue(cashFlow, 'sbcomp', 'stockBasedCompensation'),
                     netCashUsedForInvestingActivities: findValue(cashFlow, 'ncfi'),
                     netCashUsedProvidedByFinancingActivities: findValue(cashFlow, 'ncff'),
+                    dividendsPaid: findValue(cashFlow, 'payDiv', 'dividendsPaid'),
+                    shareRepurchase: findValue(cashFlow, 'issrepurchEquity', 'repurchStock'),
                     netChangeInCash: findValue(cashFlow, 'ncf')
                 };
             });

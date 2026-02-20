@@ -72,12 +72,7 @@ export function WalletPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [activeSection, setActiveSection] = useState(null);
-  const [pdfFiles, setPdfFiles] = useState([]);   // { name, size, txCount }
-  const [pdfRawText, setPdfRawText] = useState("");
-  const [pdfError, setPdfError] = useState("");
-  const fileInputRef = useRef(null);
-
-  // Manual Entry State
+  const [isDemoActive, setIsDemoActive] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [manualDesc, setManualDesc] = useState("");
   const [manualAmount, setManualAmount] = useState("");
@@ -257,81 +252,22 @@ export function WalletPage() {
     toast.success("Analiz tamamlandı!");
   }, []);
 
-  // Handle PDF Upload — supports MULTIPLE files from different banks
-  const handlePdfUpload = useCallback(async (fileList) => {
-    if (!fileList || fileList.length === 0) return;
-    setPdfRawText("");
-    setPdfError("");
-    setIsAnalyzing(true);
 
-    let allNewTxns = [...transactions]; // Start from existing transactions
-    const newFiles = [...pdfFiles];
-    let totalNewCount = 0;
 
-    for (let i = 0; i < fileList.length; i++) {
-      const file = fileList[i];
-      const formData = new FormData();
-      formData.append("statement", file);
-      formData.append("monthlyIncome", monthlyIncome.toString());
-
-      try {
-        const res = await api.post("/wallet/analyze", formData);
-
-        if (res.data?.success && res.data.analysis) {
-          const fileTxns = res.data.analysis.transactions || [];
-          allNewTxns = [...allNewTxns, ...fileTxns];
-          totalNewCount += fileTxns.length;
-          newFiles.push({ name: file.name, size: file.size, txCount: fileTxns.length });
-          toast.success(`${file.name}: ${fileTxns.length} işlem bulundu!`);
-        } else {
-          setPdfRawText(res.data?.rawTextPreview || "");
-          toast.error(`${file.name}: İşlem bulunamadı`);
-          newFiles.push({ name: file.name, size: file.size, txCount: 0 });
-        }
-      } catch (err) {
-        console.error(`PDF analysis error (${file.name}):`, err);
-        toast.error(`${file.name}: Yükleme hatası`);
-        newFiles.push({ name: file.name, size: file.size, txCount: 0 });
-      }
+  // Toggle Demo Data
+  const toggleDemo = useCallback(() => {
+    if (isDemoActive) {
+      setTransactions([]);
+      setAnalysisResult(null);
+      setIsDemoActive(false);
+      toast.success("Demo kapatıldı");
+    } else {
+      setTransactions(DEMO_TRANSACTIONS);
+      runLocalAnalysis(DEMO_TRANSACTIONS, monthlyIncome);
+      setIsDemoActive(true);
+      toast.success("Demo veriler yüklendi");
     }
-
-    setPdfFiles(newFiles);
-    if (totalNewCount > 0) {
-      setTransactions(allNewTxns);
-      // Run full analysis with all accumulated transactions
-      try {
-        const res = await api.post("/wallet/analyze-manual", {
-          monthlyIncome, transactions: allNewTxns,
-        });
-        if (res.data?.success) {
-          setAnalysisResult(res.data.analysis);
-          toast.success(`Toplam ${allNewTxns.length} işlem analiz edildi!`);
-        }
-      } catch {
-        runLocalAnalysis(allNewTxns, monthlyIncome);
-      }
-    }
-
-    setIsAnalyzing(false);
-    // Reset file input
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [monthlyIncome, transactions, pdfFiles, runLocalAnalysis]);
-
-  // Clear all uploaded PDFs
-  const clearPdfFiles = useCallback(() => {
-    setPdfFiles([]);
-    setTransactions([]);
-    setAnalysisResult(null);
-    setPdfRawText("");
-    setPdfError("");
-    toast.success("Veriler temizlendi");
-  }, []);
-
-  // Load Demo Data
-  const loadDemo = useCallback(() => {
-    setTransactions(DEMO_TRANSACTIONS);
-    runLocalAnalysis(DEMO_TRANSACTIONS, monthlyIncome);
-  }, [monthlyIncome, runLocalAnalysis]);
+  }, [isDemoActive, monthlyIncome, runLocalAnalysis]);
 
   // Add Manual Entry — calls backend API for persistence
   const addManualEntry = useCallback(async () => {
@@ -447,55 +383,35 @@ export function WalletPage() {
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-2">
                     <DollarSign size={12} className="inline mr-1" />Aylık Gelir
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-bold">₺</span>
-                    <input
-                      type="text"
-                      value={incomeInput}
-                      onChange={(e) => {
-                        setIncomeInput(e.target.value);
-                        const v = parseFloat(e.target.value.replace(/[^0-9]/g, ""));
-                        if (!isNaN(v)) setMonthlyIncome(v);
-                      }}
-                      className="w-full bg-[#0d0f18] border border-zinc-800 rounded-2xl pl-9 pr-4 py-3.5 text-lg font-bold text-white focus:outline-none focus:border-emerald-500/50 transition"
-                      placeholder="35000"
-                    />
-                  </div>
-                </div>
-
-                {/* PDF Upload */}
-                <div className="lg:col-span-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-2">
-                    <FileText size={12} className="inline mr-1" />Kredi Kartı Ekstresi (PDF)
-                  </label>
-                  <input ref={fileInputRef} type="file" accept=".pdf" multiple onChange={(e) => handlePdfUpload(e.target.files)} className="hidden" />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-dashed transition-all font-bold text-sm ${pdfFiles.length > 0
-                      ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-400"
-                      : "border-zinc-700 hover:border-zinc-600 text-zinc-400 hover:text-white bg-[#0d0f18]"
-                      }`}
-                  >
-                    <Upload size={18} />
-                    {pdfFiles.length > 0 ? `${pdfFiles.length} PDF yüklendi` : "PDF Yükle (Birden fazla)"}
-                  </button>
-                  {/* Uploaded files list */}
-                  {pdfFiles.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {pdfFiles.map((f, i) => (
-                        <div key={i} className="flex items-center gap-2 text-[10px] font-medium">
-                          <FileText size={10} className="text-emerald-500" />
-                          <span className="text-zinc-400 truncate">{f.name}</span>
-                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${f.txCount > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-                            {f.txCount} işlem
-                          </span>
-                        </div>
-                      ))}
-                      <button onClick={clearPdfFiles} className="text-[10px] text-red-400/70 hover:text-red-400 transition flex items-center gap-1 mt-1">
-                        <X size={10} /> Tümünü Temizle
-                      </button>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-bold">₺</span>
+                      <input
+                        type="text"
+                        value={incomeInput}
+                        onChange={(e) => setIncomeInput(e.target.value)}
+                        className="w-full bg-[#0d0f18] border border-zinc-800 rounded-2xl pl-9 pr-4 py-3.5 text-lg font-bold text-white focus:outline-none focus:border-emerald-500/50 transition"
+                        placeholder="35000"
+                      />
                     </div>
-                  )}
+                    <button
+                      onClick={() => {
+                        const v = parseFloat(incomeInput.replace(/[^0-9]/g, ""));
+                        if (!isNaN(v) && v > 0) {
+                          setMonthlyIncome(v);
+                          if (transactions.length > 0) {
+                            runLocalAnalysis(transactions, v);
+                          }
+                          toast.success("Gelir güncellendi!");
+                        } else {
+                          toast.error("Geçerli bir gelir giriniz.");
+                        }
+                      }}
+                      className="px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition"
+                    >
+                      Güncelle
+                    </button>
+                  </div>
                 </div>
 
                 {/* Actions */}
@@ -504,10 +420,13 @@ export function WalletPage() {
                     <Zap size={12} className="inline mr-1" />Hızlı Başlat
                   </label>
                   <button
-                    onClick={loadDemo}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-amber-500/20 to-orange-500/10 border border-amber-500/20 text-amber-400 font-bold text-sm hover:from-amber-500/30 hover:to-orange-500/20 transition-all"
+                    onClick={toggleDemo}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl border font-bold text-sm transition-all ${isDemoActive
+                      ? "bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
+                      : "bg-gradient-to-r from-amber-500/20 to-orange-500/10 border-amber-500/20 text-amber-400 hover:from-amber-500/30 hover:to-orange-500/20"
+                      }`}
                   >
-                    <Target size={16} /> Demo Verilerle Analiz
+                    {isDemoActive ? <><X size={16} /> Demoyu Kapat</> : <><Target size={16} /> Demo Verilerle Analiz</>}
                   </button>
                   <button
                     onClick={() => setShowManualEntry(!showManualEntry)}
@@ -657,32 +576,7 @@ export function WalletPage() {
             </div>
           )}
 
-          {/* PDF Debug Panel - Shows when PDF parsing fails */}
-          {pdfRawText && !analysisResult && !isAnalyzing && (
-            <div className="bg-[#12141e] border border-amber-500/20 rounded-[24px] p-5 lg:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2">
-                  <AlertTriangle size={14} /> PDF Okuma Sonucu
-                </h3>
-                <button onClick={() => { setPdfRawText(""); setPdfError(""); }} className="text-zinc-500 hover:text-white p-1">
-                  <X size={16} />
-                </button>
-              </div>
-              <p className="text-sm text-amber-300/80 mb-3">{pdfError || "PDF'den işlem çıkarılamadı."}</p>
-              <p className="text-[11px] text-zinc-500 mb-2">PDF'den okunan ham metin aşağıda gösterilmiştir. İşlemlerinizi görebiliyorsanız, lütfen "Manuel İşlem Ekle" ile ekleyin:</p>
-              <pre className="bg-[#0a0b10] border border-zinc-800 rounded-xl p-4 text-[11px] text-zinc-400 font-mono max-h-64 overflow-y-auto whitespace-pre-wrap break-words">
-                {pdfRawText}
-              </pre>
-              <div className="mt-3 flex gap-2">
-                <button onClick={() => { setShowManualEntry(true); setPdfRawText(""); }} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition">
-                  Manuel İşlem Ekle
-                </button>
-                <button onClick={loadDemo} className="px-4 py-2 bg-amber-600/20 hover:bg-amber-500/30 text-amber-400 text-xs font-bold rounded-xl border border-amber-500/20 transition">
-                  Demo Verilerle Dene
-                </button>
-              </div>
-            </div>
-          )}
+
 
           {/* ═══════════════════════════════════════════════════════════ */}
           {/* DASHBOARD SECTIONS (only show after analysis) */}
@@ -721,7 +615,43 @@ export function WalletPage() {
 
               {/* Row 4: Zombie Subscriptions */}
               <DashboardCard title="Zombi Abonelik Denetimi" icon={<Ghost size={14} className="text-purple-400" />} subtitle={`${metrics.zombieSubscriptions.count} şüpheli abonelik tespit edildi`}>
-                <ZombieSubscriptionAudit data={metrics.zombieSubscriptions} show={showBalance} />
+                <ZombieSubscriptionAudit
+                  data={metrics.zombieSubscriptions}
+                  show={showBalance}
+                  onAddSubscription={(desc, amount) => {
+                    setManualDesc(desc);
+                    setManualAmount(amount.toString());
+                    setManualType("expense");
+                    setManualCategory("yasam_tarzi");
+                    // Show manual entry form and focus or auto-submit? Let's just create transaction directly.
+                    // Actually, better: direct creating via API call similar to addManualEntry but internal
+                    // Or reuse addManualEntry logic?
+                    // Let's create a direct add function below.
+                    const addSub = async () => {
+                      try {
+                        const res = await api.post("/transactions", {
+                          description: desc,
+                          amount: parseFloat(amount),
+                          type: "expense",
+                          category: "yasam_tarzi",
+                          date: new Date().toISOString(),
+                          source: "subscription_quick_add"
+                        });
+                        if (res.data?.success) {
+                          const allRes = await api.get("/transactions");
+                          if (allRes.data?.success) {
+                            setTransactions(allRes.data.transactions);
+                            runLocalAnalysis(allRes.data.transactions, monthlyIncome);
+                            toast.success(`${desc} eklendi!`);
+                          }
+                        }
+                      } catch (err) {
+                        toast.error("Abonelik eklenemedi.");
+                      }
+                    };
+                    addSub();
+                  }}
+                />
               </DashboardCard>
 
               {/* Row 5: Transaction List */}
@@ -746,7 +676,7 @@ export function WalletPage() {
                 Aylık gelirinizi girin ve kredi kartı ekstresini yükleyin ya da demo verilerle başlayın.
                 Yapay zeka değil, finansal mühendislik algoritmaları ile analiz.
               </p>
-              <button onClick={loadDemo} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-8 py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20">
+              <button onClick={toggleDemo} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-8 py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20">
                 <Target size={16} className="inline mr-2" /> Demo ile Keşfet
               </button>
             </div>
@@ -1140,7 +1070,22 @@ function OpportunityCostTracker({ data, show }) {
 }
 
 // ─── ZOMBIE SUBSCRIPTION AUDIT ───
-function ZombieSubscriptionAudit({ data, show }) {
+function ZombieSubscriptionAudit({ data, show, onAddSubscription }) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+
+  const popularSubs = [
+    { name: "Netflix", price: 229.99, icon: "🎬" },
+    { name: "Spotify", price: 64.99, icon: "🎵" },
+    { name: "YouTube Premium", price: 79.99, icon: "▶️" },
+    { name: "Amazon Prime", price: 39.00, icon: "📦" },
+    { name: "Disney+", price: 164.99, icon: "🏰" },
+    { name: "Exxen", price: 160.90, icon: "⚽" },
+    { name: "BluTV", price: 139.90, icon: "📺" },
+    { name: "Apple iCloud", price: 49.99, icon: "☁️" },
+  ];
+
   if (!data) return null;
 
   const severityConfig = {
@@ -1149,49 +1094,109 @@ function ZombieSubscriptionAudit({ data, show }) {
     low: { bg: "bg-zinc-500/10", border: "border-zinc-500/20", text: "text-zinc-400", label: "Düşük" },
   };
 
-  if (data.zombies.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <Ghost className="w-10 h-10 mx-auto text-zinc-700 mb-2" />
-        <div className="text-sm text-zinc-500 font-medium">Zombi abonelik bulunamadı! 🎉</div>
-        <div className="text-[10px] text-zinc-600">Mükerrer küçük tutarlı işlem tespit edilmedi.</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
       {/* Summary bar */}
       <div className="flex items-center justify-between p-3 bg-purple-500/5 border border-purple-500/10 rounded-xl">
         <div className="flex items-center gap-2">
-          <AlertTriangle size={14} className="text-purple-400" />
-          <span className="text-xs font-bold text-purple-400">Potansiyel Tasarruf</span>
+          <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400"><Ghost size={12} /></div>
+          <div>
+            <div className="text-[10px] text-zinc-400 font-bold">Potansiyel Tasarruf</div>
+            <div className="text-xs font-bold text-white">{show ? fmt(data.totalMonthlyWaste) : "••"}/ay</div>
+          </div>
         </div>
-        <div className="text-right">
-          <span className="text-sm font-black text-white">{show ? fmt(data.totalMonthlyWaste) : "••"}/ay</span>
-          <span className="text-[10px] text-zinc-500 ml-2">({show ? fmt(data.totalYearlyWaste) : "••"}/yıl)</span>
-        </div>
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-3 py-1.5 rounded-lg transition font-semibold flex items-center gap-1"
+        >
+          {showAdd ? <X size={14} /> : <Plus size={14} />} Abonelik Ekle
+        </button>
       </div>
 
+      {/* Add Subscription Section */}
+      {showAdd && (
+        <div className="bg-zinc-900/50 border border-purple-500/20 rounded-xl p-4 animate-in slide-in-from-top-2">
+          <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">Hızlı Ekle</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+            {popularSubs.map((sub) => (
+              <button
+                key={sub.name}
+                onClick={() => {
+                  setCustomName(sub.name);
+                  setCustomPrice(sub.price.toString());
+                  toast("Lütfen tutarı doğrulayıp 'Ekle' butonuna basın.", { icon: "👇" });
+                }}
+                className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-purple-500/30 transition group"
+              >
+                <span className="text-lg mb-1">{sub.icon}</span>
+                <span className="text-[10px] font-bold text-zinc-300 group-hover:text-white">{sub.name}</span>
+                <span className="text-[9px] text-zinc-500">{sub.price}₺</span>
+              </button>
+            ))}
+          </div>
+
+          <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Abonelik Detayları</h4>
+          <div className="flex gap-2">
+            <input
+              placeholder="Ad (ör: Gym)"
+              value={customName}
+              onChange={e => setCustomName(e.target.value)}
+              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
+            />
+            <input
+              placeholder="Tutar"
+              type="number"
+              value={customPrice}
+              onChange={e => setCustomPrice(e.target.value)}
+              className="w-24 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
+            />
+            <button
+              onClick={() => {
+                if (customName && customPrice) {
+                  onAddSubscription(customName, parseFloat(customPrice));
+                  setCustomName("");
+                  setCustomPrice("");
+                } else {
+                  toast.error("Lütfen ad ve tutar giriniz.");
+                }
+              }}
+              className="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-lg text-xs font-bold transition flex items-center gap-1"
+            >
+              <Plus size={14} /> Ekle
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Zombie list */}
-      {data.zombies.map((z, idx) => {
-        const sev = severityConfig[z.severity] || severityConfig.low;
-        return (
-          <div key={idx} className={`flex items-center justify-between p-3 rounded-xl ${sev.bg} border ${sev.border}`}>
-            <div className="flex items-center gap-3">
-              <Ghost size={18} className={sev.text} />
-              <div>
-                <div className="text-sm font-bold text-white">{z.description}</div>
-                <div className="text-[10px] text-zinc-500">{z.frequency}x tekrar • {sev.label} risk</div>
+      {data.zombies.length === 0 ? (
+        !showAdd && (
+          <div className="text-center py-6 border border-dashed border-zinc-800 rounded-xl">
+            <Ghost className="w-8 h-8 mx-auto text-zinc-700 mb-2" />
+            <div className="text-sm text-zinc-500 font-medium">Zombi abonelik bulunamadı! 🎉</div>
+            <div className="text-[10px] text-zinc-600">Harcamalarınız kontrol altında.</div>
+          </div>
+        )
+      ) : (
+        data.zombies.map((z, idx) => {
+          const sev = severityConfig[z.severity] || severityConfig.low;
+          return (
+            <div key={idx} className={`flex items-center justify-between p-3 rounded-xl ${sev.bg} border ${sev.border}`}>
+              <div className="flex items-center gap-3">
+                <Ghost size={18} className={sev.text} />
+                <div>
+                  <div className="text-sm font-bold text-white">{z.description}</div>
+                  <div className="text-[10px] text-zinc-500">{z.frequency}x tekrar • {sev.label} risk</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-black text-white">{show ? fmt(z.monthlyWaste) : "••"}/ay</div>
+                <div className="text-[10px] text-zinc-500">{show ? fmt(z.yearlyWaste) : "••"}/yıl</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm font-black text-white">{show ? fmt(z.monthlyWaste) : "••"}/ay</div>
-              <div className="text-[10px] text-zinc-500">{show ? fmt(z.yearlyWaste) : "••"}/yıl</div>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
     </div>
   );
 }
