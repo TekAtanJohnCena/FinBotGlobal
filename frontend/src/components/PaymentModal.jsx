@@ -110,29 +110,22 @@ const PaymentModal = ({
     setErrorMessage('');
 
     try {
-      // Real API call to create payment
-      const response = await api.post('/payment/create-session', {
-        planType: planKey,
-        billingPeriod: period,
-        cardData: {
-          // In production, this would be tokenized, not raw card data
-          cardNumber: cardData.cardNumber.replace(/\s/g, ''),
-          cardHolder: cardData.cardHolder,
-          expiryMonth: cardData.expiryMonth,
-          expiryYear: cardData.expiryYear,
-          cvv: cardData.cvv
-        }
+      // Call new Paratika payment creation endpoint
+      const response = await api.post('/payment/create', {
+        planType: planKey.toUpperCase(), // BASIC, PLUS, PRO
+        billingPeriod: period === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        cardHolderName: cardData.cardHolder,
+        cardNumber: cardData.cardNumber.replace(/\s/g, ''),
+        expireMonth: cardData.expiryMonth,
+        expireYear: cardData.expiryYear,
+        cvv: cardData.cvv
       });
 
-      if (response.data.success) {
-        setPaymentStep('success');
-        // 3 saniye sonra modalı kapat ve callback çağır
-        setTimeout(() => {
-          onPaymentSuccess?.();
-          onClose();
-        }, 3000);
+      if (response.data.success && response.data.redirectUrl) {
+        // Redirect user to Paratika 3D Secure page
+        window.location.href = response.data.redirectUrl;
       } else {
-        throw new Error(response.data.message || 'Ödeme işlemi başarısız');
+        throw new Error(response.data.message || 'Ödeme oturumu oluşturulamadı');
       }
 
     } catch (error) {

@@ -2,18 +2,8 @@
   "data": {
     "symbol": "AAPL",
     "name": "Apple Inc",
-    "price": 260.58,
+    "price": 264.58,
     "history": [
-      {
-        "date": "2021-02-19T00:00:00.000Z",
-        "open": 130.24,
-        "high": 130.71,
-        "low": 128.8,
-        "close": 129.87,
-        "adjClose": 126.5053012512,
-        "price": 129.87,
-        "volume": 87668834
-      },
       {
         "date": "2021-02-22T00:00:00.000Z",
         "open": 128.01,
@@ -12562,12 +12552,22 @@
         "close": 260.58,
         "adjClose": 260.58,
         "price": 260.58,
-        "volume": 30408540
+        "volume": 30845294
+      },
+      {
+        "date": "2026-02-20T00:00:00.000Z",
+        "open": 258.97,
+        "high": 264.75,
+        "low": 258.16,
+        "close": 264.58,
+        "adjClose": 264.58,
+        "price": 264.58,
+        "volume": 42070499
       }
     ],
     "fundamentals": {
-      "marketCap": 3850422064740,
-      "peRatio": 32.6924787076,
+      "marketCap": 3909527476740,
+      "peRatio": 33.1943204254,
       "description": "Apple Inc. (Apple) designs, manufactures and markets mobile communication and media devices, personal computers, and portable digital music players, and a variety of related software, services, peripherals, networking solutions, and third-party digital content and applications. The Company's products and services include iPhone, iPad, Mac, iPod, Apple TV, a portfolio of consumer and professional software applications, the iOS and OS X operating systems, iCloud, and a variety of accessory, service and support offerings. The Company also delivers digital content and applications through the iTunes Store, App StoreSM, iBookstoreSM, and Mac App Store. The Company distributes its products worldwide through its retail stores, online stores, and direct sales force, as well as through third-party cellular network carriers, wholesalers, retailers, and value-added resellers. In February 2012, the Company acquired app-search engine Chomp."
     },
     "financials": {
@@ -12576,5 +12576,5 @@
     },
     "news": []
   },
-  "timestamp": 1771545308987
+  "timestamp": 1771775664020
 }

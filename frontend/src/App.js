@@ -20,6 +20,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Support = lazy(() => import("./pages/Support"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 
 // --- SAYFALAR (Legal) ---
 const KVKKText = lazy(() => import('./pages/legal/KVKKText'));
@@ -133,6 +134,7 @@ function App() {
             <Route path="/academy" element={<AcademyCourseView />} />
             <Route path="/support" element={<Support />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/payment-status" element={<PaymentStatus />} />
           </Route>
 
           {/* Legal Pages */}

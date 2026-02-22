@@ -32,7 +32,9 @@ import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"; // Subscription Management
 import stockRoutes from "./routes/stocks.js"; // US Stock Database
 import transactionRoutes from "./routes/transactionRoutes.js"; // Transaction CRUD
+import paymentRoutes from "./routes/paymentRoutes.js"; // Paratika Payment Routes
 import { sendContactEmail } from "./services/emailService.js";
+import { initPaymentCron } from "./services/paymentCron.js";
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -105,6 +107,7 @@ app.use("/api/ai", aiRoutes); // Dedicated AI endpoints (lazy-loaded)
 app.use("/api/subscription", subscriptionRoutes); // Subscription Management
 app.use("/api/stocks", stockRoutes); // US Stock Database
 app.use("/api/transactions", transactionRoutes); // Transaction CRUD
+app.use("/api/payment", paymentRoutes); // Paratika Payment Integration
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);
@@ -183,6 +186,9 @@ mongoose
 
     // Start background job to cache fundamentals every 6 hours
     startFundamentalsCacheJob();
+
+    // Start Paratika payment verification cron
+    initPaymentCron();
   })
   .catch((e) => {
     logger.error(`❌ MongoDB Connection Error: ${e.message}`);
