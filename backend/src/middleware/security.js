@@ -25,8 +25,8 @@ export const securityHeaders = helmet({
   noSniff: true,
   xssFilter: true,
   referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-  // ✅ Google OAuth için COOP'u devre dışı bırak
-  crossOriginOpenerPolicy: false,
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+  crossOriginEmbedderPolicy: false,
 });
 
 /**
