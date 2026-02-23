@@ -89,6 +89,7 @@ app.use((req, res, next) => {
 app.use(morgan("combined", { stream: morganStream }));
 app.use(securityHeaders);
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compression());
 app.use(generalLimiter); // Apply global rate limit
