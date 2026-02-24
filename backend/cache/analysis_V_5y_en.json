@@ -2,18 +2,8 @@
   "data": {
     "symbol": "V",
     "name": "Visa Inc - Class A",
-    "price": 320.95,
+    "price": 306.52,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 207.4,
-        "high": 213.91,
-        "low": 206.55,
-        "close": 212.11,
-        "adjClose": 204.4291081271,
-        "price": 212.11,
-        "volume": 10571717
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 212.36,
@@ -12553,11 +12543,21 @@
         "adjClose": 320.95,
         "price": 320.95,
         "volume": 6831437
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 319.04,
+        "high": 320.515,
+        "low": 304.705,
+        "close": 306.52,
+        "adjClose": 306.52,
+        "price": 306.52,
+        "volume": 13047966
       }
     ],
     "fundamentals": {
-      "marketCap": 593458679866.778,
-      "peRatio": 28.5426452418,
+      "marketCap": 566776614901.9,
+      "peRatio": 27.2593600857,
       "description": "Visa Inc. is the world’s leader in digital payments. Our mission is to connect the world through the most innovative, reliable and secure payment network - enabling individuals, businesses and economies to thrive. Our advanced global processing network, VisaNet, provides secure and reliable payments around the world, and is capable of handling more than 65,000 transaction messages a second. The company’s relentless focus on innovation is a catalyst for the rapid growth of digital commerce on any device, for everyone, everywhere. As the world moves from analog to digital, Visa is applying our brand, products, people, network and scale to reshape the future of commerce."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856542474
+  "timestamp": 1771937668411
 }

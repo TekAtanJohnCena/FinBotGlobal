@@ -2,18 +2,8 @@
   "data": {
     "symbol": "AMZN",
     "name": "Amazon.com Inc",
-    "price": 210.11,
+    "price": 205.27,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 3127.03,
-        "high": 3204.73,
-        "low": 3093.6,
-        "close": 3194.5,
-        "adjClose": 159.725,
-        "price": 3194.5,
-        "volume": 4677222
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 3166.75,
@@ -12553,11 +12543,21 @@
         "adjClose": 210.11,
         "price": 210.11,
         "volume": 65881611
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 208.095,
+        "high": 208.43,
+        "low": 203.11,
+        "close": 205.27,
+        "adjClose": 205.27,
+        "price": 205.27,
+        "volume": 53581508
       }
     ],
     "fundamentals": {
-      "marketCap": 2246121286071.21,
-      "peRatio": 28.9187754097,
+      "marketCap": 2194380640577.97,
+      "peRatio": 28.2526154317,
       "description": "At Amazon Games, our ambition is to create bold new experiences that foster community in and around our games. Our team of game industry veterans is building within the sandbox of Prime Gaming, Twitch, Amazon retail, Amazon Web Services (AWS), and more to push boundaries and deliver captivating experiences to our players. Amazon Games is developing AAA multiplayer games based on original IPs, including New World, with our studios and teams in Orange County, San Diego, Montreal, and Seattle. Amazon Games also publishes best-in-class third-party games, leading with Lost Ark from Smilegate RPG. About Bandai Namco Online Inc. “Online games from Japan to the world” Bandai Namco Online Inc. is a rapidly growing company within the Bandai Namco Group that specializes in the online game business, with a full range of functions from development and operation to publishing. Our company continues to develop a variety of contents and services for all devices, including the team shooter GUNDAM EVOLUTION, the online action RPG BLUE PROTOCOL, and our original IP IDOLiSH7. Upholding our slogan, “Online games from Japan to the world,” we are committed to challenging ourselves to create online games with a unique Japanese twist. While focusing on the production of online games, we will continue to collaborate with other companies both within and outside of the Bandai Namco Group in order to develop a wide variety of entertainment that goes beyond games."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856536077
+  "timestamp": 1771937661968
 }

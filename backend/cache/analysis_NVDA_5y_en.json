@@ -2,18 +2,8 @@
   "data": {
     "symbol": "NVDA",
     "name": "NVIDIA Corp",
-    "price": 189.82,
+    "price": 191.55,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 563.01,
-        "high": 569.55,
-        "low": 535.58,
-        "close": 565.68,
-        "adjClose": 14.1029910687,
-        "price": 565.68,
-        "volume": 9794483
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 564.91,
@@ -12553,11 +12543,21 @@
         "adjClose": 189.82,
         "price": 189.82,
         "volume": 178422337
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 191.4,
+        "high": 193.95,
+        "low": 189.575,
+        "close": 191.55,
+        "adjClose": 191.55,
+        "price": 191.55,
+        "volume": 171584839
       }
     ],
     "fundamentals": {
-      "marketCap": 4612626000000,
-      "peRatio": 46.4991834513,
+      "marketCap": 4654665000000,
+      "peRatio": 46.9229722373,
       "description": "NVIDIA is the world leader in accelerated computing."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856531346
+  "timestamp": 1771937658011
 }

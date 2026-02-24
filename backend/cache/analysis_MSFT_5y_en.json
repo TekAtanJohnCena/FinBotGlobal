@@ -2,18 +2,8 @@
   "data": {
     "symbol": "MSFT",
     "name": "Microsoft Corporation",
-    "price": 397.23,
+    "price": 384.47,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 230.325,
-        "high": 234.83,
-        "low": 228.73,
-        "close": 233.27,
-        "adjClose": 223.8183966176,
-        "price": 233.27,
-        "volume": 30228704
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 230.01,
@@ -12553,11 +12543,21 @@
         "adjClose": 397.23,
         "price": 397.23,
         "volume": 34015249
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 395,
+        "high": 395.36,
+        "low": 383.1,
+        "close": 384.47,
+        "adjClose": 384.47,
+        "price": 384.47,
+        "volume": 43238273
       }
     ],
     "fundamentals": {
-      "marketCap": 2952363375895.65,
-      "peRatio": 24.7552730618,
+      "marketCap": 2857526237017.85,
+      "peRatio": 23.9600730913,
       "description": "Microsoft (Nasdaq \"MSFT\" @microsoft) creates platforms and tools powered by AI to deliver innovative solutions that meet the evolving needs of our customers. The technology company is committed to making AI available broadly and doing so responsibly, with a mission to empower every person and every organization on the planet to achieve more. SOURCE Microsoft Corp."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856527196
+  "timestamp": 1771937656286
 }

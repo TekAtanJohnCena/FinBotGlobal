@@ -2,18 +2,8 @@
   "data": {
     "symbol": "META",
     "name": "Meta Platforms Inc - Class A",
-    "price": 655.66,
+    "price": 637.25,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 259.5,
-        "high": 267.46,
-        "low": 254.96,
-        "close": 265.855,
-        "adjClose": 264.0257777122,
-        "price": 265.855,
-        "volume": 21924557
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 262.325,
@@ -12553,11 +12543,21 @@
         "adjClose": 655.66,
         "price": 655.66,
         "volume": 14183512
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 652.54,
+        "high": 657.7,
+        "low": 636,
+        "close": 637.25,
+        "adjClose": 637.25,
+        "price": 637.25,
+        "volume": 8605909
       }
     ],
     "fundamentals": {
-      "marketCap": 1652609124249.02,
-      "peRatio": 27.3348295387,
+      "marketCap": 1606206211188.25,
+      "peRatio": 26.5673064142,
       "description": "Facebook, Inc. (Facebook) is engaged in building products to create utility for users, developers, and advertisers. People use Facebook to stay connected with their friends and family, to discover what is going on in the world around them, and to share and express what matters to them to the people they care about. Developers can use the Facebook Platform to build applications and Websites that integrate with Facebook to reach its global network of users and to build personalized and social products. Advertisers can engage with more than 900 million monthly active users (MAUs) on Facebook or subsets of its users based on information they have chosen to share with the Company, such as their age, location, gender, or interests. In September 2013, Mail.Ru Group Limited sold its remaining shares in Facebook Inc. Effective September 25, 2013, Facebook Inc acquired Mobile Technologies, a developer of online applications. In October 2013, Facebook Inc acquired Onavo Inc."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856538307
+  "timestamp": 1771937663730
 }

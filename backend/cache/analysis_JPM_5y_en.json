@@ -2,18 +2,8 @@
   "data": {
     "symbol": "JPM",
     "name": "JPMorgan Chase & Company",
-    "price": 310.79,
+    "price": 297.67,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 151.51,
-        "high": 152.31,
-        "low": 149.59,
-        "close": 150.61,
-        "adjClose": 132.5662854747,
-        "price": 150.61,
-        "volume": 16234408
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 150.11,
@@ -12553,11 +12543,21 @@
         "adjClose": 310.79,
         "price": 310.79,
         "volume": 7792735
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 308.8,
+        "high": 311,
+        "low": 295.1,
+        "close": 297.67,
+        "adjClose": 297.67,
+        "price": 297.67,
+        "volume": 12955428
       }
     ],
     "fundamentals": {
-      "marketCap": 846051898663.05,
-      "peRatio": 15.1948976053,
+      "marketCap": 810335817352.65,
+      "peRatio": 14.5534449956,
       "description": "JPMorgan Chase & Co. is a leading financial services firm based in the United States of America (\"U.S.\"), with operations worldwide. JPMorgan Chase had $4.6 trillion in assets and $360 billion in stockholders' equity as of September 30, 2025. The Firm is a leader in investment banking, financial services for consumers and small businesses, commercial banking, financial transaction processing and asset management. Under the J.P. Morgan and Chase brands, the Firm serves millions of customers in the U.S., and many of the world's most prominent corporate, institutional and government clients globally."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856541561
+  "timestamp": 1771937666429
 }

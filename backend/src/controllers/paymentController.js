@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
  * Subscription Plans Configuration
  */
 const SUBSCRIPTION_PLANS = {
-    BASIC: { amount: 199.00, name: "Basic Plan" },
-    PLUS: { amount: 499.00, name: "Plus Plan" },
-    PRO: { amount: 999.00, name: "Pro Plan" }
+    BASIC: { amount: 1.00, name: "Basic Plan" },
+    PLUS: { amount: 1.00, name: "Plus Plan" },
+    PRO: { amount: 1.00, name: "Pro Plan" }
 };
 
 /**
@@ -59,7 +59,8 @@ export const createPayment = async (req, res) => {
             amount: amount.toFixed(2),
             currency: "TRY",
             email: userEmail,
-            ip: req.ip,
+            ip: req.headers['x-forwarded-for'] || req.ip,
+            userAgent: req.headers['user-agent'],
             returnUrl: `${backendUrl}/api/payment/callback`,
             cardHolderName,
             planName: plan.name,
@@ -80,13 +81,12 @@ export const createPayment = async (req, res) => {
             await transaction.save();
 
             // Paratika V2 standard redirect URL for SESSIONTOKEN
-            const redirectUrl = `https://vpos.paratika.com.tr/paratika/api/v2/redirect/session/${result.sessionToken}`;
+            const redirectUrl = `https://vpos.paratika.com.tr/paratika/3dpay?sessionToken=${result.sessionToken}`;
             console.log(`✅ Redirecting user to: ${redirectUrl}`);
 
             return res.status(200).json({
                 success: true,
-                redirectUrl,
-                merchantPaymentId
+                redirectUrl
             });
         } else {
             console.log("❌ Paratika Session Creation Failed. Response:", JSON.stringify(result, null, 2));

@@ -2,18 +2,8 @@
   "data": {
     "symbol": "TSLA",
     "name": "Tesla Inc",
-    "price": 411.82,
+    "price": 399.83,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 662.13,
-        "high": 713.6099,
-        "low": 619,
-        "close": 698.84,
-        "adjClose": 232.9466666667,
-        "price": 698.84,
-        "volume": 66606882
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 711.85,
@@ -12553,11 +12543,21 @@
         "adjClose": 411.82,
         "price": 411.82,
         "volume": 57912225
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 407.285,
+        "high": 407.7,
+        "low": 394.04,
+        "close": 399.83,
+        "adjClose": 399.83,
+        "price": 399.83,
+        "volume": 69680026
       }
     ],
     "fundamentals": {
-      "marketCap": 1369638849353.94,
-      "peRatio": 361.0012781639,
+      "marketCap": 1329762277541.61,
+      "peRatio": 350.4908480605,
       "description": "Tesla Motors, Inc. (Tesla) designs, develops, manufactures and sells electric vehicles and advanced electric vehicle powertrain components. Tesla owns its sales and service network. The Company is engaged in commercially producing a federally-compliant electric vehicle, the Tesla Roadster. addition to developing its Model S and future vehicle manufacturing capabilities at the Tesla Factory, the Company is designing, developing and manufacturing lithium-ion battery packs, electric motors, gearboxes and components both for its vehicles and for its original equipment manufacturer customers. These activities occur at its electric powertrain manufacturing facility in Palo Alto, California and at the Tesla Factory. The Company provides services for the development of electric powertrain components and sells electric powertrain components to other automotive manufacturers."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856539744
+  "timestamp": 1771937665634
 }

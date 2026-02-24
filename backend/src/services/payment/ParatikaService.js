@@ -72,7 +72,7 @@ class ParatikaService {
             params.append("MERCHANTPAYMENTID", paymentData.merchantPaymentId);
             params.append("ORDERID", paymentData.merchantPaymentId); // Often used as an alias for MERCHANTPAYMENTID
             params.append("AMOUNT", formattedTotalAmount);
-            params.append("CURRENCY", paymentData.currency || "TRY");
+            params.append("CURRENCY", (paymentData.currency || "TRY").toUpperCase());
 
             // Return URLs
             params.append("RETURNURL", paymentData.returnUrl);
@@ -95,9 +95,11 @@ class ParatikaService {
 
             // Normalize IP
             let ip = paymentData.ip || "127.0.0.1";
-            if (ip === "::1") ip = "127.0.0.1";
+            if (ip === "::1" || ip === "localhost") ip = "127.0.0.1";
+            if (ip.includes(',')) ip = ip.split(',')[0].trim(); // Handle comma-separated x-forwarded-for
+
             params.append("CUSTOMERIP", ip);
-            params.append("CUSTOMERUSERAGENT", "Mozilla/5.0 (FinBot)");
+            params.append("CUSTOMERUSERAGENT", paymentData.userAgent || "Mozilla/5.0 (FinBot)");
             params.append("NAMEONCARD", paymentData.cardHolderName);
             params.append("ECHO", "FinBot-POS");
 
@@ -147,6 +149,16 @@ class ParatikaService {
 
             console.log("✅ PARATIKA RESPONSE STATUS:", response.status);
             console.log("✅ PARATIKA RESPONSE DATA:", JSON.stringify(response.data, null, 2));
+
+            // CRITICAL: Double check sessionToken existence even if code is 00
+            if (response.data.responseCode === "00" && !response.data.sessionToken) {
+                console.error("❌ Paratika returned 00 but NO sessionToken. Possible redirect error.");
+                return {
+                    ...response.data,
+                    responseCode: "ERR_NO_TOKEN",
+                    responseMsg: "Session token could not be generated. Please check merchant settings."
+                };
+            }
 
             return response.data;
         } catch (error) {

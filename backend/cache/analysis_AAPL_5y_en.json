@@ -2,18 +2,8 @@
   "data": {
     "symbol": "AAPL",
     "name": "Apple Inc",
-    "price": 264.58,
+    "price": 266.18,
     "history": [
-      {
-        "date": "2021-02-23T00:00:00.000Z",
-        "open": 123.76,
-        "high": 126.71,
-        "low": 118.39,
-        "close": 125.86,
-        "adjClose": 122.5991931584,
-        "price": 125.86,
-        "volume": 158273022
-      },
       {
         "date": "2021-02-24T00:00:00.000Z",
         "open": 124.94,
@@ -12553,11 +12543,21 @@
         "adjClose": 264.58,
         "price": 264.58,
         "volume": 42070499
+      },
+      {
+        "date": "2026-02-23T00:00:00.000Z",
+        "open": 263.49,
+        "high": 269.43,
+        "low": 263.381,
+        "close": 266.18,
+        "adjClose": 266.18,
+        "price": 266.18,
+        "volume": 37308155
       }
     ],
     "fundamentals": {
-      "marketCap": 3909527476740,
-      "peRatio": 33.1943204254,
+      "marketCap": 3933169641540,
+      "peRatio": 33.3950571125,
       "description": "Apple Inc. (Apple) designs, manufactures and markets mobile communication and media devices, personal computers, and portable digital music players, and a variety of related software, services, peripherals, networking solutions, and third-party digital content and applications. The Company's products and services include iPhone, iPad, Mac, iPod, Apple TV, a portfolio of consumer and professional software applications, the iOS and OS X operating systems, iCloud, and a variety of accessory, service and support offerings. The Company also delivers digital content and applications through the iTunes Store, App StoreSM, iBookstoreSM, and Mac App Store. The Company distributes its products worldwide through its retail stores, online stores, and direct sales force, as well as through third-party cellular network carriers, wholesalers, retailers, and value-added resellers. In February 2012, the Company acquired app-search engine Chomp."
     },
     "financials": {
@@ -12566,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1771856525728
+  "timestamp": 1771937652572
 }
