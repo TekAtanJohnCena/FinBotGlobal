@@ -52,6 +52,11 @@ if (process.env.NODE_ENV !== 'production') {
   console.log(`🧹 DEV MODE: Cleared ${clearedCount} cache files on startup`);
 }
 
+// ===== Paratika Callback (BEFORE CORS — receives redirects from Paratika domain) =====
+import { handleCallback } from "./controllers/paymentController.js";
+app.post("/api/payment/callback", express.urlencoded({ extended: true }), handleCallback);
+app.get("/api/payment/callback", handleCallback);
+
 // ===== Middleware & CORS =====
 const allowedOrigins = [
   'http://localhost:3000',
@@ -59,6 +64,7 @@ const allowedOrigins = [
   'https://finbot.com.tr',
   'https://www.finbot.com.tr',
   'https://d2l004ta5k2mvv.cloudfront.net', // CloudFront distribution
+  'https://vpos.paratika.com.tr',
   process.env.CLIENT_URL
 ].filter(Boolean);
 

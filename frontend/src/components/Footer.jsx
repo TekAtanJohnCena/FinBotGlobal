@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { LanguageContext } from "../context/LanguageContext";
 import logo from "../images/logo1.png";
+import paratikaLogo from "../images/paratika-logo.png";
 
 export default function Footer() {
   const { t } = useContext(LanguageContext);
@@ -134,9 +135,31 @@ export default function Footer() {
                 <text x="8" y="16" fill="white" fontFamily="Arial" fontWeight="bold" fontSize="9">TROY</text>
               </svg>
 
-            
+
             </div>
-          
+
+            {/* Paratika */}
+            <div className="mt-3">
+              <a
+                href="https://www.paratika.com.tr"
+                target="_blank"
+                rel="noreferrer"
+                title="Paratika Sanal POS"
+              >
+                <img
+                  src={paratikaLogo}
+                  alt="Paratika Sanal POS"
+                  style={{
+                    height: '32px',
+                    width: 'auto',
+                  }}
+                />
+              </a>
+              <p className="text-soft mt-2 mb-0" style={{ fontSize: '0.7rem', opacity: 0.7, maxWidth: '260px' }}>
+                Ödeme işlemleri TCMB faaliyet onaylı ödeme kuruluşu <a href="https://www.paratika.com.tr" target="_blank" rel="noreferrer" className="footer-link" style={{ textDecoration: 'underline' }}>Paratika</a>'nın güvenli altyapısı üzerinden gerçekleşmektedir.
+              </p>
+            </div>
+
           </div>
         </div>
 

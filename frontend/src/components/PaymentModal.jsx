@@ -1,11 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../lib/api';
 
 /**
  * Payment Modal Component
- * Shows a popup for payment when user selects a paid plan
- * Includes card form until Shopier integration is complete
+ * Uses Paratika Direct POST 3D model:
+ * 1. Backend creates a PAYMENTSESSION → returns sessionToken
+ * 2. User fills card form here
+ * 3. Form POSTs directly to Paratika's sale3d endpoint (card data never touches our backend)
+ * 4. Paratika handles 3D Secure → redirects back to our callback URL
  */
 const PaymentModal = ({
   isOpen,
@@ -17,162 +20,145 @@ const PaymentModal = ({
   onPaymentSuccess
 }) => {
   const { user } = useContext(AuthContext);
+  const formRef = useRef(null);
+
   const [loading, setLoading] = useState(false);
-  const [paymentStep, setPaymentStep] = useState('confirm'); // 'confirm', 'card', 'processing', 'success', 'error'
+  const [paymentStep, setPaymentStep] = useState('confirm'); // 'confirm', 'card', 'processing', 'error'
   const [errorMessage, setErrorMessage] = useState('');
+  const [sessionToken, setSessionToken] = useState('');
 
   // Card form state
-  const [cardData, setCardData] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: ''
-  });
+  const [cardOwner, setCardOwner] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryMonth, setExpiryMonth] = useState('');
+  const [expiryYear, setExpiryYear] = useState('');
+  const [cvv, setCvv] = useState('');
   const [cardErrors, setCardErrors] = useState({});
 
   if (!isOpen) return null;
 
-  // Card number formatting (add spaces every 4 digits)
+  // ─── Helpers ───
+
+  const formatPrice = (p) => new Intl.NumberFormat('tr-TR').format(p);
+
+  // Format card number with spaces: 4111 1111 1111 1111
   const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return value.replace(/[^0-9]/gi, '');
+    const digits = value.replace(/\D/g, '').slice(0, 16);
+    return digits.replace(/(.{4})/g, '$1 ').trim();
+  };
+
+  // Allow only Turkish + English letters, spaces, dots
+  const formatCardOwner = (value) => {
+    return value.replace(/[^a-zA-ZçÇğĞıİöÖşŞüÜâÂîÎûÛ\s.]/g, '').toUpperCase();
+  };
+
+  // Detect card brand from first digits
+  const getCardBrand = (number) => {
+    const digits = number.replace(/\s/g, '');
+    if (/^4/.test(digits)) return { name: 'Visa', color: '#1a1f71' };
+    if (/^5[1-5]/.test(digits) || /^2[2-7]/.test(digits)) return { name: 'Mastercard', color: '#eb001b' };
+    if (/^9792/.test(digits) || /^65/.test(digits)) return { name: 'Troy', color: '#0055a5' };
+    return null;
+  };
+
+  // ─── Step 1: Get Session Token ───
+
+  const handleGetSession = async () => {
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const response = await api.post('/payment/create', {
+        planType: planKey.toUpperCase(),
+        billingPeriod: period === 'monthly' ? 'MONTHLY' : 'YEARLY'
+      });
+
+      if (response.data.success && response.data.redirectUrl) {
+        // Extract session token from the redirect URL
+        const url = response.data.redirectUrl;
+        const token = url.split('/').pop();
+        setSessionToken(token);
+        setPaymentStep('card');
+      } else {
+        throw new Error(response.data.message || 'Ödeme oturumu oluşturulamadı');
+      }
+    } catch (error) {
+      console.error('Session error:', error);
+      setPaymentStep('error');
+      setErrorMessage(error.response?.data?.message || error.message || 'Ödeme oturumu oluşturulamadı');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCardInputChange = (field, value) => {
-    let formattedValue = value;
-
-    if (field === 'cardNumber') {
-      formattedValue = formatCardNumber(value);
-      if (formattedValue.replace(/\s/g, '').length > 16) return;
-    }
-    if (field === 'cvv') {
-      formattedValue = value.replace(/[^0-9]/gi, '').slice(0, 4);
-    }
-    if (field === 'expiryMonth') {
-      formattedValue = value.replace(/[^0-9]/gi, '').slice(0, 2);
-      if (parseInt(formattedValue) > 12) formattedValue = '12';
-    }
-    if (field === 'expiryYear') {
-      formattedValue = value.replace(/[^0-9]/gi, '').slice(0, 2);
-    }
-    if (field === 'cardHolder') {
-      formattedValue = value.toUpperCase().replace(/[^A-Z\s]/gi, '');
-    }
-
-    setCardData(prev => ({ ...prev, [field]: formattedValue }));
-    setCardErrors(prev => ({ ...prev, [field]: '' }));
-  };
+  // ─── Step 2: Validate & Submit Card Form ───
 
   const validateCard = () => {
     const errors = {};
-    const cardNum = cardData.cardNumber.replace(/\s/g, '');
+    const cleanNumber = cardNumber.replace(/\s/g, '');
 
-    if (!cardNum || cardNum.length < 15) {
-      errors.cardNumber = 'Geçerli kart numarası giriniz';
+    if (!cardOwner || cardOwner.trim().length < 3) {
+      errors.cardOwner = 'Kart sahibi adı gerekli (en az 3 karakter)';
     }
-    if (!cardData.cardHolder || cardData.cardHolder.length < 3) {
-      errors.cardHolder = 'Kart sahibi adını giriniz';
+    if (cleanNumber.length < 15 || cleanNumber.length > 16) {
+      errors.cardNumber = 'Geçerli bir kart numarası girin';
     }
-    if (!cardData.expiryMonth || parseInt(cardData.expiryMonth) < 1 || parseInt(cardData.expiryMonth) > 12) {
-      errors.expiryMonth = 'Geçersiz ay';
+    if (!expiryMonth) {
+      errors.expiryMonth = 'Ay seçin';
     }
-    if (!cardData.expiryYear || cardData.expiryYear.length < 2) {
-      errors.expiryYear = 'Geçersiz yıl';
+    if (!expiryYear) {
+      errors.expiryYear = 'Yıl seçin';
     }
-    if (!cardData.cvv || cardData.cvv.length < 3) {
-      errors.cvv = 'CVV giriniz';
+    if (cvv.length < 3) {
+      errors.cvv = 'CVV 3 haneli olmalıdır';
     }
 
     setCardErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleProceedToCard = () => {
-    setPaymentStep('card');
-  };
+  const handleSubmitCard = (e) => {
+    e.preventDefault();
 
-  const handlePayment = async () => {
     if (!validateCard()) return;
 
-    setLoading(true);
-    setPaymentStep('processing');
-    setErrorMessage('');
-
-    try {
-      // Call new Paratika payment creation endpoint
-      const response = await api.post('/payment/create', {
-        planType: planKey.toUpperCase(), // BASIC, PLUS, PRO
-        billingPeriod: period === 'monthly' ? 'MONTHLY' : 'YEARLY',
-        cardHolderName: cardData.cardHolder,
-        cardNumber: cardData.cardNumber.replace(/\s/g, ''),
-        expireMonth: cardData.expiryMonth,
-        expireYear: cardData.expiryYear,
-        cvv: cardData.cvv
-      });
-
-      if (response.data.success && response.data.redirectUrl) {
-        // Redirect user to Paratika 3D Secure page
-        window.location.href = response.data.redirectUrl;
-      } else {
-        throw new Error(response.data.message || 'Ödeme oturumu oluşturulamadı');
-      }
-
-    } catch (error) {
-      console.error('Payment error:', error);
-      setPaymentStep('error');
-      setErrorMessage(error.response?.data?.message || error.message || 'Ödeme işlemi sırasında bir hata oluştu');
-    } finally {
-      setLoading(false);
+    // Submit the hidden form directly to Paratika (Direct POST 3D)
+    // Card data goes straight to Paratika, never through our backend
+    // IMPORTANT: Submit BEFORE changing step, otherwise React removes the form from DOM
+    if (formRef.current) {
+      setPaymentStep('processing');
+      // Use requestAnimationFrame to ensure DOM has the processing state visible
+      // but the form ref is still valid since we captured it before
+      formRef.current.submit();
     }
   };
 
-  const formatPrice = (p) => new Intl.NumberFormat('tr-TR').format(p);
+  // Card brand detection
+  const cardBrand = getCardBrand(cardNumber);
 
-  // Detect card type
-  const getCardType = () => {
-    const number = cardData.cardNumber.replace(/\s/g, '');
-    if (/^4/.test(number)) return 'visa';
-    if (/^5[1-5]/.test(number)) return 'mastercard';
-    if (/^9/.test(number)) return 'troy';
-    return null;
-  };
+  // Generate year options (current year + 15 years)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 16 }, (_, i) => currentYear + i);
 
   return (
     <>
       <style>{`
         .payment-modal-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          top: 0; left: 0; right: 0; bottom: 0;
           background: rgba(0, 0, 0, 0.85);
           backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 10000;
-          animation: fadeIn 0.2s ease-out;
+          animation: pmFadeIn 0.2s ease-out;
           padding: 1rem;
           overflow-y: auto;
         }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        @keyframes pmFadeIn {
+          from { opacity: 0; } to { opacity: 1; }
         }
-        
         .payment-modal {
           background: linear-gradient(135deg, #0f1218 0%, #1a1f2e 100%);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -181,540 +167,456 @@ const PaymentModal = ({
           max-width: 480px;
           padding: 2rem;
           box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-          animation: slideUp 0.3s ease-out;
+          animation: pmSlideUp 0.3s ease-out;
           margin: auto;
+          position: relative;
         }
-        
-        @keyframes slideUp {
+        @keyframes pmSlideUp {
           from { transform: translateY(20px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-        
-        .modal-close {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
+        .pm-close {
+          position: absolute; top: 1rem; right: 1rem;
           background: rgba(255, 255, 255, 0.1);
-          border: none;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          color: rgba(255, 255, 255, 0.6);
-          cursor: pointer;
+          border: none; width: 32px; height: 32px; border-radius: 50%;
+          color: rgba(255, 255, 255, 0.6); cursor: pointer;
           transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
         }
-        
-        .modal-close:hover {
-          background: rgba(255, 255, 255, 0.2);
-          color: white;
+        .pm-close:hover { background: rgba(255, 255, 255, 0.2); color: white; }
+        .pm-header { text-align: center; margin-bottom: 1.5rem; }
+        .pm-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+        .pm-title {
+          font-size: 1.5rem; font-weight: 700; color: white; margin: 0 0 0.5rem 0;
         }
-        
-        .modal-header {
-          text-align: center;
-          margin-bottom: 1.5rem;
-        }
-        
-        .modal-icon {
-          font-size: 3rem;
-          margin-bottom: 0.5rem;
-        }
-        
-        .modal-title {
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: white;
-          margin: 0 0 0.5rem 0;
-        }
-        
-        .modal-subtitle {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.9rem;
-          margin: 0;
-        }
-        
-        .plan-summary {
+        .pm-subtitle { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin: 0; }
+        .pm-summary {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          padding: 1.25rem;
-          margin-bottom: 1.5rem;
+          border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;
         }
-        
-        .plan-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+        .pm-row {
+          display: flex; justify-content: space-between; align-items: center;
           margin-bottom: 0.75rem;
         }
-        
-        .plan-row:last-child {
-          margin-bottom: 0;
-          padding-top: 0.75rem;
+        .pm-row:last-child {
+          margin-bottom: 0; padding-top: 0.75rem;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        .plan-label {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.9rem;
+        .pm-label { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; }
+        .pm-value { color: white; font-weight: 600; }
+        .pm-total { font-size: 1.25rem; color: #10b981; }
+        .pm-methods {
+          display: flex; gap: 0.75rem; justify-content: center; margin-bottom: 1.5rem;
         }
-        
-        .plan-value {
-          color: white;
-          font-weight: 600;
-        }
-        
-        .plan-total {
-          font-size: 1.25rem;
-          color: #10b981;
-        }
-        
-        .payment-methods {
-          display: flex;
-          gap: 0.75rem;
-          justify-content: center;
-          margin-bottom: 1.5rem;
-        }
-        
-        .payment-method {
+        .pm-method {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-          padding: 0.5rem 1rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.8rem;
-          color: rgba(255, 255, 255, 0.7);
-          transition: all 0.2s;
+          border-radius: 8px; padding: 0.5rem 1rem;
+          display: flex; align-items: center; gap: 0.5rem;
+          font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);
         }
-        
-        .payment-method.active {
-          border-color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .btn-pay {
-          width: 100%;
-          padding: 1rem 1.5rem;
+        .pm-btn-pay {
+          width: 100%; padding: 1rem 1.5rem;
           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          border: none;
-          border-radius: 12px;
-          color: white;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
+          border: none; border-radius: 12px; color: white;
+          font-size: 1rem; font-weight: 600; cursor: pointer;
           transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
+          display: flex; align-items: center; justify-content: center; gap: 0.5rem;
           box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
         }
-        
-        .btn-pay:hover:not(:disabled) {
+        .pm-btn-pay:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 6px 28px rgba(16, 185, 129, 0.45);
         }
-        
-        .btn-pay:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-        
-        .btn-cancel {
-          width: 100%;
-          padding: 0.75rem;
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 10px;
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.9rem;
-          cursor: pointer;
-          margin-top: 0.75rem;
+        .pm-btn-pay:disabled { opacity: 0.7; cursor: not-allowed; }
+        .pm-btn-cancel {
+          width: 100%; padding: 0.75rem;
+          background: transparent; border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 10px; color: rgba(255, 255, 255, 0.6);
+          font-size: 0.9rem; cursor: pointer; margin-top: 0.75rem;
           transition: all 0.2s;
         }
-        
-        .btn-cancel:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: white;
+        .pm-btn-cancel:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .pm-security {
+          display: flex; align-items: center; justify-content: center;
+          gap: 0.5rem; margin-top: 1rem;
+          color: rgba(255, 255, 255, 0.4); font-size: 0.75rem;
         }
-        
-        .security-note {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          margin-top: 1rem;
-          color: rgba(255, 255, 255, 0.4);
-          font-size: 0.75rem;
+        .pm-paratika-badge {
+          display: flex; align-items: center; justify-content: center;
+          gap: 0.5rem; margin-top: 0.75rem; padding: 0.5rem;
+          background: rgba(255, 255, 255, 0.03); border-radius: 8px;
+          color: rgba(255, 255, 255, 0.5); font-size: 0.7rem;
         }
-        
-        .processing-spinner {
-          width: 48px;
-          height: 48px;
+        .pm-spinner {
+          width: 48px; height: 48px;
           border: 3px solid rgba(16, 185, 129, 0.2);
-          border-top-color: #10b981;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 1rem;
+          border-top-color: #10b981; border-radius: 50%;
+          animation: pmSpin 1s linear infinite; margin: 0 auto 1rem;
         }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+        @keyframes pmSpin { to { transform: rotate(360deg); } }
+        .pm-error-icon {
+          width: 64px; height: 64px;
+          background: rgba(239, 68, 68, 0.2); border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 1rem; font-size: 2rem;
         }
-        
-        .success-icon {
-          width: 64px;
-          height: 64px;
-          background: rgba(16, 185, 129, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 1rem;
-          font-size: 2rem;
-        }
-        
-        .error-icon {
-          width: 64px;
-          height: 64px;
-          background: rgba(239, 68, 68, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 1rem;
-          font-size: 2rem;
-        }
-        
-        /* Card Form Styles */
-        .card-form {
-          margin-bottom: 1.5rem;
-        }
-        
-        .form-group {
+
+        /* ─── Card Form Styles ─── */
+        .pm-card-form { margin-top: 0.5rem; }
+        .pm-form-group {
           margin-bottom: 1rem;
         }
-        
-        .form-label {
-          display: block;
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.85rem;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
+        .pm-form-label {
+          display: block; color: rgba(255, 255, 255, 0.7);
+          font-size: 0.8rem; margin-bottom: 0.4rem; font-weight: 500;
         }
-        
-        .form-input {
-          width: 100%;
-          padding: 0.875rem 1rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 10px;
-          color: white;
-          font-size: 1rem;
-          transition: all 0.2s;
+        .pm-form-input {
+          width: 100%; padding: 0.75rem 1rem;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 10px; color: white;
+          font-size: 0.95rem; outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
           box-sizing: border-box;
+          font-family: inherit;
         }
-        
-        .form-input:focus {
-          outline: none;
-          border-color: #10b981;
-          background: rgba(255, 255, 255, 0.08);
+        .pm-form-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+        .pm-form-input:focus {
+          border-color: rgba(16, 185, 129, 0.5);
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
-        
-        .form-input::placeholder {
-          color: rgba(255, 255, 255, 0.3);
+        .pm-form-input.error {
+          border-color: rgba(239, 68, 68, 0.6);
         }
-        
-        .form-input.error {
-          border-color: #ef4444;
+        .pm-form-error {
+          color: #ef4444; font-size: 0.75rem; margin-top: 0.3rem;
         }
-        
-        .form-error {
-          color: #ef4444;
-          font-size: 0.75rem;
-          margin-top: 0.25rem;
+        .pm-form-row {
+          display: flex; gap: 0.75rem;
         }
-        
-        .form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 0.75rem;
+        .pm-form-row .pm-form-group {
+          flex: 1;
         }
-        
-        .card-preview {
-          background: linear-gradient(135deg, #1a1f2e 0%, #0f1218 100%);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 1.5rem;
-          margin-bottom: 1.5rem;
+        .pm-form-select {
+          width: 100%; padding: 0.75rem 0.75rem;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 10px; color: white;
+          font-size: 0.95rem; outline: none;
+          transition: border-color 0.2s;
+          box-sizing: border-box;
+          appearance: none;
+          cursor: pointer;
+          font-family: inherit;
+        }
+        .pm-form-select option {
+          background: #1a1f2e; color: white;
+        }
+        .pm-form-select:focus {
+          border-color: rgba(16, 185, 129, 0.5);
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        .pm-card-number-wrapper {
           position: relative;
-          overflow: hidden;
         }
-        
-        .card-preview::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-          pointer-events: none;
+        .pm-card-brand {
+          position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+          font-size: 0.7rem; font-weight: 700; padding: 3px 8px;
+          border-radius: 4px; color: white; letter-spacing: 0.5px;
         }
-        
-        .card-chip {
-          width: 40px;
-          height: 30px;
-          background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-          border-radius: 6px;
-          margin-bottom: 1rem;
+        .pm-card-preview {
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 14px; padding: 1.25rem;
+          margin-bottom: 1.25rem; position: relative; overflow: hidden;
         }
-        
-        .card-number-preview {
+        .pm-card-preview::before {
+          content: ''; position: absolute; top: -30%; right: -20%;
+          width: 200px; height: 200px;
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+          border-radius: 50%;
+        }
+        .pm-card-preview-number {
           font-family: 'Courier New', monospace;
-          font-size: 1.25rem;
-          color: white;
-          letter-spacing: 2px;
+          font-size: 1.1rem; letter-spacing: 2px;
+          color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;
+        }
+        .pm-card-preview-bottom {
+          display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .pm-card-preview-name {
+          font-size: 0.75rem; color: rgba(255, 255, 255, 0.5);
+          text-transform: uppercase; letter-spacing: 1px;
+        }
+        .pm-card-preview-expiry {
+          font-size: 0.75rem; color: rgba(255, 255, 255, 0.5);
+        }
+        .pm-back-btn {
+          background: none; border: none; color: rgba(255, 255, 255, 0.5);
+          cursor: pointer; font-size: 0.85rem; padding: 0;
+          display: flex; align-items: center; gap: 0.25rem;
           margin-bottom: 1rem;
+          transition: color 0.2s;
         }
-        
-        .card-bottom {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-        }
-        
-        .card-holder-preview {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.85rem;
-          text-transform: uppercase;
-        }
-        
-        .card-type-icon {
-          font-size: 1.5rem;
-        }
+        .pm-back-btn:hover { color: white; }
       `}</style>
 
       <div className="payment-modal-overlay" onClick={onClose}>
-        <div className="payment-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
+        <div className="payment-modal" onClick={e => e.stopPropagation()}>
 
-          {paymentStep !== 'processing' && paymentStep !== 'success' && (
-            <button className="modal-close" onClick={onClose}>
-              ✕
-            </button>
+          {paymentStep !== 'processing' && (
+            <button className="pm-close" onClick={onClose}>✕</button>
           )}
 
-          {/* Step 1: Confirmation */}
+          {/* ═══════════════════════════════════════ */}
+          {/* Step 1: Plan Confirmation               */}
+          {/* ═══════════════════════════════════════ */}
           {paymentStep === 'confirm' && (
             <>
-              <div className="modal-header">
-                <div className="modal-icon">
+              <div className="pm-header">
+                <div className="pm-icon">
                   {planKey === 'plus' ? '⚡' : planKey === 'pro' ? '🚀' : '📦'}
                 </div>
-                <h2 className="modal-title">{planName} Planına Yükselt</h2>
-                <p className="modal-subtitle">Ödeme bilgilerinizi onaylayın</p>
+                <h2 className="pm-title">{planName} Planına Yükselt</h2>
+                <p className="pm-subtitle">Kart bilgilerinizi güvenle girebilirsiniz</p>
               </div>
 
-              <div className="plan-summary">
-                <div className="plan-row">
-                  <span className="plan-label">Plan</span>
-                  <span className="plan-value">{planName}</span>
+              <div className="pm-summary">
+                <div className="pm-row">
+                  <span className="pm-label">Plan</span>
+                  <span className="pm-value">{planName}</span>
                 </div>
-                <div className="plan-row">
-                  <span className="plan-label">Periyod</span>
-                  <span className="plan-value">{period === 'monthly' ? 'Aylık' : 'Yıllık'}</span>
+                <div className="pm-row">
+                  <span className="pm-label">Periyod</span>
+                  <span className="pm-value">{period === 'monthly' ? 'Aylık' : 'Yıllık'}</span>
                 </div>
-                <div className="plan-row">
-                  <span className="plan-label">Kullanıcı</span>
-                  <span className="plan-value">{user?.email}</span>
+                <div className="pm-row">
+                  <span className="pm-label">Kullanıcı</span>
+                  <span className="pm-value">{user?.email}</span>
                 </div>
-                <div className="plan-row">
-                  <span className="plan-label">Toplam</span>
-                  <span className="plan-value plan-total">₺{formatPrice(price)}</span>
+                <div className="pm-row">
+                  <span className="pm-label">Toplam</span>
+                  <span className="pm-value pm-total">₺{formatPrice(price)}</span>
                 </div>
               </div>
 
-              <div className="payment-methods">
-                <div className="payment-method">
-                  <span>💳</span> Mastercard
-                </div>
-                <div className="payment-method">
-                  <span>💳</span> Visa
-                </div>
-                <div className="payment-method">
-                  <span>🏦</span> Troy
-                </div>
+              <div className="pm-methods">
+                <div className="pm-method"><span>💳</span> Mastercard</div>
+                <div className="pm-method"><span>💳</span> Visa</div>
+                <div className="pm-method"><span>🏦</span> Troy</div>
               </div>
 
               <button
-                className="btn-pay"
-                onClick={handleProceedToCard}
+                className="pm-btn-pay"
+                onClick={handleGetSession}
+                disabled={loading}
               >
-                💳 Kart Bilgilerini Gir
+                {loading ? 'Hazırlanıyor...' : '💳 Ödemeye Geç'}
               </button>
 
-              <button className="btn-cancel" onClick={onClose}>
-                Vazgeç
-              </button>
+              <button className="pm-btn-cancel" onClick={onClose}>Vazgeç</button>
 
-              <div className="security-note">
-                🔒 256-bit SSL ile şifrelenmiş güvenli ödeme
+              <div className="pm-security">🔒 256-bit SSL ile şifrelenmiş güvenli ödeme</div>
+              <div className="pm-paratika-badge">
+                🏦 Ödeme altyapısı TCMB onaylı Paratika tarafından sağlanmaktadır
               </div>
             </>
           )}
 
-          {/* Step 2: Card Form */}
+          {/* ═══════════════════════════════════════ */}
+          {/* Step 2: Card Entry Form                 */}
+          {/* Direct POST 3D — submits to Paratika    */}
+          {/* ═══════════════════════════════════════ */}
           {paymentStep === 'card' && (
             <>
-              <div className="modal-header">
-                <h2 className="modal-title">Kart Bilgileri</h2>
-                <p className="modal-subtitle">₺{formatPrice(price)} - {planName} ({period === 'monthly' ? 'Aylık' : 'Yıllık'})</p>
-              </div>
-
-              {/* Card Preview */}
-              <div className="card-preview">
-                <div className="card-chip"></div>
-                <div className="card-number-preview">
-                  {cardData.cardNumber || '•••• •••• •••• ••••'}
-                </div>
-                <div className="card-bottom">
-                  <div className="card-holder-preview">
-                    {cardData.cardHolder || 'KART SAHİBİ'}
-                  </div>
-                  <div className="card-type-icon">
-                    {getCardType() === 'visa' && '💳'}
-                    {getCardType() === 'mastercard' && '💳'}
-                    {getCardType() === 'troy' && '🏦'}
-                    {!getCardType() && '💳'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="card-form">
-                <div className="form-group">
-                  <label className="form-label">Kart Numarası</label>
-                  <input
-                    type="text"
-                    className={`form-input ${cardErrors.cardNumber ? 'error' : ''}`}
-                    placeholder="1234 5678 9012 3456"
-                    value={cardData.cardNumber}
-                    onChange={(e) => handleCardInputChange('cardNumber', e.target.value)}
-                    maxLength={19}
-                  />
-                  {cardErrors.cardNumber && <div className="form-error">{cardErrors.cardNumber}</div>}
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Kart Sahibi</label>
-                  <input
-                    type="text"
-                    className={`form-input ${cardErrors.cardHolder ? 'error' : ''}`}
-                    placeholder="AD SOYAD"
-                    value={cardData.cardHolder}
-                    onChange={(e) => handleCardInputChange('cardHolder', e.target.value)}
-                  />
-                  {cardErrors.cardHolder && <div className="form-error">{cardErrors.cardHolder}</div>}
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Ay</label>
-                    <input
-                      type="text"
-                      className={`form-input ${cardErrors.expiryMonth ? 'error' : ''}`}
-                      placeholder="MM"
-                      value={cardData.expiryMonth}
-                      onChange={(e) => handleCardInputChange('expiryMonth', e.target.value)}
-                      maxLength={2}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Yıl</label>
-                    <input
-                      type="text"
-                      className={`form-input ${cardErrors.expiryYear ? 'error' : ''}`}
-                      placeholder="YY"
-                      value={cardData.expiryYear}
-                      onChange={(e) => handleCardInputChange('expiryYear', e.target.value)}
-                      maxLength={2}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">CVV</label>
-                    <input
-                      type="password"
-                      className={`form-input ${cardErrors.cvv ? 'error' : ''}`}
-                      placeholder="•••"
-                      value={cardData.cvv}
-                      onChange={(e) => handleCardInputChange('cvv', e.target.value)}
-                      maxLength={4}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <button
-                className="btn-pay"
-                onClick={handlePayment}
-                disabled={loading}
-              >
-                🔒 ₺{formatPrice(price)} Öde
-              </button>
-
-              <button className="btn-cancel" onClick={() => setPaymentStep('confirm')}>
+              <button className="pm-back-btn" onClick={() => setPaymentStep('confirm')}>
                 ← Geri
               </button>
 
-              <div className="security-note">
-                🔒 Kart bilgileriniz 256-bit SSL ile şifrelenir
+              {/* Mini Card Preview */}
+              <div className="pm-card-preview">
+                <div className="pm-card-preview-number">
+                  {cardNumber || '•••• •••• •••• ••••'}
+                </div>
+                <div className="pm-card-preview-bottom">
+                  <div className="pm-card-preview-name">
+                    {cardOwner || 'KART SAHİBİ'}
+                  </div>
+                  <div className="pm-card-preview-expiry">
+                    {expiryMonth || 'AA'}/{expiryYear ? expiryYear.toString().slice(-2) : 'YY'}
+                    {cardBrand && (
+                      <span style={{
+                        marginLeft: '0.75rem',
+                        fontWeight: 700,
+                        color: cardBrand.color,
+                        fontSize: '0.8rem'
+                      }}>
+                        {cardBrand.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
+
+              <div className="pm-card-form">
+                {/* Card Owner */}
+                <div className="pm-form-group">
+                  <label className="pm-form-label">Kart Sahibi</label>
+                  <input
+                    type="text"
+                    className={`pm-form-input ${cardErrors.cardOwner ? 'error' : ''}`}
+                    placeholder="AD SOYAD"
+                    value={cardOwner}
+                    onChange={(e) => setCardOwner(formatCardOwner(e.target.value))}
+                    maxLength={50}
+                    autoComplete="off"
+                  />
+                  {cardErrors.cardOwner && <div className="pm-form-error">{cardErrors.cardOwner}</div>}
+                </div>
+
+                {/* Card Number */}
+                <div className="pm-form-group">
+                  <label className="pm-form-label">Kart Numarası</label>
+                  <div className="pm-card-number-wrapper">
+                    <input
+                      type="text"
+                      className={`pm-form-input ${cardErrors.cardNumber ? 'error' : ''}`}
+                      placeholder="0000 0000 0000 0000"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                      maxLength={19}
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                    {cardBrand && (
+                      <span className="pm-card-brand" style={{ background: cardBrand.color }}>
+                        {cardBrand.name}
+                      </span>
+                    )}
+                  </div>
+                  {cardErrors.cardNumber && <div className="pm-form-error">{cardErrors.cardNumber}</div>}
+                </div>
+
+                {/* Expiry + CVV row */}
+                <div className="pm-form-row">
+                  <div className="pm-form-group">
+                    <label className="pm-form-label">Ay</label>
+                    <select
+                      className={`pm-form-select ${cardErrors.expiryMonth ? 'error' : ''}`}
+                      value={expiryMonth}
+                      onChange={(e) => setExpiryMonth(e.target.value)}
+                    >
+                      <option value="">Ay</option>
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const m = String(i + 1).padStart(2, '0');
+                        return <option key={m} value={m}>{m}</option>;
+                      })}
+                    </select>
+                    {cardErrors.expiryMonth && <div className="pm-form-error">{cardErrors.expiryMonth}</div>}
+                  </div>
+
+                  <div className="pm-form-group">
+                    <label className="pm-form-label">Yıl</label>
+                    <select
+                      className={`pm-form-select ${cardErrors.expiryYear ? 'error' : ''}`}
+                      value={expiryYear}
+                      onChange={(e) => setExpiryYear(e.target.value)}
+                    >
+                      <option value="">Yıl</option>
+                      {yearOptions.map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                    {cardErrors.expiryYear && <div className="pm-form-error">{cardErrors.expiryYear}</div>}
+                  </div>
+
+                  <div className="pm-form-group">
+                    <label className="pm-form-label">CVV</label>
+                    <input
+                      type="password"
+                      className={`pm-form-input ${cardErrors.cvv ? 'error' : ''}`}
+                      placeholder="•••"
+                      value={cvv}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setCvv(val);
+                      }}
+                      maxLength={3}
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                    {cardErrors.cvv && <div className="pm-form-error">{cardErrors.cvv}</div>}
+                  </div>
+                </div>
+
+                <button
+                  className="pm-btn-pay"
+                  onClick={handleSubmitCard}
+                  disabled={loading}
+                  style={{ marginTop: '0.5rem' }}
+                >
+                  🔒 ₺{formatPrice(price)} Öde
+                </button>
+
+                <button className="pm-btn-cancel" onClick={onClose}>Vazgeç</button>
+
+                <div className="pm-security">🔒 Kart bilgileriniz güvenli şekilde Paratika'ya iletilir</div>
+              </div>
+
+
             </>
           )}
 
-          {/* Processing Step */}
+          {/* ═══════════════════════════════════════ */}
+          {/* Processing — waiting for redirect       */}
+          {/* ═══════════════════════════════════════ */}
           {paymentStep === 'processing' && (
             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-              <div className="processing-spinner"></div>
-              <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>Ödeme İşleniyor...</h3>
+              <div className="pm-spinner"></div>
+              <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>3D Secure Doğrulamaya Yönlendiriliyorsunuz...</h3>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
-                Lütfen bekleyin, işleminiz güvenli bir şekilde gerçekleştiriliyor.
+                Lütfen bekleyin, bankanızın güvenlik sayfasına aktarılıyorsunuz.
               </p>
             </div>
           )}
 
-          {/* Success Step */}
-          {paymentStep === 'success' && (
-            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-              <div className="success-icon">✓</div>
-              <h3 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Ödeme Başarılı!</h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
-                {planName} planınız aktifleştirildi. Yönlendiriliyorsunuz...
-              </p>
-            </div>
-          )}
-
-          {/* Error Step */}
+          {/* ═══════════════════════════════════════ */}
+          {/* Error Step                              */}
+          {/* ═══════════════════════════════════════ */}
           {paymentStep === 'error' && (
             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-              <div className="error-icon">✕</div>
-              <h3 style={{ color: '#ef4444', marginBottom: '0.5rem' }}>Ödeme Başarısız</h3>
+              <div className="pm-error-icon">✕</div>
+              <h3 style={{ color: '#ef4444', marginBottom: '0.5rem' }}>Ödeme Başlatılamadı</h3>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
                 {errorMessage || 'Bir hata oluştu. Lütfen tekrar deneyin.'}
               </p>
               <button
-                className="btn-pay"
-                onClick={() => setPaymentStep('card')}
+                className="pm-btn-pay"
+                onClick={() => { setPaymentStep('confirm'); setErrorMessage(''); }}
               >
                 Tekrar Dene
               </button>
-              <button className="btn-cancel" onClick={onClose}>
-                Kapat
-              </button>
+              <button className="pm-btn-cancel" onClick={onClose}>Kapat</button>
             </div>
+          )}
+
+          {/* Hidden form that POSTs directly to Paratika (Direct POST 3D) */}
+          {/* Rendered outside step conditionals so it persists during step changes */}
+          {sessionToken && (
+            <form
+              ref={formRef}
+              method="POST"
+              action={`https://vpos.paratika.com.tr/paratika/api/v2/post/sale3d/${sessionToken}`}
+              style={{ display: 'none' }}
+            >
+              <input type="hidden" name="cardOwner" value={cardOwner} />
+              <input type="hidden" name="pan" value={cardNumber.replace(/\s/g, '')} />
+              <input type="hidden" name="expiryMonth" value={expiryMonth} />
+              <input type="hidden" name="expiryYear" value={expiryYear} />
+              <input type="hidden" name="cvv" value={cvv} />
+            </form>
           )}
 
         </div>
