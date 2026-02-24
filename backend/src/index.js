@@ -53,8 +53,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ===== Paratika Callback (BEFORE CORS — receives redirects from Paratika domain) =====
+// These routes MUST be registered before CORS middleware, because Paratika POSTs
+// from vpos.paratika.com.tr origin which would be blocked by CORS.
+// Note: paymentRoutes.js also has /callback routes, but they won't be reached
+// because these earlier registrations take priority.
 import { handleCallback } from "./controllers/paymentController.js";
-app.post("/api/payment/callback", express.urlencoded({ extended: true }), handleCallback);
+app.post("/api/payment/callback", express.urlencoded({ extended: true }), express.json(), handleCallback);
 app.get("/api/payment/callback", handleCallback);
 
 // ===== Middleware & CORS =====

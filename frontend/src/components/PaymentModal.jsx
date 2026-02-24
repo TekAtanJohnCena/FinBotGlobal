@@ -73,11 +73,8 @@ const PaymentModal = ({
         billingPeriod: period === 'monthly' ? 'MONTHLY' : 'YEARLY'
       });
 
-      if (response.data.success && response.data.redirectUrl) {
-        // Extract session token from the redirect URL
-        const url = response.data.redirectUrl;
-        const token = url.split('/').pop();
-        setSessionToken(token);
+      if (response.data.success && response.data.sessionToken) {
+        setSessionToken(response.data.sessionToken);
         setPaymentStep('card');
       } else {
         throw new Error(response.data.message || 'Ödeme oturumu oluşturulamadı');

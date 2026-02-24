@@ -15,8 +15,19 @@ const SUBSCRIPTION_PLANS = {
 const YEARLY_MULTIPLIER = 12 * 0.80;
 
 /**
- * Create a new payment session (HP model — no card data needed)
- * Frontend will redirect user to Paratika Hosted Payment Page
+ * Get frontend URL with protocol safety
+ */
+function getFrontendUrl() {
+    let url = process.env.FRONTEND_URL || "http://localhost:3000";
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `https://${url}`;
+    }
+    return url.replace(/\/+$/, '');
+}
+
+/**
+ * Create a new payment session (Direct POST 3D model)
+ * Backend only creates sessionToken — card data handled client-side
  */
 export const createPayment = async (req, res) => {
     try {
@@ -27,25 +38,24 @@ export const createPayment = async (req, res) => {
         const { planType, billingPeriod } = req.body;
         const userId = req.user?.id;
         const userEmail = req.user?.email;
-        const userName = req.user?.firstName || req.user?.fullName || "FinBot User";
+        const userName = req.user?.firstName || "FinBot User";
 
-        // Validate Plan
+        if (!planType || !SUBSCRIPTION_PLANS[planType]) {
+            return res.status(400).json({ success: false, message: "Geçersiz plan seçimi." });
+        }
+
         const plan = SUBSCRIPTION_PLANS[planType];
-        if (!plan) {
-            return res.status(400).json({ success: false, message: "Geçersiz abonelik planı." });
-        }
-
-        // Calculate amount based on billing period
         let amount = plan.amount;
+
+        // Apply yearly discount if applicable
         if (billingPeriod === "YEARLY") {
-            amount = parseFloat((plan.amount * YEARLY_MULTIPLIER).toFixed(2));
+            amount = plan.amount * YEARLY_MULTIPLIER;
         }
 
-        // Generate unique payment ID
         const merchantPaymentId = `FIN-${Date.now()}-${uuidv4().split('-')[0]}`;
         console.log(`🆔 MerchantPaymentID: ${merchantPaymentId}`);
 
-        // Log the transaction as PENDING
+        // 1. Create transaction record in DB
         const transaction = await PaymentTransaction.create({
             user: userId,
             merchantPaymentId,
@@ -60,10 +70,8 @@ export const createPayment = async (req, res) => {
             }
         });
 
-        // Build callback URL (backend receives the Paratika POST/redirect)
+        // 2. Call Paratika to create session token
         const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
-
-        // Call Paratika to get session token
         const result = await ParatikaService.createSession({
             merchantPaymentId,
             amount: amount.toFixed(2),
@@ -74,28 +82,31 @@ export const createPayment = async (req, res) => {
             ip: req.headers['x-forwarded-for'] || req.ip,
             userAgent: req.headers['user-agent'],
             returnUrl: `${backendUrl}/api/payment/callback`,
-            planName: plan.name,
-            description: `${billingPeriod === "YEARLY" ? "Yıllık" : "Aylık"} ${plan.name}`
+            planName: billingPeriod === "YEARLY" ? `${plan.name} (Yıllık)` : plan.name,
+            description: billingPeriod === "YEARLY"
+                ? `Yıllık ${plan.name} Aboneliği`
+                : `Aylık ${plan.name} Aboneliği`
         });
 
         console.log("📥 Paratika Result:", JSON.stringify(result, null, 2));
 
+        // 3. Handle response
         if (result && result.sessionToken) {
             transaction.sessionToken = result.sessionToken;
             transaction.rawResponse = result;
             await transaction.save();
 
-            // CORRECT redirect URL: Non-Direct POST HP model
-            // This is the Paratika Hosted Payment Page where user enters card info
-            const redirectUrl = `https://vpos.paratika.com.tr/merchant/post/sale/${result.sessionToken}`;
-            console.log(`✅ Redirecting user to Paratika HP: ${redirectUrl}`);
+            // Direct POST 3D: Frontend will POST card data directly to this URL
+            const redirectUrl = `https://vpos.paratika.com.tr/paratika/api/v2/post/sale3d/${result.sessionToken}`;
+            console.log(`✅ Redirecting user to Paratika: ${redirectUrl}`);
 
             return res.status(200).json({
                 success: true,
-                redirectUrl
+                redirectUrl,
+                sessionToken: result.sessionToken
             });
         } else {
-            console.log("❌ Session creation failed:", JSON.stringify(result, null, 2));
+            console.log("❌ Paratika Session Failed:", JSON.stringify(result, null, 2));
             transaction.status = "FAILED";
             transaction.errorMsg = result?.responseMsg || "Session oluşturulamadı";
             transaction.rawResponse = result;
@@ -116,7 +127,6 @@ export const createPayment = async (req, res) => {
 /**
  * Handle callback from Paratika after 3D Secure completion.
  * Paratika POSTs form data to RETURNURL, or redirects via GET.
- * We handle both cases.
  */
 export const handleCallback = async (req, res) => {
     try {
@@ -126,8 +136,6 @@ export const handleCallback = async (req, res) => {
         console.log("═══════════════════════════════════════════════");
         console.log("🔔 PARATIKA CALLBACK RECEIVED");
         console.log("Method:", req.method);
-        console.log("Headers Origin:", req.headers.origin);
-        console.log("Content-Type:", req.headers['content-type']);
         console.log("ALL DATA KEYS:", Object.keys(data));
         console.log("ALL DATA:", JSON.stringify(data, null, 2));
         console.log("═══════════════════════════════════════════════");
@@ -137,122 +145,110 @@ export const handleCallback = async (req, res) => {
             || data.MerchantPaymentId || data.pgOrderId || data.PGORDERID;
         const responseCode = data.responseCode || data.RESPONSECODE || data.ResponseCode;
         const responseMsg = data.responseMsg || data.RESPONSEMSG || data.ResponseMsg;
+        const sessionToken = data.sessionToken || data.SESSIONTOKEN;
 
-        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const frontendUrl = getFrontendUrl();
 
         if (!merchantPaymentId) {
-            console.error("❌ Callback: Missing merchantPaymentId. Available keys:", Object.keys(data));
+            console.error("❌ Callback: Missing merchantPaymentId. Keys:", Object.keys(data));
             return res.redirect(`${frontendUrl}/payment-status?status=failed&error=missing_id`);
         }
 
         console.log(`📋 Transaction: ${merchantPaymentId}, Code: ${responseCode}, Msg: ${responseMsg}`);
 
         // Find transaction in DB
-        const transaction = await PaymentTransaction.findOne({ merchantPaymentId });
-        if (!transaction) {
-            // Try finding by sessionToken as fallback
-            const sessionToken = data.sessionToken || data.SESSIONTOKEN;
-            let txBySession = null;
-            if (sessionToken) {
-                txBySession = await PaymentTransaction.findOne({ sessionToken });
-            }
+        let transaction = await PaymentTransaction.findOne({ merchantPaymentId });
 
-            if (!txBySession) {
-                console.error("❌ Transaction not found:", merchantPaymentId);
-                return res.redirect(`${frontendUrl}/payment-status?status=failed&error=not_found&id=${merchantPaymentId}`);
+        // Fallback: try finding by sessionToken
+        if (!transaction && sessionToken) {
+            transaction = await PaymentTransaction.findOne({ sessionToken });
+            if (transaction) {
+                console.log("✅ Found transaction via sessionToken fallback");
             }
-
-            // Use the session-matched transaction
-            console.log("✅ Found transaction via sessionToken fallback");
-            return await processTransaction(txBySession, data, responseCode, frontendUrl, res);
         }
 
-        return await processTransaction(transaction, data, responseCode, frontendUrl, res);
+        if (!transaction) {
+            console.error("❌ Transaction not found:", merchantPaymentId);
+            return res.redirect(`${frontendUrl}/payment-status?status=failed&error=not_found&id=${merchantPaymentId}`);
+        }
+
+        // Verify with QUERYTRANSACTION (double-check with Paratika)
+        let verified = false;
+        try {
+            const queryResult = await ParatikaService.queryTransaction(transaction.merchantPaymentId);
+            console.log("📥 QUERYTRANSACTION response:", JSON.stringify(queryResult, null, 2));
+            transaction.rawResponse = queryResult;
+
+            if (queryResult.responseCode === "00") {
+                const txList = queryResult.transactionList || [];
+                const approvedTx = txList.find(tx => tx.transactionStatus === "AP");
+
+                if (approvedTx) {
+                    verified = true;
+                    transaction.status = "SUCCESS";
+                    transaction.isVerified = true;
+                    console.log("✅ Transaction VERIFIED via QUERYTRANSACTION (AP)");
+                } else if (txList.length === 0 && responseCode === "00") {
+                    // No transactionList yet but Paratika callback says 00
+                    verified = true;
+                    transaction.status = "SUCCESS";
+                    transaction.isVerified = true;
+                    console.log("✅ Transaction approved (responseCode 00, no txList yet)");
+                } else {
+                    const statuses = txList.map(t => `${t.pgTranId || 'N/A'}: ${t.transactionStatus}`);
+                    console.log("📊 Transaction statuses:", statuses);
+                    transaction.status = "FAILED";
+                    transaction.errorMsg = "İşlem doğrulanamadı";
+                    console.log("❌ No approved transaction in list");
+                }
+            } else {
+                transaction.status = "FAILED";
+                transaction.errorMsg = queryResult.responseMsg || "İşlem başarısız";
+                console.log("❌ QUERYTRANSACTION failed:", queryResult.responseCode, queryResult.responseMsg);
+            }
+        } catch (queryError) {
+            console.error("❌ QUERYTRANSACTION error:", queryError.message);
+            // Fall back to callback responseCode
+            if (responseCode === "00") {
+                verified = true;
+                transaction.status = "SUCCESS";
+                transaction.isVerified = false; // Not fully verified
+                console.log("⚠️ Using callback responseCode as fallback");
+            } else {
+                transaction.status = "FAILED";
+                transaction.errorMsg = `Doğrulama hatası: ${responseCode}`;
+            }
+        }
+
+        await transaction.save();
+
+        // If payment succeeded → upgrade user subscription
+        if (verified) {
+            try {
+                const user = await User.findById(transaction.user);
+                if (user) {
+                    user.subscriptionTier = transaction.planType; // "PLUS" or "PRO"
+                    user.subscriptionStatus = "ACTIVE";
+                    await user.save();
+                    console.log(`🎉 User ${user.email} upgraded to ${transaction.planType}`);
+                }
+            } catch (updateError) {
+                console.error("❌ User subscription update error:", updateError.message);
+                // Payment still succeeded, don't fail the redirect
+            }
+        }
+
+        // Redirect user to frontend payment status page
+        const status = transaction.status === "SUCCESS" ? "success" : "failed";
+        console.log(`🔀 Redirecting to: ${frontendUrl}/payment-status?status=${status}&id=${transaction.merchantPaymentId}`);
+        res.redirect(`${frontendUrl}/payment-status?status=${status}&id=${transaction.merchantPaymentId}`);
 
     } catch (error) {
         console.error("Payment Callback Error:", error);
-        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const frontendUrl = getFrontendUrl();
         res.redirect(`${frontendUrl}/payment-status?status=failed&error=server_error`);
     }
 };
-
-/**
- * Process a transaction callback — shared logic
- */
-async function processTransaction(transaction, data, responseCode, frontendUrl, res) {
-    const merchantPaymentId = transaction.merchantPaymentId;
-
-    // Verify with QUERYTRANSACTION (double-check with Paratika)
-    let verified = false;
-    try {
-        const queryResult = await ParatikaService.queryTransaction(merchantPaymentId);
-        console.log("📥 QUERYTRANSACTION full response:", JSON.stringify(queryResult, null, 2));
-        transaction.rawResponse = queryResult;
-
-        if (queryResult.responseCode === "00") {
-            // Check transactionList for AP (Approved) status
-            const txList = queryResult.transactionList || [];
-            const approvedTx = txList.find(tx => tx.transactionStatus === "AP");
-
-            if (approvedTx) {
-                verified = true;
-                transaction.status = "SUCCESS";
-                transaction.isVerified = true;
-                console.log("✅ Transaction VERIFIED via QUERYTRANSACTION");
-            } else if (txList.length === 0 && responseCode === "00") {
-                verified = true;
-                transaction.status = "SUCCESS";
-                transaction.isVerified = true;
-                console.log("✅ Transaction approved (responseCode 00, no txList yet)");
-            } else {
-                // Log all transaction statuses for debugging
-                console.log("📊 Transaction statuses:", txList.map(t => `${t.pgTranId}: ${t.transactionStatus}`));
-                transaction.status = "FAILED";
-                transaction.errorMsg = "İşlem doğrulanamadı";
-                console.log("❌ No approved transaction in list");
-            }
-        } else {
-            transaction.status = "FAILED";
-            transaction.errorMsg = queryResult.responseMsg || "İşlem başarısız";
-            console.log("❌ QUERYTRANSACTION failed:", queryResult.responseCode, queryResult.responseMsg);
-        }
-    } catch (queryError) {
-        console.error("❌ QUERYTRANSACTION error:", queryError.message);
-        // Fall back to callback responseCode if query fails
-        if (responseCode === "00") {
-            verified = true;
-            transaction.status = "SUCCESS";
-            transaction.isVerified = false;
-            console.log("⚠️ Using callback responseCode as fallback (not fully verified)");
-        } else {
-            transaction.status = "FAILED";
-            transaction.errorMsg = `Doğrulama yapılamadı: ${responseCode}`;
-        }
-    }
-
-    await transaction.save();
-
-    // If payment succeeded, upgrade user subscription
-    if (verified) {
-        try {
-            const user = await User.findById(transaction.user);
-            if (user) {
-                user.subscriptionTier = transaction.planType;
-                user.subscriptionStatus = "ACTIVE";
-                await user.save();
-                console.log(`🎉 User ${user.email} upgraded to ${transaction.planType}`);
-            }
-        } catch (updateError) {
-            console.error("❌ User subscription update error:", updateError.message);
-        }
-    }
-
-    // Redirect user to frontend payment status page
-    const status = transaction.status === "SUCCESS" ? "success" : "failed";
-    console.log(`🔀 Redirecting to: /payment-status?status=${status}&id=${merchantPaymentId}`);
-    res.redirect(`${frontendUrl}/payment-status?status=${status}&id=${merchantPaymentId}`);
-}
-
 
 /**
  * Query a transaction status (for frontend polling or manual check)
@@ -270,33 +266,58 @@ export const queryPayment = async (req, res) => {
             return res.status(404).json({ success: false, message: "Transaction not found" });
         }
 
-        // Also query Paratika for latest status
+        // Optionally re-query Paratika for latest status
         try {
             const queryResult = await ParatikaService.queryTransaction(merchantPaymentId);
-            return res.json({
-                success: true,
-                transaction: {
-                    status: transaction.status,
-                    amount: transaction.amount,
-                    planType: transaction.planType,
-                    createdAt: transaction.createdAt
-                },
-                paratikaStatus: queryResult
-            });
-        } catch {
-            return res.json({
-                success: true,
-                transaction: {
-                    status: transaction.status,
-                    amount: transaction.amount,
-                    planType: transaction.planType,
-                    createdAt: transaction.createdAt
+
+            if (queryResult.responseCode === "00") {
+                const txList = queryResult.transactionList || [];
+                const approvedTx = txList.find(tx => tx.transactionStatus === "AP");
+
+                if (approvedTx && transaction.status !== "SUCCESS") {
+                    transaction.status = "SUCCESS";
+                    transaction.isVerified = true;
+                    transaction.rawResponse = queryResult;
+                    await transaction.save();
+
+                    // Also upgrade user subscription
+                    await upgradeUserSubscription(transaction);
                 }
-            });
+            }
+        } catch (queryError) {
+            console.error("Query Paratika error:", queryError.message);
         }
 
+        res.json({
+            success: true,
+            transaction: {
+                merchantPaymentId: transaction.merchantPaymentId,
+                status: transaction.status,
+                amount: transaction.amount,
+                planType: transaction.planType,
+                isVerified: transaction.isVerified,
+                createdAt: transaction.createdAt
+            }
+        });
     } catch (error) {
         console.error("Query Payment Error:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+/**
+ * Helper: Upgrade user subscription after successful payment
+ */
+async function upgradeUserSubscription(transaction) {
+    try {
+        const user = await User.findById(transaction.user);
+        if (user && user.subscriptionTier !== transaction.planType) {
+            user.subscriptionTier = transaction.planType;
+            user.subscriptionStatus = "ACTIVE";
+            await user.save();
+            console.log(`🎉 User ${user.email} upgraded to ${transaction.planType}`);
+        }
+    } catch (err) {
+        console.error("❌ upgradeUserSubscription error:", err.message);
+    }
+}

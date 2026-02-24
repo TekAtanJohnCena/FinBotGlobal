@@ -134,8 +134,10 @@ function App() {
             <Route path="/academy" element={<AcademyCourseView />} />
             <Route path="/support" element={<Support />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/payment-status" element={<PaymentStatus />} />
           </Route>
+
+          {/* Payment Status - Public (Paratika 3D Secure redirect geldiğinde auth gerekmez) */}
+          <Route path="/payment-status" element={<PaymentStatus />} />
 
           {/* Legal Pages */}
           <Route path="/legal/kvkk" element={<KVKKText />} />
