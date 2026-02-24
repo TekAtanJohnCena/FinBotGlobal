@@ -112,8 +112,9 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
-      // Redirect to login (only if not already on login page)
-      if (window.location.pathname !== "/login") {
+      // Redirect to login (only if not already on login page or payment status page)
+      const currentPath = window.location.pathname;
+      if (currentPath !== "/login" && !currentPath.startsWith("/payment-status")) {
         window.location.href = "/login";
       }
 
