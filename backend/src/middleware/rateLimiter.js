@@ -89,7 +89,7 @@ export const aiLimiter = rateLimit({
  */
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 5, // Strict limit for auth endpoints
+    limit: 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: {

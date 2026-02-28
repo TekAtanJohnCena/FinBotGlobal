@@ -45,7 +45,7 @@ export const generalRateLimiter = rateLimit({
 });
 
 const AUTH_WINDOW_MS = 15 * 60 * 1000;
-const AUTH_MAX_ATTEMPTS = 5;
+const AUTH_MAX_ATTEMPTS = 100;
 
 const createAuthLimiter = (message) =>
   rateLimit({

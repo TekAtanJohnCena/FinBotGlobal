@@ -9,10 +9,12 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // SECURITY MIDDLEWARE
 import { securityHeaders } from "./middleware/security.js";
-import { generalLimiter, tiingoLimiter, authLimiter } from "./middleware/rateLimiter.js";
+import { generalLimiter, tiingoLimiter } from "./middleware/rateLimiter.js";
 import compression from "compression";
 import morgan from "morgan";
 import logger, { morganStream } from "./utils/logger.js";
@@ -114,7 +116,7 @@ app.use(compression());
 app.use(generalLimiter); // Apply global rate limit
 
 // ===== Routes =====
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 
 app.use("/api/finance", tiingoLimiter, financeChartRoutes); // chart
 app.use("/api/portfolio", portfolioRoutes);
@@ -161,20 +163,16 @@ app.post("/api/contact", async (req, res) => {
 
 // ===== PRODUCTION: Static File Serving =====
 if (process.env.NODE_ENV === 'production') {
-  import('path').then(path => {
-    import('url').then(({ fileURLToPath }) => {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
 
-      // Serve frontend build files
-      app.use(express.static(path.join(__dirname, '../../frontend/build')));
+  // Serve frontend build files
+  app.use(express.static(path.join(__dirname, '../../frontend/build')));
 
-      // Handle React routing - send all non-API requests to index.html
-      app.get('*', (req, res, next) => {
-        if (req.path.startsWith('/api')) return next();
-        res.sendFile(path.join(__dirname, '../../frontend/build/index.html'));
-      });
-    });
+  // Handle React routing - send all non-API requests to index.html
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(__dirname, '../../frontend/build/index.html'));
   });
 }
 
