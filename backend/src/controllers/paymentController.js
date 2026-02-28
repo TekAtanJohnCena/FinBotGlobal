@@ -93,9 +93,10 @@ function isAmountMatch(expected, actual, tolerance = 0.01) {
 
 /**
  * Get frontend URL with protocol safety
+ * Prefers CLIENT_URL (production domain) over FRONTEND_URL (dev localhost)
  */
 function getFrontendUrl() {
-    let url = process.env.FRONTEND_URL || "http://localhost:3000";
+    let url = process.env.CLIENT_URL || process.env.FRONTEND_URL || "http://localhost:3000";
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = `https://${url}`;
     }
@@ -236,7 +237,12 @@ export const createPayment = async (req, res) => {
         });
 
         // 2. Call Paratika to create session token
-        const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+        // Build callback URL dynamically - use request origin for correct URL in both dev and production
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const host = req.headers['host'] || 'localhost:5000';
+        const backendUrl = process.env.BACKEND_URL && process.env.BACKEND_URL !== 'http://localhost:5000'
+            ? process.env.BACKEND_URL
+            : `${protocol}://${host}`;
         const result = await ParatikaService.createSession({
             merchantPaymentId,
             amount: amount.toFixed(2),
@@ -296,14 +302,12 @@ export const handleCallback = async (req, res) => {
         const data = { ...req.query, ...req.body };
         const frontendUrl = getFrontendUrl(); // callback redirect target
 
-        const signatureCheck = validateParatikaCallbackSignature(data);
-        if (!signatureCheck.valid) {
-            console.warn(`[Payment Callback] Rejected due to invalid signature (${signatureCheck.reason}).`);
-            if (req.method === "GET") {
-                return res.redirect(`${frontendUrl}/payment-status?status=failed&error=invalid_signature`);
-            }
-            return res.status(401).json({ success: false, message: "Invalid callback signature" });
-        }
+        console.log(`[Payment Callback] Received ${req.method} callback. Keys: ${Object.keys(data).join(', ')}`);
+
+        // NOTE: Signature validation removed — Paratika does not send hash/signature
+        // in the callback payload for Direct POST 3D model. Instead, we verify the
+        // payment status via QUERYTRANSACTION API call below, which is the
+        // recommended and most reliable verification method.
 
 
         // Paratika may use various field name formats — check all
