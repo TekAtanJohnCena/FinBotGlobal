@@ -20,7 +20,6 @@ export async function getFundamentals(ticker) {
     const cacheKey = `fundamentals:${normalizedTicker}`;
     const cached = cache.get(cacheKey);
     if (cached) {
-        console.log(`📦 Cache hit: ${cacheKey}`);
         return cached;
     }
 

@@ -22,7 +22,6 @@ const Register = () => {
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -35,7 +34,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim() || !phoneNumber || !birthDate || !username.trim() || !email.trim() || !password.trim()) {
+    if (!firstName.trim() || !lastName.trim() || !phoneNumber || !birthDate || !email.trim() || !password.trim()) {
       toast.error(t('auth.fillAllFields'));
       return;
     }
@@ -69,11 +68,6 @@ const Register = () => {
       return;
     }
 
-    if (username.length < 3) {
-      toast.error(t('auth.usernameLength'));
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -82,7 +76,6 @@ const Register = () => {
         lastName: lastName.trim(),
         phoneNumber: `+${phoneNumber}`,
         birthDate,
-        username: username.trim(),
         email: email.trim().toLowerCase(),
         password
       });
@@ -533,20 +526,6 @@ const Register = () => {
                     max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                   />
                 </div>
-              </div>
-
-              {/* Kullanıcı Adı */}
-              <div className="form-group">
-                <label className="form-label">{t('auth.username')}</label>
-                <input
-                  type="text"
-                  className="glass-input"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  placeholder={t('auth.usernamePlaceholder')}
-                />
-                <div className="form-hint">{t('auth.usernameHint')}</div>
               </div>
 
               {/* E-posta */}

@@ -239,7 +239,6 @@ export const completeProfile = async (req, res) => {
 
     await user.save();
 
-    console.log("✅ Profile completed for user:", user.email);
 
     // Async: Trigger cache preload for Screener performance
     // (non-blocking - user doesn't wait for this)
@@ -247,11 +246,9 @@ export const completeProfile = async (req, res) => {
       try {
         const { refreshFundamentalsCache } = await import("../scripts/fundamentalsCacheJob.js");
         if (refreshFundamentalsCache) {
-          console.log("🚀 Triggering fundamentals cache for new user:", user.email);
           refreshFundamentalsCache();
         }
       } catch (err) {
-        console.log("⚠️ Cache preload skipped:", err.message);
       }
     });
 

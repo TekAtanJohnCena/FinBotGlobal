@@ -95,7 +95,6 @@ class DummyPaymentProvider extends IPaymentProvider {
         // Store subscription
         this.#subscriptions.set(subscriptionId, subscription);
 
-        console.log(`✅ [DummyPayment] Created subscription: ${subscriptionId} for plan: ${planName}`);
 
         return {
             success: true,
@@ -128,7 +127,6 @@ class DummyPaymentProvider extends IPaymentProvider {
             subscription.cancelledAt = now;
         }
 
-        console.log(`🛑 [DummyPayment] Cancelled subscription: ${subscriptionId} (immediately: ${immediately})`);
 
         return {
             success: true,
@@ -158,7 +156,6 @@ class DummyPaymentProvider extends IPaymentProvider {
         // If upgrading, subscription remains active
         // In real provider, this might trigger proration charge
 
-        console.log(`🔄 [DummyPayment] Updated subscription: ${subscriptionId} from ${oldPlanName} to plan ${newPlanId}`);
 
         return {
             success: true,
@@ -213,7 +210,6 @@ class DummyPaymentProvider extends IPaymentProvider {
         }
 
         const customerId = this.#generateId("cus");
-        console.log(`👤 [DummyPayment] Created customer: ${customerId} for ${email}`);
 
         return { customerId, isNew: true };
     }
@@ -237,7 +233,6 @@ class DummyPaymentProvider extends IPaymentProvider {
     async handleWebhook(event) {
         const { type, data } = event;
 
-        console.log(`📨 [DummyPayment] Received webhook: ${type}`);
 
         // Simulate different webhook event types
         switch (type) {
@@ -264,7 +259,6 @@ class DummyPaymentProvider extends IPaymentProvider {
      * Simulate a refund
      */
     async refund(paymentId, amount = null) {
-        console.log(`💸 [DummyPayment] Refund processed for payment: ${paymentId}, amount: ${amount || "full"}`);
 
         return {
             success: true,
@@ -293,7 +287,6 @@ class DummyPaymentProvider extends IPaymentProvider {
     clearTestData() {
         this.#subscriptions.clear();
         this.#customers.clear();
-        console.log("🧹 [DummyPayment] Cleared all test data");
     }
 }
 

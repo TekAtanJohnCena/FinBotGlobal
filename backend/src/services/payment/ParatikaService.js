@@ -78,17 +78,13 @@ class ParatikaService {
 
             params.append("ORDERITEMS", JSON.stringify(orderItems));
 
-            console.log("🚀 PARATIKA SESSION REQUEST:");
-            for (const [k, v] of params.entries()) {
-                if (!k.includes("PASSWORD")) console.log(`   ${k}: ${v}`);
-            }
+            console.log(`[Paratika] Session request prepared (merchantPaymentId=${paymentData.merchantPaymentId}, amount=${formattedTotalAmount})`);
 
             const response = await axios.post(PARATIKA_BASE_URL, params, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 timeout: 15000
             });
 
-            console.log("✅ PARATIKA RESPONSE:", JSON.stringify(response.data, null, 2));
 
             // Validate sessionToken
             if (response.data.responseCode === "00" && !response.data.sessionToken) {
@@ -126,18 +122,72 @@ class ParatikaService {
             params.append("MERCHANTPASSWORD", PARATIKA_API_PASSWORD);
             params.append("MERCHANTPAYMENTID", merchantPaymentId);
 
-            console.log(`🔍 QUERYTRANSACTION for: ${merchantPaymentId}`);
 
             const response = await axios.post(PARATIKA_BASE_URL, params, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 timeout: 15000
             });
 
-            console.log("✅ QUERYTRANSACTION RESPONSE:", JSON.stringify(response.data, null, 2));
 
             return response.data;
         } catch (error) {
             console.error("❌ Paratika QueryTransaction Error:", error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Charge a stored card token (Non-3D recurring sale).
+     * Used by subscription cron for automatic monthly renewals.
+     * No 3D Secure redirect — runs silently in the background.
+     * 
+     * @param {Object} chargeData
+     * @param {string} chargeData.cardToken - Stored card token from User.savedCards
+     * @param {string} chargeData.amount - Amount to charge (e.g. "369.00")
+     * @param {string} chargeData.currency - Currency code (default: TRY)
+     * @param {string} chargeData.merchantPaymentId - Unique payment reference
+     * @param {string} chargeData.customerId - User ID or Paratika customer ID
+     * @param {string} chargeData.customerEmail - Customer email
+     * @param {string} chargeData.customerName - Customer name
+     * @param {string} chargeData.description - Payment description
+     * @returns {Promise<Object>} Paratika API response
+     */
+    static async chargeWithToken(chargeData) {
+        try {
+            const formattedAmount = this.formatAmount(chargeData.amount);
+
+            const params = new URLSearchParams();
+            params.append("ACTION", "SALE");
+            params.append("MERCHANT", PARATIKA_MERCHANT_ID);
+            params.append("MERCHANTUSER", FINAL_MERCHANT_USER);
+            params.append("MERCHANTPASSWORD", PARATIKA_API_PASSWORD);
+            params.append("MERCHANTPAYMENTID", chargeData.merchantPaymentId);
+            params.append("AMOUNT", formattedAmount);
+            params.append("CURRENCY", (chargeData.currency || "TRY").toUpperCase());
+            params.append("CARDTOKEN", chargeData.cardToken);
+
+            // Customer info
+            params.append("CUSTOMER", chargeData.customerId || "recurring_customer");
+            params.append("CUSTOMERNAME", chargeData.customerName || "FinBot User");
+            params.append("CUSTOMEREMAIL", chargeData.customerEmail || "");
+            params.append("CUSTOMERIP", "127.0.0.1"); // Server-initiated
+            params.append("CUSTOMERUSERAGENT", "FinBot-SubscriptionCron/1.0");
+
+            console.log(`[Paratika] Token charge request prepared (merchantPaymentId=${chargeData.merchantPaymentId}, amount=${formattedAmount})`);
+
+            const response = await axios.post(PARATIKA_BASE_URL, params, {
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                timeout: 30000
+            });
+
+
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                console.error("❌ Paratika Token Sale API Error:", error.response.status, error.response.data);
+            } else {
+                console.error("❌ Paratika Token Sale Connection Error:", error.message);
+            }
             throw error;
         }
     }

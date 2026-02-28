@@ -166,7 +166,6 @@ router.post("/webhook/:provider", express.raw({ type: "application/json" }), asy
 
         const result = await SubscriptionService.processWebhook(provider, payload, signature);
 
-        console.log(`📨 Webhook processed: ${provider} - ${result.eventType}`);
         res.json({ ok: true, received: true });
     } catch (error) {
         console.error("Webhook error:", error);

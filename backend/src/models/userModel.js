@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import crypto from "crypto";
+import { encryptSensitiveValue, decryptSensitiveValue } from "../utils/fieldEncryption.js";
 
 const userSchema = new mongoose.Schema(
   {
     // Temel Kimlik Bilgileri
-    username: { type: String, required: true, unique: true },
+    username: { type: String }, // Deprecated — artık zorunlu değil, email-based auth kullanılıyor
     email: { type: String, required: true, unique: true },
     password: { type: String }, // Google girişleri için required değil
 
@@ -114,9 +115,26 @@ const userSchema = new mongoose.Schema(
         type: String,
         enum: ["0-1000", "1000-5000", "5000-10000", "10000+"]
       }
-    }
+    },
+
+    // Paratika Sanal Pos Entegrasyonu
+    paratikaCustomerId: { type: String },
+    savedCards: [{
+      cardToken: {
+        type: String,
+        set: encryptSensitiveValue,
+        get: decryptSensitiveValue
+      },    // Paratika'dan dönen kart token'ı
+      cardMask: { type: String },     // Maskelenmiş kart numarası (örn: **** **** **** 4242)
+      cardBrand: { type: String },    // Visa, Mastercard vb.
+      bankName: { type: String }      // Kartın ait olduğu banka
+    }]
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true }
+  }
 );
 
 // Şifre sıfırlama token'ı oluşturma methodu
@@ -137,3 +155,4 @@ userSchema.methods.getResetPasswordToken = function () {
 };
 
 export default mongoose.model("User", userSchema);
+

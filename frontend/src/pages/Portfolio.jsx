@@ -160,10 +160,8 @@ const Portfolio = () => {
         quantity: Number(addQty),
         avgCost: Number(addCost)
       };
-      console.log('📤 Sending to portfolio:', payload);
 
       const res = await api.post('/portfolio/add', payload);
-      console.log('📥 Response:', res.data);
 
       if (res.data.ok) {
         alert('✅ Hisse başarıyla eklendi!');
@@ -200,7 +198,7 @@ const Portfolio = () => {
       {/* Mobile Sidebar Toggle Button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-lg transition-all"
+        className="fixed top-16 left-4 z-50 lg:hidden p-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-lg transition-all"
       >
         {isSidebarOpen ? <X size={20} /> : <Search size={20} />}
       </button>

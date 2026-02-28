@@ -20,7 +20,6 @@ const openai = {
  */
 export async function getKapNews(req, res) {
   try {
-    console.log(`📰 KAP haberleri çekiliyor (Borsagundem RSS - tüm mevcut haberler)`);
 
     // Scraper servisinden haberleri çek
     const news = await fetchKapNews();
@@ -30,7 +29,6 @@ export async function getKapNews(req, res) {
       return res.status(200).json([]);
     }
 
-    console.log(`✅ Toplam ${news.length} haber başarıyla çekildi`);
     res.json(news);
   } catch (error) {
     console.error("❌ Get KAP News Error:", error.message);

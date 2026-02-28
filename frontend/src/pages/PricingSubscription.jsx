@@ -29,13 +29,13 @@ const PricingSubscription = () => {
       key: "plus",
       icon: <Zap className="w-6 h-6" />,
       highlight: true,
-      monthly: 369,
+      monthly: 1,
     },
     {
       key: "pro",
       icon: <Shield className="w-6 h-6" />,
       highlight: false,
-      monthly: 449,
+      monthly: 1,
     },
     {
       key: "enterprise",
@@ -46,13 +46,13 @@ const PricingSubscription = () => {
   ];
 
   const calcPrice = (monthlyPrice) => {
-    if (period === "monthly") return monthlyPrice;
-    return Math.round(monthlyPrice * 12 * 0.80); // 20% discount for yearly
+    if (monthlyPrice <= 0) return monthlyPrice;
+    return 1;
   };
 
   const calculateMonthlyEquivalent = (monthlyPrice) => {
-    const yearlyPrice = Math.round(monthlyPrice * 12 * 0.80);
-    return Math.round(yearlyPrice / 12);
+    if (monthlyPrice <= 0) return monthlyPrice;
+    return 1;
   };
 
   // Handle plan selection

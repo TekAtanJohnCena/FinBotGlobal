@@ -65,7 +65,6 @@ const resetUserQuota = async (user) => {
         lastResetDate: new Date()
     };
     await user.save();
-    console.log(`🔄 Quota reset for user: ${user.email}`);
 };
 
 /**

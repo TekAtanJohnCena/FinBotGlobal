@@ -85,10 +85,10 @@ const clearTokenCookies = (res) => {
 // Helper: Build user response object
 const buildUserResponse = (user) => ({
   id: user._id,
-  username: user.username,
   email: user.email,
   firstName: user.firstName,
   lastName: user.lastName,
+  fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
   avatar: user.avatar,
   authType: user.authType,
   subscriptionTier: user.subscriptionTier || "FREE",
@@ -118,28 +118,20 @@ const issueTokens = async (res, user) => {
    1. REGISTER (EMAIL + PASSWORD)
    ===================================================== */
 export const register = asyncHandler(async (req, res) => {
-  const { username, email, password, firstName, lastName, phoneNumber, birthDate } = req.body;
+  const { email, password, firstName, lastName, phoneNumber, birthDate } = req.body;
 
   // Zorunlu alan kontrolü
-  if (!username || !email || !password || !firstName || !lastName || !phoneNumber || !birthDate) {
+  if (!email || !password || !firstName || !lastName || !phoneNumber || !birthDate) {
     return res.status(400).json({
-      message: "Tüm zorunlu alanlar doldurulmalıdır (Ad, Soyad, Telefon, Doğum Tarihi, Kullanıcı Adı, E-posta, Şifre).",
+      message: "Tüm zorunlu alanlar doldurulmalıdır (Ad, Soyad, Telefon, Doğum Tarihi, E-posta, Şifre).",
     });
   }
 
   // E-posta kontrolü
-  const existingEmail = await User.findOne({ email });
+  const existingEmail = await User.findOne({ email: email.toLowerCase() });
   if (existingEmail) {
     return res.status(409).json({
       message: "Bu e-posta adresi zaten kayıtlı.",
-    });
-  }
-
-  // Kullanıcı adı kontrolü
-  const existingUsername = await User.findOne({ username });
-  if (existingUsername) {
-    return res.status(409).json({
-      message: "Bu kullanıcı adı zaten kullanılıyor.",
     });
   }
 
@@ -148,11 +140,11 @@ export const register = asyncHandler(async (req, res) => {
 
   // Yeni kullanıcı oluştur (Verified — email doğrulama bypass edildi)
   const newUser = await User.create({
-    username: username.toLowerCase(),
     email: email.toLowerCase(),
     password: hashedPassword,
     firstName,
     lastName,
+    fullName: `${firstName} ${lastName}`,
     phoneNumber,
     birthDate: new Date(birthDate),
     authType: "manual",
@@ -161,7 +153,6 @@ export const register = asyncHandler(async (req, res) => {
     isVerified: true,
   });
 
-  console.log("✅ User registered & verified:", newUser.email);
 
   // Hoşgeldin maili gönder
   try {
@@ -182,31 +173,35 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 /* =====================================================
-   2. LOGIN (EMAIL/USERNAME + PASSWORD)
+   2. LOGIN (EMAIL + PASSWORD)
    ===================================================== */
 export const login = asyncHandler(async (req, res) => {
   const { identifier, password } = req.body;
 
   if (!identifier || !password) {
     return res.status(400).json({
-      message: "E-posta/Kullanıcı adı ve şifre gerekli.",
+      message: "E-posta ve şifre gerekli.",
     });
   }
 
   const user = await User.findOne({
-    $or: [
-      { email: identifier.toLowerCase() },
-      { username: identifier }
-    ]
+    email: identifier.toLowerCase()
   }).select("+password");
 
   if (!user || !user.password) {
     return res.status(401).json({
-      message: "E-posta/Kullanıcı adı veya şifre hatalı.",
+      message: "Geçersiz e-posta veya şifre.",
     });
   }
 
-  // E-Posta doğrulama kontrolü
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({
+      message: "Geçersiz e-posta veya şifre.",
+    });
+  }
+
+  // E-Posta doğrulama kontrolü (only after credentials are verified)
   if (user.isVerified === false) {
     return res.status(401).json({
       message: "Lütfen önce e-posta adresinizi doğrulayın. (Mail kutunuzu kontrol edin)",
@@ -215,14 +210,6 @@ export const login = asyncHandler(async (req, res) => {
     });
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({
-      message: "E-posta/Kullanıcı adı veya şifre hatalı.",
-    });
-  }
-
-  console.log("✅ User logged in:", user.email);
 
   // Issue dual tokens + set cookies
   const accessToken = await issueTokens(res, user);
@@ -262,7 +249,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
   }
 
   if (!payload || !payload.email) {
-    console.error("❌ Google payload email missing:", payload);
+    console.error("❌ Google payload email missing");
     return res.status(400).json({
       message: "Google hesabından e-posta alınamadı.",
     });
@@ -283,24 +270,21 @@ export const googleLogin = asyncHandler(async (req, res) => {
       if (!user.firstName) user.firstName = firstName;
       if (!user.lastName) user.lastName = lastName;
       await user.save();
-      console.log("✅ Existing user updated with Google ID:", email);
     } else {
-      console.log("✅ Existing Google user logged in:", email);
     }
   } else {
     user = await User.create({
-      username: email.split("@")[0],
       email,
       googleId: sub,
       avatar: picture,
       firstName,
       lastName,
+      fullName: `${firstName} ${lastName}`,
       authType: "google",
       subscriptionTier: "FREE",
       subscriptionStatus: "INACTIVE",
       isVerified: true,
     });
-    console.log("✅ New Google user created:", email);
 
     try {
       await sendWelcomeEmail(user.email, user.firstName || "Finbot Kullanıcısı");
@@ -322,9 +306,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
    4. FORGOT PASSWORD
    ===================================================== */
 export const forgotPassword = asyncHandler(async (req, res) => {
-  console.log('🔔 Forgot Password isteği 5000 portuna ulaştı!');
   const { email } = req.body;
-  console.log("🔍 Şifre sıfırlama isteği:", email);
 
   if (!email) {
     return res.status(400).json({ message: "E-posta adresi gerekli." });
@@ -333,24 +315,18 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    console.log("❌ Kullanıcı bulunamadı:", email);
     return res.status(404).json({ message: "Bu e-posta adresine sahip bir kullanıcı bulunamadı." });
   }
 
-  console.log("✅ Kullanıcı bulundu:", user.email);
 
   const resetToken = user.getResetPasswordToken();
-  console.log("🎫 Token üretildi");
 
   await user.save({ validateBeforeSave: false });
-  console.log("💾 Kullanıcı token ile kaydedildi");
 
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-  console.log("🔗 Sıfırlama linki oluşturuldu");
 
   try {
     await sendPasswordResetEmail(user.email, resetToken);
-    console.log("📧 Mail gönderildi:", user.email);
 
     res.status(200).json({
       message: "Şifre sıfırlama e-postası gönderildi."
@@ -460,7 +436,6 @@ export const refreshTokenHandler = asyncHandler(async (req, res) => {
 
   setTokenCookies(res, newAccessToken, newRefreshToken);
 
-  console.log("🔄 Token refreshed for:", user.email);
 
   res.status(200).json({
     success: true,
@@ -482,7 +457,6 @@ export const logoutHandler = asyncHandler(async (req, res) => {
       if (user) {
         user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== incomingRefreshToken);
         await user.save({ validateBeforeSave: false });
-        console.log("🚪 User logged out:", user.email);
       }
     } catch {
       // Token invalid — just clear cookies

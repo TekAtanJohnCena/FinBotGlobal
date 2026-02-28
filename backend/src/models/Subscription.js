@@ -10,6 +10,7 @@
  */
 
 import mongoose from "mongoose";
+import { encryptSensitiveValue, decryptSensitiveValue } from "../utils/fieldEncryption.js";
 
 const subscriptionSchema = new mongoose.Schema(
     {
@@ -44,9 +45,10 @@ const subscriptionSchema = new mongoose.Schema(
                 "PAST_DUE",    // Payment failed, grace period
                 "CANCELLED",   // User cancelled (still active until period end)
                 "EXPIRED",     // Subscription ended
-                "PAUSED"       // Temporarily paused
+                "PAUSED",      // Temporarily paused
+                "PENDING"      // Awaiting initial payment
             ],
-            default: "ACTIVE"
+            default: "PENDING"
         },
 
         // Billing Period
@@ -111,12 +113,22 @@ const subscriptionSchema = new mongoose.Schema(
             brand: String,            // "visa", "mastercard", etc.
             expiryMonth: Number,
             expiryYear: Number
+        },
+
+        // Tekrarlayan Ödeme (Paratika)
+        nextBillingDate: {
+            type: Date               // Bir sonraki çekim tarihi
+        },
+        activeCardToken: {
+            type: String,            // Yenileme sirasinda kullanilacak User.savedCards cardToken'i
+            set: encryptSensitiveValue,
+            get: decryptSensitiveValue
         }
     },
     {
         timestamps: true,
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true }
+        toJSON: { virtuals: true, getters: true },
+        toObject: { virtuals: true, getters: true }
     }
 );
 
@@ -195,3 +207,4 @@ subscriptionSchema.statics.getHistoryForUser = async function (userId) {
 };
 
 export default mongoose.model("Subscription", subscriptionSchema);
+

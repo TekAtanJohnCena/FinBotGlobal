@@ -39,7 +39,6 @@ class SubscriptionService {
      */
     setPaymentProvider(provider) {
         this.#paymentProvider = provider;
-        console.log(`🔄 [SubscriptionService] Provider changed to: ${provider.name}`);
     }
 
     /**
@@ -198,7 +197,6 @@ class SubscriptionService {
         user.subscriptionStatus = "ACTIVE";
         await user.save();
 
-        console.log(`🚀 [SubscriptionService] User ${user.email} upgraded from ${currentPlan} to ${normalizedPlan}`);
 
         return {
             success: true,
@@ -290,7 +288,6 @@ class SubscriptionService {
             await user.save();
         }
 
-        console.log(`📉 [SubscriptionService] User ${user.email} downgraded from ${currentPlan} to ${normalizedPlan}`);
 
         return {
             success: true,
@@ -339,7 +336,6 @@ class SubscriptionService {
 
         await user.save();
 
-        console.log(`🛑 [SubscriptionService] User ${user.email} cancelled subscription (immediately: ${immediately})`);
 
         return {
             success: true,
@@ -381,7 +377,6 @@ class SubscriptionService {
                 await this.#handlePaymentSucceeded(result.data);
                 break;
             default:
-                console.log(`📨 [SubscriptionService] Unhandled webhook event: ${result.eventType}`);
         }
 
         return { processed: true, eventType: result.eventType };

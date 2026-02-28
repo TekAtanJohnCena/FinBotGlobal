@@ -11,7 +11,7 @@ import {
 
 // Security Middleware imports
 import { protect } from "../middleware/auth.js";
-import { aiRateLimiter } from "../middleware/security.js";
+import { aiRateLimiter, chatMessageRateLimiter } from "../middleware/security.js";
 import { validate, chatMessageSchema } from "../middleware/validate.js";
 import { checkFinbotQuota } from "../middleware/quotaMiddleware.js";
 
@@ -20,9 +20,9 @@ const router = express.Router();
 // All routes require authentication
 // Note: This router is mounted at "/api/chat" in index.js
 // POST /api/chat -> sendMessage (mesaj gönder)
-router.post("/", protect, checkFinbotQuota, aiRateLimiter, validate(chatMessageSchema), sendMessage);
+router.post("/", protect, checkFinbotQuota, chatMessageRateLimiter, aiRateLimiter, validate(chatMessageSchema), sendMessage);
 // POST /api/chat/stream -> sendMessageStream (streaming mesaj)
-router.post("/stream", protect, checkFinbotQuota, aiRateLimiter, validate(chatMessageSchema), sendMessageStream);
+router.post("/stream", protect, checkFinbotQuota, chatMessageRateLimiter, aiRateLimiter, validate(chatMessageSchema), sendMessageStream);
 // GET /api/chat/history -> getChatHistory (geçmiş sohbetler)
 router.get("/history", protect, getChatHistory);
 // GET /api/chat/:id -> getChatById (tek sohbet detayı)

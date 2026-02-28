@@ -16,7 +16,6 @@ export async function getNews(ticker, limit = 20) {
     const cacheKey = ticker ? `news:${formatTicker(ticker)}` : 'news:all';
     const cached = cache.get(cacheKey);
     if (cached) {
-        console.log(`📦 Cache hit: ${cacheKey}`);
         return cached;
     }
 

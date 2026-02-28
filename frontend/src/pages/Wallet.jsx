@@ -4,18 +4,17 @@
 // Financial Engineering Dashboard - No LLM, Pure Algorithms
 // ═══════════════════════════════════════════════════════════════
 
-import { useState, useContext, useCallback, useRef, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState, useCallback, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../lib/api";
 import {
-  Wallet, TrendingUp, TrendingDown, Upload, DollarSign,
+  Wallet, TrendingUp, TrendingDown, DollarSign,
   AlertTriangle, Flame, Ghost, BarChart3, Target,
   PieChart as PieIcon, Calendar, ArrowUpRight, Zap,
   ChevronDown, ChevronUp, Trash2, Plus, FileText, Eye, EyeOff, X
 } from "lucide-react";
 import {
-  ResponsiveContainer, Treemap, RadialBarChart, RadialBar, Legend,
+  ResponsiveContainer, RadialBarChart, RadialBar,
 } from "recharts";
 
 // ═══════════════════════════════════════════════════════════════
@@ -62,16 +61,12 @@ const fmt = (n) => "₺" + Math.abs(n).toLocaleString("tr-TR", { maximumFraction
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════
 export function WalletPage() {
-  const { user } = useContext(AuthContext);
-
   // Core State
   const [monthlyIncome, setMonthlyIncome] = useState(35000);
   const [incomeInput, setIncomeInput] = useState("35000");
   const [transactions, setTransactions] = useState([]);
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
-  const [activeSection, setActiveSection] = useState(null);
   const [isDemoActive, setIsDemoActive] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [manualDesc, setManualDesc] = useState("");
@@ -95,7 +90,6 @@ export function WalletPage() {
         }
       } catch (err) {
         // Not critical — user may not have any saved transactions yet
-        console.log("No persisted transactions found.");
       }
     };
     fetchTransactions();
@@ -103,26 +97,6 @@ export function WalletPage() {
   }, []);
 
   // ─── ANALYSIS FUNCTIONS ───
-  const runAnalysis = useCallback(async (txns, income) => {
-    setIsAnalyzing(true);
-    try {
-      const res = await api.post("/wallet/analyze-manual", {
-        monthlyIncome: income,
-        transactions: txns,
-      });
-      if (res.data?.success) {
-        setAnalysisResult(res.data.analysis);
-        toast.success("Analiz tamamlandı!");
-      }
-    } catch (err) {
-      console.error("Analysis error:", err);
-      // Fallback: run local analysis
-      runLocalAnalysis(txns, income);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  }, []);
-
   const runLocalAnalysis = useCallback((txns, income) => {
     const categorized = txns.map((t) => ({
       ...t,
@@ -566,22 +540,12 @@ export function WalletPage() {
             </div>
           </div>
 
-          {/* Loading State */}
-          {isAnalyzing && (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="w-16 h-16 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-sm text-zinc-400 font-medium">Finansal analiz yapılıyor...</p>
-              </div>
-            </div>
-          )}
+          {/* Loading State Removed */}
 
 
 
           {/* ═══════════════════════════════════════════════════════════ */}
-          {/* DASHBOARD SECTIONS (only show after analysis) */}
-          {/* ═══════════════════════════════════════════════════════════ */}
-          {analysisResult && !isAnalyzing && (
+          {analysisResult && (
             <>
               {/* Row 1: Gauge + TreeMap */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -666,7 +630,7 @@ export function WalletPage() {
           )}
 
           {/* Empty State */}
-          {!analysisResult && !isAnalyzing && (
+          {!analysisResult && (
             <div className="text-center py-24">
               <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center">
                 <BarChart3 className="w-12 h-12 text-emerald-500/50" />

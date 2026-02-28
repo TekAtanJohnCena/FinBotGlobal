@@ -13,7 +13,7 @@ export default function Pricing() {
 
     const [period, setPeriod] = useState("monthly");
     const nf = useMemo(() => new Intl.NumberFormat("tr-TR"), []);
-    const calcYearly = (m) => Math.round(m * 12 * 0.80); // %20 indirim
+    const calcYearly = (m) => (m > 0 ? m : 0);
 
     // Payment Modal State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -31,12 +31,12 @@ export default function Pricing() {
         },
         {
             key: "plus",
-            monthly: 369,
+            monthly: 1,
             highlight: true // Popular moved to Plus
         },
         {
             key: "pro",
-            monthly: 449, // Updated price
+            monthly: 1, // Temporary test price
             highlight: false
         },
         {
@@ -48,7 +48,6 @@ export default function Pricing() {
 
     // Handle plan selection - direct implementation without hook dependency
     const handlePlanSelect = (planKey, monthly) => {
-        console.log('handlePlanSelect called:', { planKey, monthly, user, period });
 
         // Enterprise always goes to contact
         if (planKey === 'enterprise') {
@@ -68,11 +67,9 @@ export default function Pricing() {
 
         // Paid plans (plus, pro)
         const price = period === 'monthly' ? monthly : calcYearly(monthly);
-        console.log('Paid plan selected:', { planKey, price, user: !!user });
 
         if (user) {
             // User is logged in - show payment modal directly
-            console.log('Setting selectedPlan and showing modal');
             setSelectedPlan({
                 key: planKey,
                 name: planKey === 'plus' ? 'Plus' : 'Pro',
@@ -80,10 +77,8 @@ export default function Pricing() {
                 period: period
             });
             setShowPaymentModal(true);
-            console.log('Modal should be visible now');
         } else {
             // Guest user - save plan and redirect to register
-            console.log('Guest user - redirecting to register');
             savePendingPlan(planKey, period);
             navigate('/register');
         }
@@ -106,29 +101,24 @@ export default function Pricing() {
         if (monthly === 0) {
             return (
                 <div className="display-6 fw-bold my-3 text-white">
-                    ₺0<span className="fs-6">{period === "monthly" ? t('pricing.perMonth') : t('pricing.perYear')}</span>
+                    0 TL<span className="fs-6">{period === "monthly" ? t('pricing.perMonth') : t('pricing.perYear')}</span>
                 </div>
             );
         }
         if (period === "monthly") {
             return (
                 <div className="display-6 fw-bold my-3 text-white">
-                    ₺{nf.format(monthly)}<span className="fs-6">{t('pricing.perMonth')}</span>
+                    {nf.format(monthly)} TL<span className="fs-6">{t('pricing.perMonth')}</span>
                 </div>
             );
         }
-        const original = monthly * 12;
         const discounted = calcYearly(monthly);
         return (
             <div className="my-3">
-                <div className="text-soft" style={{ textDecoration: "line-through" }}>
-                    ₺{nf.format(original)} {t('pricing.perYear')}
+                <div className="d-flex align-items-center gap-2 my-1">
+                    <div className="display-6 fw-bold text-white">{nf.format(discounted)} TL<span className="fs-6">{t('pricing.perYear')}</span></div>
                 </div>
-                <div className="d-flex align-items-center gap-2">
-                    <div className="display-6 fw-bold text-white">₺{nf.format(discounted)}<span className="fs-6">{t('pricing.perYear')}</span></div>
-                    <span className="badge bg-success-subtle text-success-emphasis">-20%</span>
-                </div>
-                <div className="text-soft small">{t('pricing.monthlyEquivalent')}: ₺{nf.format(Math.round(discounted / 12))}</div>
+                <div className="text-soft small">{t('pricing.monthlyEquivalent')}: {nf.format(discounted >= 12 ? Math.round(discounted / 12) : discounted)} TL</div>
             </div>
         );
     };

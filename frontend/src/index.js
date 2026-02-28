@@ -4,13 +4,15 @@ import { BrowserRouter } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import App from './App';
+import './i18n';       // i18next initialization (must be before any component render)
 import './index.css';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Google Client ID
-const GOOGLE_CLIENT_ID = "31375613755-tu8dkeo411m0kltv4sa2bc6jbjd7cbep.apps.googleusercontent.com";
+// Google Client ID — .env dosyasından alınır, fallback olarak mevcut değer kullanılır
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "31375613755-tu8dkeo411m0kltv4sa2bc6jbjd7cbep.apps.googleusercontent.com";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -25,15 +27,17 @@ const queryClient = new QueryClient({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <QueryClientProvider client={queryClient}>
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <LanguageProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </AuthProvider>
-      </LanguageProvider>
-    </GoogleOAuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <LanguageProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AuthProvider>
+        </LanguageProvider>
+      </GoogleOAuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );

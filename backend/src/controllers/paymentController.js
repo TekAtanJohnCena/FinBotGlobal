@@ -1,18 +1,95 @@
 import ParatikaService from "../services/payment/ParatikaService.js";
 import PaymentTransaction from "../models/PaymentTransaction.js";
 import User from "../models/userModel.js";
+import SubscriptionPlan from "../models/SubscriptionPlan.js";
+import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
 /**
- * Subscription Plans Configuration
+ * Temporary fallback test prices (TRY)
  */
-const SUBSCRIPTION_PLANS = {
-    PLUS: { amount: 369.00, name: "Plus Plan" },
-    PRO: { amount: 449.00, name: "Pro Plan" }
+const TEST_PLAN_FALLBACK = {
+    PLUS: { monthly: 1.00, yearly: 1.00, label: "Plus" },
+    PRO: { monthly: 1.00, yearly: 1.00, label: "Pro" }
 };
 
-// Yearly prices with 20% discount
-const YEARLY_MULTIPLIER = 12 * 0.80;
+async function resolvePlanPricing(planType, billingPeriod = "MONTHLY") {
+    const normalizedPlanType = String(planType || "").toUpperCase();
+    if (!["PLUS", "PRO"].includes(normalizedPlanType)) {
+        throw new Error("invalid_plan");
+    }
+
+    const normalizedBilling = billingPeriod === "YEARLY" ? "YEARLY" : "MONTHLY";
+    const dbPlan = await SubscriptionPlan.getByName(normalizedPlanType);
+
+    if (dbPlan?.price) {
+        const monthly = Number(dbPlan.price.monthly ?? 0);
+        const yearly = Number(dbPlan.price.yearly ?? monthly);
+        const dbAmount = normalizedBilling === "YEARLY" ? yearly : monthly;
+
+        if (Number.isFinite(dbAmount) && dbAmount > 0) {
+            return {
+                planType: normalizedPlanType,
+                billingPeriod: normalizedBilling,
+                amount: Number(dbAmount.toFixed(2)),
+                label: dbPlan.displayNameTR || dbPlan.displayName || normalizedPlanType
+            };
+        }
+    }
+
+    const fallback = TEST_PLAN_FALLBACK[normalizedPlanType];
+    if (!fallback) {
+        throw new Error("invalid_plan");
+    }
+
+    const fallbackAmount = normalizedBilling === "YEARLY" ? fallback.yearly : fallback.monthly;
+    return {
+        planType: normalizedPlanType,
+        billingPeriod: normalizedBilling,
+        amount: Number(fallbackAmount.toFixed(2)),
+        label: fallback.label
+    };
+}
+
+function parseAmount(value) {
+    if (value === null || value === undefined || value === "") return null;
+
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : null;
+    }
+
+    const normalized = String(value)
+        .replace(/[^\d,.-]/g, "")
+        .replace(",", ".");
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function extractAmountCandidate(payload) {
+    if (!payload || typeof payload !== "object") return null;
+    const amountKeys = [
+        "amount",
+        "AMOUNT",
+        "transactionAmount",
+        "TRANSACTIONAMOUNT",
+        "paidAmount",
+        "PAIDAMOUNT",
+        "totalAmount",
+        "TOTALAMOUNT"
+    ];
+
+    for (const key of amountKeys) {
+        const parsed = parseAmount(payload[key]);
+        if (parsed !== null) return parsed;
+    }
+
+    return null;
+}
+
+function isAmountMatch(expected, actual, tolerance = 0.01) {
+    if (!Number.isFinite(expected) || !Number.isFinite(actual)) return false;
+    return Math.abs(expected - actual) <= tolerance;
+}
 
 /**
  * Get frontend URL with protocol safety
@@ -25,35 +102,123 @@ function getFrontendUrl() {
     return url.replace(/\/+$/, '');
 }
 
+function normalizeHash(value) {
+    return String(value || "")
+        .trim()
+        .replace(/\s+/g, "")
+        .toUpperCase();
+}
+
+function safeHashCompare(left, right) {
+    if (!left || !right) return false;
+    if (left.length !== right.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"));
+}
+
+function getIncomingCallbackHash(payload) {
+    const possibleHashKeys = [
+        "hash",
+        "HASH",
+        "hashData",
+        "HASHDATA",
+        "signature",
+        "SIGNATURE",
+        "secureHash",
+        "SECUREHASH"
+    ];
+
+    for (const key of possibleHashKeys) {
+        if (payload[key]) {
+            return String(payload[key]);
+        }
+    }
+
+    return null;
+}
+
+function buildHashPayload(payload) {
+    const hashParamsVal = payload.hashParamsVal || payload.HASHPARAMSVAL;
+    if (hashParamsVal) {
+        return String(hashParamsVal);
+    }
+
+    const hashParams = payload.hashParams || payload.HASHPARAMS;
+    if (hashParams) {
+        return String(hashParams)
+            .split(":")
+            .filter(Boolean)
+            .map((fieldName) => String(payload[fieldName] ?? payload[fieldName.toUpperCase()] ?? ""))
+            .join("");
+    }
+
+    const excludedKeys = new Set(["hash", "HASH", "hashData", "HASHDATA", "signature", "SIGNATURE", "secureHash", "SECUREHASH"]);
+    return Object.keys(payload)
+        .filter((key) => !excludedKeys.has(key))
+        .sort()
+        .map((key) => `${key}=${String(payload[key] ?? "")}`)
+        .join("&");
+}
+
+function calculateExpectedHashes(payloadString, secretKey) {
+    const candidates = new Set();
+
+    candidates.add(crypto.createHmac("sha256", secretKey).update(payloadString, "utf8").digest("hex"));
+    candidates.add(crypto.createHmac("sha256", secretKey).update(payloadString, "utf8").digest("base64"));
+    candidates.add(crypto.createHmac("sha512", secretKey).update(payloadString, "utf8").digest("hex"));
+    candidates.add(crypto.createHmac("sha512", secretKey).update(payloadString, "utf8").digest("base64"));
+    candidates.add(crypto.createHash("sha256").update(`${payloadString}${secretKey}`, "utf8").digest("hex"));
+    candidates.add(crypto.createHash("sha512").update(`${payloadString}${secretKey}`, "utf8").digest("hex"));
+
+    return [...candidates].map(normalizeHash);
+}
+
+function validateParatikaCallbackSignature(payload) {
+    const secretKey = process.env.SECRET_KEY;
+    if (!secretKey) {
+        return { valid: false, reason: "missing_secret" };
+    }
+
+    const incomingHash = getIncomingCallbackHash(payload);
+    if (!incomingHash) {
+        return { valid: false, reason: "missing_signature" };
+    }
+
+    const payloadString = buildHashPayload(payload);
+    const expectedHashes = calculateExpectedHashes(payloadString, secretKey);
+    const normalizedIncomingHash = normalizeHash(incomingHash);
+
+    const valid = expectedHashes.some((expectedHash) => safeHashCompare(normalizedIncomingHash, expectedHash));
+    return { valid, reason: valid ? null : "signature_mismatch" };
+}
+
 /**
  * Create a new payment session (Direct POST 3D model)
  * Backend only creates sessionToken — card data handled client-side
  */
 export const createPayment = async (req, res) => {
     try {
-        console.log("!!! ÖDEME İSTEĞİ GELDİ !!!");
-        console.log("Body:", JSON.stringify(req.body, null, 2));
-        console.log("User:", req.user?.email);
 
         const { planType, billingPeriod } = req.body;
         const userId = req.user?.id;
         const userEmail = req.user?.email;
         const userName = req.user?.firstName || "FinBot User";
+        const normalizedPlanType = String(planType || "").toUpperCase();
+        const normalizedBillingPeriod = billingPeriod === "YEARLY" ? "YEARLY" : "MONTHLY";
 
-        if (!planType || !SUBSCRIPTION_PLANS[planType]) {
-            return res.status(400).json({ success: false, message: "Geçersiz plan seçimi." });
+        if (!planType || !normalizedPlanType) {
+            return res.status(400).json({ success: false, message: "Gecersiz plan secimi." });
         }
 
-        const plan = SUBSCRIPTION_PLANS[planType];
-        let amount = plan.amount;
-
-        // Apply yearly discount if applicable
-        if (billingPeriod === "YEARLY") {
-            amount = plan.amount * YEARLY_MULTIPLIER;
+        let planPricing;
+        try {
+            planPricing = await resolvePlanPricing(normalizedPlanType, normalizedBillingPeriod);
+        } catch {
+            return res.status(400).json({ success: false, message: "Gecersiz plan secimi." });
         }
+
+        const amount = planPricing.amount;
 
         const merchantPaymentId = `FIN-${Date.now()}-${uuidv4().split('-')[0]}`;
-        console.log(`🆔 MerchantPaymentID: ${merchantPaymentId}`);
 
         // 1. Create transaction record in DB
         const transaction = await PaymentTransaction.create({
@@ -62,8 +227,8 @@ export const createPayment = async (req, res) => {
             amount,
             currency: "TRY",
             status: "PENDING",
-            planType,
-            billingPeriod: billingPeriod || "MONTHLY",
+            planType: planPricing.planType,
+            billingPeriod: planPricing.billingPeriod,
             customerInfo: {
                 name: userName,
                 email: userEmail
@@ -82,13 +247,12 @@ export const createPayment = async (req, res) => {
             ip: req.headers['x-forwarded-for'] || req.ip,
             userAgent: req.headers['user-agent'],
             returnUrl: `${backendUrl}/api/payment/callback`,
-            planName: billingPeriod === "YEARLY" ? `${plan.name} (Yıllık)` : plan.name,
-            description: billingPeriod === "YEARLY"
-                ? `Yıllık ${plan.name} Aboneliği`
-                : `Aylık ${plan.name} Aboneliği`
+            planName: planPricing.billingPeriod === "YEARLY" ? `${planPricing.label} (Yillik)` : planPricing.label,
+            description: planPricing.billingPeriod === "YEARLY"
+                ? `Yillik ${planPricing.label} Aboneligi`
+                : `Aylik ${planPricing.label} Aboneligi`
         });
 
-        console.log("📥 Paratika Result:", JSON.stringify(result, null, 2));
 
         // 3. Handle response
         if (result && result.sessionToken) {
@@ -98,7 +262,6 @@ export const createPayment = async (req, res) => {
 
             // Direct POST 3D: Frontend will POST card data directly to this URL
             const redirectUrl = `https://vpos.paratika.com.tr/paratika/api/v2/post/sale3d/${result.sessionToken}`;
-            console.log(`✅ Redirecting user to Paratika: ${redirectUrl}`);
 
             return res.status(200).json({
                 success: true,
@@ -106,7 +269,6 @@ export const createPayment = async (req, res) => {
                 sessionToken: result.sessionToken
             });
         } else {
-            console.log("❌ Paratika Session Failed:", JSON.stringify(result, null, 2));
             transaction.status = "FAILED";
             transaction.errorMsg = result?.responseMsg || "Session oluşturulamadı";
             transaction.rawResponse = result;
@@ -132,13 +294,17 @@ export const handleCallback = async (req, res) => {
     try {
         // Merge query params and body for flexibility
         const data = { ...req.query, ...req.body };
+        const frontendUrl = getFrontendUrl(); // callback redirect target
 
-        console.log("═══════════════════════════════════════════════");
-        console.log("🔔 PARATIKA CALLBACK RECEIVED");
-        console.log("Method:", req.method);
-        console.log("ALL DATA KEYS:", Object.keys(data));
-        console.log("ALL DATA:", JSON.stringify(data, null, 2));
-        console.log("═══════════════════════════════════════════════");
+        const signatureCheck = validateParatikaCallbackSignature(data);
+        if (!signatureCheck.valid) {
+            console.warn(`[Payment Callback] Rejected due to invalid signature (${signatureCheck.reason}).`);
+            if (req.method === "GET") {
+                return res.redirect(`${frontendUrl}/payment-status?status=failed&error=invalid_signature`);
+            }
+            return res.status(401).json({ success: false, message: "Invalid callback signature" });
+        }
+
 
         // Paratika may use various field name formats — check all
         const merchantPaymentId = data.merchantPaymentId || data.MERCHANTPAYMENTID
@@ -147,14 +313,12 @@ export const handleCallback = async (req, res) => {
         const responseMsg = data.responseMsg || data.RESPONSEMSG || data.ResponseMsg;
         const sessionToken = data.sessionToken || data.SESSIONTOKEN;
 
-        const frontendUrl = getFrontendUrl();
 
         if (!merchantPaymentId) {
             console.error("❌ Callback: Missing merchantPaymentId. Keys:", Object.keys(data));
             return res.redirect(`${frontendUrl}/payment-status?status=failed&error=missing_id`);
         }
 
-        console.log(`📋 Transaction: ${merchantPaymentId}, Code: ${responseCode}, Msg: ${responseMsg}`);
 
         // Find transaction in DB
         let transaction = await PaymentTransaction.findOne({ merchantPaymentId });
@@ -163,7 +327,6 @@ export const handleCallback = async (req, res) => {
         if (!transaction && sessionToken) {
             transaction = await PaymentTransaction.findOne({ sessionToken });
             if (transaction) {
-                console.log("✅ Found transaction via sessionToken fallback");
             }
         }
 
@@ -174,37 +337,33 @@ export const handleCallback = async (req, res) => {
 
         // Verify with QUERYTRANSACTION (double-check with Paratika)
         let verified = false;
+        let queryResult = null;
+        let approvedTx = null;
         try {
-            const queryResult = await ParatikaService.queryTransaction(transaction.merchantPaymentId);
-            console.log("📥 QUERYTRANSACTION response:", JSON.stringify(queryResult, null, 2));
+            queryResult = await ParatikaService.queryTransaction(transaction.merchantPaymentId);
             transaction.rawResponse = queryResult;
 
             if (queryResult.responseCode === "00") {
                 const txList = queryResult.transactionList || [];
-                const approvedTx = txList.find(tx => tx.transactionStatus === "AP");
+                approvedTx = txList.find(tx => tx.transactionStatus === "AP");
 
                 if (approvedTx) {
                     verified = true;
                     transaction.status = "SUCCESS";
                     transaction.isVerified = true;
-                    console.log("✅ Transaction VERIFIED via QUERYTRANSACTION (AP)");
                 } else if (txList.length === 0 && responseCode === "00") {
                     // No transactionList yet but Paratika callback says 00
                     verified = true;
                     transaction.status = "SUCCESS";
                     transaction.isVerified = true;
-                    console.log("✅ Transaction approved (responseCode 00, no txList yet)");
                 } else {
                     const statuses = txList.map(t => `${t.pgTranId || 'N/A'}: ${t.transactionStatus}`);
-                    console.log("📊 Transaction statuses:", statuses);
                     transaction.status = "FAILED";
                     transaction.errorMsg = "İşlem doğrulanamadı";
-                    console.log("❌ No approved transaction in list");
                 }
             } else {
                 transaction.status = "FAILED";
                 transaction.errorMsg = queryResult.responseMsg || "İşlem başarısız";
-                console.log("❌ QUERYTRANSACTION failed:", queryResult.responseCode, queryResult.responseMsg);
             }
         } catch (queryError) {
             console.error("❌ QUERYTRANSACTION error:", queryError.message);
@@ -213,10 +372,24 @@ export const handleCallback = async (req, res) => {
                 verified = true;
                 transaction.status = "SUCCESS";
                 transaction.isVerified = false; // Not fully verified
-                console.log("⚠️ Using callback responseCode as fallback");
             } else {
                 transaction.status = "FAILED";
                 transaction.errorMsg = `Doğrulama hatası: ${responseCode}`;
+            }
+        }
+
+        if (verified) {
+            const expectedAmount = parseAmount(transaction.amount);
+            const paidAmount =
+                extractAmountCandidate(approvedTx) ??
+                extractAmountCandidate(queryResult) ??
+                extractAmountCandidate(data);
+
+            if (expectedAmount !== null && paidAmount !== null && !isAmountMatch(expectedAmount, paidAmount)) {
+                verified = false;
+                transaction.status = "FAILED";
+                transaction.isVerified = false;
+                transaction.errorMsg = `Tutar uyumsuz: beklenen ${expectedAmount.toFixed(2)} TRY, gelen ${paidAmount.toFixed(2)} TRY`;
             }
         }
 
@@ -230,7 +403,6 @@ export const handleCallback = async (req, res) => {
                     user.subscriptionTier = transaction.planType; // "PLUS" or "PRO"
                     user.subscriptionStatus = "ACTIVE";
                     await user.save();
-                    console.log(`🎉 User ${user.email} upgraded to ${transaction.planType}`);
                 }
             } catch (updateError) {
                 console.error("❌ User subscription update error:", updateError.message);
@@ -240,7 +412,6 @@ export const handleCallback = async (req, res) => {
 
         // Redirect user to frontend payment status page
         const status = transaction.status === "SUCCESS" ? "success" : "failed";
-        console.log(`🔀 Redirecting to: ${frontendUrl}/payment-status?status=${status}&id=${transaction.merchantPaymentId}`);
         res.redirect(`${frontendUrl}/payment-status?status=${status}&id=${transaction.merchantPaymentId}`);
 
     } catch (error) {
@@ -315,7 +486,6 @@ async function upgradeUserSubscription(transaction) {
             user.subscriptionTier = transaction.planType;
             user.subscriptionStatus = "ACTIVE";
             await user.save();
-            console.log(`🎉 User ${user.email} upgraded to ${transaction.planType}`);
         }
     } catch (err) {
         console.error("❌ upgradeUserSubscription error:", err.message);

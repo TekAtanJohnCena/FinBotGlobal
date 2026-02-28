@@ -122,7 +122,6 @@ export const sendWelcomeEmail = async (userEmail, userName) => {
             subject: 'Finbot\'a Hoş Geldiniz!',
             html
         });
-        console.log(`✅ Welcome email sent to: ${userEmail}`);
     } catch (error) {
         console.error(`❌ Error sending welcome email:`, error);
         throw error;
@@ -152,7 +151,6 @@ export const sendPasswordResetEmail = async (userEmail, resetToken) => {
             subject: 'Finbot Şifre Sıfırlama',
             html
         });
-        console.log(`✅ Password reset email sent to: ${userEmail}`);
     } catch (error) {
         console.error(`❌ Error sending password reset email:`, error);
         throw error;
@@ -182,7 +180,6 @@ export const sendVerificationEmail = async (userEmail, code) => {
             subject: 'Finbot Doğrulama Kodunuz',
             html
         });
-        console.log(`✅ Verification email sent to: ${userEmail}`);
     } catch (error) {
         console.error(`❌ Error sending verification email:`, error);
         throw error;
@@ -219,7 +216,6 @@ export const sendContactEmail = async (formData) => {
             subject: `Finbot Iletisim Formu: ${companyName || contactName}`, // No emoji
             html
         });
-        console.log(`✅ Destek mail gönderildi! From: "${email}", To: "${config.smtp.email}"`);
     } catch (error) {
         console.error(`❌ Error sending contact email:`, error);
         throw error;

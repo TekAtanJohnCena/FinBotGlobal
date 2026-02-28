@@ -134,7 +134,6 @@ class ShopierService {
         // 4. Create payment record
         // 5. Send confirmation email
 
-        console.log(`Processing payment: ${order_id}, transaction: ${transaction_id}`);
 
         return {
             success: true,

@@ -36,7 +36,7 @@ const Login = () => {
     e.preventDefault();
 
     if (!identifier.trim() || !password.trim()) {
-      toast.error("E-posta/Kullanıcı adı ve şifre gerekli.");
+      toast.error("E-posta ve şifre gerekli.");
       return;
     }
 
@@ -390,17 +390,17 @@ const Login = () => {
             </p>
 
             <form onSubmit={handleSubmit}>
-              {/* Email/Username Input - Dual Login */}
+              {/* Email Input */}
               <div className="form-group">
-                <label className="form-label">E-posta veya Kullanıcı Adı</label>
+                <label className="form-label">E-posta</label>
                 <input
-                  type="text"
+                  type="email"
                   className="glass-input"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
-                  placeholder="ornek@finbot.com veya kullanici_adi"
-                  autoComplete="username"
+                  placeholder="ornek@finbot.com"
+                  autoComplete="email"
                 />
               </div>
 

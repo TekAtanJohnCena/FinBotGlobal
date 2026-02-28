@@ -6,7 +6,6 @@ const TIINGO_API_KEY = process.env.TIINGO_API_KEY;
 if (!TIINGO_API_KEY) {
     console.warn('⚠️ TIINGO_API_KEY is not defined in .env');
 } else {
-    console.log('✅ Tiingo service initialized with API key');
 }
 
 // Axios instance for Tiingo API
@@ -21,7 +20,6 @@ const tiingoAxios = axios.create({
 
 // Request interceptor for logging
 tiingoAxios.interceptors.request.use(config => {
-    console.log(`📡 Tiingo API: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
 });
 

@@ -80,7 +80,7 @@ export default function UserProfileDropdown({ userInitial, onLogout }) {
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 grid place-items-center text-white font-bold shadow-lg border border-white/10 cursor-pointer hover:scale-105 transition-transform"
-        title={`Kullanıcı: ${profile?.username || "Misafir"}`}
+        title={`${profile?.fullName || profile?.firstName || profile?.email || "Misafir"}`}
       >
         {userInitial}
       </div>
@@ -110,7 +110,7 @@ export default function UserProfileDropdown({ userInitial, onLogout }) {
                 ) : (
                   <>
                     <p className="text-white font-semibold text-sm truncate">
-                      {profile?.username || "Kullanıcı"}
+                      {profile?.fullName || `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim() || "Kullanıcı"}
                     </p>
                     <p className="text-gray-400 text-xs truncate">
                       {profile?.email || "email@example.com"}
@@ -177,8 +177,9 @@ export default function UserProfileDropdown({ userInitial, onLogout }) {
             </button>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
 

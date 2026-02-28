@@ -35,48 +35,74 @@ export const securityHeaders = helmet({
  */
 export const generalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: "Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.",
+  max: 100,
+  message: "Cok fazla istek gonderdiniz. Lutfen daha sonra tekrar deneyin.",
   standardHeaders: true,
   legacyHeaders: false,
-  validate: {
-    trustProxy: false, // Yerel geliştirme için hatayı engeller
-  },
-});
-
-/**
- * Strict Rate Limiter for Authentication Endpoints
- * Prevents brute-force attacks
- * Increased limit for better user experience during development and testing
- */
-export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // High limit for development - adjust for production deployment
-  message: "Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.",
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true,
   validate: {
     trustProxy: false,
   },
 });
 
+const AUTH_WINDOW_MS = 15 * 60 * 1000;
+const AUTH_MAX_ATTEMPTS = 5;
+
+const createAuthLimiter = (message) =>
+  rateLimit({
+    windowMs: AUTH_WINDOW_MS,
+    max: AUTH_MAX_ATTEMPTS,
+    message,
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: {
+      trustProxy: false,
+    },
+  });
+
+/**
+ * Endpoint-specific auth limiters
+ */
+export const loginRateLimiter = createAuthLimiter(
+  "Cok fazla giris denemesi. Lutfen 15 dakika sonra tekrar deneyin."
+);
+
+export const registerRateLimiter = createAuthLimiter(
+  "Cok fazla kayit denemesi. Lutfen 15 dakika sonra tekrar deneyin."
+);
+
+// Backward compatibility for existing imports
+export const authRateLimiter = loginRateLimiter;
+
 /**
  * AI/LLM Endpoint Rate Limiter
- * Protects expensive OpenAI API calls
+ * Protects expensive AI calls
  */
 export const aiRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: process.env.NODE_ENV === 'production' ? 10 : 500, // Very high limit for dev/test
-  message: "AI istekleri çok sık. Lütfen bir dakika bekleyin.",
+  max: process.env.NODE_ENV === "production" ? 10 : 500,
+  message: "AI istekleri cok sik. Lutfen bir dakika bekleyin.",
   standardHeaders: true,
   legacyHeaders: false,
-  // HATA DÜZELTMESİ:
-  // express-rate-limit v7+ 'req.ip' kullanımını kaynak kodunda arar ve hata fırlatır.
-  // req["ip"] kullanarak bu regex kontrolünü atlatıyoruz ve validate ayarını ekliyoruz.
   keyGenerator: (req) => {
     return req.user?._id?.toString() || req["ip"];
   },
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
+});
+
+/**
+ * Chat endpoint limiter
+ * /api/chat -> max 10 requests per minute per IP
+ */
+export const chatMessageRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: "Cok fazla chat mesaji gonderdiniz. Lutfen bir dakika bekleyin.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req["ip"],
   validate: {
     trustProxy: false,
     xForwardedForHeader: false,
@@ -88,9 +114,9 @@ export const aiRateLimiter = rateLimit({
  * Prevents scraping and API abuse
  */
 export const financeRateLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 30, // Limit each IP to 30 requests per minute
-  message: "Finans verisi istekleri çok sık. Lütfen bir dakika bekleyin.",
+  windowMs: 60 * 1000,
+  max: 30,
+  message: "Finans verisi istekleri cok sik. Lutfen bir dakika bekleyin.",
   standardHeaders: true,
   legacyHeaders: false,
   validate: {

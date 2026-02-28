@@ -83,11 +83,6 @@ export const config = {
 
 // Log configuration in development
 if (config.isDev) {
-    console.log('📋 Environment Configuration:');
-    console.log(`   Mode: ${config.env}`);
-    console.log(`   Port: ${config.port}`);
-    console.log(`   MongoDB: ${config.mongoUri ? '✅ Connected' : '❌ Missing'}`);
-    console.log(`   SMTP: ${config.smtp.host}:${config.smtp.port} (${config.smtp.email ? '✅ Configured' : '❌ Missing Email'})`);
 }
 
 export default config;

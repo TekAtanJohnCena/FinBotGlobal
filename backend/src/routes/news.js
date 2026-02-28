@@ -87,7 +87,6 @@ router.get('/general/latest', async (req, res) => {
  * Frontend should migrate to /api/ai/news-analyze
  */
 router.post('/analyze', protect, aiRateLimiter, checkNewsQuota, async (req, res) => {
-    console.log('⚠️ DEPRECATED: /api/news/analyze called. Use /api/ai/news-analyze instead.');
 
     // Proxy to the new AI controller
     try {

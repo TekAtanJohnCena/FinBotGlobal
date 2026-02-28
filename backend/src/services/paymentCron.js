@@ -15,7 +15,6 @@ import User from "../models/userModel.js";
 export const initPaymentCron = () => {
     // Run every 15 minutes
     cron.schedule("*/15 * * * *", async () => {
-        console.log("[Cron] Checking for pending Paratika transactions...");
 
         try {
             // Find transactions created more than 5 mins ago that are still PENDING
@@ -27,7 +26,6 @@ export const initPaymentCron = () => {
                 paymentProvider: "Paratika"  // Fixed: was 'provider' which is wrong field name
             });
 
-            console.log(`[Cron] Found ${pendingTransactions.length} pending transactions.`);
 
             for (const tx of pendingTransactions) {
                 try {
@@ -43,7 +41,6 @@ export const initPaymentCron = () => {
                             tx.status = "SUCCESS";
                             tx.isVerified = true;
                             await tx.save();
-                            console.log(`[Cron] ✅ Transaction ${tx.merchantPaymentId} → SUCCESS`);
 
                             // Upgrade user subscription
                             try {
@@ -52,7 +49,6 @@ export const initPaymentCron = () => {
                                     user.subscriptionTier = tx.planType;
                                     user.subscriptionStatus = "ACTIVE";
                                     await user.save();
-                                    console.log(`[Cron] 🎉 User ${user.email} upgraded to ${tx.planType}`);
                                 }
                             } catch (userErr) {
                                 console.error(`[Cron] User upgrade error:`, userErr.message);
@@ -64,7 +60,6 @@ export const initPaymentCron = () => {
                                 tx.status = "FAILED";
                                 tx.errorMsg = "3D Secure doğrulaması başarısız";
                                 await tx.save();
-                                console.log(`[Cron] ❌ Transaction ${tx.merchantPaymentId} → FAILED (all FA)`);
                             }
                         }
                     } else if (result.responseCode && result.responseCode !== "00") {
@@ -72,7 +67,6 @@ export const initPaymentCron = () => {
                         tx.status = "FAILED";
                         tx.errorMsg = result.responseMsg;
                         await tx.save();
-                        console.log(`[Cron] ❌ Transaction ${tx.merchantPaymentId} → FAILED: ${result.responseMsg}`);
                     }
                 } catch (txError) {
                     console.error(`[Cron] Error verifying tx ${tx.merchantPaymentId}:`, txError.message);

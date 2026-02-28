@@ -2,38 +2,8 @@
   "data": {
     "symbol": "WMT",
     "name": "Walmart Inc",
-    "price": 125.81,
+    "price": 127.95,
     "history": [
-      {
-        "date": "2021-02-24T00:00:00.000Z",
-        "open": 135.87,
-        "high": 136.16,
-        "low": 133.05,
-        "close": 133.21,
-        "adjClose": 41.4897174099,
-        "price": 133.21,
-        "volume": 15521905
-      },
-      {
-        "date": "2021-02-25T00:00:00.000Z",
-        "open": 133.1,
-        "high": 134.01,
-        "low": 131.484,
-        "close": 131.95,
-        "adjClose": 41.0972765726,
-        "price": 131.95,
-        "volume": 11068719
-      },
-      {
-        "date": "2021-02-26T00:00:00.000Z",
-        "open": 131.48,
-        "high": 131.81,
-        "low": 129.86,
-        "close": 129.92,
-        "adjClose": 40.4650107792,
-        "price": 129.92,
-        "volume": 14067238
-      },
       {
         "date": "2021-03-01T00:00:00.000Z",
         "open": 131.58,
@@ -12553,11 +12523,51 @@
         "adjClose": 125.81,
         "price": 125.81,
         "volume": 25662807
+      },
+      {
+        "date": "2026-02-24T00:00:00.000Z",
+        "open": 125.9,
+        "high": 128.04,
+        "low": 124.91,
+        "close": 126.75,
+        "adjClose": 126.75,
+        "price": 126.75,
+        "volume": 20161157
+      },
+      {
+        "date": "2026-02-25T00:00:00.000Z",
+        "open": 126.605,
+        "high": 127.4,
+        "low": 125.42,
+        "close": 125.75,
+        "adjClose": 125.75,
+        "price": 125.75,
+        "volume": 17345742
+      },
+      {
+        "date": "2026-02-26T00:00:00.000Z",
+        "open": 125.98,
+        "high": 127.33,
+        "low": 123.94,
+        "close": 124.42,
+        "adjClose": 124.42,
+        "price": 124.42,
+        "volume": 18638349
+      },
+      {
+        "date": "2026-02-27T00:00:00.000Z",
+        "open": 125.515,
+        "high": 128.6,
+        "low": 125.145,
+        "close": 127.95,
+        "adjClose": 127.95,
+        "price": 127.95,
+        "volume": 29205470
       }
     ],
     "fundamentals": {
-      "marketCap": 1003064399658.82,
-      "peRatio": 43.7828197145,
+      "marketCap": 1020126301059.9,
+      "peRatio": 44.5275556988,
       "description": "Walmart Inc. is a people-led, tech-powered omnichannel retailer helping people save money and live better - anytime and anywhere - in stores, online, and through their mobile devices. Each week, approximately 240 million customers and members visit more than 10,500 stores and numerous eCommerce websites in 20 countries. With fiscal year 2023 revenue of $611 billion, Walmart employs approximately 2.1 million associates worldwide. Walmart continues to be a leader in sustainability, corporate philanthropy, and employment opportunity."
     },
     "financials": {
@@ -12566,5 +12576,5 @@
     },
     "news": []
   },
-  "timestamp": 1771937670122
+  "timestamp": 1772302614161
 }

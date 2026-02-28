@@ -31,8 +31,8 @@ router.post('/create-session', authenticateToken, async (req, res) => {
 
         // Get price based on plan and billing period
         const prices = {
-            plus: { monthly: 369, yearly: 3541 }, // 369 * 12 * 0.80
-            pro: { monthly: 449, yearly: 4310 },  // 449 * 12 * 0.80
+            plus: { monthly: 1, yearly: 1 },
+            pro: { monthly: 1, yearly: 1 },
             enterprise: { monthly: null, yearly: null }
         };
 
@@ -91,7 +91,6 @@ router.post('/webhook', async (req, res) => {
         //   return res.status(401).json({ error: 'Invalid signature' });
         // }
 
-        console.log('Shopier webhook received:', webhookData);
 
         // TODO: Process payment result
         // - Update user subscription in database

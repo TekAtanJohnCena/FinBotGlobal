@@ -33,7 +33,6 @@ const NewsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('📰 Haberler çekiliyor...', selectedStock || 'Tüm Haberler');
       let response;
       if (!selectedStock || selectedStock === 'ALL') {
         response = await api.get('/global-news');
@@ -41,7 +40,6 @@ const NewsPage = () => {
         response = await api.get(`/news/${selectedStock}`);
       }
 
-      console.log('📊 API Response:', response.data);
 
       if (response.data.ok) {
         setNews(response.data.data);

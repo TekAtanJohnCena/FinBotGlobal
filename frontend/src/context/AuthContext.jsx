@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         // Session invalid — clear everything
-        console.log("Session check failed, user not authenticated.");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);

@@ -35,6 +35,7 @@ import transactionRoutes from "./routes/transactionRoutes.js"; // Transaction CR
 import paymentRoutes from "./routes/paymentRoutes.js"; // Paratika Payment Routes
 import { sendContactEmail } from "./services/emailService.js";
 import { initPaymentCron } from "./services/paymentCron.js";
+import { initSubscriptionCron } from "./cron/subscriptionCron.js";
 
 // ADDITIONAL IMPORTS for /api/chats endpoint
 import { protect } from "./middleware/auth.js";
@@ -62,40 +63,48 @@ app.post("/api/payment/callback", express.urlencoded({ extended: true }), expres
 app.get("/api/payment/callback", handleCallback);
 
 // ===== Middleware & CORS =====
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5000',
-  'https://finbot.com.tr',
-  'https://www.finbot.com.tr',
-  'https://d2l004ta5k2mvv.cloudfront.net', // CloudFront distribution
-  'https://vpos.paratika.com.tr',
-  process.env.CLIENT_URL
-].filter(Boolean);
+const isProduction = process.env.NODE_ENV === "production";
+const normalizeOrigin = (origin) => String(origin || "").replace(/\/+$/, "");
+
+const productionOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.CLIENT_URL,
+  "https://finbot.com.tr",
+  "https://www.finbot.com.tr",
+].filter(Boolean).map(normalizeOrigin);
+
+const developmentOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5000",
+].map(normalizeOrigin);
+
+const allowedOrigins = isProduction
+  ? productionOrigins
+  : [...productionOrigins, ...developmentOrigins];
+
+const allowedOriginSet = new Set(allowedOrigins);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Allow any localhost origin
-    if (origin.startsWith('http://localhost:')) {
+    if (!origin) {
+      if (isProduction) {
+        return callback(new Error("Origin header is required"));
+      }
       return callback(null, true);
     }
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log(`🚫 CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (allowedOriginSet.has(normalizedOrigin)) {
+      return callback(null, true);
     }
+
+    logger.warn(`[CORS] Blocked origin: ${normalizedOrigin}`);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  optionsSuccessStatus: 204,
 }));
-app.use((req, res, next) => {
-  console.log(`📡 İstek Geldi: ${req.method} ${req.url}`);
-  next();
-});
 app.use(morgan("combined", { stream: morganStream }));
 app.use(securityHeaders);
 app.use(express.json());
@@ -200,6 +209,9 @@ mongoose
 
     // Start Paratika payment verification cron
     initPaymentCron();
+
+    // Start subscription renewal cron (daily at midnight)
+    initSubscriptionCron();
   })
   .catch((e) => {
     logger.error(`❌ MongoDB Connection Error: ${e.message}`);
@@ -237,4 +249,6 @@ if (process.env.NODE_ENV !== 'test' && !isLambda) {
 }
 
 export default app;
+
+
 

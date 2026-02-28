@@ -333,7 +333,6 @@ const Screener = () => {
       if (!symbol) return null;
 
       // Always fetch 5 years of data - ranges are filtered client-side
-      console.log(`🚀 Fetching Full Analysis: ${symbol} (5Y data) | Lang: ${language}`);
 
       const response = await api.get(`/stock-analysis/${symbol}?range=5y&lang=${language}`);
       if (!response.data.ok) throw new Error("API Error");
@@ -411,19 +410,9 @@ const Screener = () => {
   // Sync Query Data to State & Sanity Check
   useEffect(() => {
     // DEBUG: Log when symbol changes
-    console.log('🔍 DEBUG: Current symbol from useParams:', symbol);
 
     if (queryData) {
       // CRITICAL DEBUG: Full API Response
-      console.log(`✅ Data Received for ${symbol} (${activeRange})`, {
-        fullResponse: queryData,
-        price: queryData.price,
-        changePercent: queryData.changePercent,
-        historyLength: queryData.history?.length,
-        firstItem: queryData.history?.[0],
-        lastItem: queryData.history?.at(-1),
-        fundamentals: queryData.fundamentals
-      });
 
       // Filter valid history items
       const validHistory = (queryData.history || []).filter(h =>
@@ -434,9 +423,7 @@ const Screener = () => {
       setHistoryData(validHistory);
       calculateAllPeriodChanges(validHistory);
 
-      console.log('📊 DEBUG: analysisData set to:', queryData);
     } else {
-      console.log('⚠️ DEBUG: queryData is null/undefined, symbol:', symbol, 'isQueryLoading:', isQueryLoading);
     }
   }, [queryData, symbol, activeRange, isQueryLoading]);
 
@@ -573,7 +560,7 @@ const Screener = () => {
       {/* Mobile Sidebar Toggle Button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg transition-all"
+        className="fixed top-16 left-4 z-50 lg:hidden p-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg transition-all"
       >
         {isSidebarOpen ? <X size={20} /> : <Search size={20} />}
       </button>

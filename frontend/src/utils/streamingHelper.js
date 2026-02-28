@@ -1,13 +1,13 @@
 // Streaming helper function
 async function sendMessageWithStreaming(message, chatId, setMessages, setActiveChatId, fetchHistory, scrollToBottom, botMessageIndex) {
     try {
-        // Fix for Double API Path Bug
         let baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
         if (baseUrl.endsWith('/api')) baseUrl = baseUrl.slice(0, -4);
 
         const response = await fetch(`${baseUrl}/api/chat/stream`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -24,9 +24,42 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+
         let buffer = '';
         let fullText = '';
+        let uiText = '';
         let financialDataReceived = null;
+        let pendingTextQueue = '';
+        let flushTimer = null;
+
+        const flushTextQueue = (force = false) => {
+            if (!pendingTextQueue && !force) return;
+
+            if (pendingTextQueue) {
+                uiText += pendingTextQueue;
+                pendingTextQueue = '';
+            }
+
+            setMessages((prev) => {
+                const newMessages = [...prev];
+                newMessages[botMessageIndex] = {
+                    ...newMessages[botMessageIndex],
+                    sender: 'bot',
+                    text: uiText,
+                    isStreaming: true,
+                    isThinking: false,
+                    typewriter: true
+                };
+                return newMessages;
+            });
+
+            scrollToBottom();
+        };
+
+        const ensureFlushTimer = () => {
+            if (flushTimer) return;
+            flushTimer = setInterval(() => flushTextQueue(false), 40);
+        };
 
         while (true) {
             const { done, value } = await reader.read();
@@ -38,97 +71,100 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
             buffer = lines.pop() || '';
 
             for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const jsonStr = line.slice(6);
-                    if (!jsonStr.trim()) continue;
+                if (!line.startsWith('data: ')) continue;
 
-                    let data;
-                    try {
-                        data = JSON.parse(jsonStr);
-                    } catch (e) {
-                        console.warn('Non-JSON stream line:', jsonStr);
-                        continue;
+                const jsonStr = line.slice(6);
+                if (!jsonStr.trim()) continue;
+
+                let data;
+                try {
+                    data = JSON.parse(jsonStr);
+                } catch (e) {
+                    console.warn('Non-JSON stream line:', jsonStr);
+                    continue;
+                }
+
+                if (data.type === 'financialData') {
+                    financialDataReceived = data.data;
+                    continue;
+                }
+
+                if (data.type === 'thought') {
+                    setMessages((prev) => {
+                        const newMessages = [...prev];
+                        const currentThought = newMessages[botMessageIndex]?.thought || '';
+
+                        newMessages[botMessageIndex] = {
+                            ...newMessages[botMessageIndex],
+                            sender: 'bot',
+                            thought: currentThought + data.content + '\n',
+                            isStreaming: true,
+                            isThinking: true,
+                            typewriter: true
+                        };
+                        return newMessages;
+                    });
+                    scrollToBottom();
+                    continue;
+                }
+
+                if (data.type === 'text') {
+                    fullText += data.content;
+                    pendingTextQueue += data.content;
+                    ensureFlushTimer();
+                    continue;
+                }
+
+                if (data.type === 'done') {
+                    if (!chatId && data.chatId) {
+                        setActiveChatId(data.chatId);
+                        fetchHistory();
                     }
+                    continue;
+                }
 
-                    if (data.type === 'financialData') {
-                        financialDataReceived = data.data;
-                    } else if (data.type === 'thought') {
-                        // Handle Thinking/Status updates
-                        setMessages((prev) => {
-                            const newMessages = [...prev];
-                            // Initialize thought buffer if not exists
-                            const currentThought = newMessages[botMessageIndex]?.thought || "";
-
-                            newMessages[botMessageIndex] = {
-                                ...newMessages[botMessageIndex],
-                                sender: "bot",
-                                thought: currentThought + data.content + "\n", // Append new thought line
-                                isStreaming: true,
-                                isThinking: true // Flag to show thinking UI
-                            };
-                            return newMessages;
-                        });
-                        scrollToBottom();
-                    } else if (data.type === 'text') {
-                        fullText += data.content;
-                        // Closure issue fix: create local variable
-                        const currentText = fullText;
-                        setMessages((prev) => {
-                            const newMessages = [...prev];
-                            newMessages[botMessageIndex] = {
-                                ...newMessages[botMessageIndex],
-                                sender: "bot",
-                                text: currentText,
-                                isStreaming: true,
-                                isThinking: false // Switch off thinking when text starts
-                            };
-                            return newMessages;
-                        });
-                        scrollToBottom();
-                    } else if (data.type === 'done') {
-                        if (!chatId && data.chatId) {
-                            setActiveChatId(data.chatId);
-                            fetchHistory();
-                        }
-                    } else if (data.error) {
-                        // Backend explicitly sent an error
-                        console.error('Backend Stream Error:', data.error);
-                        // Stop stream and show error in UI
-                        setMessages((prev) => {
-                            const newMessages = [...prev];
-                            newMessages[botMessageIndex] = {
-                                sender: "bot",
-                                text: `⚠️ ${data.error}`,
-                                isStreaming: false,
-                                isError: true
-                            };
-                            return newMessages;
-                        });
-                        return { success: false, error: data.error };
-                    }
+                if (data.error) {
+                    console.error('Backend Stream Error:', data.error);
+                    setMessages((prev) => {
+                        const newMessages = [...prev];
+                        newMessages[botMessageIndex] = {
+                            sender: 'bot',
+                            text: `[HATA] ${data.error}`,
+                            isStreaming: false,
+                            isError: true,
+                            typewriter: false
+                        };
+                        return newMessages;
+                    });
+                    if (flushTimer) clearInterval(flushTimer);
+                    return { success: false, error: data.error };
                 }
             }
         }
 
-        // Finalize messages
+        if (flushTimer) {
+            clearInterval(flushTimer);
+        }
+        flushTextQueue(true);
+
         setMessages((prev) => {
             const newMessages = [...prev];
 
-            // Ensure final state is correct
             if (newMessages[botMessageIndex]) {
                 newMessages[botMessageIndex] = {
                     ...newMessages[botMessageIndex],
-                    sender: "bot",
+                    sender: 'bot',
                     text: fullText,
                     isStreaming: false,
-                    isThinking: false
+                    isThinking: false,
+                    typewriter: true
                 };
             }
 
             if (financialDataReceived) {
                 newMessages.push({
-                    sender: "bot",
-                    type: "analysis",
+                    sender: 'bot',
+                    type: 'analysis',
                     analysis: financialDataReceived,
                     financialData: financialDataReceived
                 });
@@ -141,7 +177,7 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
         return { success: true };
 
     } catch (error) {
-        console.error("Streaming error:", error);
+        console.error('Streaming error:', error);
         return { success: false, error };
     }
 }

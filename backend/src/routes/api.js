@@ -38,11 +38,9 @@ const STATEMENTS_CACHE_DURATION = CACHE_TTL.STATEMENTS;
 
 // Schedule periodic cleanup of expired cache files (every 6 hours)
 setInterval(() => {
-    console.log('🧹 Running cache cleanup...');
     cacheManager.cleanupExpired(CACHE_TTL.TICKERS);
     const stats = cacheManager.getStats();
     if (stats) {
-        console.log(`📊 Cache stats: ${stats.fileCount} files, ${stats.totalSizeKB} KB`);
     }
 }, 6 * 60 * 60 * 1000);
 
@@ -96,7 +94,6 @@ router.get('/search', async (req, res) => {
     if (!query) return res.status(400).json({ ok: false, error: 'Query required.' });
 
     try {
-        console.log(`🔍 Searching Tiingo for: ${query}`);
         const response = await axios.get(`https://api.tiingo.com/tiingo/utilities/search?query=${query}&token=${TIINGO_API_KEY}`);
         res.json({ ok: true, data: response.data });
     } catch (error) {
@@ -112,12 +109,10 @@ router.get('/search', async (req, res) => {
 router.get('/tiingo-tickers', async (req, res) => {
     const now = Date.now();
     if (tickerMetaCache && tickerMetaTimestamp && (now - tickerMetaTimestamp) < TICKER_CACHE_DURATION) {
-        console.log('📦 Tickers: Serving from cache');
         return res.json({ ok: true, tickers: tickerMetaCache, total: tickerMetaCache.length, cached: true });
     }
 
     try {
-        console.log('🔄 Fetching ticker metadata from Tiingo...');
         const response = await axios.get(`https://api.tiingo.com/tiingo/fundamentals/meta?token=${TIINGO_API_KEY}`);
 
         const allTickers = response.data || [];
@@ -133,7 +128,6 @@ router.get('/tiingo-tickers', async (req, res) => {
         tickerMetaCache = activeTickers;
         tickerMetaTimestamp = now;
 
-        console.log(`✅ Cached ${activeTickers.length} active US tickers`);
         res.json({ ok: true, tickers: activeTickers, total: activeTickers.length, cached: false });
     } catch (error) {
         console.error('❌ Tiingo tickers error:', error.message);
@@ -155,7 +149,6 @@ router.get('/screener-fundamentals', async (req, res) => {
     if (!sector && !industry && !search && !type && page === 1) {
         const cachedFundamentals = getCachedFundamentals();
         if (cachedFundamentals && cachedFundamentals.stocks) {
-            console.log(`⚡ Screener: Serving from pre-cached fundamentals (${cachedFundamentals.stocks.length} stocks)`);
             const paginatedData = cachedFundamentals.stocks.slice(0, limit);
             return res.json({
                 ok: true,
@@ -176,7 +169,6 @@ router.get('/screener-fundamentals', async (req, res) => {
 
     // Check page cache
     if (screenerCache[cacheKey] && (now - (screenerCacheTimestamp || 0)) < SCREENER_CACHE_DURATION) {
-        console.log(`📦 Screener: Serving ${cacheKey} from cache`);
         // Force re-validation header
         res.set('Cache-Control', 'no-cache');
         return res.json({ ...screenerCache[cacheKey], cached: true });
@@ -207,7 +199,6 @@ router.get('/screener-fundamentals', async (req, res) => {
 
         // FALLBACK: If DB is empty, use seed data (memory)
         if (totalStocks === 0 && !search && page === 1) {
-            console.log('⚠️ DB Empty - Using Fallback Seed Data');
             let fallbackData = INITIAL_US_STOCKS;
 
             // Apply memory filters
@@ -256,7 +247,6 @@ router.get('/screener-fundamentals', async (req, res) => {
 
             if (fbTickers.length === 0) return res.json({ ok: true, data: [], totalStocks: 0, totalPages: 0, cached: false });
 
-            console.log(`🔄 Screener Fallback: Fetching data for ${fbTickers.length} stocks`);
 
             const [pricesRes, fundResults] = await Promise.all([
                 axios.get(`https://api.tiingo.com/iex/?tickers=${fbTickers.join(',')}&token=${TIINGO_API_KEY}`),
@@ -315,7 +305,6 @@ router.get('/screener-fundamentals', async (req, res) => {
             });
         }
 
-        console.log(`🔄 Screener: Fetching data for ${pageTickers.length} stocks (Filter: ${sector || 'None'})`);
 
         // 2. Optimized Batch Fetching
         // Fetch Daily Fundamentals (Market Cap, ratios) in parallel
@@ -409,7 +398,6 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
     const now = Date.now();
     // Cache key: Ensure it is unique per ticker/range/lang
     const analysisCacheKey = `analysis_${normalizedSymbol}_${range}_${lang}`;
-    console.log(`🔑 Cache Key: ${analysisCacheKey} | API Symbol: ${apiSymbol}`);
 
     // Calculate Start Date based on Range
     let startDate = '2024-01-01'; // Default Fallback, but we will overwrite it
@@ -458,7 +446,6 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
         resampleFreq = 'weekly';
     }
 
-    console.log(`📊 Analysis Request: ${symbol} | Requested Range: ${range} | Calculated StartDate: ${startDate} | Freq: ${resampleFreq}`);
 
     try {
         let responseData = {
@@ -515,8 +502,6 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
 
             if (cachedResult) {
                 // DEBUG: Log cache data structure
-                console.log(`📦 Serving cached analysis for ${normalizedSymbol} (${range})`);
-                console.log('📊 Cache Data Type:', typeof cachedResult, '| Has .data:', !!cachedResult.data);
 
                 // cacheManager.get returns { data, timestamp }, so access .data
                 const actualData = cachedResult.data || cachedResult;
@@ -711,7 +696,6 @@ router.get('/stock-analysis/:symbol', async (req, res) => {
                         },
                         { upsert: true, new: true, setDefaultsOnInsert: true }
                     );
-                    console.log(`💾 Persisted ${stockMetadata.ticker} to Database`);
                 } catch (dbErr) {
                     console.error(`⚠️ Failed to persist ${stockMetadata.ticker}:`, dbErr.message);
                 }
@@ -741,7 +725,6 @@ router.get('/prices/batch', async (req, res) => {
         const cachedPrices = cacheManager.get(cacheKey, CACHE_TTL.PRICES);
 
         if (cachedPrices) {
-            console.log(`📦 Serving cached batch prices`);
             return res.json({ ok: true, data: cachedPrices });
         }
 
@@ -777,7 +760,6 @@ router.get('/validate-ticker/:symbol', async (req, res) => {
     const normalizedSymbol = symbol.toUpperCase();
 
     try {
-        console.log(`🔍 Validating ticker: ${normalizedSymbol}`);
 
         // Try to fetch price from Tiingo
         const [priceRes, fundRes] = await Promise.allSettled([
@@ -800,7 +782,6 @@ router.get('/validate-ticker/:symbol', async (req, res) => {
                 marketCap = latestFund.marketCap || 0;
             }
 
-            console.log(`✅ Valid ticker: ${normalizedSymbol} ($${lastPrice})`);
 
             res.json({
                 ok: true,
@@ -811,7 +792,6 @@ router.get('/validate-ticker/:symbol', async (req, res) => {
                 marketCap: marketCap
             });
         } else {
-            console.log(`❌ Invalid ticker: ${normalizedSymbol}`);
             res.json({
                 ok: true,
                 valid: false,

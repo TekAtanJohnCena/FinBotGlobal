@@ -52,6 +52,9 @@ const paymentTransactionSchema = new mongoose.Schema(
             type: String,
             default: "Paratika"
         },
+        paratikaOrderId: {
+            type: String             // Paratika'nın oluşturduğu referans/işlem numarası
+        },
         rawResponse: {
             type: mongoose.Schema.Types.Mixed
         },

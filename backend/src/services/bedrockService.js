@@ -59,7 +59,6 @@ export async function invokeClaude(messages, options = {}) {
                 requestBody.system = systemMessage;
             }
 
-            console.log(`🔷 [Bedrock] Invoking Claude 3.5 Sonnet (Attempt ${attempt + 1}/${MAX_RETRIES + 1})...`);
 
             const command = new InvokeModelCommand({
                 modelId: MODEL_ID,
@@ -72,7 +71,6 @@ export async function invokeClaude(messages, options = {}) {
             const responseBody = JSON.parse(new TextDecoder().decode(response.body));
 
             const content = responseBody.content?.[0]?.text || "";
-            console.log(`✅ [Bedrock] Response received (${content.length} chars)`);
 
             return {
                 choices: [
@@ -160,7 +158,6 @@ export async function* invokeClaudeStream(messages, options = {}) {
                 requestBody.system = systemMessage;
             }
 
-            console.log(`🔷 [Bedrock Stream] Invoking Claude 3.5 Sonnet (Attempt ${attempt + 1}/${MAX_RETRIES + 1})...`);
 
             const command = new InvokeModelWithResponseStreamCommand({
                 modelId: MODEL_ID,
@@ -187,7 +184,6 @@ export async function* invokeClaudeStream(messages, options = {}) {
                 }
             }
 
-            console.log(`✅ [Bedrock Stream] Stream completed`);
             return; // Success, exit retry loop
 
         } catch (error) {
@@ -221,7 +217,6 @@ export async function* invokeClaudeStream(messages, options = {}) {
 export function createChatCompletion(params) {
     const { messages, temperature, max_tokens, model, stream = false, thinking } = params;
 
-    console.log(`DEBUG: createChatCompletion called. Stream: ${stream}, Thinking:`, thinking);
 
     if (stream) {
         // invokeClaudeStream is async generator, so it returns an AsyncGenerator object immediately

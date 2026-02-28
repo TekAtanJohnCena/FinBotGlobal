@@ -17,7 +17,6 @@ import {
 } from "@heroicons/react/24/solid";
 
 
-import TypingIndicator from "../components/TypingIndicator";
 import StructuredResponse from "../components/StructuredResponse";
 import QuotaDisplay from "../components/QuotaDisplay";
 import ThinkingAccordion from "../components/ThinkingAccordion";
@@ -95,7 +94,6 @@ export default function ChatWithHistory() {
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
@@ -107,6 +105,19 @@ export default function ChatWithHistory() {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
 
   const scrollRef = useRef(null);
+
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        const el = scrollRef.current;
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+    }, 50);
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length, activeChatId, scrollToBottom]);
 
   // Check for pending plan on mount (Scenario 1: user registered after selecting plan)
   useEffect(() => {
@@ -198,7 +209,6 @@ export default function ChatWithHistory() {
     // 1. Kullanıcı mesajını ekle
     setMessages((p) => [...p, { sender: "user", text: t }]);
     setInput("");
-    setIsLoading(true);
 
     // 2. Boş bir bot mesajı oluştur (Streaming için placeholder)
     const botMessageIndex = messages.length + 1; // User mesajından sonraki index
@@ -208,7 +218,8 @@ export default function ChatWithHistory() {
       text: "",
       thought: "FinBot analiz isteğini aldı, işlem başlatılıyor...\n", // Initial thought
       isStreaming: true,
-      isThinking: true // Start in thinking mode
+      isThinking: true, // Start in thinking mode
+      typewriter: true
     }]);
 
     // 3. Streaming Helper'ı çağır
@@ -236,21 +247,10 @@ export default function ChatWithHistory() {
         return newMessages;
       });
     }
-
-    setIsLoading(false);
   }
 
   // ...
 
-  function scrollToBottom() {
-    // Mobilde klavye açıldığında scroll'un tam oturması için timeout
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        const el = scrollRef.current;
-        if (el) el.scrollTop = el.scrollHeight;
-      });
-    }, 100);
-  }
   // --------------------------- Rename / Delete -------------------------------
   async function handleDeleteChat(id) {
     if (!window.confirm("Bu sohbet silinsin mi?")) return;
@@ -294,28 +294,36 @@ export default function ChatWithHistory() {
   // --------------------------- Bubble (Gemini Dark Style) --------------------
   const Bubble = ({ role, children }) => (
     <div
-      className={`flex items-start gap-3 w-full overflow-hidden ${role === "user" ? "justify-end" : "justify-start"
+      className={`flex w-full overflow-hidden ${role === "user" ? "justify-end" : "justify-start"
         }`}
     >
-      {role === "bot" && (
-        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full shrink-0 self-start overflow-hidden shadow-lg shadow-emerald-500/20">
-          <img
-            src={logo}
-            alt="FinBot"
-            className="w-full h-full object-cover"
-          />
+      {role === "user" ? (
+        <div
+          className="text-[15px] md:text-[16px] leading-relaxed break-words overflow-hidden bg-[#282A2C] text-white rounded-3xl px-4 py-3 max-w-[85%] md:max-w-[600px]"
+          style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
+        >
+          {children}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 w-full max-w-full">
+          <div
+            className="text-[15px] md:text-[16px] leading-relaxed break-words overflow-hidden text-[#E3E3E3] w-full min-w-0"
+            style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
+          >
+            {children}
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full shrink-0 overflow-hidden shadow-lg shadow-emerald-500/20">
+              <img
+                src={logo}
+                alt="FinBot"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="text-xs font-semibold text-zinc-500 tracking-wide uppercase">FinBot</span>
+          </div>
         </div>
       )}
-
-      <div
-        className={`text-[15px] md:text-[16px] leading-relaxed break-words overflow-hidden ${role === "user"
-          ? "bg-[#282A2C] text-white rounded-3xl px-4 py-3 max-w-[85%] md:max-w-[600px]"
-          : "text-[#E3E3E3] flex-1 min-w-0 max-w-full"
-          }`}
-        style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
-      >
-        {children}
-      </div>
     </div>
   );
 
@@ -349,10 +357,11 @@ export default function ChatWithHistory() {
       <aside
         style={{ backgroundColor: '#131314' }}
         className={`
-          fixed inset-y-0 z-40 w-[320px] md:w-[320px]
+          fixed z-40 w-[320px] md:w-[320px]
           flex flex-col border-r border-white/5
           transition-transform duration-300 ease-in-out
           left-0 md:left-20
+          top-12 bottom-14 md:top-0 md:bottom-0
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
@@ -398,11 +407,11 @@ export default function ChatWithHistory() {
           <QuotaDisplay compact={false} />
         </div>
 
-        {/* Scrollable Chat List Container */}
+        {/* Scrollable Chat List Container — pb-4 on desktop, pb-20 on mobile for safe area */}
         <div className="flex-1 overflow-y-auto slim-scrollbar min-h-0">
           <div className="px-4 text-[11px] font-semibold tracking-wide text-zinc-500 mb-2 sticky top-0 bg-[#131314] py-2 z-10">SOHBETLER</div>
 
-          <ul className="px-2 space-y-1.5 pb-2">
+          <ul className="px-2 space-y-1.5 pb-4 md:pb-2">
             {(showAll ? history : history.slice(0, MAX_VISIBLE)).map((chat) => (
               <li
                 key={chat._id}
@@ -523,28 +532,26 @@ export default function ChatWithHistory() {
       {/* ---------------- Main Chat Area ---------------- */}
       < main className="relative flex-1 flex flex-col bg-[#131314] h-full w-full max-w-full overflow-hidden" >
 
-        {/* Mobile Header (Gemini Style) */}
-        < div className="md:hidden flex items-center justify-between p-3 bg-[#1E1F20] shrink-0 z-20" >
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-[#8E918F] hover:text-white transition"
-              title={isSidebarOpen ? "Menüyü Kapat" : "Menüyü Aç"}
-            >
-              <Bars3Icon className="w-6 h-6" />
-            </button>
-            <span className="text-base font-semibold text-white">FinBot</span>
-          </div>
+        {/* Mobile Chat Controls — hamburger + new chat (logo/profile handled by AppLayout top bar) */}
+        <div className="md:hidden flex items-center justify-between p-3 bg-[#131314] shrink-0 z-20 border-b border-white/5">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="text-[#8E918F] hover:text-white transition p-1"
+            title={isSidebarOpen ? "Menüyü Kapat" : "Sohbetler"}
+          >
+            <Bars3Icon className="w-6 h-6" />
+          </button>
           <button
             onClick={() => {
               setActiveChatId(null);
               setMessages([]);
             }}
-            className="bg-white/10 text-white p-2 rounded-full hover:bg-white/20 transition"
+            className="bg-emerald-500/20 text-emerald-400 p-2 rounded-xl hover:bg-emerald-500/30 transition flex items-center gap-1.5 text-xs font-medium"
           >
-            <PlusIcon className="w-5 h-5" />
+            <PlusIcon className="w-4 h-4" />
+            Yeni Sohbet
           </button>
-        </div >
+        </div>
 
         {/* Chat Scroll Area (Tüm içerik bu kaydırılabilir alanda) */}
         < div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden chat-scroll scroll-smooth" >
@@ -594,34 +601,33 @@ export default function ChatWithHistory() {
                       </div>
                     )}
 
-                    <Bubble role={m.sender === "user" ? "user" : "bot"}>
+                    {(m.sender === "user" || Boolean(m.text)) && (
+                      <Bubble role={m.sender === "user" ? "user" : "bot"}>
 
                       {/* Metin İçeriği */}
                       {m.text ? (
                         <div className="text-[15px] md:text-[16px] overflow-hidden max-w-full" style={{ overflowWrap: 'break-word', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                           {m.sender === "bot" ? (
-                            <StructuredResponse text={m.text} />
+                            <StructuredResponse
+                              text={m.text}
+                              enableTypewriter={Boolean(m.typewriter)}
+                              onTypingProgress={scrollToBottom}
+                            />
                           ) : (
                             <div className="whitespace-pre-line">{m.text}</div>
                           )}
                         </div>
-                      ) : (
-                        m.sender === "bot" && <TypingIndicator />
-                      )}
+                      ) : null}
 
 
                       {/* ... */}
 
                     </Bubble>
+                    )}
                   </div>
                 ))}
 
-                {/* Yazıyor Animasyonu - Sadece son mesaj bot değilse göster (çakışmayı önlemek için) */}
-                {isLoading && messages[messages.length - 1]?.sender !== "bot" && (
-                  <Bubble role="bot">
-                    <TypingIndicator />
-                  </Bubble>
-                )}
+                {/* Yazıyor Animasyonu Kaldırıldı */}
               </div>
             )}
 
@@ -629,7 +635,7 @@ export default function ChatWithHistory() {
         </div >
 
         {/* --- FIXED FULL-WIDTH INPUT BAR --- */}
-        < div className="fixed bottom-[56px] md:bottom-0 left-0 md:left-20 right-0 bg-[#131314] border-t border-zinc-800/50 p-3 z-40" >
+        <div className="fixed bottom-14 md:bottom-0 left-0 md:left-20 right-0 bg-[#131314] border-t border-zinc-800/50 p-3 z-40">
           <form
             onSubmit={sendMessage}
             className="max-w-4xl mx-auto flex items-end gap-2 bg-[#1E1F20] border border-zinc-700/50 rounded-2xl px-4 shadow-2xl relative"
@@ -638,8 +644,9 @@ export default function ChatWithHistory() {
               rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              maxLength={500}
               placeholder="FinBot'a bir şey sor..."
-              className="flex-1 min-h-[44px] max-h-[120px] py-3 bg-transparent text-[15px] md:text-[16px] resize-none focus:outline-none text-[#E3E3E3] placeholder:text-[#8E918F] overflow-y-auto no-scrollbar"
+              className="flex-1 min-h-[44px] max-h-[120px] py-3 bg-transparent text-[15px] md:text-[16px] resize-none focus:outline-none text-[#E3E3E3] placeholder:text-[#8E918F] overflow-y-auto no-scrollbar pr-2"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -659,6 +666,9 @@ export default function ChatWithHistory() {
               </svg>
             </button>
           </form>
+          <div className="max-w-4xl mx-auto mt-1.5 px-1 text-right text-[11px] text-zinc-500">
+            <span className={input.length > 450 ? "text-amber-400" : ""}>{input.length}/500</span>
+          </div>
         </div >
       </main >
 
@@ -677,10 +687,10 @@ export default function ChatWithHistory() {
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">Kullanıcı Adı</label>
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">Ad Soyad</label>
                   <input
                     type="text"
-                    value={user?.username || ''}
+                    value={user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''}
                     disabled
                     className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white"
                   />
@@ -756,7 +766,7 @@ export default function ChatWithHistory() {
         onClose={handleDismissPendingPlan}
         pendingPlan={pendingPlan}
         onContinueToPayment={handleContinueToPayment}
-        userName={user?.firstName || user?.username}
+        userName={user?.firstName || user?.email}
       />
 
       {/* Payment Modal - For completing the purchase */}
@@ -774,3 +784,9 @@ export default function ChatWithHistory() {
     </div >
   );
 }
+
+
+
+
+
+

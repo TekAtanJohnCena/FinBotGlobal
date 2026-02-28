@@ -50,7 +50,6 @@ export function get(key, type = 'general') {
 
     if (value !== undefined) {
         stats.hits++;
-        console.log(`📦 Cache HIT [${type}]: ${key}`);
         return value;
     }
 
@@ -75,7 +74,6 @@ export function set(key, value, type = 'general', ttl = null) {
         cache.set(key, value);
     }
 
-    console.log(`💾 Cache SET [${type}]: ${key}`);
 }
 
 /**
@@ -96,7 +94,6 @@ export function clearAll() {
     newsCache.flushAll();
     fundamentalsCache.flushAll();
     generalCache.flushAll();
-    console.log('🗑️ All caches cleared');
 }
 
 /**
@@ -106,7 +103,6 @@ export function clearAll() {
 export function clear(type = 'general') {
     const cache = getCacheByType(type);
     cache.flushAll();
-    console.log(`🗑️ Cache cleared: ${type}`);
 }
 
 /**
@@ -177,7 +173,6 @@ if (process.env.NODE_ENV !== 'production') {
     setInterval(() => {
         const s = getStats();
         if (s.hits + s.misses > 0) {
-            console.log(`📊 Cache Stats: ${s.hits} hits, ${s.misses} misses (${s.hitRate} hit rate)`);
         }
     }, 5 * 60 * 1000); // Every 5 minutes
 }

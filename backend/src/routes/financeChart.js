@@ -63,7 +63,6 @@ router.get("/chart", async (req, res) => {
     const ticker = raw;
     const range = String(req.query.range || "6mo");
 
-    console.log("[chart] Request:", { ticker, range });
 
     const { startDate, endDate } = getDateRange(range);
 

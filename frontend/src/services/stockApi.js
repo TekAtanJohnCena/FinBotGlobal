@@ -177,7 +177,7 @@ export function formatChange(change) {
     return `${prefix}${change.toFixed(2)}%`;
 }
 
-export default {
+const stockApi = {
     getStockPrice,
     getBulkPrices,
     searchStocks,
@@ -193,3 +193,5 @@ export default {
     formatNumber,
     formatChange
 };
+
+export default stockApi;

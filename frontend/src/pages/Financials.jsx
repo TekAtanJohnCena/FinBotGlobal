@@ -141,7 +141,6 @@ const Financials = () => {
                     setYearLimit(PLAN_YEAR_LIMITS[plan] || 5);
                 }
             } catch (err) {
-                console.log('Could not fetch user plan, using FREE limits');
             }
         };
         fetchUserPlan();

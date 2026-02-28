@@ -1,0 +1,77 @@
+{
+    "navbar": {
+        "finbot": "FinBot",
+        "portfolio": "Portföy",
+        "wallet": "Cüzdan",
+        "market": "Piyasa",
+        "news": "Haberler",
+        "academy": "Akademi",
+        "chat": "Sohbet",
+        "settings": "Ayarlar",
+        "support": "Destek"
+    },
+    "auth": {
+        "login": "Giriş Yap",
+        "register": "Kayıt Ol",
+        "logout": "Çıkış Yap",
+        "forgotPassword": "Şifremi Unuttum",
+        "resetPassword": "Şifreyi Sıfırla",
+        "email": "E-posta",
+        "password": "Şifre",
+        "confirmPassword": "Şifre Tekrar",
+        "firstName": "Ad",
+        "lastName": "Soyad",
+        "username": "Kullanıcı Adı",
+        "orContinueWith": "veya şununla devam et",
+        "alreadyHaveAccount": "Zaten hesabınız var mı?",
+        "dontHaveAccount": "Hesabınız yok mu?"
+    },
+    "dashboard": {
+        "title": "Gösterge Paneli",
+        "welcome": "Hoş Geldiniz",
+        "totalBalance": "Toplam Bakiye",
+        "dailyChange": "Günlük Değişim",
+        "myPortfolio": "Portföyüm",
+        "recentTransactions": "Son İşlemler"
+    },
+    "chat": {
+        "placeholder": "FinBot'a bir soru sorun...",
+        "thinking": "Düşünüyor...",
+        "analyzing": "Analiz ediliyor...",
+        "newChat": "Yeni Sohbet",
+        "chatHistory": "Sohbet Geçmişi",
+        "deleteChat": "Sohbeti Sil",
+        "renameChat": "Yeniden Adlandır"
+    },
+    "common": {
+        "loading": "Yükleniyor...",
+        "error": "Bir hata oluştu",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "delete": "Sil",
+        "edit": "Düzenle",
+        "close": "Kapat",
+        "search": "Ara",
+        "noData": "Veri bulunamadı",
+        "tryAgain": "Tekrar Dene",
+        "language": "Dil"
+    },
+    "pricing": {
+        "title": "Planlar & Fiyatlandırma",
+        "free": "Ücretsiz",
+        "plus": "Plus",
+        "pro": "Pro",
+        "monthly": "Aylık",
+        "yearly": "Yıllık",
+        "currentPlan": "Mevcut Plan",
+        "upgrade": "Yükselt",
+        "features": "Özellikler"
+    },
+    "footer": {
+        "disclaimer": "Bu analizler bilgilendirme amaçlıdır ve yapay zeka tarafından üretilmiştir. Yatırım tavsiyesi değildir.",
+        "copyright": "© 2025 FinBot. Tüm hakları saklıdır.",
+        "privacyPolicy": "Gizlilik Politikası",
+        "termsOfUse": "Kullanım Şartları",
+        "contact": "İletişim"
+    }
+}
