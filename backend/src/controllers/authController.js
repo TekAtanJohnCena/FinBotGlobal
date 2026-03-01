@@ -242,7 +242,8 @@ export const googleLogin = asyncHandler(async (req, res) => {
 
     payload = ticket.getPayload();
   } catch (err) {
-    console.error("❌ Google Token Verify Error:", err);
+    console.error("❌ Google Token Verify Error:", err.message);
+    console.error("❌ Google Auth Error Detail:", err.errors || err.code || err);
     return res.status(401).json({
       message: "Google doğrulaması başarısız.",
     });
@@ -273,18 +274,32 @@ export const googleLogin = asyncHandler(async (req, res) => {
     } else {
     }
   } else {
-    user = await User.create({
-      email,
-      googleId: sub,
-      avatar: picture,
-      firstName,
-      lastName,
-      fullName: `${firstName} ${lastName}`,
-      authType: "google",
-      subscriptionTier: "FREE",
-      subscriptionStatus: "INACTIVE",
-      isVerified: true,
-    });
+    try {
+      user = await User.create({
+        email,
+        googleId: sub,
+        avatar: picture,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        authType: "google",
+        subscriptionTier: "FREE",
+        subscriptionStatus: "INACTIVE",
+        isVerified: true,
+      });
+    } catch (createErr) {
+      console.error("❌ Google User.create FAILED:", createErr.message);
+      console.error("❌ Error details:", JSON.stringify(createErr.errors || createErr.keyPattern || {}, null, 2));
+      if (createErr.code === 11000) {
+        console.error("❌ Duplicate key error — likely stale 'username' unique index. keyPattern:", createErr.keyPattern);
+        return res.status(409).json({
+          message: "Bu hesap zaten mevcut. Lütfen giriş yapın.",
+        });
+      }
+      return res.status(400).json({
+        message: "Kullanıcı oluşturulamadı: " + (createErr.message || "Bilinmeyen hata"),
+      });
+    }
 
     try {
       await sendWelcomeEmail(user.email, user.firstName || "Finbot Kullanıcısı");

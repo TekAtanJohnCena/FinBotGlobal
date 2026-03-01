@@ -94,6 +94,7 @@ export default function ChatWithHistory() {
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
@@ -105,19 +106,6 @@ export default function ChatWithHistory() {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
 
   const scrollRef = useRef(null);
-
-  const scrollToBottom = useCallback(() => {
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        const el = scrollRef.current;
-        if (el) el.scrollTop = el.scrollHeight;
-      });
-    }, 50);
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages.length, activeChatId, scrollToBottom]);
 
   // Check for pending plan on mount (Scenario 1: user registered after selecting plan)
   useEffect(() => {
@@ -209,6 +197,7 @@ export default function ChatWithHistory() {
     // 1. Kullanıcı mesajını ekle
     setMessages((p) => [...p, { sender: "user", text: t }]);
     setInput("");
+    setIsLoading(true);
 
     // 2. Boş bir bot mesajı oluştur (Streaming için placeholder)
     const botMessageIndex = messages.length + 1; // User mesajından sonraki index
@@ -218,8 +207,7 @@ export default function ChatWithHistory() {
       text: "",
       thought: "FinBot analiz isteğini aldı, işlem başlatılıyor...\n", // Initial thought
       isStreaming: true,
-      isThinking: true, // Start in thinking mode
-      typewriter: true
+      isThinking: true // Start in thinking mode
     }]);
 
     // 3. Streaming Helper'ı çağır
@@ -247,10 +235,21 @@ export default function ChatWithHistory() {
         return newMessages;
       });
     }
+
+    setIsLoading(false);
   }
 
   // ...
 
+  function scrollToBottom() {
+    // Mobilde klavye açıldığında scroll'un tam oturması için timeout
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        const el = scrollRef.current;
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+    }, 100);
+  }
   // --------------------------- Rename / Delete -------------------------------
   async function handleDeleteChat(id) {
     if (!window.confirm("Bu sohbet silinsin mi?")) return;
@@ -601,18 +600,13 @@ export default function ChatWithHistory() {
                       </div>
                     )}
 
-                    {(m.sender === "user" || Boolean(m.text)) && (
-                      <Bubble role={m.sender === "user" ? "user" : "bot"}>
+                    <Bubble role={m.sender === "user" ? "user" : "bot"}>
 
                       {/* Metin İçeriği */}
                       {m.text ? (
                         <div className="text-[15px] md:text-[16px] overflow-hidden max-w-full" style={{ overflowWrap: 'break-word', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                           {m.sender === "bot" ? (
-                            <StructuredResponse
-                              text={m.text}
-                              enableTypewriter={Boolean(m.typewriter)}
-                              onTypingProgress={scrollToBottom}
-                            />
+                            <StructuredResponse text={m.text} />
                           ) : (
                             <div className="whitespace-pre-line">{m.text}</div>
                           )}
@@ -623,7 +617,6 @@ export default function ChatWithHistory() {
                       {/* ... */}
 
                     </Bubble>
-                    )}
                   </div>
                 ))}
 
@@ -644,9 +637,8 @@ export default function ChatWithHistory() {
               rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              maxLength={500}
               placeholder="FinBot'a bir şey sor..."
-              className="flex-1 min-h-[44px] max-h-[120px] py-3 bg-transparent text-[15px] md:text-[16px] resize-none focus:outline-none text-[#E3E3E3] placeholder:text-[#8E918F] overflow-y-auto no-scrollbar pr-2"
+              className="flex-1 min-h-[44px] max-h-[120px] py-3 bg-transparent text-[15px] md:text-[16px] resize-none focus:outline-none text-[#E3E3E3] placeholder:text-[#8E918F] overflow-y-auto no-scrollbar"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -666,9 +658,6 @@ export default function ChatWithHistory() {
               </svg>
             </button>
           </form>
-          <div className="max-w-4xl mx-auto mt-1.5 px-1 text-right text-[11px] text-zinc-500">
-            <span className={input.length > 450 ? "text-amber-400" : ""}>{input.length}/500</span>
-          </div>
         </div >
       </main >
 
@@ -781,12 +770,8 @@ export default function ChatWithHistory() {
           onPaymentSuccess={handlePaymentSuccess}
         />
       )}
-    </div >
+    </div>
   );
 }
-
-
-
-
 
 

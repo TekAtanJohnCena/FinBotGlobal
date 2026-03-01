@@ -199,6 +199,25 @@ mongoose
   .then(async () => {
     logger.info("✅ MongoDB Connected!");
 
+    // === ONE-TIME FIX: Drop stale 'username' unique index ===
+    // The 'username' field was deprecated (no longer required), but the old
+    // unique index remains in MongoDB. This causes E11000 duplicate key errors
+    // when multiple users register without a username (null values collide).
+    try {
+      const usersCollection = mongoose.connection.collection("users");
+      const indexes = await usersCollection.indexes();
+      const usernameIndex = indexes.find(idx => idx.key?.username !== undefined && idx.unique === true);
+      if (usernameIndex) {
+        await usersCollection.dropIndex(usernameIndex.name);
+        logger.info(`🗑️ Dropped stale unique index: ${usernameIndex.name}`);
+      }
+    } catch (idxErr) {
+      // Not critical — index may already be gone
+      if (!idxErr.message?.includes("not found")) {
+        logger.warn(`⚠️ Index cleanup warning: ${idxErr.message}`);
+      }
+    }
+
     // Seed initial stocks if database is empty
     await seedInitialStocks();
 
