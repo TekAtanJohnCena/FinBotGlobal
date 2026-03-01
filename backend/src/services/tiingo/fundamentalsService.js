@@ -45,18 +45,33 @@ function statementTimestamp(statement) {
 function selectLatestStatement(statements) {
     if (!Array.isArray(statements) || statements.length === 0) return null;
 
-    const first = statements[0];
-    const last = statements[statements.length - 1];
-    const firstTs = statementTimestamp(first);
-    const lastTs = statementTimestamp(last);
+    // Scan ALL statements and pick the one with the maximum timestamp
+    let bestStatement = null;
+    let bestTs = -Infinity;
+    let bestIndex = -1;
 
-    if (Number.isFinite(firstTs) && Number.isFinite(lastTs)) {
-        return firstTs >= lastTs ? first : last;
+    for (let i = 0; i < statements.length; i++) {
+        const ts = statementTimestamp(statements[i]);
+        if (Number.isFinite(ts) && ts > bestTs) {
+            bestTs = ts;
+            bestStatement = statements[i];
+            bestIndex = i;
+        }
     }
 
-    if (Number.isFinite(firstTs) && !Number.isFinite(lastTs)) return first;
-    if (!Number.isFinite(firstTs) && Number.isFinite(lastTs)) return last;
-    return last;
+    // Fallback: if no valid dates found, use the last element
+    if (!bestStatement) {
+        bestStatement = statements[statements.length - 1];
+        bestIndex = statements.length - 1;
+        console.log(`[FundamentalsService] selectLatestStatement: no valid dates, fallback to last (index=${bestIndex})`);
+    } else {
+        console.log(
+            `[FundamentalsService] selectLatestStatement: selected index=${bestIndex}/${statements.length - 1}, ` +
+            `date=${bestStatement?.date || 'N/A'}, ts=${new Date(bestTs).toISOString()}`
+        );
+    }
+
+    return bestStatement;
 }
 
 /**

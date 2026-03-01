@@ -730,6 +730,19 @@
         "popularityScore": 50
       },
       {
+        "symbol": "MRNA",
+        "name": "Moderna Inc",
+        "sector": "Unknown",
+        "industry": "Unknown",
+        "lastPrice": 53.57,
+        "changePercent": 3.5969831754012747,
+        "marketCap": 20928701457.84,
+        "peRatio": -7.4162655768,
+        "pbRatio": 2.4195030587,
+        "dividendYield": 0,
+        "popularityScore": 50
+      },
+      {
         "symbol": "PAA",
         "name": "Plains All American Pipeline LP",
         "sector": "Unknown",
@@ -910,10 +923,23 @@
         "pbRatio": 0,
         "dividendYield": 0,
         "popularityScore": 50
+      },
+      {
+        "symbol": "MRAAF",
+        "name": "Murata Manufacturing Co. Ltd",
+        "sector": "Unknown",
+        "industry": "Unknown",
+        "lastPrice": 27.484,
+        "changePercent": -1.7375759742581234,
+        "marketCap": 0,
+        "peRatio": 0,
+        "pbRatio": 0,
+        "dividendYield": 0,
+        "popularityScore": 50
       }
     ],
-    "totalStocks": 70,
-    "updatedAt": "2026-03-01T22:29:33.820Z"
+    "totalStocks": 72,
+    "updatedAt": "2026-03-01T23:15:35.495Z"
   },
-  "timestamp": 1772404173820
+  "timestamp": 1772406935496
 }

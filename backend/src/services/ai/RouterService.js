@@ -48,7 +48,8 @@ const CLASSIFIER_SYSTEM_PROMPT = [
   "- EMTIA_STRATEJISI: gold, silver, oil, safe haven assets",
   "- KRIPTO_STRATEJISI: bitcoin, crypto, blockchain, digital assets",
   "- JEOPOLITIK_RADAR: war, news, global crisis, market news impact",
-  "- GENEL: greetings, small talk, generic definitions"
+  "- GENEL: greetings, small talk, generic definitions",
+  "- CRITICAL: If the user mentions 'portföy' (portfolio) in any context, the intent is ALWAYS PORTFOY.",
 ].join("\n");
 
 function normalizeIntent(rawIntent) {

@@ -23,10 +23,11 @@ Analizlerin kisa, net ve executive tonda olsun.
 5. En alta su notu ekle:
    Kesinlikle "Yatirim Tavsiyesi" ifadesi kullanma, onun yerine "Bu analizler bilgilendirme amaclidir, yatirim tavsiyesi degildir." ifadesini kullan.
    6. Altın, BTC veya herhangi bir emtia için sayısal canlı fiyat verisi paylaşma. Sadece trend ve makro korelasyon analizi yap.
+   7. PARA BİRİMİ KURALI: <TRUSTED_PORTFOLIO_CONTEXT> ve <TRUSTED_FINANCIAL_CONTEXT> icerisindeki tum finansal degerler USD (ABD Dolari) cinsindendir. Analizde bu degerleri OLDUGU GIBI USD olarak goster. Kesinlikle TL ye cevirme. "$" isareti sadece USD rakamlariyla kullanilir. Eger kur donusumu gerekiyorsa, acikca "1 USD = ~XX TL pariteyle" seklinde belirt ve TL degerinin yanina "TL" yaz, asla "$" koyma.
 `.trim();
 
 const INTENT_MODULES = {
- HISSE_ANALIZI: `
+  HISSE_ANALIZI: `
 VURUCU VE ULTRA-KISA YANIT VER (Max 300 kelime):
 
 ### 💼 BİLANÇO (TABLO)
@@ -70,26 +71,35 @@ Tablo zorunlu format:
 - **Tetikleyici:** Onumuzdeki 6 ay icin en kritik veri puani.
 `.trim(),
 
-PORTFOY: `
-SADECE su 3 stratejik baslikla, veri odakli ve kisa yanit ver:
+  PORTFOY: `
+# KRİTİK KURAL: PORTFÖY ANALİZİ
+Eğer <TRUSTED_PORTFOLIO_CONTEXT> içinde <portfolio_empty>true</portfolio_empty> varsa veya hiç <TRUSTED_PORTFOLIO_CONTEXT> yoksa:
+- SADECE şu mesajı ver: "Henüz portföyünüzde varlık bulunmuyor. İsterseniz **Portföy** sayfasından hisse ekleyebilir ve ardından benden analiz isteyebilirsiniz. 🚀"
+- Başka hiçbir analiz YAPMA.
 
-### 📊 PORTFÖY RİSK MATRİSİ
-Bu bolum DÜZ METIN OLAMAZ. Mutlaka Markdown TABLOSU kullan.
-Tablo zorunlu format:
-| Parametre | Durum/Deger | Risk Analizi (Kisa) |
-| :--- | :--- | :--- |
-| Beta Agirligi | ... | ... |
-| Sektorel Odak | ... | ... |
-| Korelasyon | ... | ... |
-| Nakit Orani | ... | ... |
+Eğer portföy verisi MEVCUTSA, SADECE şu 4 başlıkla yanıt ver:
 
-### 💰 BÜYÜME VE TEMETTÜ GÜVENLİĞİ
-- **Ekonomik Hendek (Moat):** Portfoyu koruyan rekabet avantajlari (1 cumle).
-- **Nakit Akisi (FCF):** Temettu veya geri alim guvenligi durumu (1 cumle).
+### 📋 PORTFÖY ÖZET TABLOSU
+Bu bölüm DÜZ METİN OLAMAZ. Mutlaka Markdown TABLOSU kullan.
+<TRUSTED_PORTFOLIO_CONTEXT> içindeki her <asset> için aşağıdaki tabloyu doldur:
+| Hisse | Adet | Ort. Maliyet | Güncel Fiyat | K/Z (%) | Toplam Değer |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| ... | ... | ... | ... | ... | ... |
+Son satırda TOPLAM portföy değeri, toplam K/Z ve toplam K/Z yüzdesini (<portfolio_summary> verisinden) göster.
 
-### 🚀 STRATEJİK OPTİMİZASYON (5-10 YIL)
-- **Oneri:** Portfoyun alpha potansiyelini artirmak icin tek somut hamle.
-- **Projeksiyon:** Mevcut yapiyla uzun vadeli beklenti ozeti.
+### 📊 SEKTÖREL DAĞILIM VE KONSANTRASİYON RİSKİ
+- Hangi sektörlere ağırlık verilmiş?
+- Korelasyon riski var mı? (Tüm hisseler aynı sektördeyse uyar)
+- Beta ağırlığı analizi.
+
+### 💰 PERFORMANS VE KÂR/ZARAR DEĞERLENDİRMESİ
+- En iyi ve en kötü performans gösteren hisse.
+- Portföy genelinde güçlü/zayıf noktalar.
+- FCF ve temettü güvenliği özeti.
+
+### 🚀 STRATEJİK OPTİMİZASYON ÖNERİSİ
+- Çeşitlendirme önerisi (eksik sektörler, hedge ihtiyacı).
+- 5-10 yıllık projeksiyona göre tek somut hamle.
 `.trim(),
 
   DUYGU_ANALIZI: `
@@ -114,7 +124,7 @@ Tablo zorunlu format:
 - **Trend Yonu:** Kisa vadeli momentum ozeti.
 `.trim(),
 
-GENEL: `
+  GENEL: `
 SADECE su 2 stratejik baslikla, makro odakli ve kisa yanit ver:
 
 ### 🌍 MAKROEKONOMİK ETKİ VE SEKTÖR ROTASYONU
@@ -131,7 +141,7 @@ Tablo zorunlu format:
 - **Tetikleyici (Catalyst):** Yukselisi baslatacak ana olay (1 cumle).
 - **Strateji:** Bu makro ortamda izlenmesi gereken temel yol haritasi.
 `.trim(),
-TEMETTU_STRATEJISI: `
+  TEMETTU_STRATEJISI: `
 # TEMETTÜ EMEKLİLİĞİ VE GELİR ODAKLI ANALİZ
 SADECE su 3 baslikla, "Dividend Growth" odakli yanit ver:
 
@@ -186,7 +196,7 @@ SADECE "Gelecek 10 Yıl" vizyonuyla analiz et:
 - **Disruptive Güç:** Sektörü nasıl değiştiriyor?
 - **Ölçeklenebilirlik:** Marjlar büyüme ile artıyor mu?
 `.trim(),
-RISK_RADARI: `
+  RISK_RADARI: `
 # 🛡️ PORTFÖY STRES TESTİ VE RİSK ANALİZİ
 SADECE su 3 baslikla, defansif bir dille yanit ver:
 
@@ -205,7 +215,7 @@ SADECE su 3 baslikla, defansif bir dille yanit ver:
 ### ⚓ KORUMA STRATEJİSİ
 - **Hedging:** Bu pozisyonu korumak için hangi varlık (Altın, VIX, Put opsiyon) kullanılabilir?
 `.trim(),
-REKABET_GUCU: `
+  REKABET_GUCU: `
 # 🏰 SEKTÖREL MOAT (HENDEK) ANALİZİ
 SADECE sirketin "Pazar Hakimiyeti" üzerine odaklan:
 
@@ -221,7 +231,7 @@ SADECE sirketin "Pazar Hakimiyeti" üzerine odaklan:
 - **Giriş Engelleri:** Rakipler bu sektöre ne kadar kolay girebilir? (1 cümle).
 - **Fiyatlama Gücü:** Enflasyonu müşteriye yansıtabiliyor mu? (1 cümle).
 `.trim(),
-AKILLI_PARA: `
+  AKILLI_PARA: `
 # 🐋 SMART MONEY VE KURUMSAL HAREKETLER
 SADECE buyuk oyuncularin pozisyonlarini analiz et:
 
@@ -236,7 +246,7 @@ SADECE buyuk oyuncularin pozisyonlarini analiz et:
 - **Balina Hareketleri:** Son çeyrekte en büyük 3 fonun aksiyonu (1 cümle).
 - **Yönetim Güveni:** CEO/CFO hisse alıyor mu? (1 cümle).
 `.trim(),
-EMTIA_STRATEJISI: `
+  EMTIA_STRATEJISI: `
 # 🔑 ALTIN VE DEĞERLİ METAL ANALİZİ (STRATEJİK BAKIŞ)
 SADECE makro ekonomik göstergeler ve güvenli liman (safe haven) analizi yap.
 DİKKAT: Kesinlikle anlık fiyat verisi paylaşma.
@@ -277,7 +287,7 @@ DİKKAT: Kesinlikle anlık fiyat verisi paylaşma.
 ### ⚓ STRATEJİK KONUMLANDIRMA
 - Bu varlık "Dijital Altın" mı yoksa "Yüksek Riskli Teknoloji Varlığı" mı olarak değerlendirilmeli?
 `.trim(),
-JEOPOLITIK_RADAR: `
+  JEOPOLITIK_RADAR: `
 # 🌍 JEOPOLİTİK RİSK VE GÜNDEM ANALİZİ
 SADECE sicak gelismelerin (savas, yaptirim, secim vb.) piyasa korelasyonuna odaklan.
 
