@@ -302,13 +302,25 @@ export const handleCallback = async (req, res) => {
         const data = { ...req.query, ...req.body };
         const frontendUrl = getFrontendUrl(); // callback redirect target
 
-        console.log(`[Payment Callback] Received ${req.method} callback. Keys: ${Object.keys(data).join(', ')}`);
+        // ========= FULL DEBUG LOGGING =========
+        console.log("═══════════════════════════════════════════");
+        console.log(`[Payment Callback] ${req.method} received at ${new Date().toISOString()}`);
+        console.log("[Payment Callback] Headers:", JSON.stringify({
+            'content-type': req.headers['content-type'],
+            'user-agent': req.headers['user-agent']?.substring(0, 50),
+            origin: req.headers['origin'],
+            referer: req.headers['referer']
+        }, null, 2));
 
-        // NOTE: Signature validation removed — Paratika does not send hash/signature
-        // in the callback payload for Direct POST 3D model. Instead, we verify the
-        // payment status via QUERYTRANSACTION API call below, which is the
-        // recommended and most reliable verification method.
-
+        // Log ALL callback data (mask sensitive fields)
+        const safeData = { ...data };
+        if (safeData.hash) safeData.hash = safeData.hash.substring(0, 10) + "...";
+        if (safeData.HASH) safeData.HASH = safeData.HASH.substring(0, 10) + "...";
+        if (safeData.hashData) safeData.hashData = safeData.hashData.substring(0, 10) + "...";
+        if (safeData.HASHDATA) safeData.HASHDATA = safeData.HASHDATA.substring(0, 10) + "...";
+        console.log("[Payment Callback] Full payload:", JSON.stringify(safeData, null, 2));
+        console.log("[Payment Callback] All keys:", Object.keys(data).join(", "));
+        console.log("═══════════════════════════════════════════");
 
         // Paratika may use various field name formats — check all
         const merchantPaymentId = data.merchantPaymentId || data.MERCHANTPAYMENTID
@@ -317,9 +329,16 @@ export const handleCallback = async (req, res) => {
         const responseMsg = data.responseMsg || data.RESPONSEMSG || data.ResponseMsg;
         const sessionToken = data.sessionToken || data.SESSIONTOKEN;
 
+        console.log("[Payment Callback] Extracted fields:", {
+            merchantPaymentId,
+            responseCode,
+            responseMsg,
+            sessionToken: sessionToken ? sessionToken.substring(0, 15) + "..." : "N/A"
+        });
 
         if (!merchantPaymentId) {
-            console.error("❌ Callback: Missing merchantPaymentId. Keys:", Object.keys(data));
+            console.error("❌ Callback: Missing merchantPaymentId. All keys:", Object.keys(data));
+            console.error("❌ Full data dump:", JSON.stringify(data, null, 2));
             return res.redirect(`${frontendUrl}/payment-status?status=failed&error=missing_id`);
         }
 
@@ -331,6 +350,7 @@ export const handleCallback = async (req, res) => {
         if (!transaction && sessionToken) {
             transaction = await PaymentTransaction.findOne({ sessionToken });
             if (transaction) {
+                console.log(`[Payment Callback] Found transaction via sessionToken fallback: ${transaction.merchantPaymentId}`);
             }
         }
 
@@ -338,6 +358,8 @@ export const handleCallback = async (req, res) => {
             console.error("❌ Transaction not found:", merchantPaymentId);
             return res.redirect(`${frontendUrl}/payment-status?status=failed&error=not_found&id=${merchantPaymentId}`);
         }
+
+        console.log(`[Payment Callback] Transaction found: ${transaction.merchantPaymentId}, current status: ${transaction.status}, amount: ${transaction.amount}`);
 
         // Verify with QUERYTRANSACTION (double-check with Paratika)
         let verified = false;
@@ -347,6 +369,17 @@ export const handleCallback = async (req, res) => {
             queryResult = await ParatikaService.queryTransaction(transaction.merchantPaymentId);
             transaction.rawResponse = queryResult;
 
+            console.log("[Payment Callback] QUERYTRANSACTION result:", {
+                responseCode: queryResult.responseCode,
+                responseMsg: queryResult.responseMsg,
+                transactionCount: queryResult.transactionList?.length || 0,
+                transactions: (queryResult.transactionList || []).map(t => ({
+                    pgTranId: t.pgTranId,
+                    status: t.transactionStatus,
+                    amount: t.amount || t.AMOUNT
+                }))
+            });
+
             if (queryResult.responseCode === "00") {
                 const txList = queryResult.transactionList || [];
                 approvedTx = txList.find(tx => tx.transactionStatus === "AP");
@@ -355,17 +388,21 @@ export const handleCallback = async (req, res) => {
                     verified = true;
                     transaction.status = "SUCCESS";
                     transaction.isVerified = true;
+                    console.log("[Payment Callback] ✅ APPROVED transaction found:", approvedTx.pgTranId);
                 } else if (txList.length === 0 && responseCode === "00") {
                     // No transactionList yet but Paratika callback says 00
                     verified = true;
                     transaction.status = "SUCCESS";
                     transaction.isVerified = true;
+                    console.log("[Payment Callback] ✅ Callback responseCode=00, no txList yet");
                 } else {
                     const statuses = txList.map(t => `${t.pgTranId || 'N/A'}: ${t.transactionStatus}`);
+                    console.error("[Payment Callback] ❌ No AP transaction. Statuses:", statuses);
                     transaction.status = "FAILED";
                     transaction.errorMsg = "İşlem doğrulanamadı";
                 }
             } else {
+                console.error("[Payment Callback] ❌ QUERYTRANSACTION failed:", queryResult.responseCode, queryResult.responseMsg);
                 transaction.status = "FAILED";
                 transaction.errorMsg = queryResult.responseMsg || "İşlem başarısız";
             }
@@ -376,6 +413,7 @@ export const handleCallback = async (req, res) => {
                 verified = true;
                 transaction.status = "SUCCESS";
                 transaction.isVerified = false; // Not fully verified
+                console.log("[Payment Callback] ⚠️ Using callback responseCode as fallback");
             } else {
                 transaction.status = "FAILED";
                 transaction.errorMsg = `Doğrulama hatası: ${responseCode}`;
@@ -389,11 +427,14 @@ export const handleCallback = async (req, res) => {
                 extractAmountCandidate(queryResult) ??
                 extractAmountCandidate(data);
 
+            console.log("[Payment Callback] Amount check:", { expectedAmount, paidAmount });
+
             if (expectedAmount !== null && paidAmount !== null && !isAmountMatch(expectedAmount, paidAmount)) {
                 verified = false;
                 transaction.status = "FAILED";
                 transaction.isVerified = false;
                 transaction.errorMsg = `Tutar uyumsuz: beklenen ${expectedAmount.toFixed(2)} TRY, gelen ${paidAmount.toFixed(2)} TRY`;
+                console.error("[Payment Callback] ❌ Amount mismatch!", transaction.errorMsg);
             }
         }
 
@@ -407,6 +448,7 @@ export const handleCallback = async (req, res) => {
                     user.subscriptionTier = transaction.planType; // "PLUS" or "PRO"
                     user.subscriptionStatus = "ACTIVE";
                     await user.save();
+                    console.log(`[Payment Callback] ✅ User ${user.email} upgraded to ${transaction.planType}`);
                 }
             } catch (updateError) {
                 console.error("❌ User subscription update error:", updateError.message);
@@ -416,7 +458,10 @@ export const handleCallback = async (req, res) => {
 
         // Redirect user to frontend payment status page
         const status = transaction.status === "SUCCESS" ? "success" : "failed";
-        res.redirect(`${frontendUrl}/payment-status?status=${status}&id=${transaction.merchantPaymentId}`);
+        const redirectUrl = `${frontendUrl}/payment-status?status=${status}&id=${transaction.merchantPaymentId}`;
+        console.log(`[Payment Callback] Redirecting to: ${redirectUrl}`);
+        console.log("═══════════════════════════════════════════");
+        res.redirect(redirectUrl);
 
     } catch (error) {
         console.error("Payment Callback Error:", error);
