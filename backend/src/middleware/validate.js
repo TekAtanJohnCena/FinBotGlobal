@@ -110,7 +110,8 @@ export const registerSchema = z.object({
       .string()
       .min(3, "Kullanıcı adı en az 3 karakter olmalıdır")
       .max(50, "Kullanıcı adı en fazla 50 karakter olabilir")
-      .regex(/^[a-zA-Z0-9_ğüşıöçĞÜŞİÖÇ]+$/, "Kullanıcı adı sadece harf, rakam ve alt çizgi içerebilir"),
+      .regex(/^[a-zA-Z0-9_ğüşıöçĞÜŞİÖÇ]+$/, "Kullanıcı adı sadece harf, rakam ve alt çizgi içerebilir")
+      .optional(),
     email: z
       .string()
       .email("Geçerli bir e-posta adresi giriniz")
@@ -206,6 +207,6 @@ export const stockAnalysisSchema = z.object({
  */
 export const googleTokenSchema = z.object({
   body: z.object({
-    token: z.string().min(1, "Token boş olamaz").max(5000, "Token çok uzun"),
+    token: z.string().min(1, "Token boş olamaz").max(10000, "Token çok uzun"),
   }),
 });
