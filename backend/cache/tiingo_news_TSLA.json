@@ -1,0 +1,44 @@
+{
+  "data": {
+    "articles": [
+      {
+        "title": "Tesla Balances Autopilot Scrutiny Robotaxis And China Risks For Investors",
+        "description": "Tesla is facing multiple regulatory and legal challenges in California tied to its Autopilot and Full Self-Driving marketing, including a dispute with the DMV and an ongoing class-action discrimination case. The company is pushing ahead with its Cybercab robotaxi plans and the Optimus Gen 3 robot, even as senior executives depart and some operations encounter setbacks. In China, record-low delivery times and extended financing deals point to tougher competition and softer demand, while the...",
+        "source": "finance.yahoo.com",
+        "url": "https://finance.yahoo.com/news/tesla-balances-autopilot-scrutiny-robotaxis-211142651.html",
+        "publishedDate": "2026-03-01T21:11:42Z"
+      },
+      {
+        "title": "Tesla Autonomy Setbacks Test Robotaxi Hopes And Long Term Story",
+        "description": "Tesla (NasdaqGS:TSLA) is confronting weaker global demand and tougher competition, including losing its position as the top-selling EV maker to BYD.\nThe company is dealing with a series of regulatory and legal challenges tied to its Autopilot and Full Self Driving marketing, as well as disputes with California's DMV and stricter oversight after a major liability verdict.\nTesla's Cybercab program manager has departed as the company pushes ahead with autonomous vehicle and robotaxi plans,...",
+        "source": "simplywall.st",
+        "url": "https://simplywall.st/stocks/us/automobiles/nasdaq-tsla/tesla/news/tesla-autonomy-setbacks-test-robotaxi-hopes-and-long-term-st",
+        "publishedDate": "2026-03-01T19:21:41.260000Z"
+      },
+      {
+        "title": "Elon Musk 'Highly Confident' Starship V3 Will Achieve 'Full Reusability,' But There's One Catch: 'SpaceX Will Only Try...'",
+        "description": "SpaceX CEO Elon Musk shared that he believes the Starship V3 rocket would achieve full reusability as lunar goals take center stage. Starship Will Achieve Full Reusability In a post on the social media platform X on Thursday, Musk quoted a post by SpaceX sharing that the Starship V3 was headed for ground tests. \"I am highly confident that the V3 design will achieve full reusability,\" he said in the post. Starship V3 SN1 headed for ground tests. I am highly confident that the V3 design will achie",
+        "source": "finance.yahoo.com",
+        "url": "https://finance.yahoo.com/news/elon-musk-highly-confident-starship-183113584.html",
+        "publishedDate": "2026-03-01T18:31:13Z"
+      },
+      {
+        "title": "Tesla increases Cybertruck AWD price to $70,000 after creating artificial urgency",
+        "description": "Tesla raised the Cybertruck AWD price from $60,000 to $70,000 after Musk created artificial demand with a 10-day deadline.",
+        "source": "electrek.co",
+        "url": "https://electrek.co/2026/03/01/tesla-cybertruck-awd-price-increase-70000-artificial-urgency/",
+        "publishedDate": "2026-03-01T17:38:24Z"
+      },
+      {
+        "title": "Tesla Robotaxi Rival Waymo Now Operates In 10 Cities, Touts 200 Million Autonomous Miles Driven: Here's How Other Companies Fair",
+        "description": "As Waymo announced expansion to 10 cities for its autonomous ride-hailing service, here's how the Robotaxi race is progressing.",
+        "source": "benzinga.com",
+        "url": "https://www.benzinga.com/markets/tech/26/03/50953948/tesla-robotaxi-rival-waymo-now-operates-in-10-cities-touts-200-million-autonomous-miles-driven-how-do-other-companies-fair",
+        "publishedDate": "2026-03-01T17:00:00Z"
+      }
+    ],
+    "dataStatus": "fresh",
+    "availabilityNote": null
+  },
+  "timestamp": 1772404336001
+}

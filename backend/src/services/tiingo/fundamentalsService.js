@@ -6,6 +6,59 @@ import { formatTicker } from '../../utils/tickerFormatter.js';
 
 const FUNDAMENTALS_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
+function parseYear(value) {
+    if (value === null || value === undefined || value === "") return null;
+    if (typeof value === "number" && Number.isFinite(value)) return Math.trunc(value);
+    const match = String(value).match(/\b(20\d{2})\b/);
+    if (!match) return null;
+    const year = Number(match[1]);
+    return Number.isFinite(year) ? year : null;
+}
+
+function statementTimestamp(statement) {
+    if (!statement || typeof statement !== "object") return Number.NaN;
+
+    const dateCandidates = [
+        statement.date,
+        statement.reportDate,
+        statement.filingDate,
+        statement.filedDate,
+        statement.periodEndDate,
+        statement.fiscalDate
+    ];
+
+    for (const candidate of dateCandidates) {
+        if (!candidate) continue;
+        const ts = new Date(candidate).getTime();
+        if (Number.isFinite(ts)) return ts;
+    }
+
+    const year = parseYear(statement.year ?? statement.fiscalYear);
+    if (!year) return Number.NaN;
+
+    const quarter = String(statement.quarter ?? statement.fiscalQuarter ?? "Y").toUpperCase();
+    const quarterMonthMap = { Q1: 2, Q2: 5, Q3: 8, Q4: 11, Y: 11, FY: 11 };
+    const monthIndex = quarterMonthMap[quarter] ?? 11;
+    return Date.UTC(year, monthIndex, 1);
+}
+
+function selectLatestStatement(statements) {
+    if (!Array.isArray(statements) || statements.length === 0) return null;
+
+    const first = statements[0];
+    const last = statements[statements.length - 1];
+    const firstTs = statementTimestamp(first);
+    const lastTs = statementTimestamp(last);
+
+    if (Number.isFinite(firstTs) && Number.isFinite(lastTs)) {
+        return firstTs >= lastTs ? first : last;
+    }
+
+    if (Number.isFinite(firstTs) && !Number.isFinite(lastTs)) return first;
+    if (!Number.isFinite(firstTs) && Number.isFinite(lastTs)) return last;
+    return last;
+}
+
 /**
  * Get fundamental financial data
  * @param {string} ticker - Stock ticker symbol
@@ -35,10 +88,19 @@ export async function getFundamentals(ticker) {
             throw new Error(`No fundamental data for ${normalizedTicker}`);
         }
 
-        const latest = statements[0];
+        const latest = selectLatestStatement(statements);
+        if (!latest) {
+            throw new Error(`No parseable fundamental statement for ${normalizedTicker}`);
+        }
+
+        const statementYear = parseYear(latest.year ?? latest.fiscalYear ?? latest.date);
+        const statementQuarter = latest.quarter ?? latest.fiscalQuarter ?? null;
         const result = {
             ticker: normalizedTicker,
-            period: `${latest.year} ${latest.quarter}`,
+            period: `${statementYear || latest.year || "N/A"} ${statementQuarter || latest.quarter || ""}`.trim(),
+            date: latest.date || null,
+            fiscalYear: statementYear,
+            fiscalQuarter: statementQuarter,
             reportType: latest.quarter === 'Y' ? '10-K' : '10-Q',
             revenue: latest.revenue,
             netIncome: latest.netIncome,

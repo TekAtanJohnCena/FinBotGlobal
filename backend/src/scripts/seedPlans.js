@@ -44,8 +44,8 @@ const PLANS_DATA = [
         displayName: "Plus",
         displayNameTR: "Plus",
         price: {
-            monthly: 1,
-            yearly: 1,
+            monthly: 369,
+            yearly: 369,
             currency: "TRY"
         },
         limits: {
@@ -70,8 +70,8 @@ const PLANS_DATA = [
         displayName: "Pro",
         displayNameTR: "Pro",
         price: {
-            monthly: 1,
-            yearly: 1,
+            monthly: 449,
+            yearly: 449,
             currency: "TRY"
         },
         limits: {

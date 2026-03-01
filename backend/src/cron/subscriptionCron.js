@@ -88,7 +88,8 @@ async function processRenewal(subscription) {
     try {
         const plan = await SubscriptionPlan.getByName(subscription.planName);
         if (plan) {
-            amount = plan.price?.monthly || 0;
+            const monthly = Number(plan.price?.monthly || 0);
+            amount = monthly > 1 ? monthly : 0;
         }
     } catch (e) {
         console.error(`  ⚠️ [${subId}] SubscriptionPlan lookup failed:`, e.message);
@@ -96,7 +97,7 @@ async function processRenewal(subscription) {
 
     // Fallback to hardcoded amounts if plan not found
     if (!amount) {
-        const fallbackPrices = { PLUS: 1.00, PRO: 1.00 };
+        const fallbackPrices = { PLUS: 369.00, PRO: 449.00 };
         amount = fallbackPrices[subscription.planName] || 0;
     }
 

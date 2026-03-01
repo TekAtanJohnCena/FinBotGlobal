@@ -43,7 +43,7 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
     const planFeatures = {
         BASIC: {
             name: 'Plus',
-            price: '149₺',
+            price: '369₺',
             period: '/ay',
             features: [
                 'Günlük 50 Finbot sorgusu',
@@ -54,7 +54,7 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
         },
         PREMIUM: {
             name: 'Pro',
-            price: '299₺',
+            price: '449₺',
             period: '/ay',
             features: [
                 'Günlük 250 Finbot sorgusu',

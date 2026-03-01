@@ -30,7 +30,7 @@ const PLANS = {
   plus: {
     name: "Plus",
     nameKey: "plus",
-    price: 189,
+    price: 369,
     icon: "⚡",
     color: "#3b82f6",
     popular: true,
@@ -39,7 +39,7 @@ const PLANS = {
   pro: {
     name: "Pro",
     nameKey: "pro",
-    price: 269,
+    price: 449,
     icon: "🚀",
     color: "#8b5cf6",
     features: ["Sınırsız FinBot Sorgusu", "Tüm Premium Özellikler", "7/24 VIP Destek", "API Erişimi", "Özel Raporlar"]

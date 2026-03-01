@@ -29,13 +29,13 @@ const PricingSubscription = () => {
       key: "plus",
       icon: <Zap className="w-6 h-6" />,
       highlight: true,
-      monthly: 1,
+      monthly: 369,
     },
     {
       key: "pro",
       icon: <Shield className="w-6 h-6" />,
       highlight: false,
-      monthly: 1,
+      monthly: 449,
     },
     {
       key: "enterprise",
@@ -47,12 +47,12 @@ const PricingSubscription = () => {
 
   const calcPrice = (monthlyPrice) => {
     if (monthlyPrice <= 0) return monthlyPrice;
-    return 1;
+    return monthlyPrice;
   };
 
   const calculateMonthlyEquivalent = (monthlyPrice) => {
     if (monthlyPrice <= 0) return monthlyPrice;
-    return 1;
+    return monthlyPrice;
   };
 
   // Handle plan selection

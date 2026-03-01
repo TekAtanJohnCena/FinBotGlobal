@@ -6,11 +6,11 @@ import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
 /**
- * Temporary fallback test prices (TRY)
+ * Fallback live prices (TRY)
  */
 const TEST_PLAN_FALLBACK = {
-    PLUS: { monthly: 1.00, yearly: 1.00, label: "Plus" },
-    PRO: { monthly: 1.00, yearly: 1.00, label: "Pro" }
+    PLUS: { monthly: 369.00, yearly: 369.00, label: "Plus" },
+    PRO: { monthly: 449.00, yearly: 449.00, label: "Pro" }
 };
 
 async function resolvePlanPricing(planType, billingPeriod = "MONTHLY") {
@@ -26,14 +26,20 @@ async function resolvePlanPricing(planType, billingPeriod = "MONTHLY") {
         const monthly = Number(dbPlan.price.monthly ?? 0);
         const yearly = Number(dbPlan.price.yearly ?? monthly);
         const dbAmount = normalizedBilling === "YEARLY" ? yearly : monthly;
+        const isLegacyTestAmount = Number.isFinite(dbAmount) && Number(dbAmount.toFixed(2)) === 1.00;
 
-        if (Number.isFinite(dbAmount) && dbAmount > 0) {
+        if (Number.isFinite(dbAmount) && dbAmount > 0 && !isLegacyTestAmount) {
+            console.log(`[Payment] Pricing source=DB | plan=${normalizedPlanType} | billing=${normalizedBilling} | amount_try=${dbAmount.toFixed(2)}`);
             return {
                 planType: normalizedPlanType,
                 billingPeriod: normalizedBilling,
                 amount: Number(dbAmount.toFixed(2)),
                 label: dbPlan.displayNameTR || dbPlan.displayName || normalizedPlanType
             };
+        }
+
+        if (isLegacyTestAmount) {
+            console.warn(`[Payment] Legacy DB test price detected (1.00) for ${normalizedPlanType}/${normalizedBilling}. Falling back to live pricing.`);
         }
     }
 
@@ -43,6 +49,7 @@ async function resolvePlanPricing(planType, billingPeriod = "MONTHLY") {
     }
 
     const fallbackAmount = normalizedBilling === "YEARLY" ? fallback.yearly : fallback.monthly;
+    console.log(`[Payment] Pricing source=FALLBACK | plan=${normalizedPlanType} | billing=${normalizedBilling} | amount_try=${fallbackAmount.toFixed(2)}`);
     return {
         planType: normalizedPlanType,
         billingPeriod: normalizedBilling,
@@ -89,6 +96,19 @@ function extractAmountCandidate(payload) {
 function isAmountMatch(expected, actual, tolerance = 0.01) {
     if (!Number.isFinite(expected) || !Number.isFinite(actual)) return false;
     return Math.abs(expected - actual) <= tolerance;
+}
+
+function normalizePaidAmountToTry(expectedAmount, rawPaidAmount) {
+    if (!Number.isFinite(rawPaidAmount)) return null;
+
+    const candidates = [rawPaidAmount, rawPaidAmount / 100];
+    for (const candidate of candidates) {
+        if (isAmountMatch(expectedAmount, candidate)) {
+            return candidate;
+        }
+    }
+
+    return rawPaidAmount;
 }
 
 /**
@@ -218,6 +238,8 @@ export const createPayment = async (req, res) => {
         }
 
         const amount = planPricing.amount;
+        const amountKurus = ParatikaService.formatAmount(amount.toFixed(2));
+        console.log(`[Payment] createPayment | plan=${planPricing.planType} | billing=${planPricing.billingPeriod} | amount_try=${amount.toFixed(2)} | amount_kurus=${amountKurus}`);
 
         const merchantPaymentId = `FIN-${Date.now()}-${uuidv4().split('-')[0]}`;
 
@@ -422,18 +444,19 @@ export const handleCallback = async (req, res) => {
 
         if (verified) {
             const expectedAmount = parseAmount(transaction.amount);
-            const paidAmount =
+            const rawPaidAmount =
                 extractAmountCandidate(approvedTx) ??
                 extractAmountCandidate(queryResult) ??
                 extractAmountCandidate(data);
+            const paidAmount = normalizePaidAmountToTry(expectedAmount, rawPaidAmount);
 
-            console.log("[Payment Callback] Amount check:", { expectedAmount, paidAmount });
+            console.log("[Payment Callback] Amount check:", { expectedAmount, rawPaidAmount, paidAmount });
 
             if (expectedAmount !== null && paidAmount !== null && !isAmountMatch(expectedAmount, paidAmount)) {
                 verified = false;
                 transaction.status = "FAILED";
                 transaction.isVerified = false;
-                transaction.errorMsg = `Tutar uyumsuz: beklenen ${expectedAmount.toFixed(2)} TRY, gelen ${paidAmount.toFixed(2)} TRY`;
+                transaction.errorMsg = `Tutar uyumsuz: beklenen ${expectedAmount.toFixed(2)} TRY, gelen ${rawPaidAmount.toFixed(2)} (ham)`;
                 console.error("[Payment Callback] ❌ Amount mismatch!", transaction.errorMsg);
             }
         }

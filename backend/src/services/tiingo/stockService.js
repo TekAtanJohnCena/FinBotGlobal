@@ -1,11 +1,13 @@
-// ... (start of file)
+// PATH: backend/src/services/tiingo/stockService.js
+import tiingoClient from './tiingoClient.js';
+import cache from '../cache/cacheService.js';
 import { formatTicker, isDelisted } from '../../utils/tickerFormatter.js';
 import logger from '../../utils/logger.js';
-// ...
 
-const PRICE_TTL = 15 * 1000;    // 15 seconds for prices
-const PROFILE_TTL = 24 * 60 * 60 * 1000; // 24 hours for profiles
-const SEARCH_TTL = 5 * 60 * 1000; // 5 minutes for search
+// cacheService expects TTL in seconds (not milliseconds)
+const PRICE_TTL = 15; // 15 seconds for prices
+const PROFILE_TTL = 24 * 60 * 60; // 24 hours for profiles
+const SEARCH_TTL = 5 * 60; // 5 minutes for search
 
 /**
  * Get current stock price

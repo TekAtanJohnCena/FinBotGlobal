@@ -31,8 +31,8 @@ router.post('/create-session', authenticateToken, async (req, res) => {
 
         // Get price based on plan and billing period
         const prices = {
-            plus: { monthly: 1, yearly: 1 },
-            pro: { monthly: 1, yearly: 1 },
+            plus: { monthly: 369, yearly: 369 },
+            pro: { monthly: 449, yearly: 449 },
             enterprise: { monthly: null, yearly: null }
         };
 

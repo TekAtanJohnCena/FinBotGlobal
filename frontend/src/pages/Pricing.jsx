@@ -31,12 +31,12 @@ export default function Pricing() {
         },
         {
             key: "plus",
-            monthly: 1,
+            monthly: 369,
             highlight: true // Popular moved to Plus
         },
         {
             key: "pro",
-            monthly: 1, // Temporary test price
+            monthly: 449,
             highlight: false
         },
         {

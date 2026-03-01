@@ -12,9 +12,10 @@ const bedrockClient = new BedrockRuntimeClient({
     region: process.env.AWS_REGION || "us-east-1"
 });
 
-// Use cross-region inference profile instead of direct model ID
-// This allows on-demand throughput access to Claude 3.5 Sonnet
-const MODEL_ID = process.env.ANTHROPIC_MODEL_ID || "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
+// Default Sonnet model (cross-region inference profile)
+const SONNET_MODEL_ID = process.env.ANTHROPIC_MODEL_ID || "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
+// Fast model for lightweight chat / routing tasks
+const HAIKU_MODEL_ID = process.env.HAIKU_MODEL_ID || "us.anthropic.claude-3-haiku-20240307-v1:0";
 
 // Retry Configuration
 const MAX_RETRIES = 3;
@@ -24,6 +25,17 @@ const INITIAL_BACKOFF_MS = 1000;
  * Sleep helper for backoff
  */
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+function resolveModelId(model) {
+    if (!model) return SONNET_MODEL_ID;
+
+    const normalized = String(model).toLowerCase();
+    if (normalized.includes("haiku")) return HAIKU_MODEL_ID;
+    if (normalized.includes("sonnet")) return SONNET_MODEL_ID;
+
+    // If caller already passed a full Bedrock model ID, use it directly.
+    return model;
+}
 
 /**
  * Call Claude via Bedrock with OpenAI-compatible interface
@@ -36,8 +48,10 @@ export async function invokeClaude(messages, options = {}) {
             const {
                 temperature = 0.4,
                 max_tokens = 1200,
-                system = null
+                system = null,
+                model = null
             } = options;
+            const modelId = resolveModelId(model);
 
             // Convert OpenAI format to Claude format
             const claudeMessages = messages
@@ -61,7 +75,7 @@ export async function invokeClaude(messages, options = {}) {
 
 
             const command = new InvokeModelCommand({
-                modelId: MODEL_ID,
+                modelId,
                 contentType: "application/json",
                 accept: "application/json",
                 body: JSON.stringify(requestBody)
@@ -79,7 +93,7 @@ export async function invokeClaude(messages, options = {}) {
                         finish_reason: responseBody.stop_reason
                     }
                 ],
-                model: MODEL_ID,
+                model: modelId,
                 usage: {
                     prompt_tokens: responseBody.usage?.input_tokens || 0,
                     completion_tokens: responseBody.usage?.output_tokens || 0,
@@ -116,8 +130,10 @@ export async function* invokeClaudeStream(messages, options = {}) {
                 temperature = 0.4,
                 max_tokens = 4096, // Increased default for thinking + response
                 system = null,
-                thinking = { type: "enabled", budget_tokens: 1024 } // Default thinking config
+                thinking = { type: "enabled", budget_tokens: 1024 }, // Default thinking config
+                model = null
             } = options;
+            const modelId = resolveModelId(model);
 
             const claudeMessages = messages
                 .filter(m => m.role !== 'system')
@@ -160,7 +176,7 @@ export async function* invokeClaudeStream(messages, options = {}) {
 
 
             const command = new InvokeModelWithResponseStreamCommand({
-                modelId: MODEL_ID,
+                modelId,
                 contentType: "application/json",
                 accept: "application/json",
                 body: JSON.stringify(requestBody)

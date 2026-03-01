@@ -20,15 +20,15 @@ const FINAL_MERCHANT_USER = PARATIKA_MERCHANT_USER || PARATIKA_API_USER || PARAT
  */
 class ParatikaService {
     /**
-     * Format any number or string to a "X.XX" string as required by Paratika.
+     * Format amount in TRY to kuruş as an integer string (e.g. 369 -> "36900").
      */
     static formatAmount(val) {
         if (typeof val === "string") {
             val = val.replace(/,/g, ".");
         }
         const num = parseFloat(val);
-        if (isNaN(num)) return "0.00";
-        return num.toFixed(2);
+        if (isNaN(num)) return "0";
+        return String(Math.round(num * 100));
     }
 
     /**
@@ -78,7 +78,7 @@ class ParatikaService {
 
             params.append("ORDERITEMS", JSON.stringify(orderItems));
 
-            console.log(`[Paratika] Session request prepared (merchantPaymentId=${paymentData.merchantPaymentId}, amount=${formattedTotalAmount})`);
+            console.log(`[Paratika] Session request prepared (merchantPaymentId=${paymentData.merchantPaymentId}, amount_kurus=${formattedTotalAmount})`);
 
             const response = await axios.post(PARATIKA_BASE_URL, params, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -143,7 +143,7 @@ class ParatikaService {
      * 
      * @param {Object} chargeData
      * @param {string} chargeData.cardToken - Stored card token from User.savedCards
-     * @param {string} chargeData.amount - Amount to charge (e.g. "369.00")
+     * @param {string} chargeData.amount - Amount to charge in TRY (e.g. "369.00")
      * @param {string} chargeData.currency - Currency code (default: TRY)
      * @param {string} chargeData.merchantPaymentId - Unique payment reference
      * @param {string} chargeData.customerId - User ID or Paratika customer ID
@@ -173,7 +173,7 @@ class ParatikaService {
             params.append("CUSTOMERIP", "127.0.0.1"); // Server-initiated
             params.append("CUSTOMERUSERAGENT", "FinBot-SubscriptionCron/1.0");
 
-            console.log(`[Paratika] Token charge request prepared (merchantPaymentId=${chargeData.merchantPaymentId}, amount=${formattedAmount})`);
+            console.log(`[Paratika] Token charge request prepared (merchantPaymentId=${chargeData.merchantPaymentId}, amount_kurus=${formattedAmount})`);
 
             const response = await axios.post(PARATIKA_BASE_URL, params, {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },

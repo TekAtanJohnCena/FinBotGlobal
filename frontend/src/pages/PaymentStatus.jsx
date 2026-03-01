@@ -180,62 +180,6 @@ const PaymentStatus = () => {
                     animation: ps-fadeInUp 0.5s ease-out 0.5s both;
                     line-height: 1.6;
                 }
-                .ps-plan-highlight {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.75rem 1.5rem;
-                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.2) 100%);
-                    border: 1px solid rgba(16, 185, 129, 0.2);
-                    border-radius: 12px;
-                    margin: 1.25rem 0;
-                    animation: ps-fadeInUp 0.5s ease-out 0.6s both;
-                }
-                .ps-plan-highlight span {
-                    font-size: 0.95rem;
-                    color: rgba(255,255,255,0.6);
-                }
-                .ps-plan-highlight strong {
-                    font-size: 1.1rem;
-                    color: #34d399;
-                    background: linear-gradient(90deg, #34d399, #10b981);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                }
-                .ps-features {
-                    text-align: left;
-                    margin: 1.5rem 0;
-                    padding: 1.25rem;
-                    background: rgba(255,255,255,0.03);
-                    border-radius: 12px;
-                    border: 1px solid rgba(255,255,255,0.05);
-                    animation: ps-fadeInUp 0.5s ease-out 0.7s both;
-                }
-                .ps-features-title {
-                    font-size: 0.8rem;
-                    color: rgba(255,255,255,0.4);
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    margin-bottom: 0.75rem;
-                }
-                .ps-feature-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.6rem;
-                    padding: 0.4rem 0;
-                    font-size: 0.9rem;
-                    color: rgba(255,255,255,0.7);
-                }
-                .ps-feature-check {
-                    width: 18px; height: 18px;
-                    background: rgba(16, 185, 129, 0.2);
-                    border-radius: 50%;
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 0.65rem;
-                    color: #10b981;
-                    flex-shrink: 0;
-                }
                 .ps-txid {
                     font-size: 0.8rem;
                     color: rgba(255,255,255,0.25);
@@ -372,42 +316,13 @@ const PaymentStatus = () => {
                                 </svg>
                             </div>
 
-                            <div className="ps-badge success">
-                                ✦ ÖDEME ONAYLANDI
-                            </div>
-
                             <h1 className="ps-title success">
-                                Tebrikler! 🎉
+                                Ödemeniz Başarıyla Gerçekleşti!
                             </h1>
 
                             <p className="ps-subtitle">
-                                Ödemeniz başarıyla gerçekleştirildi ve aboneliğiniz <strong>anında aktifleştirildi.</strong>
+                                Paketiniz hesabınıza tanımlanmıştır. Analizlere hemen başlayabilirsiniz.
                             </p>
-
-                            <div className="ps-plan-highlight">
-                                <span>Planınız:</span>
-                                <strong>Premium Üyelik Aktif</strong>
-                            </div>
-
-                            <div className="ps-features">
-                                <div className="ps-features-title">Artık erişiminiz var</div>
-                                <div className="ps-feature-item">
-                                    <span className="ps-feature-check">✓</span>
-                                    Sınırsız yapay zeka analizi
-                                </div>
-                                <div className="ps-feature-item">
-                                    <span className="ps-feature-check">✓</span>
-                                    Gelişmiş finansal raporlar
-                                </div>
-                                <div className="ps-feature-item">
-                                    <span className="ps-feature-check">✓</span>
-                                    Öncelikli destek
-                                </div>
-                                <div className="ps-feature-item">
-                                    <span className="ps-feature-check">✓</span>
-                                    Tüm premium özellikler
-                                </div>
-                            </div>
 
                             {id && <div className="ps-txid">İşlem No: {id}</div>}
 
@@ -419,7 +334,7 @@ const PaymentStatus = () => {
                                     onClick={() => navigate('/chat')}
                                     className="ps-btn success"
                                 >
-                                    🚀 Hemen Kullanmaya Başla
+                                    Hemen Başla
                                 </button>
                             </div>
                         </>
