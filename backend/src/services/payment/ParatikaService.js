@@ -20,7 +20,8 @@ const FINAL_MERCHANT_USER = PARATIKA_MERCHANT_USER || PARATIKA_API_USER || PARAT
  */
 class ParatikaService {
     /**
-     * Format amount in TRY to kuruş as an integer string (e.g. 369 -> "36900").
+     * Format amount in TRY as a decimal string with 2 decimal places (e.g. 369 -> "369.00").
+     * Paratika AMOUNT parameter expects TRY, NOT kuruş.
      */
     static formatAmount(val) {
         if (typeof val === "string") {
@@ -28,7 +29,7 @@ class ParatikaService {
         }
         const num = parseFloat(val);
         if (isNaN(num)) return "0";
-        return String(Math.round(num * 100));
+        return num.toFixed(2);
     }
 
     /**
@@ -78,7 +79,7 @@ class ParatikaService {
 
             params.append("ORDERITEMS", JSON.stringify(orderItems));
 
-            console.log(`[Paratika] Session request prepared (merchantPaymentId=${paymentData.merchantPaymentId}, amount_kurus=${formattedTotalAmount})`);
+            console.log(`[Paratika] Session request prepared (merchantPaymentId=${paymentData.merchantPaymentId}, amount_try=${formattedTotalAmount})`);
 
             const response = await axios.post(PARATIKA_BASE_URL, params, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -173,7 +174,7 @@ class ParatikaService {
             params.append("CUSTOMERIP", "127.0.0.1"); // Server-initiated
             params.append("CUSTOMERUSERAGENT", "FinBot-SubscriptionCron/1.0");
 
-            console.log(`[Paratika] Token charge request prepared (merchantPaymentId=${chargeData.merchantPaymentId}, amount_kurus=${formattedAmount})`);
+            console.log(`[Paratika] Token charge request prepared (merchantPaymentId=${chargeData.merchantPaymentId}, amount_try=${formattedAmount})`);
 
             const response = await axios.post(PARATIKA_BASE_URL, params, {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },

@@ -91,12 +91,17 @@ router.post('/analyze', protect, aiRateLimiter, checkNewsQuota, async (req, res)
     // Proxy to the new AI controller
     try {
         await analyzeNews(req, res);
-        // Increment quota on success
-        if (req.user?._id) {
-            await incrementNewsUsage(req.user._id);
+        // Increment quota only on success (if response hasn't been sent as error)
+        if (!res.headersSent || res.statusCode === 200) {
+            if (req.user?._id) {
+                await incrementNewsUsage(req.user._id);
+            }
         }
     } catch (error) {
-        // Error already handled by analyzeNews
+        console.error('❌ News analyze route error:', error.message);
+        if (!res.headersSent) {
+            res.status(500).json({ ok: false, error: 'Haber analizi sırasında bir hata oluştu.' });
+        }
     }
 });
 

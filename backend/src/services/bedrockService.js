@@ -33,6 +33,11 @@ function resolveModelId(model) {
     if (normalized.includes("haiku")) return HAIKU_MODEL_ID;
     if (normalized.includes("sonnet")) return SONNET_MODEL_ID;
 
+    // Map OpenAI model names to Bedrock equivalents
+    // gpt-4o-mini → Haiku (fast/cheap), gpt-4o/gpt-4 → Sonnet (smart)
+    if (normalized.includes("gpt-4o-mini") || normalized.includes("gpt-3.5")) return HAIKU_MODEL_ID;
+    if (normalized.includes("gpt-4") || normalized.includes("gpt")) return SONNET_MODEL_ID;
+
     // If caller already passed a full Bedrock model ID, use it directly.
     return model;
 }

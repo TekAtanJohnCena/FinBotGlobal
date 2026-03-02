@@ -238,8 +238,8 @@ export const createPayment = async (req, res) => {
         }
 
         const amount = planPricing.amount;
-        const amountKurus = ParatikaService.formatAmount(amount.toFixed(2));
-        console.log(`[Payment] createPayment | plan=${planPricing.planType} | billing=${planPricing.billingPeriod} | amount_try=${amount.toFixed(2)} | amount_kurus=${amountKurus}`);
+        const formattedAmount = ParatikaService.formatAmount(amount.toFixed(2));
+        console.log(`[Payment] createPayment | plan=${planPricing.planType} | billing=${planPricing.billingPeriod} | amount_try=${amount.toFixed(2)} | formatted=${formattedAmount}`);
 
         const merchantPaymentId = `FIN-${Date.now()}-${uuidv4().split('-')[0]}`;
 

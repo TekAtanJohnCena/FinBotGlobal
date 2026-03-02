@@ -20,15 +20,15 @@ const PLAN_CONFIG = {
         key: 'plus',
         name: 'Plus',
         icon: '⚡',
-        monthlyPrice: 1,
-        yearlyPrice: 1,
+        monthlyPrice: 369,
+        yearlyPrice: 369,
     },
     pro: {
         key: 'pro',
         name: 'Pro',
         icon: '🚀',
-        monthlyPrice: 1,
-        yearlyPrice: 1,
+        monthlyPrice: 449,
+        yearlyPrice: 449,
     }
 };
 
