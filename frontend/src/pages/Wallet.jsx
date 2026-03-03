@@ -11,7 +11,8 @@ import {
   Wallet, TrendingUp, TrendingDown, DollarSign,
   AlertTriangle, Flame, Ghost, BarChart3, Target,
   PieChart as PieIcon, Calendar, ArrowUpRight, Zap,
-  ChevronDown, ChevronUp, Trash2, Plus, FileText, Eye, EyeOff, X
+  ChevronDown, ChevronUp, Trash2, Plus, FileText, Eye, EyeOff, X,
+  Upload, Loader2, Sparkles, History, Clock
 } from "lucide-react";
 import {
   ResponsiveContainer, RadialBarChart, RadialBar,
@@ -78,6 +79,113 @@ export function WalletPage() {
   const [manualInstallmentCurrent, setManualInstallmentCurrent] = useState("1");
   const [manualEntryError, setManualEntryError] = useState("");
 
+  // PDF Upload State
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfResult, setPdfResult] = useState(null);
+  const [pdfError, setPdfError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const [savedReports, setSavedReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+
+  // Load saved reports on mount
+  useEffect(() => {
+    const loadReports = async () => {
+      setLoadingReports(true);
+      try {
+        const res = await api.get("/personal-finance/reports");
+        if (res.data?.success) {
+          setSavedReports(res.data.data || []);
+          // Auto-load the most recent report
+          if (res.data.data?.length > 0 && !pdfResult) {
+            const latestId = res.data.data[0]._id;
+            const detail = await api.get(`/personal-finance/reports/${latestId}`);
+            if (detail.data?.success) {
+              setPdfResult(detail.data.data);
+            }
+          }
+        }
+      } catch (e) {
+        // Non-critical
+      } finally {
+        setLoadingReports(false);
+      }
+    };
+    loadReports();
+  }, []);
+
+  // PDF Upload Handler
+  const handlePdfUpload = async (file) => {
+    setPdfUploading(true);
+    setPdfError("");
+    setPdfResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("statement", file);
+      if (monthlyIncome > 0) {
+        formData.append("monthlyIncome", monthlyIncome.toString());
+      }
+      const res = await api.post("/personal-finance/upload-statement", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000 // 60s timeout for AI processing
+      });
+      if (res.data?.success) {
+        const { data } = res.data;
+        setPdfResult(data);
+
+        // Load parsed transactions into wallet analysis
+        if (data.transactions?.length > 0) {
+          const pdfTxns = data.transactions
+            .filter(tx => tx.type === "expense")
+            .map(tx => ({
+              date: tx.date || new Date().toISOString(),
+              description: tx.description,
+              amount: tx.amount,
+              category: mapPdfCategory(tx.category),
+              source: "pdf"
+            }));
+          const merged = [...transactions, ...pdfTxns];
+          setTransactions(merged);
+          runLocalAnalysis(merged, monthlyIncome);
+        }
+        toast.success(`${data.transactions?.length || 0} işlem çıkarıldı!`);
+
+        // Refresh saved reports list
+        try {
+          const reportsRes = await api.get("/personal-finance/reports");
+          if (reportsRes.data?.success) {
+            setSavedReports(reportsRes.data.data || []);
+          }
+        } catch (e) { /* non-critical */ }
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || "Ekstre analiz edilemedi.";
+      setPdfError(msg);
+      toast.error(msg);
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
+  // Map PDF AI categories to wallet categories
+  const mapPdfCategory = (aiCategory) => {
+    const mapping = {
+      market: "sabit_gider",
+      kira: "sabit_gider",
+      fatura: "sabit_gider",
+      ulasim: "sabit_gider",
+      yeme_icme: "yasam_tarzi",
+      giyim: "yasam_tarzi",
+      saglik: "sabit_gider",
+      egitim: "yasam_tarzi",
+      eglence: "yasam_tarzi",
+      teknoloji: "yasam_tarzi",
+      finansal_odeme: "finansal_odeme",
+      gelir: "yatirim_firsati",
+      diger: "yasam_tarzi"
+    };
+    return mapping[aiCategory] || "yasam_tarzi";
+  };
+
   // Load persisted transactions on mount
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -105,14 +213,14 @@ export function WalletPage() {
       categoryIcon: CATEGORY_CONFIG[t.category]?.icon || "📦",
     }));
 
-    const totalExpense = categorized.reduce((s, t) => s + t.amount, 0);
+    const totalExpense = categorized.filter(t => t.type !== "income").reduce((s, t) => s + t.amount, 0);
     const dailyBurn = totalExpense / 30;
     const burnDay = income > 0 ? Math.min(Math.ceil(income / dailyBurn), 30) : 30;
     const savingsRate = income > 0 ? Math.round(((income - totalExpense) / income) * 100) : 0;
 
     // Category breakdown
     const catMap = {};
-    categorized.forEach((t) => {
+    categorized.filter(t => t.type !== "income").forEach((t) => {
       if (!catMap[t.category]) catMap[t.category] = { total: 0, count: 0, items: [] };
       catMap[t.category].total += t.amount;
       catMap[t.category].count++;
@@ -355,7 +463,7 @@ export function WalletPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                 <div className="lg:col-span-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-2">
-                    <DollarSign size={12} className="inline mr-1" />Aylık Gelir
+                    <DollarSign size={12} className="inline mr-1" />Aylık Sabit Gelir
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
@@ -409,6 +517,147 @@ export function WalletPage() {
                     <Plus size={14} /> Manuel İşlem Ekle
                   </button>
                 </div>
+
+                {/* PDF Upload Section */}
+                <div className="lg:col-span-1 flex flex-col gap-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-0">
+                    <FileText size={12} className="inline mr-1" />Ekstre Yükle
+                  </label>
+                  <div
+                    className={`flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${isDragging
+                      ? "border-emerald-500/50 bg-emerald-500/5"
+                      : pdfError
+                        ? "border-red-500/30 bg-red-500/5"
+                        : "border-zinc-700/50 bg-zinc-900/30 hover:border-indigo-500/30 hover:bg-indigo-500/5"
+                      }`}
+                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      setIsDragging(false);
+                      const file = e.dataTransfer.files[0];
+                      if (file && file.type === 'application/pdf') {
+                        await handlePdfUpload(file);
+                      } else {
+                        setPdfError("Sadece PDF dosyaları kabul edilir.");
+                      }
+                    }}
+                    onClick={() => document.getElementById('pdf-upload-input')?.click()}
+                  >
+                    <input
+                      id="pdf-upload-input"
+                      type="file"
+                      accept=".pdf"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) await handlePdfUpload(file);
+                        e.target.value = '';
+                      }}
+                    />
+                    {pdfUploading ? (
+                      <>
+                        <Loader2 size={20} className="text-indigo-400 animate-spin" />
+                        <span className="text-xs font-bold text-indigo-400">AI Analiz Ediyor...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={18} className="text-zinc-500" />
+                        <span className="text-xs font-medium text-zinc-500">PDF Banka Ekstresi</span>
+                        <span className="text-[10px] text-zinc-600">Sürükle veya tıkla</span>
+                      </>
+                    )}
+                  </div>
+                  {pdfError && (
+                    <div className="text-[10px] text-red-400 flex items-center gap-1">
+                      <AlertTriangle size={10} /> {pdfError}
+                    </div>
+                  )}
+                </div>
+
+                {/* Saved Reports History */}
+                {savedReports.length > 0 && (
+                  <div className="lg:col-span-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <History size={12} className="text-zinc-500" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                        Geçmiş Raporlar ({savedReports.length})
+                      </span>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                      {savedReports.map((report) => (
+                        <button
+                          key={report._id}
+                          onClick={async () => {
+                            try {
+                              const res = await api.get(`/personal-finance/reports/${report._id}`);
+                              if (res.data?.success) {
+                                setPdfResult(res.data.data);
+                                // Also load transactions into analysis
+                                if (res.data.data.transactions?.length > 0) {
+                                  const pdfTxns = res.data.data.transactions
+                                    .filter(tx => tx.type === "expense")
+                                    .map(tx => ({
+                                      date: tx.date || new Date().toISOString(),
+                                      description: tx.description,
+                                      amount: tx.amount,
+                                      category: mapPdfCategory(tx.category),
+                                      source: "pdf"
+                                    }));
+                                  setTransactions(pdfTxns);
+                                  runLocalAnalysis(pdfTxns, monthlyIncome);
+                                }
+                                toast.success("Rapor yüklendi");
+                              }
+                            } catch (e) {
+                              toast.error("Rapor yüklenemedi");
+                            }
+                          }}
+                          className={`flex-shrink-0 p-3 rounded-xl border transition-all text-left group ${pdfResult?._id === report._id
+                            ? "bg-indigo-500/10 border-indigo-500/30"
+                            : "bg-zinc-900/50 border-zinc-800/50 hover:border-zinc-600/50"
+                            }`}
+                          style={{ minWidth: 160 }}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] text-zinc-500 flex items-center gap-1">
+                              <Clock size={10} />
+                              {new Date(report.createdAt).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" })}
+                            </span>
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (!window.confirm("Bu raporu silmek istediğinize emin misiniz?")) return;
+                                try {
+                                  await api.delete(`/personal-finance/reports/${report._id}`);
+                                  setSavedReports(prev => prev.filter(r => r._id !== report._id));
+                                  if (pdfResult?._id === report._id) setPdfResult(null);
+                                  toast.success("Rapor silindi");
+                                } catch { toast.error("Silinemedi"); }
+                              }}
+                              className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition"
+                            >
+                              <Trash2 size={10} />
+                            </button>
+                          </div>
+                          <div className="text-xs font-bold text-white truncate">{report.bankName}</div>
+                          <div className="text-[10px] text-zinc-500">{report.period}</div>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${(report.metrics?.expenseRatio || 0) <= 65 ? 'bg-emerald-500/20 text-emerald-400' :
+                              (report.metrics?.expenseRatio || 0) <= 80 ? 'bg-amber-500/20 text-amber-400' :
+                                'bg-rose-500/20 text-rose-400'
+                              }`}>
+                              %{report.metrics?.expenseRatio || 0}
+                            </span>
+                            <span className="text-[10px] text-zinc-600">
+                              {showBalance ? fmt(report.metrics?.expense || 0) : '••••'}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Manual Entry Form */}
@@ -618,7 +867,111 @@ export function WalletPage() {
                 />
               </DashboardCard>
 
-              {/* Row 5: Transaction List */}
+              {/* Row 5: AI Recommendations (PDF Upload Results) */}
+              {pdfResult && pdfResult.recommendations && (
+                <DashboardCard
+                  title="AI Finansal Analiz"
+                  icon={<Sparkles size={14} className="text-indigo-400" />}
+                  subtitle={`${pdfResult.bankName || 'Banka'} • ${pdfResult.period || 'Dönem Bilinmiyor'} • ${pdfResult.summary?.transactionCount || 0} işlem`}
+                >
+                  <div className="space-y-4">
+                    {/* Financial Health Header */}
+                    {pdfResult.metrics && (
+                      <>
+                        {/* Health Score Badge */}
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-800/50 border border-zinc-700/50">
+                          <div>
+                            <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Finansal Sağlık</div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{pdfResult.metrics.expenseClass?.emoji}</span>
+                              <span className="text-lg font-black text-white">{pdfResult.metrics.expenseClass?.level}</span>
+                            </div>
+                            <div className="text-[11px] text-zinc-400 mt-1">{pdfResult.metrics.expenseClass?.detail}</div>
+                          </div>
+                          <div className="text-right space-y-1">
+                            <div className="text-[10px] text-zinc-500 font-bold">Gider/Gelir</div>
+                            <div className={`text-xl font-black ${pdfResult.metrics.expenseRatio <= 65 ? 'text-emerald-400' :
+                              pdfResult.metrics.expenseRatio <= 80 ? 'text-amber-400' : 'text-rose-400'
+                              }`}>%{pdfResult.metrics.expenseRatio}</div>
+                            <div className="text-[10px] text-zinc-500 font-bold">Tasarruf</div>
+                            <div className={`text-lg font-black ${pdfResult.metrics.savingsRate >= 20 ? 'text-emerald-400' :
+                              pdfResult.metrics.savingsRate >= 10 ? 'text-amber-400' : 'text-rose-400'
+                              }`}>%{pdfResult.metrics.savingsRate}</div>
+                          </div>
+                        </div>
+
+                        {/* Summary Stats */}
+                        <div className="grid grid-cols-5 gap-2">
+                          <div className="p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-center">
+                            <div className="text-[9px] text-zinc-500 font-bold uppercase">Sabit Gelir</div>
+                            <div className="text-sm font-black text-emerald-400">{showBalance ? fmt(monthlyIncome || pdfResult.metrics.income) : '••••'}</div>
+                          </div>
+                          <div className="p-2.5 rounded-xl bg-teal-500/5 border border-teal-500/10 text-center">
+                            <div className="text-[9px] text-zinc-500 font-bold uppercase">Ekstra Gelir</div>
+                            <div className="text-sm font-black text-teal-400">{showBalance ? fmt(pdfResult.summary?.totalIncome || 0) : '••••'}</div>
+                          </div>
+                          <div className="p-2.5 rounded-xl bg-rose-500/5 border border-rose-500/10 text-center">
+                            <div className="text-[9px] text-zinc-500 font-bold uppercase">Gider</div>
+                            <div className="text-sm font-black text-rose-400">{showBalance ? fmt(pdfResult.metrics.expense) : '••••'}</div>
+                          </div>
+                          <div className="p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-center">
+                            <div className="text-[9px] text-zinc-500 font-bold uppercase">Tasarruf</div>
+                            <div className="text-sm font-black text-blue-400">{showBalance ? fmt(pdfResult.metrics.savingsAmount) : '••••'}</div>
+                          </div>
+                          <div className="p-2.5 rounded-xl bg-purple-500/5 border border-purple-500/10 text-center">
+                            <div className="text-[9px] text-zinc-500 font-bold uppercase">Sabit Gider</div>
+                            <div className="text-sm font-black text-purple-400">{showBalance ? fmt(pdfResult.metrics.fixedExpense) : '••••'}</div>
+                          </div>
+                        </div>
+
+                        {/* 50/30/20 Rule */}
+                        {pdfResult.metrics.rule502030 && (
+                          <div className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50 space-y-2">
+                            <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500">50/30/20 Kuralı</div>
+                            {[
+                              { label: "İhtiyaçlar (%50)", data: pdfResult.metrics.rule502030.needs, color: "bg-blue-500" },
+                              { label: "İstekler (%30)", data: pdfResult.metrics.rule502030.wants, color: "bg-amber-500" },
+                              { label: "Tasarruf (%20)", data: pdfResult.metrics.rule502030.savings, color: "bg-emerald-500" },
+                            ].map((item, i) => {
+                              const pct = item.data.target > 0 ? Math.min(100, Math.round((item.data.actual / item.data.target) * 100)) : 0;
+                              return (
+                                <div key={i} className="flex items-center gap-2">
+                                  <span className="text-[10px] text-zinc-400 w-28 shrink-0">{item.data.status} {item.label}</span>
+                                  <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+                                    <div className={`h-full rounded-full ${item.color} transition-all duration-500`} style={{ width: `${Math.min(pct, 100)}%` }} />
+                                  </div>
+                                  <span className="text-[10px] text-zinc-500 font-bold w-10 text-right">%{pct}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* AI Recommendations Text */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles size={14} className="text-indigo-400" />
+                        <span className="text-xs font-black text-indigo-400 uppercase tracking-wider">FinBot AI Önerileri</span>
+                      </div>
+                      <div className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap font-medium">
+                        {pdfResult.recommendations}
+                      </div>
+                    </div>
+
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setPdfResult(null)}
+                      className="text-xs text-zinc-500 hover:text-white transition flex items-center gap-1"
+                    >
+                      <X size={12} /> Kapat
+                    </button>
+                  </div>
+                </DashboardCard>
+              )}
+
+              {/* Row 6: Transaction List */}
               <DashboardCard title={`İşlem Listesi (${analysisResult.transactions?.length || 0})`} icon={<FileText size={14} className="text-zinc-400" />}>
                 <TransactionList
                   transactions={analysisResult.transactions || transactions}
@@ -712,7 +1065,7 @@ function GaugeChart({ value, income, expense, show }) {
       </div>
       <div className="grid grid-cols-2 gap-4 mt-6 w-full">
         <div className="text-center p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Gelir</div>
+          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Aylık Sabit Gelir</div>
           <div className="text-lg font-black text-emerald-400">{show ? fmt(income) : "••••"}</div>
         </div>
         <div className="text-center p-3 rounded-xl bg-rose-500/5 border border-rose-500/10">

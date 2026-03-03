@@ -28,6 +28,8 @@ const VALID_INTENTS = [
   "EMTIA_STRATEJISI",
   "KRIPTO_STRATEJISI",
   "JEOPOLITIK_RADAR",
+  "KISISEL_FINANS",
+  "SOHBET",
   "GENEL"
 ];
 
@@ -48,8 +50,11 @@ const CLASSIFIER_SYSTEM_PROMPT = [
   "- EMTIA_STRATEJISI: gold, silver, oil, safe haven assets",
   "- KRIPTO_STRATEJISI: bitcoin, crypto, blockchain, digital assets",
   "- JEOPOLITIK_RADAR: war, news, global crisis, market news impact",
-  "- GENEL: greetings, small talk, generic definitions",
+  "- KISISEL_FINANS: budget, savings, spending, salary, debt, credit, personal finance, bank statement, expense tracking, tasarruf, butce, harcama, maas, kredi, borc",
+  "- SOHBET: greetings, hello, hi, how are you, thanks, goodbye, casual small talk, merhaba, selam, naber, nasilsin, tesekkur, kimsin",
+  "- GENEL: generic financial definitions, macro topics that don't fit above",
   "- CRITICAL: If the user mentions 'portföy' (portfolio) in any context, the intent is ALWAYS PORTFOY.",
+  "- CRITICAL: If the message is a simple greeting or small talk (under 5 words, no financial terms), the intent is ALWAYS SOHBET.",
 ].join("\n");
 
 function normalizeIntent(rawIntent) {

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import sendMessageWithStreaming from "../utils/streamingHelper";
 import { AuthContext } from "../context/AuthContext"; // Auth Context
+import { Link } from "react-router-dom";
 
 import {
   PlusIcon,
@@ -98,6 +99,7 @@ export default function ChatWithHistory() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const [quota, setQuota] = useState(null); // { plan, remaining, limit }
 
   // Payment flow state - for pending plan modal
   const [showPendingPlanModal, setShowPendingPlanModal] = useState(false);
@@ -173,6 +175,27 @@ export default function ChatWithHistory() {
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]); // fetchHistory değiştiğinde (yani user değiştiğinde) burası çalışır
+
+  // Fetch quota info on mount and after messages
+  const fetchQuota = useCallback(async () => {
+    try {
+      const res = await api.get('/user/quota');
+      if (res.data?.ok) {
+        const q = res.data.data;
+        setQuota({
+          plan: q.plan,
+          remaining: q.finbotQueries?.remaining ?? 0,
+          limit: q.finbotQueries?.limit ?? 0,
+          used: q.finbotQueries?.used ?? 0
+        });
+      }
+    } catch (e) {
+      // Non-critical
+    }
+  }, []);
+
+  useEffect(() => { fetchQuota(); }, [fetchQuota]);
+
   async function loadChat(id) {
     try {
       const res = await api.get(`/chat/${id}`);
@@ -226,17 +249,28 @@ export default function ChatWithHistory() {
       setMessages((prev) => {
         const newMessages = [...prev];
         if (newMessages[botMessageIndex]) {
-          newMessages[botMessageIndex] = {
-            sender: "bot",
-            text: "Bağlantı hatası. Lütfen tekrar deneyin.",
-            isStreaming: false
-          };
+          // Quota exceeded → show upgrade prompt
+          if (result.error === 'quota_exceeded') {
+            newMessages[botMessageIndex] = {
+              sender: "bot",
+              text: result.quotaMessage || "Sorgu hakkınız doldu.",
+              isStreaming: false,
+              isQuotaExceeded: true
+            };
+          } else {
+            newMessages[botMessageIndex] = {
+              sender: "bot",
+              text: "Bağlantı hatası. Lütfen tekrar deneyin.",
+              isStreaming: false
+            };
+          }
         }
         return newMessages;
       });
     }
 
     setIsLoading(false);
+    fetchQuota(); // Refresh quota counter after message
   }
 
   // ...
@@ -629,6 +663,25 @@ export default function ChatWithHistory() {
 
         {/* --- FIXED FULL-WIDTH INPUT BAR --- */}
         <div className="fixed bottom-14 md:bottom-0 left-0 md:left-20 right-0 bg-[#131314] border-t border-zinc-800/50 p-3 z-40">
+          {/* Quota Counter */}
+          {quota && (
+            <div className="max-w-4xl mx-auto flex items-center justify-between mb-2 px-1">
+              <div className="flex items-center gap-2">
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${quota.remaining <= 0 ? 'bg-red-500/20 text-red-400' :
+                  quota.remaining <= Math.ceil(quota.limit * 0.2) ? 'bg-amber-500/20 text-amber-400' :
+                    'bg-emerald-500/20 text-emerald-400'
+                  }`}>
+                  {quota.remaining}/{quota.limit} sorgu
+                </span>
+                <span className="text-[10px] text-zinc-600">{quota.plan}</span>
+              </div>
+              {quota.plan !== 'PRO' && quota.remaining <= Math.ceil(quota.limit * 0.3) && (
+                <Link to="/pricing" className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition">
+                  Planı Yükselt →
+                </Link>
+              )}
+            </div>
+          )}
           <form
             onSubmit={sendMessage}
             className="max-w-4xl mx-auto flex items-end gap-2 bg-[#1E1F20] border border-zinc-700/50 rounded-2xl px-4 shadow-2xl relative"

@@ -472,6 +472,40 @@ export const handleCallback = async (req, res) => {
                     user.subscriptionStatus = "ACTIVE";
                     await user.save();
                     console.log(`[Payment Callback] ✅ User ${user.email} upgraded to ${transaction.planType}`);
+
+                    // Create/Update Subscription record for auto-renewal cron
+                    try {
+                        const Subscription = (await import("../models/Subscription.js")).default;
+                        const now = new Date();
+                        const nextBilling = new Date(now);
+                        nextBilling.setDate(nextBilling.getDate() + 30);
+
+                        let subscription = await Subscription.findOne({ user: user._id });
+                        if (subscription) {
+                            subscription.planName = transaction.planType;
+                            subscription.status = "ACTIVE";
+                            subscription.currentPeriodStart = now;
+                            subscription.currentPeriodEnd = nextBilling;
+                            subscription.nextBillingDate = nextBilling;
+                            subscription.cancelAtPeriodEnd = false;
+                            await subscription.save();
+                        } else {
+                            await Subscription.create({
+                                user: user._id,
+                                planName: transaction.planType,
+                                status: "ACTIVE",
+                                currentPeriodStart: now,
+                                currentPeriodEnd: nextBilling,
+                                nextBillingDate: nextBilling,
+                                paymentProvider: "Paratika",
+                                cancelAtPeriodEnd: false
+                            });
+                        }
+                        console.log(`[Payment Callback] ✅ Subscription record updated, next billing: ${nextBilling.toISOString()}`);
+                    } catch (subErr) {
+                        console.error("[Payment Callback] ⚠️ Subscription record update failed:", subErr.message);
+                        // Non-critical: payment still succeeded
+                    }
                 }
             } catch (updateError) {
                 console.error("❌ User subscription update error:", updateError.message);

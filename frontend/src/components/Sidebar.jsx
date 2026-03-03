@@ -27,7 +27,7 @@ function NavItem({ to, label, Icon }) {
       to={to}
       className={({ isActive }) =>
         [
-          "group flex flex-col items-center no-underline transition w-full py-2",
+          "group flex flex-col items-center no-underline transition w-full py-1.5",
           isActive ? "text-white" : "text-[#8E918F] hover:text-white",
         ].join(" ")
       }
@@ -94,7 +94,7 @@ export default function Sidebar() {
       </NavLink>
 
       {/* MENÜLER — i18n ile çevrili */}
-      <nav className="flex flex-col space-y-2 mt-8 w-full px-2">
+      <nav className="flex flex-col space-y-1 mt-4 w-full px-2">
         <NavItem to="/chat" label={t('navbar.finbot')} Icon={ChatBubbleLeftEllipsisIcon} />
         <NavItem to="/portfolio" label={t('navbar.portfolio')} Icon={ChartBarIcon} />
         <NavItem to="/wallet" label={t('navbar.wallet')} Icon={WalletIcon} />

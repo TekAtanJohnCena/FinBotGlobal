@@ -19,6 +19,50 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
         });
 
         if (!response.ok) {
+            // Handle 429 Quota Exceeded specifically
+            if (response.status === 429) {
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error === 'quota_exceeded') {
+                        const plan = errorData.data?.plan || 'FREE';
+                        const used = errorData.data?.used || 0;
+                        const limit = errorData.data?.limit || 0;
+                        const type = errorData.data?.type || 'finbotQueries';
+                        const upgradeRequired = errorData.data?.upgradeRequired;
+
+                        let quotaMessage = '';
+                        if (type === 'finbotQueries') {
+                            if (plan === 'FREE') {
+                                quotaMessage = `🚫 Günlük ücretsiz sorgu hakkınız doldu (${used}/${limit}).\n\n💡 Daha fazla analiz için **Plus plana** geçin ve günde 50 sorgu hakkı kazanın!\n\n[🚀 Plus'a Yükselt →](/pricing)`;
+                            } else if (plan === 'PLUS') {
+                                quotaMessage = `⚡ Bugünkü Plus sorgu hakkınız doldu (${used}/${limit}).\n\nSınırsıza yakın kullanım için **Pro plana** geçin!\n\n[🚀 Pro'ya Yükselt →](/pricing)`;
+                            } else {
+                                quotaMessage = `☕ Bugünkü sorgu hakkınız doldu (${used}/${limit}).\n\nBiraz mola verin, yarın UTC 00:00'da sıfırlanacak!`;
+                            }
+                        } else if (type === 'newsAnalysis') {
+                            if (plan === 'FREE') {
+                                quotaMessage = `🚫 Günlük haber analizi hakkınız doldu (${used}/${limit}).\n\n💡 Daha fazla analiz için **Plus plana** geçin!\n\n[🚀 Plus'a Yükselt →](/pricing)`;
+                            } else if (plan === 'PLUS') {
+                                quotaMessage = `⚡ Bugünkü haber analizi hakkınız doldu (${used}/${limit}).\n\nPro planda 30 haber analizi hakkınız olur!\n\n[🚀 Pro'ya Yükselt →](/pricing)`;
+                            } else {
+                                quotaMessage = `☕ Bugünkü haber analizi hakkınız doldu (${used}/${limit}).\n\nYarın sıfırlanacak!`;
+                            }
+                        }
+
+                        return {
+                            success: false,
+                            error: 'quota_exceeded',
+                            quotaMessage,
+                            upgradeRequired,
+                            plan,
+                            used,
+                            limit
+                        };
+                    }
+                } catch (parseErr) {
+                    // If JSON parse fails, fall through to generic error
+                }
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 

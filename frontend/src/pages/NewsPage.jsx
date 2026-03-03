@@ -83,11 +83,19 @@ const NewsPage = () => {
             // 429: Günlük limit aşıldı
             if (err.response?.status === 429) {
                 const quotaData = err.response?.data?.data;
+                const plan = quotaData?.plan || 'FREE';
+                const upgradeRequired = quotaData?.upgradeRequired;
+                let upgradeText = '';
+                if (upgradeRequired) {
+                    upgradeText = `\n\n🚀 Planınızı ${upgradeRequired}'a yükselterek daha fazla analiz hakkı kazanabilirsiniz!`;
+                } else if (plan === 'PRO') {
+                    upgradeText = '\n\n☕ Biraz mola verin, yarın sıfırlanacak!';
+                }
                 setAnalyses(prev => ({
                     ...prev,
                     [newsItem.id]: {
                         sentiment: 'QUOTA_EXCEEDED',
-                        analysis: `⚠️ Günlük haber analizi hakkınız doldu! Bugün için ${quotaData?.limit || 1} analiz hakkınızı kullandınız. Yarın (UTC 00:00) haklarınız yenilenecek veya planınızı yükselterek daha fazla analiz hakkı kazanabilirsiniz.`,
+                        analysis: `⚠️ Günlük haber analizi hakkınız doldu (${quotaData?.used || 0}/${quotaData?.limit || 1}).${upgradeText}`,
                         isQuotaError: true
                     }
                 }));
