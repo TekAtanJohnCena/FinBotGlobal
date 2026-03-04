@@ -13,7 +13,7 @@ const bedrockClient = new BedrockRuntimeClient({
 });
 
 // Default Sonnet model (cross-region inference profile)
-const SONNET_MODEL_ID = process.env.ANTHROPIC_MODEL_ID || "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
+const SONNET_MODEL_ID = process.env.ANTHROPIC_MODEL_ID || "us.anthropic.claude-sonnet-4-5-20250514-v1:0";
 // Fast model for lightweight chat / routing tasks
 const HAIKU_MODEL_ID = process.env.HAIKU_MODEL_ID || "us.anthropic.claude-3-haiku-20240307-v1:0";
 

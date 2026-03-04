@@ -2,38 +2,8 @@
   "data": {
     "symbol": "META",
     "name": "Meta Platforms Inc - Class A",
-    "price": 648.18,
+    "price": 655.08,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 260.82,
-        "high": 266.65,
-        "low": 257.9039,
-        "close": 264.91,
-        "adjClose": 263.0872798094,
-        "price": 264.91,
-        "volume": 22157255
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 265.78,
-        "high": 266.71,
-        "low": 258.65,
-        "close": 259,
-        "adjClose": 257.2179437192,
-        "price": 259,
-        "volume": 15191722
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 260.29,
-        "high": 260.9899,
-        "low": 255.1,
-        "close": 255.41,
-        "adjClose": 253.6526448081,
-        "price": 255.41,
-        "volume": 15513515
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 256.47,
@@ -12563,11 +12533,31 @@
         "adjClose": 648.18,
         "price": 648.18,
         "volume": 15703041
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 637.16,
+        "high": 659.94,
+        "low": 634.5,
+        "close": 653.56,
+        "adjClose": 653.56,
+        "price": 653.56,
+        "volume": 9816125
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 648.29,
+        "high": 659.04,
+        "low": 638.84,
+        "close": 655.08,
+        "adjClose": 655.08,
+        "price": 655.08,
+        "volume": 12263754
       }
     ],
     "fundamentals": {
-      "marketCap": 1633755577823.46,
-      "peRatio": 27.0229841844,
+      "marketCap": 1651147218242.76,
+      "peRatio": 27.3106490166,
       "description": "Facebook, Inc. (Facebook) is engaged in building products to create utility for users, developers, and advertisers. People use Facebook to stay connected with their friends and family, to discover what is going on in the world around them, and to share and express what matters to them to the people they care about. Developers can use the Facebook Platform to build applications and Websites that integrate with Facebook to reach its global network of users and to build personalized and social products. Advertisers can engage with more than 900 million monthly active users (MAUs) on Facebook or subsets of its users based on information they have chosen to share with the Company, such as their age, location, gender, or interests. In September 2013, Mail.Ru Group Limited sold its remaining shares in Facebook Inc. Effective September 25, 2013, Facebook Inc acquired Mobile Technologies, a developer of online applications. In October 2013, Facebook Inc acquired Onavo Inc."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406918505
+  "timestamp": 1772633938185
 }

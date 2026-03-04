@@ -2,38 +2,8 @@
   "data": {
     "symbol": "V",
     "name": "Visa Inc - Class A",
-    "price": 320.14,
+    "price": 320.83,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 214.97,
-        "high": 217.8,
-        "low": 214.79,
-        "close": 216.63,
-        "adjClose": 208.7854306424,
-        "price": 216.63,
-        "volume": 6982504
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 216.96,
-        "high": 217.93,
-        "low": 214.82,
-        "close": 215.77,
-        "adjClose": 207.9565728187,
-        "price": 215.77,
-        "volume": 6155184
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 215.15,
-        "high": 217.19,
-        "low": 212.86,
-        "close": 214.85,
-        "adjClose": 207.069887705,
-        "price": 214.85,
-        "volume": 6484597
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 215.97,
@@ -12563,11 +12533,31 @@
         "adjClose": 320.14,
         "price": 320.14,
         "volume": 12412885
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 315.5,
+        "high": 322.6,
+        "low": 314.595,
+        "close": 320.51,
+        "adjClose": 320.51,
+        "price": 320.51,
+        "volume": 6674915
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 315.805,
+        "high": 322.04,
+        "low": 314.35,
+        "close": 320.83,
+        "adjClose": 320.83,
+        "price": 320.83,
+        "volume": 5474282
       }
     ],
     "fundamentals": {
-      "marketCap": 591960934016.359,
-      "peRatio": 28.4706105241,
+      "marketCap": 593236791592.642,
+      "peRatio": 28.5319734317,
       "description": "Visa Inc. is the world’s leader in digital payments. Our mission is to connect the world through the most innovative, reliable and secure payment network - enabling individuals, businesses and economies to thrive. Our advanced global processing network, VisaNet, provides secure and reliable payments around the world, and is capable of handling more than 65,000 transaction messages a second. The company’s relentless focus on innovation is a catalyst for the rapid growth of digital commerce on any device, for everyone, everywhere. As the world moves from analog to digital, Visa is applying our brand, products, people, network and scale to reshape the future of commerce."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406927925
+  "timestamp": 1772633945116
 }

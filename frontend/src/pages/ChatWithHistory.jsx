@@ -7,12 +7,13 @@ import api from "../lib/api";
 import sendMessageWithStreaming from "../utils/streamingHelper";
 import { AuthContext } from "../context/AuthContext"; // Auth Context
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import {
   PlusIcon,
   TrashIcon,
   PencilSquareIcon,
-
+  StarIcon,
   Bars3Icon, // Hamburger menü ikonu
   XMarkIcon  // Menü kapatma ikonu
 } from "@heroicons/react/24/solid";
@@ -75,9 +76,9 @@ const GLOBAL_STYLES = `
 const MAX_VISIBLE = 7;
 
 export default function ChatWithHistory() {
-  // --------------------------- Auth & Router --------------------------------
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // --------------------------- Style inject ---------------------------------
   useEffect(() => {
@@ -653,6 +654,19 @@ export default function ChatWithHistory() {
                     </Bubble>
                   </div>
                 ))}
+
+                {/* Inline Upgrade Banner — after messages for FREE/PLUS users */}
+                {quota && quota.plan !== 'PRO' && messages.filter(m => m.sender === 'bot').length >= 3 && (
+                  <div className="flex justify-start">
+                    <Link
+                      to="/pricing"
+                      className="no-underline flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-yellow-500/5 border border-amber-500/20 hover:from-amber-500/20 hover:to-yellow-500/10 transition-all group max-w-md"
+                    >
+                      <StarIcon className="w-5 h-5 text-amber-400 shrink-0" />
+                      <span className="text-sm text-amber-300/90 font-medium">{t('chat.upgradeBanner')}</span>
+                    </Link>
+                  </div>
+                )}
 
                 {/* Yazıyor Animasyonu Kaldırıldı */}
               </div>

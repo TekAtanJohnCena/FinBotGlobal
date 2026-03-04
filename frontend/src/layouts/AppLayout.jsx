@@ -11,6 +11,7 @@ import {
   WalletIcon,
   RectangleStackIcon,
   AcademicCapIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 import {
   ChatBubbleLeftEllipsisIcon as ChatSolid,
@@ -91,8 +92,17 @@ export default function AppLayout() {
           <span className="text-emerald-400 font-bold text-sm tracking-wide">FinBot</span>
         </NavLink>
 
-        {/* Right: Language Toggle + Profile Avatar */}
+        {/* Right: Upgrade CTA + Language Toggle + Profile Avatar */}
         <div className="flex items-center gap-2">
+          {user?.subscriptionTier !== 'PRO' && (
+            <NavLink
+              to="/pricing"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/30 no-underline"
+            >
+              <StarIcon className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[10px] font-bold text-amber-400">PRO</span>
+            </NavLink>
+          )}
           <MobileLanguageToggle />
           <button
             onClick={() => navigate('/settings')}

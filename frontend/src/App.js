@@ -2,6 +2,7 @@ import React, { useContext, Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import AppLayout from "./layouts/AppLayout";
 import CookieConsent from "./components/CookieConsent";
 
@@ -93,93 +94,95 @@ function App() {
 
   return (
     <LanguageProvider>
-      <CookieConsent />
-      <Suspense fallback={<LoadingScreen />}>
-        <Routes>
-          {/* =================================================
+      <ThemeProvider>
+        <CookieConsent />
+        <Suspense fallback={<LoadingScreen />}>
+          <Routes>
+            {/* =================================================
             1. HERKESE AÇIK SAYFALAR (Public Routes)
         ================================================= */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/app" element={<MobileApp />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/pricing" element={<PricingSubscription />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/app" element={<MobileApp />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/pricing" element={<PricingSubscription />} />
 
-          {/* Onboarding - Protected but without AppLayout */}
-          <Route
-            path="/onboarding"
-            element={
-              <ProtectedRoute>
-                <Onboarding />
-              </ProtectedRoute>
-            }
-          />
+            {/* Onboarding - Protected but without AppLayout */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/chat" element={<ChatWithHistory />} />
-            <Route path="/portfolio" element={<PortfolioPage />} />
-            <Route path="/wallet" element={<WalletPage />} />
-            <Route path="/screener" element={<Navigate to="/screener/AAPL" replace />} />
-            <Route path="/screener/:symbol" element={<ScreenerPage />} />
-            <Route path="/financials/:symbol" element={<FinancialsPage />} />
-            <Route path="/markets" element={<MarketsPage />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/news" element={<NewsPage />} />
-            <Route path="/academy" element={<AcademyCourseView />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/chat" element={<ChatWithHistory />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/screener" element={<Navigate to="/screener/AAPL" replace />} />
+              <Route path="/screener/:symbol" element={<ScreenerPage />} />
+              <Route path="/financials/:symbol" element={<FinancialsPage />} />
+              <Route path="/markets" element={<MarketsPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/academy" element={<AcademyCourseView />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
 
-          {/* Payment Status - Public (Paratika 3D Secure redirect geldiğinde auth gerekmez) */}
-          <Route path="/payment-status" element={<PaymentStatus />} />
+            {/* Payment Status - Public (Paratika 3D Secure redirect geldiğinde auth gerekmez) */}
+            <Route path="/payment-status" element={<PaymentStatus />} />
 
-          {/* Legal Pages */}
-          <Route path="/legal/kvkk" element={<KVKKText />} />
-          <Route path="/legal/privacy" element={<PrivacyPolicy />} />
-          <Route path="/legal/cookies" element={<CookiePolicy />} />
-          <Route path="/legal/terms" element={<TermsOfUse />} />
-          <Route path="/mesafeli-satis-sozlesmesi" element={<DistanceSalesAgreement />} />
-          <Route path="/iptal-iade-kosullari" element={<RefundPolicy />} />
-          {/* Legacy redirects */}
-          <Route path="/kvkk-aydinlatma" element={<Navigate to="/legal/kvkk" replace />} />
-          <Route path="/gizlilik-politikasi" element={<Navigate to="/legal/privacy" replace />} />
-          <Route path="/cerez-politikasi" element={<Navigate to="/legal/cookies" replace />} />
-          <Route path="/kullanim-sartlari" element={<Navigate to="/legal/terms" replace />} />
+            {/* Legal Pages */}
+            <Route path="/legal/kvkk" element={<KVKKText />} />
+            <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+            <Route path="/legal/cookies" element={<CookiePolicy />} />
+            <Route path="/legal/terms" element={<TermsOfUse />} />
+            <Route path="/mesafeli-satis-sozlesmesi" element={<DistanceSalesAgreement />} />
+            <Route path="/iptal-iade-kosullari" element={<RefundPolicy />} />
+            {/* Legacy redirects */}
+            <Route path="/kvkk-aydinlatma" element={<Navigate to="/legal/kvkk" replace />} />
+            <Route path="/gizlilik-politikasi" element={<Navigate to="/legal/privacy" replace />} />
+            <Route path="/cerez-politikasi" element={<Navigate to="/legal/cookies" replace />} />
+            <Route path="/kullanim-sartlari" element={<Navigate to="/legal/terms" replace />} />
 
-          {/* =================================================
+            {/* =================================================
             2. AUTH (Giriş / Kayıt)
             Zaten giriş yapmış kullanıcıyı Chat'e yönlendir.
         ================================================= */}
-          <Route
-            path="/login"
-            element={!user ? <Login /> : <Navigate to="/chat" replace />}
-          />
-          <Route
-            path="/register"
-            element={!user ? <Register /> : <Navigate to="/chat" replace />}
-          />
-          <Route
-            path="/forgot-password"
-            element={!user ? <ForgotPassword /> : <Navigate to="/chat" replace />}
-          />
-          <Route
-            path="/reset-password/:token"
-            element={!user ? <ResetPassword /> : <Navigate to="/chat" replace />}
-          />
+            <Route
+              path="/login"
+              element={!user ? <Login /> : <Navigate to="/chat" replace />}
+            />
+            <Route
+              path="/register"
+              element={!user ? <Register /> : <Navigate to="/chat" replace />}
+            />
+            <Route
+              path="/forgot-password"
+              element={!user ? <ForgotPassword /> : <Navigate to="/chat" replace />}
+            />
+            <Route
+              path="/reset-password/:token"
+              element={!user ? <ResetPassword /> : <Navigate to="/chat" replace />}
+            />
 
-          {/* =================================================
+            {/* =================================================
             4. 404 SAYFASI
             Bilinmeyen bir sayfaya gidilirse 404 sayfasını göster.
         ================================================= */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

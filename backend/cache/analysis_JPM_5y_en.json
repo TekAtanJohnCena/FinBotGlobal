@@ -2,38 +2,8 @@
   "data": {
     "symbol": "JPM",
     "name": "JPMorgan Chase & Company",
-    "price": 300.3,
+    "price": 300.26,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 149.52,
-        "high": 151.3799,
-        "low": 148.48,
-        "close": 150.5,
-        "adjClose": 132.4694639396,
-        "price": 150.5,
-        "volume": 14845483
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 150.08,
-        "high": 151.78,
-        "low": 149.84,
-        "close": 150.01,
-        "adjClose": 132.0381680105,
-        "price": 150.01,
-        "volume": 14221724
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 151.23,
-        "high": 154.98,
-        "low": 150.825,
-        "close": 152.91,
-        "adjClose": 134.5907357541,
-        "price": 152.91,
-        "volume": 14324103
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 152.61,
@@ -12563,11 +12533,31 @@
         "adjClose": 300.3,
         "price": 300.3,
         "volume": 18620786
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 294.81,
+        "high": 299.9799,
+        "low": 293.21,
+        "close": 297.56,
+        "adjClose": 297.56,
+        "price": 297.56,
+        "volume": 8508910
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 292.285,
+        "high": 302.39,
+        "low": 289.5,
+        "close": 300.26,
+        "adjClose": 300.26,
+        "price": 300.26,
+        "volume": 10278216
       }
     ],
     "fundamentals": {
-      "marketCap": 817495367188.5,
-      "peRatio": 14.6820288647,
+      "marketCap": 817386476696.7,
+      "peRatio": 14.6800732165,
       "description": "JPMorgan Chase & Co. is a leading financial services firm based in the United States of America (\"U.S.\"), with operations worldwide. JPMorganChase had $4.4 trillion in assets and $362 billion in stockholders' equity as of December 31, 2025. The Firm is a leader in investment banking, financial services for consumers and small businesses, commercial banking, financial transaction processing and asset management. Under the J.P. Morgan and Chase brands, the Firm serves millions of customers in the U.S., and many of the world's most prominent corporate, institutional and government clients globally."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406925427
+  "timestamp": 1772633942584
 }

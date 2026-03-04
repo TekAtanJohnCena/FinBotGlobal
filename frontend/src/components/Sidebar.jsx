@@ -10,6 +10,7 @@ import {
   RectangleStackIcon,
   AcademicCapIcon,
   WalletIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
 import logo from "../images/logo1.png";
 import { NewspaperIcon } from "lucide-react";
@@ -82,6 +83,8 @@ export default function Sidebar() {
   const { user, logout } = useContext(AuthContext);
   const { t } = useTranslation();
 
+  const showUpgrade = user?.subscriptionTier !== 'PRO';
+
   return (
     <aside
       style={sidebarStyle}
@@ -106,8 +109,19 @@ export default function Sidebar() {
       {/* BOŞLUK */}
       <div className="flex-1" />
 
-      {/* ALT KISIM: DİL DEĞİŞTİRİCİ + KULLANICI PROFİL MENÜSÜ */}
-      <div className="flex flex-col items-center space-y-3 mb-4 w-full">
+      {/* ALT KISIM: UPGRADE CTA + DİL DEĞİŞTİRİCİ + KULLANICI PROFİL MENÜSÜ */}
+      <div className="flex flex-col items-center space-y-3 mb-4 w-full px-2">
+        {showUpgrade && (
+          <NavLink
+            to="/pricing"
+            className="w-full flex flex-col items-center gap-1 px-2 py-2 rounded-xl bg-gradient-to-b from-amber-500/20 to-yellow-500/10 border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-500/20 transition-all group no-underline"
+          >
+            <StarIcon className="w-5 h-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
+            <span className="text-[9px] font-bold text-amber-400 group-hover:text-amber-300 transition-colors leading-tight text-center">
+              {t('common.upgrade')}
+            </span>
+          </NavLink>
+        )}
         <LanguageToggle />
         <UserProfileDropdown
           userInitial={user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}

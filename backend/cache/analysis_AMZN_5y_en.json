@@ -2,38 +2,8 @@
   "data": {
     "symbol": "AMZN",
     "name": "Amazon.com Inc",
-    "price": 210,
+    "price": 208.73,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 3127.89,
-        "high": 3149.56,
-        "low": 3097.99,
-        "close": 3146.14,
-        "adjClose": 157.307,
-        "price": 3146.14,
-        "volume": 2733963
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 3143.47,
-        "high": 3163.52,
-        "low": 3087.1201,
-        "close": 3094.53,
-        "adjClose": 154.7265,
-        "price": 3094.53,
-        "volume": 2595762
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 3081.18,
-        "high": 3107.775,
-        "low": 2995,
-        "close": 3005,
-        "adjClose": 150.25,
-        "price": 3005,
-        "volume": 3988725
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 3012,
@@ -12563,11 +12533,31 @@
         "adjClose": 210,
         "price": 210,
         "volume": 57422777
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 204.55,
+        "high": 209.73,
+        "low": 203.46,
+        "close": 208.39,
+        "adjClose": 208.39,
+        "price": 208.39,
+        "volume": 46001010
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 203.1,
+        "high": 209.178,
+        "low": 202.48,
+        "close": 208.73,
+        "adjClose": 208.73,
+        "price": 208.73,
+        "volume": 43184918
       }
     ],
     "fundamentals": {
-      "marketCap": 2244945362310,
-      "peRatio": 28.9036354102,
+      "marketCap": 2231368787976.03,
+      "peRatio": 28.7288372341,
       "description": "At Amazon Games, our ambition is to create bold new experiences that foster community in and around our games. Our team of game industry veterans is building within the sandbox of Prime Gaming, Twitch, Amazon retail, Amazon Web Services (AWS), and more to push boundaries and deliver captivating experiences to our players. Amazon Games is developing AAA multiplayer games based on original IPs, including New World, with our studios and teams in Orange County, San Diego, Montreal, and Seattle. Amazon Games also publishes best-in-class third-party games, leading with Lost Ark from Smilegate RPG. About Bandai Namco Online Inc. “Online games from Japan to the world” Bandai Namco Online Inc. is a rapidly growing company within the Bandai Namco Group that specializes in the online game business, with a full range of functions from development and operation to publishing. Our company continues to develop a variety of contents and services for all devices, including the team shooter GUNDAM EVOLUTION, the online action RPG BLUE PROTOCOL, and our original IP IDOLiSH7. Upholding our slogan, “Online games from Japan to the world,” we are committed to challenging ourselves to create online games with a unique Japanese twist. While focusing on the production of online games, we will continue to collaborate with other companies both within and outside of the Bandai Namco Group in order to develop a wide variety of entertainment that goes beyond games."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406916366
+  "timestamp": 1772633936068
 }

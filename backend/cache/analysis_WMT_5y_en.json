@@ -2,38 +2,8 @@
   "data": {
     "symbol": "WMT",
     "name": "Walmart Inc",
-    "price": 127.95,
+    "price": 127.91,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 131.58,
-        "high": 132.57,
-        "low": 131.13,
-        "close": 131.37,
-        "adjClose": 40.9166292031,
-        "price": 131.37,
-        "volume": 11544848
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 131.51,
-        "high": 132.75,
-        "low": 130.01,
-        "close": 130.11,
-        "adjClose": 40.5241883658,
-        "price": 130.11,
-        "volume": 9743566
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 129.5,
-        "high": 129.93,
-        "low": 127.55,
-        "close": 127.59,
-        "adjClose": 39.7393066912,
-        "price": 127.59,
-        "volume": 13945761
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 127.86,
@@ -12563,11 +12533,31 @@
         "adjClose": 127.95,
         "price": 127.95,
         "volume": 29205470
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 127.46,
+        "high": 128.75,
+        "low": 127.05,
+        "close": 127.1,
+        "adjClose": 127.1,
+        "price": 127.1,
+        "volume": 17091524
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 126.52,
+        "high": 128.3683,
+        "low": 125.67,
+        "close": 127.91,
+        "adjClose": 127.91,
+        "price": 127.91,
+        "volume": 16480390
       }
     ],
     "fundamentals": {
-      "marketCap": 1020126301059.9,
-      "peRatio": 44.5275556988,
+      "marketCap": 1019807387015.02,
+      "peRatio": 44.5136354,
       "description": "Walmart Inc. is a people-led, tech-powered omnichannel retailer helping people save money and live better - anytime and anywhere - in stores, online, and through their mobile devices. Each week, approximately 240 million customers and members visit more than 10,500 stores and numerous eCommerce websites in 20 countries. With fiscal year 2023 revenue of $611 billion, Walmart employs approximately 2.1 million associates worldwide. Walmart continues to be a leader in sustainability, corporate philanthropy, and employment opportunity."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406932079
+  "timestamp": 1772633948395
 }

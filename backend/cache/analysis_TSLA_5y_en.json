@@ -2,38 +2,8 @@
   "data": {
     "symbol": "TSLA",
     "name": "Tesla Inc",
-    "price": 402.51,
+    "price": 392.43,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 690.11,
-        "high": 719,
-        "low": 685.05,
-        "close": 718.43,
-        "adjClose": 239.4766666667,
-        "price": 718.43,
-        "volume": 27136239
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 718.28,
-        "high": 721.11,
-        "low": 685,
-        "close": 686.44,
-        "adjClose": 228.8133333333,
-        "price": 686.44,
-        "volume": 23732158
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 687.99,
-        "high": 700.7,
-        "low": 651.705,
-        "close": 653.2,
-        "adjClose": 217.7333333333,
-        "price": 653.2,
-        "volume": 30207960
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 655.8,
@@ -12563,11 +12533,31 @@
         "adjClose": 402.51,
         "price": 402.51,
         "volume": 56890097
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 390.6,
+        "high": 404.54,
+        "low": 388.25,
+        "close": 403.32,
+        "adjClose": 403.32,
+        "price": 403.32,
+        "volume": 55088338
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 395.09,
+        "high": 396.34,
+        "low": 385.39,
+        "close": 392.43,
+        "adjClose": 392.43,
+        "price": 392.43,
+        "volume": 62617298
       }
     ],
     "fundamentals": {
-      "marketCap": 1338675472909.17,
-      "peRatio": 352.8401351896,
+      "marketCap": 1305151215705.81,
+      "peRatio": 344.0040104654,
       "description": "Tesla Motors, Inc. (Tesla) designs, develops, manufactures and sells electric vehicles and advanced electric vehicle powertrain components. Tesla owns its sales and service network. The Company is engaged in commercially producing a federally-compliant electric vehicle, the Tesla Roadster. addition to developing its Model S and future vehicle manufacturing capabilities at the Tesla Factory, the Company is designing, developing and manufacturing lithium-ion battery packs, electric motors, gearboxes and components both for its vehicles and for its original equipment manufacturer customers. These activities occur at its electric powertrain manufacturing facility in Palo Alto, California and at the Tesla Factory. The Company provides services for the development of electric powertrain components and sells electric powertrain components to other automotive manufacturers."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406921300
+  "timestamp": 1772633939399
 }

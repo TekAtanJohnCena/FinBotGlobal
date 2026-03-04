@@ -2,38 +2,8 @@
   "data": {
     "symbol": "GOOGL",
     "name": "Alphabet Inc - Class A",
-    "price": 311.76,
+    "price": 303.58,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 2048,
-        "high": 2076.23,
-        "low": 2034.42,
-        "close": 2069.66,
-        "adjClose": 102.7006529805,
-        "price": 2069.66,
-        "volume": 1303089
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 2064.84,
-        "high": 2094.74,
-        "low": 2056.67,
-        "close": 2064.48,
-        "adjClose": 102.4436110594,
-        "price": 2064.48,
-        "volume": 1278184
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 2051.95,
-        "high": 2075.99,
-        "low": 1994,
-        "close": 2011.41,
-        "adjClose": 99.8101719178,
-        "price": 2011.41,
-        "volume": 1694645
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 2014.869,
@@ -12563,11 +12533,31 @@
         "adjClose": 311.76,
         "price": 311.76,
         "volume": 44640640
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 303.225,
+        "high": 308.49,
+        "low": 301.3,
+        "close": 306.52,
+        "adjClose": 306.52,
+        "price": 306.52,
+        "volume": 34790203
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 298.59,
+        "high": 303.94,
+        "low": 296.71,
+        "close": 303.58,
+        "adjClose": 303.58,
+        "price": 303.58,
+        "volume": 35496961
       }
     ],
     "fundamentals": {
-      "marketCap": 3762007920000,
-      "peRatio": 28.4634025876,
+      "marketCap": 3663299860000,
+      "peRatio": 27.7165760763,
       "description": "Google Inc. (Google) is a global technology company. The Company's business is primarily focused around key areas, such as search, advertising, operating systems and platforms, enterprise and hardware products. The Company generates revenue primarily by delivering online advertising. The Company also generates revenues from Motorola by selling hardware products. The Company provides its products and services in more than 100 languages and in more than 50 countries, regions, and territories. Effective May 16, 2014, Google Inc acquired Quest Visual Inc. Effective May 20, 2014, Google Inc acquired Enterproid Inc, doing business as Divide. In June 2014, Google Inc acquired mDialog Corp. Effective June 25, 2014, Google Inc acquired Appurify Inc, a San Francisco-based developer of mobile bugging application software."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406912129
+  "timestamp": 1772633934541
 }

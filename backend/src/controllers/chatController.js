@@ -1106,8 +1106,8 @@ export const sendMessageStream = async (req, res) => {
       ? `<DATA_AVAILABILITY_NOTE>\n${[...new Set(dataAvailabilityNotes)].map(note => `- ${note}`).join("\n")}\nModel talimati: Bu notlar varken eksik alanlarda varsayim yapma, kesin yargi uretme. Fiyat verisi eksikse kesinlikle fiyat rakami uretme ve "G\u00fcncel fiyat verisine ula\u015f\u0131lamad\u0131." ifadesini kullan.\n</DATA_AVAILABILITY_NOTE>\n\n`
       : "";
 
-    log.info("MODEL", "Claude Sonnet 4.5 v1 ile teknik analiz baslatiliyor.");
-    res.write(`data: ${JSON.stringify({ type: "thought", content: "Claude Sonnet 4.5 v1 ile teknik analiz olusturuluyor..." })}\n\n`);
+    log.info("MODEL", "Claude Sonnet 4.5 ile teknik analiz baslatiliyor.");
+    res.write(`data: ${JSON.stringify({ type: "thought", content: "Claude Sonnet 4.5 ile teknik analiz olusturuluyor..." })}\n\n`);
 
     // Build the final user message content with all context injected
     const contextSuffix = [

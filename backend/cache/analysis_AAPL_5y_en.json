@@ -2,38 +2,8 @@
   "data": {
     "symbol": "AAPL",
     "name": "Apple Inc",
-    "price": 264.18,
+    "price": 263.75,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 123.75,
-        "high": 127.93,
-        "low": 122.79,
-        "close": 127.79,
-        "adjClose": 124.4791903203,
-        "price": 127.79,
-        "volume": 116307892
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 128.41,
-        "high": 128.72,
-        "low": 125.01,
-        "close": 125.12,
-        "adjClose": 121.878365231,
-        "price": 125.12,
-        "volume": 102260945
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 124.81,
-        "high": 125.71,
-        "low": 121.84,
-        "close": 122.06,
-        "adjClose": 118.8976443422,
-        "price": 122.06,
-        "volume": 112966340
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 121.75,
@@ -12563,11 +12533,31 @@
         "adjClose": 264.18,
         "price": 264.18,
         "volume": 72366505
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 262.41,
+        "high": 266.53,
+        "low": 260.2,
+        "close": 264.72,
+        "adjClose": 264.72,
+        "price": 264.72,
+        "volume": 41827946
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 263.48,
+        "high": 265.56,
+        "low": 260.13,
+        "close": 263.75,
+        "adjClose": 263.75,
+        "price": 263.75,
+        "volume": 38568921
       }
     ],
     "fundamentals": {
-      "marketCap": 3903616935540,
-      "peRatio": 33.1441362536,
+      "marketCap": 3897263103750,
+      "peRatio": 33.0901882689,
       "description": "Apple Inc. (Apple) designs, manufactures and markets mobile communication and media devices, personal computers, and portable digital music players, and a variety of related software, services, peripherals, networking solutions, and third-party digital content and applications. The Company's products and services include iPhone, iPad, Mac, iPod, Apple TV, a portfolio of consumer and professional software applications, the iOS and OS X operating systems, iCloud, and a variety of accessory, service and support offerings. The Company also delivers digital content and applications through the iTunes Store, App StoreSM, iBookstoreSM, and Mac App Store. The Company distributes its products worldwide through its retail stores, online stores, and direct sales force, as well as through third-party cellular network carriers, wholesalers, retailers, and value-added resellers. In February 2012, the Company acquired app-search engine Chomp."
     },
     "financials": {
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406899551
+  "timestamp": 1772633927385
 }

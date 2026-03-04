@@ -2,38 +2,8 @@
   "data": {
     "symbol": "MSFT",
     "name": "Microsoft Corporation",
-    "price": 392.74,
+    "price": 403.93,
     "history": [
-      {
-        "date": "2021-03-01T00:00:00.000Z",
-        "open": 235.9,
-        "high": 237.47,
-        "low": 233.15,
-        "close": 236.94,
-        "adjClose": 227.3396960371,
-        "price": 236.94,
-        "volume": 25332837
-      },
-      {
-        "date": "2021-03-02T00:00:00.000Z",
-        "open": 237.01,
-        "high": 237.3,
-        "low": 233.45,
-        "close": 233.87,
-        "adjClose": 224.3940858959,
-        "price": 233.87,
-        "volume": 22812459
-      },
-      {
-        "date": "2021-03-03T00:00:00.000Z",
-        "open": 232.155,
-        "high": 233.5799,
-        "low": 227.26,
-        "close": 227.56,
-        "adjClose": 218.3397536515,
-        "price": 227.56,
-        "volume": 34029526
-      },
       {
         "date": "2021-03-04T00:00:00.000Z",
         "open": 226.735,
@@ -12563,12 +12533,32 @@
         "adjClose": 392.74,
         "price": 392.74,
         "volume": 51367196
+      },
+      {
+        "date": "2026-03-02T00:00:00.000Z",
+        "open": 392.855,
+        "high": 401.19,
+        "low": 390.63,
+        "close": 398.55,
+        "adjClose": 398.55,
+        "price": 398.55,
+        "volume": 35474907
+      },
+      {
+        "date": "2026-03-03T00:00:00.000Z",
+        "open": 393.14,
+        "high": 406.7,
+        "low": 392.67,
+        "close": 403.93,
+        "adjClose": 403.93,
+        "price": 403.93,
+        "volume": 38199209
       }
     ],
     "fundamentals": {
-      "marketCap": 2918992000224.7,
-      "peRatio": 24.4754573982,
-      "description": "Microsoft (Nasdaq \"MSFT\" @microsoft) creates platforms and tools powered by AI to deliver innovative solutions that meet the evolving needs of our customers. The technology company is committed to making AI available broadly and doing so responsibly, with a mission to empower every person and every organization on the planet to achieve more. SOURCE Microsoft Corp."
+      "marketCap": 3002160306184.15,
+      "peRatio": 25.172815366,
+      "description": "Microsoft (Nasdaq \"MSFT\") develops cloud and AI solutions that empower individuals and organizations. Microsoft Dragon Copilot for Healthcare streamlines clinical workflows, reduces administrative burden, and connects seamlessly with the tools providers use every day."
     },
     "financials": {
       "summary": {},
@@ -12576,5 +12566,5 @@
     },
     "news": []
   },
-  "timestamp": 1772406904827
+  "timestamp": 1772633929160
 }

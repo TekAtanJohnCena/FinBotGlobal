@@ -85,12 +85,9 @@ export function WalletPage() {
   const [pdfError, setPdfError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [savedReports, setSavedReports] = useState([]);
-  const [loadingReports, setLoadingReports] = useState(false);
 
-  // Load saved reports on mount
   useEffect(() => {
     const loadReports = async () => {
-      setLoadingReports(true);
       try {
         const res = await api.get("/personal-finance/reports");
         if (res.data?.success) {
@@ -106,11 +103,10 @@ export function WalletPage() {
         }
       } catch (e) {
         // Non-critical
-      } finally {
-        setLoadingReports(false);
       }
     };
     loadReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // PDF Upload Handler
