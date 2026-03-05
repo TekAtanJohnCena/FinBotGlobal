@@ -8,24 +8,13 @@ import LanguageSelector from "../components/LanguageSelector";
 // GOOGLE IMPORT
 import { GoogleLogin } from '@react-oauth/google';
 
-// GLOBAL PHONE INPUT
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import '../styles/phone-input-dark.css';
-
 // GÖRSELLER
 import heroImage from "../images/finbot-auth-hero.png";
 import logo from "../images/logo1.png";
 
 const Register = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { register, googleLogin } = useContext(AuthContext);
@@ -34,32 +23,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim() || !phoneNumber || !birthDate || !email.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast.error(t('auth.fillAllFields'));
-      return;
-    }
-
-    if (!termsAccepted || !privacyAccepted) {
-      toast.error(t('auth.acceptTerms'));
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error(t('auth.validEmail'));
-      return;
-    }
-
-    if (phoneNumber.length < 10) {
-      toast.error(t('auth.validPhone'));
-      return;
-    }
-
-    const birthDateObj = new Date(birthDate);
-    const today = new Date();
-    const age = today.getFullYear() - birthDateObj.getFullYear();
-    if (age < 18 || age > 120) {
-      toast.error(t('auth.ageRequirement'));
       return;
     }
 
@@ -72,10 +43,6 @@ const Register = () => {
 
     try {
       await register({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        phoneNumber: `+${phoneNumber}`,
-        birthDate,
         email: email.trim().toLowerCase(),
         password
       });
@@ -104,7 +71,6 @@ const Register = () => {
   };
 
   const styles = `
-    /* GLOBAL - NO SCROLL */
     html, body {
       margin: 0 !important;
       padding: 0 !important;
@@ -114,7 +80,6 @@ const Register = () => {
       background: #0a0a0a !important;
     }
 
-    /* WRAPPER */
     .auth-wrapper {
       position: fixed;
       top: 0;
@@ -126,7 +91,6 @@ const Register = () => {
       overflow: hidden;
     }
 
-    /* FORM SIDE */
     .auth-form-side {
       flex: 1;
       display: flex;
@@ -135,30 +99,19 @@ const Register = () => {
       padding: 1rem;
     }
 
-    /* SCROLLABLE FORM CONTAINER - Hidden scrollbar */
     .auth-form-container {
       width: 100%;
-      max-width: 440px;
-      max-height: 95vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 1.5rem;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .auth-form-container::-webkit-scrollbar {
-      display: none;
+      max-width: 400px;
+      padding: 2rem;
     }
 
-    /* LOGO */
     .auth-logo {
       height: 36px;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
     }
 
-    /* TITLE */
     .auth-title {
-      font-size: 1.6rem;
+      font-size: 1.75rem;
       font-weight: 700;
       color: #ffffff;
       margin: 0 0 0.4rem 0;
@@ -166,27 +119,13 @@ const Register = () => {
 
     .auth-subtitle {
       color: #888;
-      margin: 0 0 1.25rem 0;
-      font-size: 0.85rem;
-      line-height: 1.4;
-    }
-
-    /* FORM ROW - 2 columns, stacks on mobile */
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.65rem;
-      margin-bottom: 0.65rem;
+      margin: 0 0 1.75rem 0;
+      font-size: 0.875rem;
+      line-height: 1.5;
     }
 
     .form-group {
-      margin-bottom: 0.65rem;
-    }
-
-    /* Phone group - high z-index */
-    .phone-group {
-      position: relative;
-      z-index: 1000;
+      margin-bottom: 1rem;
     }
 
     .form-label {
@@ -194,58 +133,50 @@ const Register = () => {
       color: #aaa;
       font-size: 0.75rem;
       font-weight: 500;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.4rem;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
 
     .form-hint {
-      color: #666;
+      color: #555;
       font-size: 0.7rem;
-      margin-top: 0.25rem;
+      margin-top: 0.3rem;
     }
 
-    /* GLASSMORPHISM INPUTS */
     .glass-input {
       width: 100%;
-      padding: 0.7rem 0.9rem;
-      background: rgba(255, 255, 255, 0.03);
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
+      border-radius: 10px;
       color: #fff;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       transition: all 0.2s ease;
       outline: none;
       box-sizing: border-box;
     }
 
     .glass-input::placeholder {
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .glass-input:focus {
       border-color: #3b82f6;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
     }
 
-    /* Date input fix */
-    .glass-input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) opacity(0.4);
-      cursor: pointer;
-    }
-
-    /* PRIMARY BUTTON - GLOW */
     .btn-primary {
       width: 100%;
-      padding: 0.8rem 1.25rem;
+      padding: 0.85rem 1.25rem;
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       border: none;
       border-radius: 10px;
       color: #fff;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -253,7 +184,7 @@ const Register = () => {
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
       box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
     }
 
@@ -280,11 +211,10 @@ const Register = () => {
       to { transform: rotate(360deg); }
     }
 
-    /* DIVIDER */
     .divider {
       display: flex;
       align-items: center;
-      margin: 1rem 0;
+      margin: 1.25rem 0;
       gap: 0.75rem;
     }
 
@@ -296,11 +226,9 @@ const Register = () => {
 
     .divider-text {
       color: #555;
-      font-size: 0.7rem;
-      text-transform: lowercase;
+      font-size: 0.75rem;
     }
 
-    /* GOOGLE BUTTON - SAME WIDTH AS PRIMARY */
     .google-container {
       display: flex;
       justify-content: center;
@@ -311,11 +239,10 @@ const Register = () => {
       width: 100% !important;
     }
 
-    /* FOOTER */
     .auth-footer {
       text-align: center;
       color: #777;
-      margin-top: 1rem;
+      margin-top: 1.25rem;
       font-size: 0.8rem;
     }
 
@@ -329,7 +256,6 @@ const Register = () => {
       color: #60a5fa;
     }
 
-    /* IMAGE SIDE */
     .auth-image-side {
       flex: 1.1;
       display: flex;
@@ -343,10 +269,7 @@ const Register = () => {
     .auth-image-side::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: radial-gradient(circle at 30% 30%, rgba(59,130,246,0.08) 0%, transparent 50%);
     }
 
@@ -360,84 +283,10 @@ const Register = () => {
       z-index: 1;
     }
 
-    /* MOBILE - HIDE IMAGE */
     @media (max-width: 900px) {
-      .auth-image-side {
-        display: none;
-      }
-
-      /* Compact mobile layout - side-by-side name fields kept */
-      .auth-form-side {
-        padding: 0.5rem;
-        align-items: flex-start;
-        padding-top: 0.75rem;
-      }
-
-      .auth-form-container {
-        padding: 0.75rem;
-        max-height: 100vh;
-      }
-
-      .auth-logo {
-        height: 26px;
-        margin-bottom: 0.5rem;
-      }
-
-      .auth-title {
-        font-size: 1.25rem;
-        margin-bottom: 0.15rem;
-      }
-
-      .auth-subtitle {
-        display: none;
-      }
-
-      /* KEEP SIDE-BY-SIDE on mobile - like desktop */
-      .form-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        margin-bottom: 0.4rem;
-      }
-
-      .form-group {
-        margin-bottom: 0.4rem;
-      }
-
-      .form-label {
-        font-size: 0.7rem;
-        margin-bottom: 0.2rem;
-      }
-
-      .form-hint {
-        display: none;
-      }
-
-      /* Slightly larger inputs for touch */
-      .glass-input {
-        padding: 0.55rem 0.7rem;
-        font-size: 0.8rem;
-        border-radius: 6px;
-      }
-
-      .btn-primary {
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
-        margin-top: 0.3rem;
-        border-radius: 8px;
-      }
-
-      .divider {
-        margin: 0.5rem 0;
-      }
-
-      .divider-text {
-        font-size: 0.65rem;
-      }
-
-      .auth-footer {
-        margin-top: 0.5rem;
-        font-size: 0.75rem;
-      }
+      .auth-image-side { display: none; }
+      .auth-form-side { padding: 1rem; }
+      .auth-form-container { padding: 1.25rem; }
     }
   `;
 
@@ -460,7 +309,7 @@ const Register = () => {
       <div className="auth-wrapper">
         <div className="auth-form-side">
           <div className="auth-form-container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <Link to="/">
                 <img src={logo} alt="Finbot" className="auth-logo" style={{ margin: 0 }} />
               </Link>
@@ -468,66 +317,9 @@ const Register = () => {
             </div>
 
             <h1 className="auth-title">{t('auth.registerTitle')}</h1>
-            <p className="auth-subtitle">
-              {t('auth.registerSubtitle')}
-            </p>
+            <p className="auth-subtitle">{t('auth.registerSubtitle')}</p>
 
             <form onSubmit={handleSubmit}>
-              {/* Ad / Soyad - Stacks vertically on mobile */}
-              <div className="form-row">
-                <div style={{ marginBottom: 0 }}>
-                  <label className="form-label">{t('auth.firstName')}</label>
-                  <input
-                    type="text"
-                    className="glass-input"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                    placeholder={t('auth.firstNamePlaceholder')}
-                  />
-                </div>
-                <div style={{ marginBottom: 0 }}>
-                  <label className="form-label">{t('auth.lastName')}</label>
-                  <input
-                    type="text"
-                    className="glass-input"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                    placeholder={t('auth.lastNamePlaceholder')}
-                  />
-                </div>
-              </div>
-
-              {/* Telefon / Doğum Tarihi */}
-              <div className="form-row">
-                <div className="phone-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">{t('auth.phone')}</label>
-                  <PhoneInput
-                    country={'tr'}
-                    value={phoneNumber}
-                    onChange={setPhoneNumber}
-                    inputClass="glass-input"
-                    containerStyle={{ position: 'relative', zIndex: 1000 }}
-                    dropdownStyle={{ zIndex: 99999 }}
-                    enableSearch={true}
-                    searchPlaceholder="Ülke ara..."
-                    placeholder={t('auth.phonePlaceholder')}
-                  />
-                </div>
-                <div style={{ marginBottom: 0 }}>
-                  <label className="form-label">{t('auth.birthDate')}</label>
-                  <input
-                    type="date"
-                    className="glass-input"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    required
-                    max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                  />
-                </div>
-              </div>
-
               {/* E-posta */}
               <div className="form-group">
                 <label className="form-label">{t('auth.email')}</label>
@@ -538,6 +330,7 @@ const Register = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder={t('auth.emailPlaceholder')}
+                  autoComplete="email"
                 />
               </div>
 
@@ -551,36 +344,9 @@ const Register = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder={t('auth.passwordPlaceholder')}
+                  autoComplete="new-password"
                 />
                 <div className="form-hint">{t('auth.passwordHint')}</div>
-              </div>
-
-              {/* Terms and Privacy Checkboxes */}
-              <div className="form-group" style={{ marginTop: '0.5rem' }}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: '#ddd', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#3b82f6' }}
-                  />
-                  <span>
-                    {t('auth.termsAcceptance')}{' '}
-                    <Link to="/legal/terms" target="_blank" className="auth-link">{t('auth.termsOfService')}</Link>
-                  </span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', color: '#ddd', fontSize: '0.8rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={privacyAccepted}
-                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                    style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#3b82f6' }}
-                  />
-                  <span>
-                    {t('auth.termsAcceptance')}{' '}
-                    <Link to="/legal/privacy" target="_blank" className="auth-link">{t('auth.privacyPolicy')}</Link>
-                  </span>
-                </label>
               </div>
 
               <button type="submit" className="btn-primary" disabled={loading}>

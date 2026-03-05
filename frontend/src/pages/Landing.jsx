@@ -36,34 +36,6 @@ function MockWindow({ children, title = "Finbot • Örnek Görünüm" }) {
   );
 }
 
-function ChartPlaceholder() {
-  return (
-    <div className="chart-ph">
-      <div className="axis-y" />
-      <div className="axis-x" />
-      <div className="plot-line" />
-      <div className="plot-fill" />
-    </div>
-  );
-}
-
-function TablePlaceholder() {
-  return (
-    <div className="table-ph">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="row-ph">
-          <div className="cell w-25" />
-          <div className="cell w-15" />
-          <div className="cell w-15" />
-          <div className="cell w-15" />
-          <div className="cell w-15" />
-          <div className="cell w-15" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* ===== İletişim (modern) ===== */
 function ContactPanel() {
   const { t } = useContext(LanguageContext);
@@ -437,7 +409,7 @@ export default function Landing() {
               href="#home"
               onClick={(e) => handleNavClick(e, "home")}
             >
-              <img src={logo} alt="Finbot" width="39" height="39" />
+              <img src={logo} alt="FinBot Yapay Zeka Finans Asistanı" width="39" height="39" />
               <span className="brand-text">Finbot</span>
             </a>
 
@@ -628,46 +600,64 @@ export default function Landing() {
 
             <div className="col-lg-6">
               <MockWindow title={t('mockWindow.title')}>
-                <div className="p-3">
-                  <div className="row g-3">
-                    <div className="col-12">
-                      <div className="panel rounded-3 p-3 mb-2">
-                        <div className="small text-dim mb-2">{t('mockWindow.questionLabel')}</div>
-                        <div className="text-white fw-semibold">
-                          {t('mockWindow.questionExample')}
-                        </div>
+                <div className="p-4 h-100">
+                  {/* Title & Logo Area */}
+                  <div className="d-flex align-items-center mb-4">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: 50, height: 50, backgroundColor: '#1DB954', boxShadow: '0 4px 12px rgba(29, 185, 84, 0.3)' }}>
+                      <i className="bi bi-spotify fs-3 text-white"></i>
+                    </div>
+                    <div>
+                      <h4 className="text-white mb-0 fw-bold">Spotify Technology S.A.</h4>
+                      <div className="d-flex align-items-center gap-2 mt-1">
+                        <span className="badge bg-dark-subtle text-secondary small">NYSE-SPOT</span>
+                        <span className="text-success small fw-bold"><i className="bi bi-arrow-up-right"></i> %2.4</span>
                       </div>
                     </div>
-                    <div className="col-7">
-                      <div className="panel rounded-3 p-3">
-                        <div className="small text-dim mb-2">{t('mockWindow.trendChart')}</div>
-                        <ChartPlaceholder />
-                      </div>
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="d-flex gap-4 border-bottom pb-2 mb-4 overflow-x-auto text-nowrap" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                    <span className="text-secondary small fw-medium" style={{ cursor: 'pointer' }}>Genel Bakış</span>
+                    <span className="text-white fw-bold small pb-2" style={{ borderBottom: '2px solid #fff', cursor: 'pointer', marginBottom: '-1px' }}>Finansallar</span>
+                    <span className="text-secondary small fw-medium" style={{ cursor: 'pointer' }}>Yatırımcı İlişkileri</span>
+                    <span className="text-secondary small fw-medium" style={{ cursor: 'pointer' }}>Tahminler</span>
+                    <span className="text-secondary small fw-medium" style={{ cursor: 'pointer' }}>Sektör</span>
+                  </div>
+
+                  {/* Chart Area */}
+                  <div className="position-relative d-flex align-items-end justify-content-between pt-3" style={{ height: 200, gap: '10px' }}>
+                    {/* Vertical Grid Lines */}
+                    {/* Grid Levels */}
+                    <div className="position-absolute w-100 h-100 d-flex flex-column justify-content-between" style={{ pointerEvents: 'none', top: 0, left: 0 }}>
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="w-100" style={{ borderTop: '1px solid rgba(255,255,255,0.03)', height: '1px' }}></div>
+                      ))}
                     </div>
-                    <div className="col-5">
-                      <div className="panel rounded-3 p-3 mb-3">
-                        <div className="small text-dim mb-2">
-                          {t('mockWindow.highlights')}
-                        </div>
-                        {[...Array(4)].map((_, i) => (
-                          <div key={i} className="skeleton-bar mb-2" />
-                        ))}
-                      </div>
-                      <div className="panel rounded-3 p-3">
-                        <div className="small text-dim mb-2">{t('mockWindow.aiSummary')}</div>
-                        <div className="skeleton-line w-100 mb-2" />
-                        <div className="skeleton-line w-75 mb-2" />
-                        <div className="skeleton-line w-50" />
-                      </div>
-                    </div>
-                    <div className="col-12">
-                      <div className="panel rounded-3 p-3">
-                        <div className="small text-dim mb-2">
-                          {t('mockWindow.comparison')}
-                        </div>
-                        <TablePlaceholder />
-                      </div>
-                    </div>
+
+                    {/* Solid Bars */}
+                    {[15, 28, 35, 52, 65, 78].map((h, i) => (
+                      <div key={i} className="flex-grow-1 rounded-top animate-bar" style={{
+                        background: 'linear-gradient(to top, #00e5a0, #00ffaa)',
+                        height: `${h}%`,
+                        zIndex: 1,
+                        maxWidth: '35px',
+                        boxShadow: '0 4px 15px rgba(0, 229, 160, 0.3)',
+                        animationDelay: `${i * 0.1}s`,
+                        opacity: 0 // Start invisible
+                      }}></div>
+                    ))}
+                    {/* Striped/Hatched Estimated Bars */}
+                    {[85, 96, 100].map((h, i) => (
+                      <div key={i} className="flex-grow-1 rounded-top animate-bar" style={{
+                        height: `${h}%`,
+                        zIndex: 1,
+                        maxWidth: '35px',
+                        background: 'repeating-linear-gradient(45deg, rgba(0, 229, 160, 0.1), rgba(0, 229, 160, 0.1) 4px, #00e5a0 4px, #00e5a0 7px)',
+                        border: '1px solid rgba(0, 229, 160, 0.4)',
+                        animationDelay: `${(i + 6) * 0.1}s`,
+                        opacity: 0 // Start invisible
+                      }}></div>
+                    ))}
                   </div>
                 </div>
               </MockWindow>
@@ -676,9 +666,9 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* ÖZELLİKLER (4 uzun kart) */}
       <section id="features" className="section-pad">
         <div className="container">
+          <h2 className="text-center fw-bold text-white mb-5">{t('features.title')}</h2>
           <div className="row g-4">
             {/* 1 */}
             <div className="col-12 col-md-6 col-lg-3">
@@ -686,9 +676,9 @@ export default function Landing() {
                 <div className="feature-icon">
                   <i className="bi bi-bank"></i>
                 </div>
-                <h5 className="tile-title text-white mt-3 mb-2">
+                <h3 className="tile-title fs-5 text-white mt-3 mb-2">
                   {t('features.feature1Title')}
-                </h5>
+                </h3>
                 <p className="text-soft mb-3">
                   {t('features.feature1Desc')}
                 </p>
@@ -712,9 +702,9 @@ export default function Landing() {
                 <div className="feature-icon">
                   <i className="bi bi-magic"></i>
                 </div>
-                <h5 className="tile-title text-white mt-3 mb-2">
+                <h3 className="tile-title fs-5 text-white mt-3 mb-2">
                   {t('features.feature2Title')}
-                </h5>
+                </h3>
                 <p className="text-soft mb-3">
                   {t('features.feature2Desc')}
                 </p>
@@ -738,9 +728,9 @@ export default function Landing() {
                 <div className="feature-icon">
                   <i className="bi bi-columns-gap"></i>
                 </div>
-                <h5 className="tile-title text-white mt-3 mb-2">
+                <h3 className="tile-title fs-5 text-white mt-3 mb-2">
                   {t('features.feature3Title')}
-                </h5>
+                </h3>
                 <p className="text-soft mb-3">
                   {t('features.feature3Desc')}
                 </p>
@@ -764,9 +754,9 @@ export default function Landing() {
                 <div className="feature-icon">
                   <i className="bi bi-bell"></i>
                 </div>
-                <h5 className="tile-title text-white mt-3 mb-2">
+                <h3 className="tile-title fs-5 text-white mt-3 mb-2">
                   {t('features.feature4Title')}
-                </h5>
+                </h3>
                 <p className="text-soft mb-3">
                   {t('features.feature4Desc')}
                 </p>
@@ -799,6 +789,6 @@ export default function Landing() {
       <ContactPanel />
 
       <Footer />
-    </div>
+    </div >
   );
 }

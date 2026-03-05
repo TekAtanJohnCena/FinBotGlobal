@@ -22,6 +22,7 @@ export const getUserProfile = async (req, res) => {
       phoneNumber: req.user.phoneNumber,
       subscriptionTier: req.user.subscriptionTier || "FREE",
       subscriptionStatus: req.user.subscriptionStatus || "INACTIVE",
+      role: req.user.role || "user",
       createdAt: req.user.createdAt,
       updatedAt: req.user.updatedAt,
       avatar: req.user.avatar,

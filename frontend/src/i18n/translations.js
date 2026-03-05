@@ -15,44 +15,44 @@ export const translations = {
 
     // Hero Section
     hero: {
-      title: "Yapay Zeka Destekli",
-      titleAccent: "Finansal Veri Analizi",
-      titleEnd: "ve Raporlama Asistanı",
-      subtitle: "Geçmiş verileri analiz et, stratejini güçlendir. ABD piyasalarındaki şirketlerin finansal tablolarını, teknik göstergelerini ve raporlarını Türkçe incele.",
+      title: "Finansal Kararlarınızda",
+      titleAccent: "Yapay Zeka",
+      titleEnd: "Finans Asistanı",
+      subtitle: "Borsa analizi, bilanço yorumlama ve portföy optimizasyonu ile hisse senedi önerileri artık tek bir platformda.",
       startButton: "Analize Başla 📊",
       tryFreeButton: "📊 Ücretsiz Deneyin",
       viewPlansButton: "📋 Paketleri Gör",
       bullet1: "NASDAQ, NYSE, S&P 500 veri kapsamı",
-      bullet2: "Teknik gösterge analizi",
-      bullet3: "10-K/10-Q raporları Türkçe özet"
+      bullet2: "Teknik ve Temel Analiz",
+      bullet3: "Otomatik Portföy Optimizasyonu"
     },
 
     // Features
     features: {
-      title: "Özellikler",
-      feature1Title: "10-K ve 10-Q Raporlarını Saniyeler İçinde Özetle",
-      feature1Desc: "ABD şirketlerinin yıllık ve çeyreklik finansal raporlarını Türkçe analiz et.",
-      feature1Item1: "SEC dosyaları otomatik analiz",
-      feature1Item2: "EPS, P/E, ROE gibi metrikleri Türkçe açıklama",
-      feature1Item3: "Bilanço, gelir tablosu, nakit akışı",
+      title: "Yapay Zeka Destekli Borsa Analizi",
+      feature1Title: "Temel Analiz",
+      feature1Desc: "Şirketlerin finansal sağlık durumunu detaylı keşfet.",
+      feature1Item1: "Gelir Tablosu ve Bilanço",
+      feature1Item2: "Rasyo Analizleri",
+      feature1Item3: "Sektör İçi Skorlama",
 
-      feature2Title: "NASDAQ ve NYSE Verileri Artık Cebinde",
-      feature2Desc: "Gerçek zamanlı ABD piyasa verileri ve fiyat takibi.",
-      feature2Item1: "15dk gecikmeli veri (Free)",
-      feature2Item2: "Canlı veri (Pro)",
-      feature2Item3: "Tarihsel fiyat grafikleri",
+      feature2Title: "Bilanço Karşılaştırma",
+      feature2Desc: "Rakip şirketleri yan yana getirerek güçlü ve zayıf yönlerini görün.",
+      feature2Item1: "Çeyreklik/Yıllık Kıyas",
+      feature2Item2: "Görsel Grafik Destekli",
+      feature2Item3: "Büyüme Trendleri",
 
-      feature3Title: "Dolar Bazlı Getiri",
-      feature3Desc: "Paranı dolarla büyüt, enflasyondan korun.",
-      feature3Item1: "USD bazlı portföy takibi",
-      feature3Item2: "Kâr/zarar hesaplama",
-      feature3Item3: "Temettü verimi (Dividend Yield)",
+      feature3Title: "Yapay Zeka ile Portföy Optimizasyonu",
+      feature3Desc: "Risk profilinize uygun, en ideal yatırım dağılımını bulun.",
+      feature3Item1: "Kişiselleştirilmiş Strateji",
+      feature3Item2: "Risk/Getiri Analizi",
+      feature3Item3: "Otomatik Öneriler",
 
-      feature4Title: "Kazanç Açıklamaları ve Temettü Uyarıları",
-      feature4Desc: "Önemli ABD piyasa olaylarından haberdar ol.",
-      feature4Item1: "Earnings season uyarıları",
-      feature4Item2: "Temettü ödeme tarihleri",
-      feature4Item3: "Analyst ratings değişiklikleri"
+      feature4Title: "Banka Ekstresi ile Kişisel Finans Analizi",
+      feature4Desc: "Banka ekstrenizi yükleyerek harcama alışkanlıklarınızı yapay zekaya yorumlatın.",
+      feature4Item1: "Otomatik Kategori Kırılımı",
+      feature4Item2: "Akıllı Bütçe Planlama",
+      feature4Item3: "Alışkanlık Tespiti"
     },
 
     // Mobile App Page
@@ -151,8 +151,7 @@ export const translations = {
           "4x Daha Fazla Yapay Zeka Sorusu",
           "10 Yıllık Geçmiş Veri (Derin Analiz)",
           "Sınırsız Temel Analiz Raporları",
-          "Portföy Entegrasyonu & Kâr/Zarar",
-          "Reklamsız Deneyim"
+          "Portföy Entegrasyonu & Kâr/Zarar"
         ]
       },
 
@@ -486,8 +485,7 @@ export const translations = {
           "50 Daily AI Questions",
           "Last 10 Years Historical Data (Deep Analysis)",
           "Unlimited Company Report Cards (Summaries)",
-          "Portfolio Integration & Profit/Loss",
-          "Ad-Free Experience"
+          "Portfolio Integration & Profit/Loss"
         ]
       },
 

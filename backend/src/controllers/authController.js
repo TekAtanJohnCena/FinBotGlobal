@@ -91,6 +91,7 @@ const buildUserResponse = (user) => ({
   fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
   avatar: user.avatar,
   authType: user.authType,
+  role: user.role || "user",
   subscriptionTier: user.subscriptionTier || "FREE",
   subscriptionStatus: user.subscriptionStatus || "INACTIVE",
   isProfileComplete: user.isProfileComplete || false,
@@ -118,12 +119,18 @@ const issueTokens = async (res, user) => {
    1. REGISTER (EMAIL + PASSWORD)
    ===================================================== */
 export const register = asyncHandler(async (req, res) => {
-  const { email, password, firstName, lastName, phoneNumber, birthDate } = req.body;
+  const { email, password } = req.body;
 
   // Zorunlu alan kontrolü
-  if (!email || !password || !firstName || !lastName || !phoneNumber || !birthDate) {
+  if (!email || !password) {
     return res.status(400).json({
-      message: "Tüm zorunlu alanlar doldurulmalıdır (Ad, Soyad, Telefon, Doğum Tarihi, E-posta, Şifre).",
+      message: "E-posta ve şifre gereklidir.",
+    });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      message: "Şifre en az 6 karakter olmalıdır.",
     });
   }
 
@@ -138,21 +145,22 @@ export const register = asyncHandler(async (req, res) => {
   // Şifre hashleme
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  // Yeni kullanıcı oluştur (Verified — email doğrulama bypass edildi)
+  // E-posta adresinin @ öncesi kısmını isim olarak kullan
+  const emailPrefix = email.split("@")[0];
+  const autoName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+
+  // Yeni kullanıcı oluştur
   const newUser = await User.create({
     email: email.toLowerCase(),
     password: hashedPassword,
-    firstName,
-    lastName,
-    fullName: `${firstName} ${lastName}`,
-    phoneNumber,
-    birthDate: new Date(birthDate),
+    firstName: autoName,
+    lastName: "",
+    fullName: autoName,
     authType: "manual",
     subscriptionTier: "FREE",
     subscriptionStatus: "INACTIVE",
     isVerified: true,
   });
-
 
   // Hoşgeldin maili gönder
   try {

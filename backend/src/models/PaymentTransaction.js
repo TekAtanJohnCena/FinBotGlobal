@@ -60,6 +60,15 @@ const paymentTransactionSchema = new mongoose.Schema(
         },
         errorMsg: {
             type: String
+        },
+        promoCode: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "PromoCode",
+            default: null
+        },
+        discountAmount: {
+            type: Number,
+            default: 0
         }
     },
     {

@@ -2,6 +2,7 @@ import ParatikaService from "../services/payment/ParatikaService.js";
 import PaymentTransaction from "../models/PaymentTransaction.js";
 import User from "../models/userModel.js";
 import SubscriptionPlan from "../models/SubscriptionPlan.js";
+import PromoCode from "../models/PromoCode.js";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
@@ -219,7 +220,7 @@ function validateParatikaCallbackSignature(payload) {
 export const createPayment = async (req, res) => {
     try {
 
-        const { planType, billingPeriod } = req.body;
+        const { planType, billingPeriod, promoCode } = req.body;
         const userId = req.user?.id;
         const userEmail = req.user?.email;
         const userName = req.user?.firstName || "FinBot User";
@@ -237,7 +238,23 @@ export const createPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: "Gecersiz plan secimi." });
         }
 
-        const amount = planPricing.amount;
+        let amount = planPricing.amount;
+        let appliedPromoCodeId = null;
+        let discountAmount = 0;
+
+        // Promosyon Kodu Uygulama
+        if (promoCode) {
+            const promo = await PromoCode.findOne({ code: promoCode.trim().toUpperCase() });
+            if (!promo || !promo.isValid()) {
+                return res.status(400).json({ success: false, message: "Geçersiz veya süresi dolmuş promosyon kodu." });
+            }
+
+            discountAmount = (amount * promo.discountPercent) / 100;
+            amount = Math.max(0, amount - discountAmount); // Ensure amount doesn't go below 0
+            appliedPromoCodeId = promo._id;
+            console.log(`[Payment] Promo applied: ${promo.code} (-${promo.discountPercent}%) -> New amount: ${amount}`);
+        }
+
         const formattedAmount = ParatikaService.formatAmount(amount.toFixed(2));
         console.log(`[Payment] createPayment | plan=${planPricing.planType} | billing=${planPricing.billingPeriod} | amount_try=${amount.toFixed(2)} | formatted=${formattedAmount}`);
 
@@ -255,7 +272,9 @@ export const createPayment = async (req, res) => {
             customerInfo: {
                 name: userName,
                 email: userEmail
-            }
+            },
+            promoCode: appliedPromoCodeId,
+            discountAmount: discountAmount
         });
 
         // 2. Call Paratika to create session token
@@ -511,6 +530,16 @@ export const handleCallback = async (req, res) => {
                 console.error("❌ User subscription update error:", updateError.message);
                 // Payment still succeeded, don't fail the redirect
             }
+
+            // Eğer promosyon kodu kullanıldıysa sayısını artır
+            if (transaction.promoCode) {
+                try {
+                    await PromoCode.findByIdAndUpdate(transaction.promoCode, { $inc: { currentUses: 1 } });
+                    console.log(`[Payment Callback] ✅ PromoCode usage incremented for tx: ${transaction.merchantPaymentId}`);
+                } catch (e) {
+                    console.error("[Payment Callback] ⚠️ Failed to increment promoCode uses:", e);
+                }
+            }
         }
 
         // Redirect user to frontend payment status page
@@ -580,7 +609,37 @@ export const queryPayment = async (req, res) => {
         console.error("Query Payment Error:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
-};
+}
+
+/**
+ * Validate Promo Code
+ */
+export const validatePromoCode = async (req, res) => {
+    try {
+        const { code } = req.body;
+        if (!code) {
+            return res.status(400).json({ success: false, message: "Promosyon kodu girilmedi." });
+        }
+
+        const promo = await PromoCode.findOne({ code: code.trim().toUpperCase() });
+        if (!promo) {
+            return res.status(404).json({ success: false, message: "Geçersiz promosyon kodu." });
+        }
+
+        if (!promo.isValid()) {
+            return res.status(400).json({ success: false, message: "Bu kodun kullanım süresi dolmuş veya limiti aşılmış." });
+        }
+
+        res.status(200).json({
+            success: true,
+            discountPercent: promo.discountPercent,
+            message: "Promosyon kodu başarıyla uygulandı."
+        });
+    } catch (error) {
+        console.error("Validate Promo Error:", error);
+        res.status(500).json({ success: false, message: "Sunucu hatası." });
+    }
+};;
 
 /**
  * Helper: Upgrade user subscription after successful payment

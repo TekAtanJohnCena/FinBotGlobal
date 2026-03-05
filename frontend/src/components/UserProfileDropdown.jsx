@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { SubscriptionTier } from "../types/user";
 import {
@@ -7,14 +8,16 @@ import {
   QuestionMarkCircleIcon,
   ArrowRightOnRectangleIcon,
   SparklesIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import "./UserProfileDropdown.css";
 
-export default function UserProfileDropdown({ userInitial, onLogout }) {
+export default function UserProfileDropdown({ userInitial, onLogout, dropdownDirection = "up" }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const { profile, loading } = useUserProfile();
 
   // Close dropdown when clicking outside
@@ -89,10 +92,10 @@ export default function UserProfileDropdown({ userInitial, onLogout }) {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute bottom-full left-0 mb-2 w-72 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden transition-all duration-200 ease-out"
+          className={`absolute ${dropdownDirection === "down" ? "top-full mt-2" : "bottom-full mb-2"} left-0 w-72 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden transition-all duration-200 ease-out`}
           style={{
-            transformOrigin: "bottom left",
-            animation: "dropdownFadeIn 0.2s ease-out"
+            transformOrigin: dropdownDirection === "down" ? "top left" : "bottom left",
+            animation: `${dropdownDirection === "down" ? "dropdownFadeInDown" : "dropdownFadeIn"} 0.2s ease-out`
           }}
         >
           {/* Header - User Info */}
@@ -150,6 +153,16 @@ export default function UserProfileDropdown({ userInitial, onLogout }) {
 
           {/* Menu Items */}
           <div className="py-2">
+            {(profile?.role === 'admin' || user?.role === 'admin' || user?.email === 'simsekfarukkemal@gmail.com' || user?.email === 'ercanemre1108@gmail.com') && (
+              <button
+                onClick={() => { setIsOpen(false); navigate("/admin"); }}
+                className="w-full px-4 py-3 text-left text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors flex items-center gap-3 group"
+              >
+                <ShieldCheckIcon className="w-5 h-5 text-gray-400 group-hover:text-amber-400 transition-colors" />
+                <span className="text-sm font-medium">Yönetim Paneli</span>
+              </button>
+            )}
+
             <button
               onClick={handleSettings}
               className="w-full px-4 py-3 text-left text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors flex items-center gap-3 group"

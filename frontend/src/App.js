@@ -40,6 +40,7 @@ const FinancialsPage = lazy(() => import("./pages/Financials"));
 const MarketsPage = lazy(() => import("./pages/Markets"));
 const CalendarPage = lazy(() => import("./pages/Calendar"));
 const NewsPage = lazy(() => import("./pages/News"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 // --- LAYOUT ---
 // import AppLayout moved to top
@@ -136,6 +137,7 @@ function App() {
               <Route path="/academy" element={<AcademyCourseView />} />
               <Route path="/support" element={<Support />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/admin" element={<AdminDashboard />} />
             </Route>
 
             {/* Payment Status - Public (Paratika 3D Secure redirect geldiğinde auth gerekmez) */}

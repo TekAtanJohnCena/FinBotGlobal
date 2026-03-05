@@ -27,6 +27,13 @@ const PaymentModal = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [sessionToken, setSessionToken] = useState('');
 
+  // Promo code state
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoMessage, setPromoMessage] = useState('');
+  const [validatingPromo, setValidatingPromo] = useState(false);
+
   // Card form state
   const [cardOwner, setCardOwner] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -39,7 +46,11 @@ const PaymentModal = ({
 
   // ─── Helpers ───
 
-  const formatPrice = (p) => new Intl.NumberFormat('tr-TR').format(p);
+  const formatPrice = (p) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2 }).format(p);
+
+  const discountedPrice = appliedPromo
+    ? Math.max(0, price - (price * promoDiscount) / 100)
+    : price;
 
   // Format card number with spaces: 4111 1111 1111 1111
   const formatCardNumber = (value) => {
@@ -63,6 +74,33 @@ const PaymentModal = ({
 
   // ─── Step 1: Get Session Token ───
 
+  const handleValidatePromo = async () => {
+    if (!promoCodeInput) return;
+    setValidatingPromo(true);
+    setPromoMessage('');
+    try {
+      const { data } = await api.post('/payment/validate-promo', { code: promoCodeInput });
+      if (data.success) {
+        setAppliedPromo(promoCodeInput);
+        setPromoDiscount(data.discountPercent);
+        setPromoMessage(data.message);
+      } else {
+        setPromoMessage(data.message || 'Geçersiz kod');
+      }
+    } catch (err) {
+      setPromoMessage(err.response?.data?.message || 'Geçersiz kod');
+    } finally {
+      setValidatingPromo(false);
+    }
+  };
+
+  const clearPromo = () => {
+    setAppliedPromo('');
+    setPromoCodeInput('');
+    setPromoDiscount(0);
+    setPromoMessage('');
+  };
+
   const handleGetSession = async () => {
     setLoading(true);
     setErrorMessage('');
@@ -70,7 +108,8 @@ const PaymentModal = ({
     try {
       const response = await api.post('/payment/create', {
         planType: planKey.toUpperCase(),
-        billingPeriod: period === 'monthly' ? 'MONTHLY' : 'YEARLY'
+        billingPeriod: period === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        promoCode: appliedPromo // Pass promo code to backend
       });
 
       if (response.data.success && response.data.sessionToken) {
@@ -395,8 +434,56 @@ const PaymentModal = ({
                 </div>
                 <div className="pm-row">
                   <span className="pm-label">Toplam</span>
-                  <span className="pm-value pm-total">₺{formatPrice(price)}</span>
+                  {appliedPromo ? (
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ textDecoration: 'line-through', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', marginRight: '0.5rem' }}>
+                        ₺{formatPrice(price)}
+                      </span>
+                      <span className="pm-value pm-total">₺{formatPrice(discountedPrice)}</span>
+                    </div>
+                  ) : (
+                    <span className="pm-value pm-total">₺{formatPrice(price)}</span>
+                  )}
                 </div>
+              </div>
+
+              {/* Promo Code Section */}
+              <div className="pm-form-group" style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    className="pm-form-input"
+                    placeholder="Promosyon Kodu"
+                    value={promoCodeInput}
+                    onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                    disabled={appliedPromo || validatingPromo}
+                  />
+                  {!appliedPromo ? (
+                    <button
+                      type="button"
+                      className="pm-btn-cancel"
+                      style={{ margin: 0, padding: '0.75rem 1rem', width: 'auto' }}
+                      onClick={handleValidatePromo}
+                      disabled={!promoCodeInput || validatingPromo}
+                    >
+                      {validatingPromo ? '...' : 'Uygula'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="pm-btn-cancel"
+                      style={{ margin: 0, padding: '0.75rem 1rem', width: 'auto', borderColor: '#ef4444', color: '#ef4444' }}
+                      onClick={clearPromo}
+                    >
+                      İptal
+                    </button>
+                  )}
+                </div>
+                {promoMessage && (
+                  <div style={{ fontSize: '0.75rem', marginTop: '0.5rem', color: appliedPromo ? '#10b981' : '#ef4444' }}>
+                    {promoMessage}
+                  </div>
+                )}
               </div>
 
               <div className="pm-methods">
@@ -554,7 +641,7 @@ const PaymentModal = ({
                   disabled={loading}
                   style={{ marginTop: '0.5rem' }}
                 >
-                  🔒 ₺{formatPrice(price)} Öde
+                  🔒 ₺{formatPrice(discountedPrice)} Öde
                 </button>
 
                 <button className="pm-btn-cancel" onClick={onClose}>Vazgeç</button>

@@ -28,7 +28,7 @@ function NavItem({ to, label, Icon }) {
       to={to}
       className={({ isActive }) =>
         [
-          "group flex flex-col items-center no-underline transition w-full py-1.5",
+          "group flex flex-col items-center no-underline transition w-full py-1",
           isActive ? "text-white" : "text-[#8E918F] hover:text-white",
         ].join(" ")
       }
@@ -83,21 +83,20 @@ export default function Sidebar() {
   const { user, logout } = useContext(AuthContext);
   const { t } = useTranslation();
 
-  const showUpgrade = user?.subscriptionTier !== 'PRO';
+  const showUpgrade = user?.subscriptionTier !== 'PRO' && user?.subscriptionTier !== 'PLUS';
 
   return (
     <aside
       style={sidebarStyle}
-      className="fixed left-0 top-0 h-screen w-20 text-white flex flex-col items-center py-6 z-50"
+      className="fixed left-0 top-0 h-screen w-20 text-white flex flex-col items-center pt-3 pb-2 z-50"
     >
-      {/* LOGO + FINBOT TEXT */}
-      <NavLink to="/" className="flex flex-col items-center space-y-1 no-underline mb-2">
-        <img src={logo} alt="FinBot" width="39" height="39" />
-        <span className="text-emerald-400 font-bold text-sm tracking-wide">FinBot</span>
+      {/* LOGO */}
+      <NavLink to="/" className="flex items-center justify-center no-underline mb-3 shrink-0">
+        <img src={logo} alt="FinBot" width="36" height="36" />
       </NavLink>
 
-      {/* MENÜLER — i18n ile çevrili */}
-      <nav className="flex flex-col space-y-1 mt-4 w-full px-2">
+      {/* NAV MENÜLER — sıkışabilir, profil alanını itmez */}
+      <nav className="flex flex-col w-full px-2 flex-1 min-h-0 overflow-hidden">
         <NavItem to="/chat" label={t('navbar.finbot')} Icon={ChatBubbleLeftEllipsisIcon} />
         <NavItem to="/portfolio" label={t('navbar.portfolio')} Icon={ChartBarIcon} />
         <NavItem to="/wallet" label={t('navbar.wallet')} Icon={WalletIcon} />
@@ -106,27 +105,30 @@ export default function Sidebar() {
         <NavItem to="/academy" label={t('navbar.academy')} Icon={AcademicCapIcon} />
       </nav>
 
-      {/* BOŞLUK */}
-      <div className="flex-1" />
-
-      {/* ALT KISIM: UPGRADE CTA + DİL DEĞİŞTİRİCİ + KULLANICI PROFİL MENÜSÜ */}
-      <div className="flex flex-col items-center space-y-3 mb-4 w-full px-2">
+      {/* ALT KISIM — her zaman görünür, asla gizlenmez */}
+      <div className="flex flex-col items-center gap-3 w-full px-2 pt-3 pb-2 shrink-0 border-t border-white/5 mt-2">
         {showUpgrade && (
           <NavLink
             to="/pricing"
-            className="w-full flex flex-col items-center gap-1 px-2 py-2 rounded-xl bg-gradient-to-b from-amber-500/20 to-yellow-500/10 border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-500/20 transition-all group no-underline"
+            className="w-full flex flex-col items-center gap-0.5 px-1 py-2 rounded-xl bg-gradient-to-b from-amber-500/20 to-yellow-500/10 border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-500/20 transition-all group no-underline"
           >
-            <StarIcon className="w-5 h-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
+            <StarIcon className="w-4 h-4 text-amber-400 group-hover:text-amber-300 transition-colors" />
             <span className="text-[9px] font-bold text-amber-400 group-hover:text-amber-300 transition-colors leading-tight text-center">
               {t('common.upgrade')}
             </span>
           </NavLink>
         )}
+
         <LanguageToggle />
-        <UserProfileDropdown
-          userInitial={user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-          onLogout={logout}
-        />
+
+        {/* Profil avatarı — üstünde nefes alacak boşluk var */}
+        <div className="pt-1 w-full flex justify-center">
+          <UserProfileDropdown
+            userInitial={user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+            onLogout={logout}
+            dropdownDirection="up"
+          />
+        </div>
       </div>
     </aside>
   );

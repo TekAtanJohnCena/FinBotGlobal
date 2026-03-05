@@ -9,15 +9,16 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String }, // Google girişleri için required değil
 
-    // Kişisel Bilgiler
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    phoneNumber: { type: String }, // Google kullanıcıları için opsiyonel, manual için controller'da zorunlu
-    birthDate: { type: Date },     // Google kullanıcıları için opsiyonel, manual için controller'da zorunlu
+    // Kişisel Bilgiler (opsiyonel — sadece email/password zorunlu)
+    firstName: { type: String, default: "" },
+    lastName: { type: String, default: "" },
+    phoneNumber: { type: String },   // opsiyonel
+    birthDate: { type: Date },       // opsiyonel
 
     // Auth Bilgileri
     googleId: { type: String },
     avatar: { type: String },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
     authType: {
       type: String,
       enum: ["google", "manual"],

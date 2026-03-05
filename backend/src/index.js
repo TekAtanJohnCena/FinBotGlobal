@@ -34,8 +34,9 @@ import aiRoutes from "./routes/ai.routes.js"; // AI Layer
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"; // Subscription Management
 import stockRoutes from "./routes/stocks.js"; // US Stock Database
 import transactionRoutes from "./routes/transactionRoutes.js"; // Transaction CRUD
-import paymentRoutes from "./routes/paymentRoutes.js"; // Paratika Payment Routes
+import paymentRoutes from "./routes/paymentRoutes.js"; // Paratika Payment Integration
 import personalFinanceRoutes from "./routes/financeRoutes.js"; // Personal Finance PDF Upload
+import adminRoutes from "./routes/adminRoutes.js"; // Admin Panel Routes
 import { sendContactEmail } from "./services/emailService.js";
 import { initPaymentCron } from "./services/paymentCron.js";
 import { initSubscriptionCron } from "./cron/subscriptionCron.js";
@@ -132,6 +133,7 @@ app.use("/api/stocks", stockRoutes); // US Stock Database
 app.use("/api/transactions", transactionRoutes); // Transaction CRUD
 app.use("/api/payment", paymentRoutes); // Paratika Payment Integration
 app.use("/api/personal-finance", protect, personalFinanceRoutes); // Personal Finance PDF Upload
+app.use("/api/admin", adminRoutes); // Admin Panel API
 
 // Chats list endpoint (alias for /api/chat/history)
 app.get("/api/chats", protect, getChatHistory);
