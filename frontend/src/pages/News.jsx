@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from "../lib/api";
+import { Link } from 'react-router-dom';
 import {
   RefreshCw,
   ExternalLink,
@@ -103,6 +104,16 @@ const NewsPage = () => {
         }));
         // Token'ı temizle
         localStorage.removeItem('token');
+      } else if (err.response?.status === 429) {
+        setAnalyses(prev => ({
+          ...prev,
+          [newsItem.id]: {
+            sentiment: 'ERROR',
+            analysis: err.response.data.message || 'Haber analizi limitiniz doldu.',
+            isQuotaExceeded: true,
+            plan: err.response.data.data?.plan
+          }
+        }));
       } else {
         setAnalyses(prev => ({
           ...prev,
@@ -397,6 +408,17 @@ const NewsPage = () => {
                     <p className="text-sm text-slate-300 leading-relaxed font-medium">
                       {analyses[item.id].analysis}
                     </p>
+                    {analyses[item.id].isQuotaExceeded && (analyses[item.id].plan === 'FREE' || analyses[item.id].plan === 'PLUS') && (
+                      <div className="mt-4">
+                        <Link
+                          to="/pricing"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black rounded-xl font-bold text-sm transition-all shadow-lg shadow-amber-500/20"
+                        >
+                          <Sparkles size={16} />
+                          Pro'ya Yükselt
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

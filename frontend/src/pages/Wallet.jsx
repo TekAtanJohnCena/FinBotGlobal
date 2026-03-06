@@ -121,7 +121,6 @@ export function WalletPage() {
         formData.append("monthlyIncome", monthlyIncome.toString());
       }
       const res = await api.post("/personal-finance/upload-statement", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
         timeout: 60000 // 60s timeout for AI processing
       });
       if (res.data?.success) {

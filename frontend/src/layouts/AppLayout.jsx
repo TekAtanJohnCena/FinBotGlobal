@@ -94,7 +94,7 @@ export default function AppLayout() {
 
         {/* Right: Upgrade CTA + Language Toggle + Profile Avatar */}
         <div className="flex items-center gap-2">
-          {user?.subscriptionTier !== 'PRO' && (
+          {user?.subscriptionTier === 'FREE' && (
             <NavLink
               to="/pricing"
               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/30 no-underline"

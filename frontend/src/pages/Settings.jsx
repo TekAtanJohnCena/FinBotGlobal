@@ -391,6 +391,7 @@ export default function Settings() {
 
     // Plan
     const [currentPlan, setCurrentPlan] = useState("FREE");
+    const [usageType, setUsageType] = useState("DAILY"); // DAILY or WEEKLY
     const [dailyUsage, setDailyUsage] = useState(0);
     const [dailyLimit, setDailyLimit] = useState(5);
     const [newsUsage, setNewsUsage] = useState(0);
@@ -442,6 +443,7 @@ export default function Settings() {
                     setDailyLimit(d?.finbotQueries?.limit || 5);
                     setNewsUsage(d?.newsAnalysis?.used || 0);
                     setNewsLimit(d?.newsAnalysis?.limit || 1);
+                    setUsageType(d?.resetPeriod || "DAILY");
                 }
                 // Fetch subscription status
                 const subRes = await api.get("/subscription/status");
@@ -776,7 +778,7 @@ export default function Settings() {
                             <div className="p-4 rounded-lg bg-zinc-800/50 border border-zinc-700 mb-3">
                                 <div className="w-full">
                                     <div className="flex justify-between text-sm mb-2">
-                                        <span className="text-zinc-400">{t('settings.plan.dailyQueries')}</span>
+                                        <span className="text-zinc-400">{usageType === 'WEEKLY' ? t('settings.plan.weeklyQueries') : t('settings.plan.dailyQueries')}</span>
                                         <span className="text-zinc-300 font-medium">{dailyUsage} / {dailyLimit}</span>
                                     </div>
                                     <div className="h-2.5 bg-zinc-700 rounded-full overflow-hidden">
@@ -815,12 +817,7 @@ export default function Settings() {
 
                             {/* Renewal / Reset Info */}
                             <p className="text-xs text-zinc-500 mt-1">
-                                {currentPlan === "FREE"
-                                    ? t('settings.plan.resetsDaily')
-                                    : renewDateStr
-                                        ? t('settings.plan.renewsOn', { date: renewDateStr })
-                                        : t('settings.plan.resetsDaily')
-                                }
+                                {usageType === 'WEEKLY' ? t('settings.plan.resetsWeekly') : t('settings.plan.resetsDaily')}
                             </p>
 
                             {/* Cancel Subscription */}

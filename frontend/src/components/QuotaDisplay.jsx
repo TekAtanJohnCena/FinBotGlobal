@@ -65,7 +65,7 @@ const QuotaDisplay = ({ compact = false }) => {
             <div className="flex items-center justify-between">
                 <h3 className="text-sm font-black text-slate-200 flex items-center gap-2">
                     <TrendingUp size={16} className="text-indigo-400" />
-                    Günlük Kullanım
+                    {quota.resetPeriod === 'WEEKLY' ? 'Haftalık Kullanım' : 'Günlük Kullanım'}
                 </h3>
                 <span className={`px-2 py-1 text-[10px] font-black uppercase rounded ${quota.plan === 'PRO' ? 'bg-purple-500/20 text-purple-400' :
                     quota.plan === 'PLUS' ? 'bg-indigo-500/20 text-indigo-400' :
@@ -115,17 +115,17 @@ const QuotaDisplay = ({ compact = false }) => {
 
             {/* Reset Info */}
             <div className="text-[10px] text-slate-500 font-medium text-center pt-2 border-t border-slate-800">
-                UTC gece yarısı sıfırlanır
+                {quota.resetPeriod === 'WEEKLY' ? 'Pazartesi günü (UTC) sıfırlanır' : 'Her gün gece yarısı (UTC) sıfırlanır'}
             </div>
 
             {/* Upgrade CTA */}
-            {quota.plan !== 'PRO' && (
+            {quota.plan === 'FREE' && (
                 <Link
                     to="/pricing"
                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg font-bold text-xs transition-all"
                 >
                     <Sparkles size={14} />
-                    {quota.plan === 'FREE' ? 'Plus\'a Yükselt' : 'Pro\'ya Yükselt'}
+                    Plus'a Yükselt
                 </Link>
             )}
         </div>

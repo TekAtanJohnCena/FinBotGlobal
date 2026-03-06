@@ -83,7 +83,9 @@ export default function Sidebar() {
   const { user, logout } = useContext(AuthContext);
   const { t } = useTranslation();
 
-  const showUpgrade = user?.subscriptionTier !== 'PRO' && user?.subscriptionTier !== 'PLUS';
+  const tier = user?.subscriptionTier?.toUpperCase() || "FREE";
+  // Show upgrade only if NOT PRO and NOT PLUS (handles all aliases)
+  const shouldShowUpgrade = !['PRO', 'PLUS', 'PREMIUM', 'BASIC', 'BASİC', 'PREMİUM'].includes(tier);
 
   return (
     <aside
@@ -95,34 +97,35 @@ export default function Sidebar() {
         <img src={logo} alt="FinBot" width="36" height="36" />
       </NavLink>
 
-      {/* NAV MENÜLER — sıkışabilir, profil alanını itmez */}
-      <nav className="flex flex-col w-full px-2 flex-1 min-h-0 overflow-hidden">
+      <nav className="flex flex-col w-full px-2 flex-1 min-h-0 justify-between py-6 overflow-y-auto no-scrollbar">
         <NavItem to="/chat" label={t('navbar.finbot')} Icon={ChatBubbleLeftEllipsisIcon} />
         <NavItem to="/portfolio" label={t('navbar.portfolio')} Icon={ChartBarIcon} />
         <NavItem to="/wallet" label={t('navbar.wallet')} Icon={WalletIcon} />
         <NavItem to="/screener" label={t('navbar.market')} Icon={RectangleStackIcon} />
         <NavItem to="/news" label={t('navbar.news')} Icon={NewspaperIcon} />
         <NavItem to="/academy" label={t('navbar.academy')} Icon={AcademicCapIcon} />
-      </nav>
 
-      {/* ALT KISIM — her zaman görünür, asla gizlenmez */}
-      <div className="flex flex-col items-center gap-3 w-full px-2 pt-3 pb-2 shrink-0 border-t border-white/5 mt-2">
-        {showUpgrade && (
+        {shouldShowUpgrade && (
           <NavLink
             to="/pricing"
-            className="w-full flex flex-col items-center gap-0.5 px-1 py-2 rounded-xl bg-gradient-to-b from-amber-500/20 to-yellow-500/10 border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-500/20 transition-all group no-underline"
+            className="group flex flex-col items-center no-underline transition w-full py-1"
           >
-            <StarIcon className="w-4 h-4 text-amber-400 group-hover:text-amber-300 transition-colors" />
-            <span className="text-[9px] font-bold text-amber-400 group-hover:text-amber-300 transition-colors leading-tight text-center">
+            <div className="grid place-items-center h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border border-amber-500/30 group-hover:from-amber-500/30 group-hover:to-yellow-500/20 transition-all">
+              <StarIcon className="h-6 w-6 text-amber-400 group-hover:text-amber-300" />
+            </div>
+            <span className="text-[10px] mt-1 font-bold text-amber-400 group-hover:text-amber-300 text-center leading-tight">
               {t('common.upgrade')}
             </span>
           </NavLink>
         )}
+      </nav>
 
+      {/* ALT KISIM — her zaman görünür, asla gizlenmez */}
+      <div className="flex flex-col items-center gap-3 w-full px-2 pt-4 pb-4 shrink-0 border-t border-white/5">
         <LanguageToggle />
 
-        {/* Profil avatarı — üstünde nefes alacak boşluk var */}
-        <div className="pt-1 w-full flex justify-center">
+        {/* Profil avatarı */}
+        <div className="w-full flex justify-center">
           <UserProfileDropdown
             userInitial={user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
             onLogout={logout}

@@ -17,10 +17,10 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
             title: 'Finbot Sorgu Limitiniz Doldu',
             icon: MessageSquare,
             iconColor: 'text-indigo-400',
-            description: 'Günlük Finbot sorgu limitinize ulaştınız. Daha fazla analiz yapmak için planınızı yükseltin.',
+            description: 'Finbot sorgu limitinize ulaştınız. Daha fazla analiz yapmak için planınızı yükseltin.',
             limits: {
                 FREE: 5,
-                BASIC: 50,
+                BASIC: 150,
                 PREMIUM: 250
             }
         },
@@ -28,11 +28,11 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
             title: 'Haber Analizi Limitiniz Doldu',
             icon: Newspaper,
             iconColor: 'text-purple-400',
-            description: 'Günlük haber analizi limitinize ulaştınız. Daha fazla haber analizi için planınızı yükseltin.',
+            description: 'Haber analizi limitinize ulaştınız. Daha fazla haber analizi için planınızı yükseltin.',
             limits: {
                 FREE: 1,
-                BASIC: 10,
-                PREMIUM: 50
+                BASIC: 30,
+                PREMIUM: 100
             }
         }
     };
@@ -46,8 +46,8 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
             price: '369₺',
             period: '/ay',
             features: [
-                'Günlük 50 Finbot sorgusu',
-                'Günlük 10 haber analizi',
+                'Haftalık 150 Finbot sorgusu',
+                'Haftalık 30 haber analizi',
                 '10 yıllık mali veri',
                 'Öncelikli destek'
             ]
@@ -57,8 +57,8 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
             price: '449₺',
             period: '/ay',
             features: [
-                'Günlük 250 Finbot sorgusu',
-                'Günlük 50 haber analizi',
+                'Haftalık 250 Finbot sorgusu',
+                'Haftalık 100 haber analizi',
                 '25+ yıllık mali veri',
                 '7/24 VIP destek',
                 'API erişimi'
@@ -122,7 +122,7 @@ const UpgradeModal = ({ isOpen, onClose, quotaType = 'finbot', currentPlan = 'FR
                                 <div className={`text-xl font-black ${tier === currentPlan ? 'text-slate-400' : 'text-white'}`}>
                                     {info.limits[tier]}
                                 </div>
-                                <div className="text-[9px] text-slate-600">sorgu/gün</div>
+                                <div className="text-[9px] text-slate-600">sorgu/{tier === 'FREE' ? 'gün' : 'hafta'}</div>
                             </div>
                         ))}
                     </div>

@@ -4,34 +4,31 @@
 import User from "../models/userModel.js";
 
 /**
- * Plan Quota Limits (Resets daily at UTC 00:00)
+ * Plan Quota Limits
  * 
- * Tier Breakdown:
- * - FREE:  5 queries/day, 1 news analysis, 5 years data
- * - PLUS: 50 queries/day, 5 news analyses, 10 years data
- * - PRO: 150 queries/day, 30 news analyses, unlimited data (25+)
+ * Tier Breakdown (Weekly for PLUS/PRO, Daily for FREE):
+ * - FREE:  5 queries/day, 1 news analysis, 5 years data (Daily reset)
+ * - PLUS: 150 queries/week, 30 news analyses, 10 years data (Weekly reset)
+ * - PRO: 250 queries/week, 100 news analyses, unlimited data (Weekly reset)
  */
 const QUOTA_LIMITS = {
-    FREE: { finbotQueries: 5, newsAnalysis: 1, dataYears: 5 },
-    PLUS: { finbotQueries: 50, newsAnalysis: 5, dataYears: 10 },
-    PRO: { finbotQueries: 150, newsAnalysis: 30, dataYears: 999 }  // 999 = unlimited
+    FREE: { finbotQueries: 5, newsAnalysis: 1, dataYears: 5, resetPeriod: "DAILY" },
+    PLUS: { finbotQueries: 150, newsAnalysis: 30, dataYears: 10, resetPeriod: "WEEKLY" },
+    PRO: { finbotQueries: 250, newsAnalysis: 100, dataYears: 999, resetPeriod: "WEEKLY" }
 };
 
 /**
  * Backward compatibility: Map old tier names to new names
- * Note: Includes Turkish character variants (İ instead of I)
  */
 const TIER_ALIASES = {
     BASIC: "PLUS",
     PREMIUM: "PRO",
-    "BASİC": "PLUS",     // Turkish İ
-    "PREMİUM": "PRO"     // Turkish İ
+    "BASİC": "PLUS",
+    "PREMİUM": "PRO"
 };
 
 /**
- * Normalize tier name (handles old BASIC/PREMIUM names)
- * @param {string} tier - Tier name
- * @returns {string} - Normalized tier name (FREE, PLUS, or PRO)
+ * Normalize tier name
  */
 const normalizeTier = (tier) => {
     if (!tier) return "FREE";
@@ -40,23 +37,38 @@ const normalizeTier = (tier) => {
 };
 
 /**
- * Check if daily quota needs reset (UTC midnight)
+ * Check if quota needs reset
+ * DAILY for FREE, WEEKLY (Monday 00:00 UTC) for PLUS/PRO
  */
-const shouldResetQuota = (lastResetDate) => {
+const shouldResetQuota = (lastResetDate, tier) => {
     if (!lastResetDate) return true;
 
     const now = new Date();
     const lastReset = new Date(lastResetDate);
+    const normalizedTier = normalizeTier(tier);
 
-    // Get UTC date strings to compare
-    const nowUTC = now.toISOString().split('T')[0];
-    const lastResetUTC = lastReset.toISOString().split('T')[0];
-
-    return nowUTC !== lastResetUTC;
+    if (normalizedTier === "FREE") {
+        // Daily reset for FREE
+        const nowUTC = now.toISOString().split('T')[0];
+        const lastResetUTC = lastReset.toISOString().split('T')[0];
+        return nowUTC !== lastResetUTC;
+    } else {
+        // Weekly reset for PLUS/PRO (Every Monday 00:00 UTC)
+        const getMonday = (d) => {
+            const date = new Date(d);
+            const day = date.getUTCDay();
+            const diff = date.getUTCDate() - day + (day === 0 ? -6 : 1);
+            date.setUTCDate(diff);
+            date.setUTCHours(0, 0, 0, 0);
+            return date;
+        };
+        const lastMonday = getMonday(now);
+        return lastReset < lastMonday;
+    }
 };
 
 /**
- * Reset user's daily quota
+ * Reset user's quota
  */
 const resetUserQuota = async (user) => {
     user.usage = {
@@ -76,17 +88,30 @@ export const getQuotaLimits = (tier) => {
 };
 
 /**
- * Get next UTC midnight timestamp
+ * Get next reset timestamp
  */
-const getNextResetTime = () => {
+const getNextResetTime = (tier) => {
     const now = new Date();
-    const tomorrow = new Date(Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate() + 1,
-        0, 0, 0, 0
-    ));
-    return tomorrow.toISOString();
+    const normalizedTier = normalizeTier(tier);
+
+    if (normalizedTier === "FREE") {
+        // Next midnight
+        const tomorrow = new Date(Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate() + 1,
+            0, 0, 0, 0
+        ));
+        return tomorrow.toISOString();
+    } else {
+        // Next Monday 00:00 UTC
+        const date = new Date(now);
+        const day = date.getUTCDay();
+        const daysToMonday = day === 0 ? 1 : 8 - day;
+        date.setUTCDate(date.getUTCDate() + daysToMonday);
+        date.setUTCHours(0, 0, 0, 0);
+        return date.toISOString();
+    }
 };
 
 /**
@@ -103,27 +128,35 @@ export const checkFinbotQuota = async (req, res, next) => {
             return res.status(404).json({ message: "Kullanıcı bulunamadı" });
         }
 
+        const tier = normalizeTier(user.subscriptionTier);
+
         // Check if quota needs reset
-        if (shouldResetQuota(user.usage?.lastResetDate)) {
+        if (shouldResetQuota(user.usage?.lastResetDate, tier)) {
             await resetUserQuota(user);
         }
 
-        const tier = normalizeTier(user.subscriptionTier);
         const limits = getQuotaLimits(tier);
         const currentUsage = user.usage?.finbotQueries || 0;
 
         if (currentUsage >= limits.finbotQueries) {
+            let quotaMsg = `Haftalık Finbot sorgu limitiniz (${limits.finbotQueries}) doldu`;
+            if (tier === "FREE" || tier === "PLUS") {
+                quotaMsg = "Haklarınız tükendi ama sorun değil, Pro'ya yükselterek devam edebilirsiniz.";
+            } else if (tier === "PRO") {
+                quotaMsg = "Yanıt hakkın tükendi biraz ara ver finbot yoruldu.";
+            }
+
             return res.status(429).json({
                 ok: false,
                 error: "quota_exceeded",
-                message: "Günlük Finbot sorgu limitiniz doldu",
+                message: quotaMsg,
                 data: {
                     type: "finbotQueries",
                     used: currentUsage,
                     limit: limits.finbotQueries,
                     remaining: 0,
                     plan: tier,
-                    resetsAt: getNextResetTime(),
+                    resetsAt: getNextResetTime(tier),
                     upgradeRequired: tier === "FREE" ? "PLUS" : tier === "PLUS" ? "PRO" : null
                 }
             });
@@ -171,27 +204,35 @@ export const checkNewsQuota = async (req, res, next) => {
             return res.status(404).json({ message: "Kullanıcı bulunamadı" });
         }
 
+        const tier = normalizeTier(user.subscriptionTier);
+
         // Check if quota needs reset
-        if (shouldResetQuota(user.usage?.lastResetDate)) {
+        if (shouldResetQuota(user.usage?.lastResetDate, tier)) {
             await resetUserQuota(user);
         }
 
-        const tier = normalizeTier(user.subscriptionTier);
         const limits = getQuotaLimits(tier);
         const currentUsage = user.usage?.newsAnalysis || 0;
 
         if (currentUsage >= limits.newsAnalysis) {
+            let quotaMsg = `Haftalık haber analizi limitiniz (${limits.newsAnalysis}) doldu`;
+            if (tier === "FREE" || tier === "PLUS") {
+                quotaMsg = "Haklarınız tükendi ama sorun değil, Pro'ya yükselterek devam edebilirsiniz.";
+            } else if (tier === "PRO") {
+                quotaMsg = "Yanıt hakkın tükendi biraz ara ver finbot yoruldu.";
+            }
+
             return res.status(429).json({
                 ok: false,
                 error: "quota_exceeded",
-                message: "Günlük haber analizi limitiniz doldu",
+                message: quotaMsg,
                 data: {
                     type: "newsAnalysis",
                     used: currentUsage,
                     limit: limits.newsAnalysis,
                     remaining: 0,
                     plan: tier,
-                    resetsAt: getNextResetTime(),
+                    resetsAt: getNextResetTime(tier),
                     upgradeRequired: tier === "FREE" ? "PLUS" : tier === "PLUS" ? "PRO" : null
                 }
             });
@@ -232,7 +273,7 @@ export const getUserQuotaStatus = async (user) => {
     const limits = getQuotaLimits(tier);
 
     // Check if quota needs reset
-    if (shouldResetQuota(user.usage?.lastResetDate)) {
+    if (shouldResetQuota(user.usage?.lastResetDate, tier)) {
         await resetUserQuota(user);
         user = await User.findById(user._id);
     }
@@ -253,7 +294,8 @@ export const getUserQuotaStatus = async (user) => {
             remaining: Math.max(0, limits.newsAnalysis - newsUsed)
         },
         dataYears: limits.dataYears,
-        resetsAt: getNextResetTime()
+        resetPeriod: limits.resetPeriod,
+        resetsAt: getNextResetTime(tier)
     };
 };
 

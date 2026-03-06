@@ -165,3 +165,40 @@ export const togglePromoCode = async (req, res) => {
         res.status(500).json({ success: false, message: "Sunucu hatası" });
     }
 };
+
+// @desc    Update user subscription tier manually
+// @route   PATCH /api/admin/users/:id/subscription
+// @access  Private/Admin
+export const updateUserSubscription = async (req, res) => {
+    try {
+        const { tier } = req.body;
+
+        if (!["FREE", "PLUS", "PRO"].includes(tier)) {
+            return res.status(400).json({ success: false, message: "Geçersiz üyelik tipi" });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+        }
+
+        user.subscriptionTier = tier;
+        // If tier is FREE, set status to INACTIVE, otherwise ACTIVE
+        user.subscriptionStatus = tier === "FREE" ? "INACTIVE" : "ACTIVE";
+        await user.save();
+
+        res.json({
+            success: true,
+            message: `Kullanıcı başarıyla ${tier} üyeliğine güncellendi`,
+            data: {
+                _id: user._id,
+                email: user.email,
+                subscriptionTier: user.subscriptionTier,
+                subscriptionStatus: user.subscriptionStatus
+            }
+        });
+    } catch (error) {
+        console.error("Admin Update Subscription Error:", error);
+        res.status(500).json({ success: false, message: "Sunucu hatası" });
+    }
+};

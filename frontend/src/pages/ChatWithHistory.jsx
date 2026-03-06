@@ -648,6 +648,19 @@ export default function ChatWithHistory() {
                         </div>
                       ) : null}
 
+                      {/* Quota Upgrade Button */}
+                      {m.isQuotaExceeded && (quota?.plan === 'FREE' || quota?.plan === 'PLUS') && (
+                        <div className="mt-4">
+                          <Link
+                            to="/pricing"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black rounded-xl text-sm font-black transition-all shadow-lg shadow-amber-500/25 animate-bounce-subtle"
+                          >
+                            <StarIcon className="w-4 h-4 shrink-0" />
+                            Pro'ya Yükselt
+                          </Link>
+                        </div>
+                      )}
+
 
                       {/* ... */}
 
@@ -656,7 +669,7 @@ export default function ChatWithHistory() {
                 ))}
 
                 {/* Inline Upgrade Banner — after messages for FREE/PLUS users */}
-                {quota && quota.plan !== 'PRO' && messages.filter(m => m.sender === 'bot').length >= 3 && (
+                {quota && quota.plan === 'FREE' && messages.filter(m => m.sender === 'bot').length >= 3 && (
                   <div className="flex justify-start">
                     <Link
                       to="/pricing"
@@ -685,11 +698,11 @@ export default function ChatWithHistory() {
                   quota.remaining <= Math.ceil(quota.limit * 0.2) ? 'bg-amber-500/20 text-amber-400' :
                     'bg-emerald-500/20 text-emerald-400'
                   }`}>
-                  {quota.remaining}/{quota.limit} sorgu
+                  {quota.remaining}/{quota.limit} {quota.plan === 'FREE' ? 'sorgu' : 'haftalık sorgu'}
                 </span>
                 <span className="text-[10px] text-zinc-600">{quota.plan}</span>
               </div>
-              {quota.plan !== 'PRO' && quota.remaining <= Math.ceil(quota.limit * 0.3) && (
+              {quota.plan === 'FREE' && quota.remaining <= Math.ceil(quota.limit * 0.3) && (
                 <Link to="/pricing" className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition">
                   Planı Yükselt →
                 </Link>
