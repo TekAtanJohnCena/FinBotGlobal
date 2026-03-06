@@ -123,21 +123,25 @@ export const registerSchema = z.object({
     firstName: z
       .string()
       .min(2, "Ad en az 2 karakter olmalıdır")
-      .max(50, "Ad en fazla 50 karakter olabilir"),
+      .max(50, "Ad en fazla 50 karakter olabilir")
+      .optional(),
     lastName: z
       .string()
       .min(2, "Soyad en az 2 karakter olmalıdır")
-      .max(50, "Soyad en fazla 50 karakter olabilir"),
+      .max(50, "Soyad en fazla 50 karakter olabilir")
+      .optional(),
     phoneNumber: z
       .string()
       .min(10, "Telefon numarası en az 10 karakter olmalıdır")
       .max(20, "Telefon numarası çok uzun")
-      .regex(/^[0-9+\-\s()]+$/, "Geçerli bir telefon numarası giriniz"),
+      .regex(/^[0-9+\-\s()]+$/, "Geçerli bir telefon numarası giriniz")
+      .optional(),
     birthDate: z
       .string()
       .refine((val) => !isNaN(Date.parse(val)), {
         message: "Geçerli bir doğum tarihi giriniz",
-      }),
+      })
+      .optional(),
   }),
 });
 
