@@ -7,7 +7,8 @@ import {
     getTransactionsList,
     createPromoCode,
     getPromoCodes,
-    togglePromoCode
+    togglePromoCode,
+    updateUserSubscription
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.get("/metrics", getDashboardMetrics);
 
 // User Management
 router.get("/users", getUsersList);
+router.patch("/users/:id/subscription", updateUserSubscription);
 
 // Transaction History
 router.get("/transactions", getTransactionsList);

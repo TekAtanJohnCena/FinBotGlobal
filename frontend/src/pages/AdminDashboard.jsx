@@ -84,6 +84,25 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleUpdateSubscription = async (userId, tier) => {
+        const confirmMsg = tier === 'FREE'
+            ? 'Kullanıcıyı FREE plana düşürmek istediğinize emin misiniz?'
+            : `Kullanıcıyı ${tier} plana yükseltmek istediğinize emin misiniz?`;
+
+        if (!window.confirm(confirmMsg)) return;
+
+        try {
+            const res = await api.patch(`/admin/users/${userId}/subscription`, { tier });
+            if (res.data.success) {
+                // Update local state
+                setUsers(users.map(u => u._id === userId ? { ...u, subscriptionTier: tier, subscriptionStatus: tier === 'FREE' ? 'INACTIVE' : 'ACTIVE' } : u));
+                alert(res.data.message);
+            }
+        } catch (error) {
+            alert(error.response?.data?.message || 'Üyelik güncellenirken hata oluştu.');
+        }
+    };
+
     if (authLoading || loading) {
         return (
             <div className="admin-loading">
@@ -248,6 +267,24 @@ const AdminDashboard = () => {
           font-size: 0.8rem;
         }
         .btn-toggle:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-action {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.7rem;
+          border-radius: 4px;
+          cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05);
+          color: white;
+          margin-right: 0.3rem;
+          transition: all 0.2s;
+        }
+        .btn-action:hover {
+          background: rgba(255,255,255,0.15);
+          border-color: rgba(255,255,255,0.3);
+        }
+        .btn-action.plus { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+        .btn-action.pro { color: #8b5cf6; border-color: rgba(139, 92, 246, 0.3); }
+        .btn-action.free { color: #94a3b8; }
       `}</style>
 
             <div className="admin-header">
@@ -299,6 +336,7 @@ const AdminDashboard = () => {
                                     <th>Plan</th>
                                     <th>Durum</th>
                                     <th>Soru Sayısı</th>
+                                    <th>İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,6 +356,19 @@ const AdminDashboard = () => {
                                             </span>
                                         </td>
                                         <td>{u.queryCount || 0}</td>
+                                        <td>
+                                            <div style={{ display: 'flex' }}>
+                                                {u.subscriptionTier !== 'FREE' && (
+                                                    <button className="btn-action free" onClick={() => handleUpdateSubscription(u._id, 'FREE')}>FREE yap</button>
+                                                )}
+                                                {u.subscriptionTier !== 'PLUS' && (
+                                                    <button className="btn-action plus" onClick={() => handleUpdateSubscription(u._id, 'PLUS')}>PLUS ver</button>
+                                                )}
+                                                {u.subscriptionTier !== 'PRO' && (
+                                                    <button className="btn-action pro" onClick={() => handleUpdateSubscription(u._id, 'PRO')}>PRO ver</button>
+                                                )}
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
