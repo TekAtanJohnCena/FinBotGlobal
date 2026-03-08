@@ -86,14 +86,16 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
 
             setMessages((prev) => {
                 const newMessages = [...prev];
-                newMessages[botMessageIndex] = {
-                    ...newMessages[botMessageIndex],
-                    sender: 'bot',
-                    text: uiText,
-                    isStreaming: true,
-                    isThinking: false,
-                    typewriter: true
-                };
+                if (newMessages[botMessageIndex]) {
+                    newMessages[botMessageIndex] = {
+                        ...newMessages[botMessageIndex],
+                        sender: 'bot',
+                        text: uiText,
+                        isStreaming: true,
+                        isThinking: newMessages[botMessageIndex].isThinking || false, // Düşünme devam ediyorsa bozma
+                        typewriter: true
+                    };
+                }
                 return newMessages;
             });
 
@@ -205,14 +207,8 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
                 };
             }
 
-            if (financialDataReceived) {
-                newMessages.push({
-                    sender: 'bot',
-                    type: 'analysis',
-                    analysis: financialDataReceived,
-                    financialData: financialDataReceived
-                });
-            }
+            // Frontend artık finansal data bileşenini ayrı bir baloncukta (bubble) render etmediği için
+            // bu message objesini ("analysis") pushlamıyoruz. Aksi takdirde 2 tane avatar çıkıyor.
 
             return newMessages;
         });

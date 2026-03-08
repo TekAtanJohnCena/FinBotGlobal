@@ -846,11 +846,13 @@ export const sendMessageStream = async (req, res) => {
           if (chunk.type === "text") {
             fullReply += chunk.content;
             res.write(`data: ${JSON.stringify({ type: "text", content: chunk.content })}\n\n`);
+            if (res.flush) res.flush(); // CRITICAL BUGFIX: Node.js buffering defeat
             continue;
           }
 
           if (chunk.type === "error") {
             res.write(`data: ${JSON.stringify({ error: chunk.content })}\n\n`);
+            if (res.flush) res.flush(); // CRITICAL BUGFIX: Node.js buffering defeat
           }
         }
 
@@ -916,13 +918,46 @@ export const sendMessageStream = async (req, res) => {
 
     if (tickers.length > 0) {
       log.info("ENDPOINT", `Tickers detected: ${tickers.join(", ")}`);
-      res.write(`data: ${JSON.stringify({ type: "thought", content: `Veriler cekiliyor: ${tickers.join(", ")}...` })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "thought", content: `Hedef sirketler tespit edildi: ${tickers.join(", ")}...` })}\n\n`);
+      if (res.flush) res.flush();
 
-      const [fundamentalsResults, newsPayload, priceResults] = await Promise.all([
+      // 1. Veri cekme islemini arka planda baslat (await YOK)
+      const dataPromise = Promise.all([
         Promise.all(tickers.map(t => fetchTiingoFundamentals(t))),
         fetchTiingoNews(tickers),
         Promise.all(tickers.map(t => fetchTiingoPrice(t)))
       ]);
+
+      // 2. O sirada kullaniciya aninda yapay zeka girisi yazdir (Claude Haiku 500ms TTFB)
+      try {
+        const introPrompt = `Kullanici istegi: "${sanitizedMessage}". Bu bir finansal analiz talebi. Senden sadece, ${tickers.join(", ")} hisseleri icin canli borsa verilerini, bilancolari ve son haberleri taramaya basladigini soyleyen dogal, samimi, profesyonel ve kisa (maks 2 cumle) bir giris yazmani istiyorum. Asla uydurma rakam verme, analiz yapma, sadece islemin basladigini ve arka planda arastirma yaptigini soyle.`;
+        // createChatCompletion explicitly supports async generators
+        const introStream = openai.chat.completions.create({
+          model: "us.anthropic.claude-3-haiku-20240307-v1:0", // Fastest AWS Bedrock Model
+          temperature: 0.7,
+          max_tokens: 150,
+          messages: [{ role: "user", content: introPrompt }],
+          stream: true
+        });
+
+        // Async iterator consume
+        for await (const chunk of await introStream) {
+          if (chunk && chunk.type === "text" && chunk.content) {
+            res.write(`data: ${JSON.stringify({ type: "text", content: chunk.content })}\n\n`);
+            if (res.flush) res.flush();
+          }
+        }
+        res.write(`data: ${JSON.stringify({ type: "text", content: "\n\n" })}\n\n`);
+        if (res.flush) res.flush();
+      } catch (introErr) {
+        log.warn("ENDPOINT", "Haiku Intro stream failed: " + introErr.message);
+      }
+
+      res.write(`data: ${JSON.stringify({ type: "thought", content: `Veriler isleniyor...` })}\n\n`);
+      if (res.flush) res.flush();
+
+      // 3. Giris bittikten sonra veriler getirilene kadar bekle (Muhtemelen giris yazilirken veriler coktan inmistir)
+      const [fundamentalsResults, newsPayload, priceResults] = await dataPromise;
       const newsResults = newsPayload?.articles || [];
 
       const fundamentalsMap = new Map(fundamentalsResults.map(item => [cleanTicker(item?.ticker || ""), item]));
@@ -1106,8 +1141,8 @@ export const sendMessageStream = async (req, res) => {
       ? `<DATA_AVAILABILITY_NOTE>\n${[...new Set(dataAvailabilityNotes)].map(note => `- ${note}`).join("\n")}\nModel talimati: Bu notlar varken eksik alanlarda varsayim yapma, kesin yargi uretme. Fiyat verisi eksikse kesinlikle fiyat rakami uretme ve "G\u00fcncel fiyat verisine ula\u015f\u0131lamad\u0131." ifadesini kullan.\n</DATA_AVAILABILITY_NOTE>\n\n`
       : "";
 
-    log.info("MODEL", "Claude Sonnet 4.5 ile teknik analiz baslatiliyor.");
-    res.write(`data: ${JSON.stringify({ type: "thought", content: "Claude Sonnet 4.5 ile teknik analiz olusturuluyor..." })}\n\n`);
+    log.info("MODEL", "FinBotLLM 4.5 ile teknik analiz baslatiliyor.");
+    res.write(`data: ${JSON.stringify({ type: "thought", content: "FinBotLLM 4.5 ile teknik analiz olusturuluyor..." })}\n\n`);
 
     // Build the final user message content with all context injected
     const contextSuffix = [
