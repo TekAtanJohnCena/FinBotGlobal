@@ -109,6 +109,8 @@ export default function ChatWithHistory() {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
 
   const scrollRef = useRef(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const userScrolledUp = useRef(false); // true = kullanıcı yukarı kaydırdı, otomatik scroll durdur
 
   // Check for pending plan on mount (Scenario 1: user registered after selecting plan)
   useEffect(() => {
@@ -218,6 +220,9 @@ export default function ChatWithHistory() {
     const t = input.trim();
     if (!t) return;
 
+    // Yeni mesaj gönderilince scroll lock'u kaldır — kullanıcı yeni cevabı görmek ister
+    userScrolledUp.current = false;
+
     // 1. Kullanıcı mesajını ekle
     setMessages((p) => [...p, { sender: "user", text: t }]);
     setInput("");
@@ -233,6 +238,9 @@ export default function ChatWithHistory() {
       isStreaming: true,
       isThinking: true // Start in thinking mode
     }]);
+
+    // Mesaj eklendikten sonra ilk scroll'u zorla
+    setTimeout(() => scrollToBottom(), 150);
 
     // 3. Streaming Helper'ı çağır
     const result = await sendMessageWithStreaming(
@@ -276,14 +284,40 @@ export default function ChatWithHistory() {
 
   // ...
 
-  function scrollToBottom() {
-    // Mobilde klavye açıldığında scroll'un tam oturması için timeout
+  function scrollToBottom(force = false) {
     setTimeout(() => {
       requestAnimationFrame(() => {
         const el = scrollRef.current;
-        if (el) el.scrollTop = el.scrollHeight;
+        if (!el) return;
+
+        // Kullanıcı yukarı kaydırdıysa ve force değilse asla aşağı atma
+        if (userScrolledUp.current && !force) return;
+
+        const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+
+        if (force || isNearBottom) {
+          el.scrollTop = el.scrollHeight;
+        }
       });
-    }, 100);
+    }, 50);
+  }
+
+  function scrollToTop() {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleChatScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowScrollTop(el.scrollTop > 400);
+    // 80px tolerans: altına inince otomatik scroll tekrar aktif
+    if (distFromBottom < 80) {
+      userScrolledUp.current = false;
+    } else {
+      userScrolledUp.current = true;
+    }
   }
   // --------------------------- Rename / Delete -------------------------------
   async function handleDeleteChat(id) {
@@ -588,7 +622,7 @@ export default function ChatWithHistory() {
         </div>
 
         {/* Chat Scroll Area (Tüm içerik bu kaydırılabilir alanda) */}
-        < div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden chat-scroll scroll-smooth" >
+        < div ref={scrollRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto overflow-x-hidden chat-scroll scroll-smooth" >
 
           <div className="mx-auto w-full max-w-[1180px] px-4 md:px-8 overflow-hidden">
 
@@ -617,7 +651,7 @@ export default function ChatWithHistory() {
 
             {/* 2. DURUM: MESAJLAR VARSA (SOHBET AKIŞI) */}
             {messages.length > 0 && (
-              <div className="pt-4 md:pt-6 pb-40 md:pb-40 space-y-3 md:space-y-6">
+              <div className="pt-4 md:pt-6 pb-40 md:pb-40 space-y-2 md:space-y-4">
                 {messages.map((m, i) => (
                   <div key={i} className="flex flex-col w-full overflow-hidden">
                     {/* Render Thinking Block if exists */}
@@ -641,7 +675,11 @@ export default function ChatWithHistory() {
                       {m.text ? (
                         <div className="text-[15px] md:text-[16px] overflow-hidden max-w-full" style={{ overflowWrap: 'break-word', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                           {m.sender === "bot" ? (
-                            <StructuredResponse text={m.text} />
+                            <StructuredResponse 
+                                text={m.text} 
+                                enableTypewriter={m.typewriter}
+                                onTypingProgress={() => scrollToBottom(false)}
+                            />
                           ) : (
                             <div className="whitespace-pre-line">{m.text}</div>
                           )}
@@ -685,8 +723,24 @@ export default function ChatWithHistory() {
               </div>
             )}
 
+            {/* Invisible padding anchor to help mobile Safari scroll behavior */}
+            <div style={{ paddingBottom: '15vh' }} />
           </div>
         </div >
+
+        {/* Scroll to Top Button */}
+        {showScrollTop && messages.length > 0 && (
+          <button
+            onClick={scrollToTop}
+            className="fixed z-50 p-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-full shadow-2xl transition-all duration-200 hover:scale-110"
+            style={{ bottom: '6rem', right: '1.5rem' }}
+            title="Başa Dön"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path fillRule="evenodd" d="M11.47 7.72a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 01-1.06-1.06l7.5-7.5z" clipRule="evenodd" />
+            </svg>
+          </button>
+        )}
 
         {/* --- FIXED FULL-WIDTH INPUT BAR --- */}
         <div className="fixed bottom-14 md:bottom-0 left-0 md:left-20 right-0 bg-[#131314] border-t border-zinc-800/50 p-3 z-40">

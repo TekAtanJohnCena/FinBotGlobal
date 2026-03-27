@@ -75,6 +75,7 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
         let financialDataReceived = null;
         let pendingTextQueue = '';
         let flushTimer = null;
+        let flushCount = 0; // Throttle scroll calls
 
         const flushTextQueue = (force = false) => {
             if (!pendingTextQueue && !force) return;
@@ -84,6 +85,8 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
                 pendingTextQueue = '';
             }
 
+            flushCount++;
+
             setMessages((prev) => {
                 const newMessages = [...prev];
                 if (newMessages[botMessageIndex]) {
@@ -92,19 +95,23 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
                         sender: 'bot',
                         text: uiText,
                         isStreaming: true,
-                        isThinking: newMessages[botMessageIndex].isThinking || false, // Düşünme devam ediyorsa bozma
+                        isThinking: newMessages[botMessageIndex].isThinking || false,
                         typewriter: true
                     };
                 }
                 return newMessages;
             });
 
-            scrollToBottom();
+            // Throttle scrollToBottom: only every 3rd flush to reduce mobile jank
+            if (force || flushCount % 3 === 0) {
+                scrollToBottom();
+            }
         };
 
         const ensureFlushTimer = () => {
             if (flushTimer) return;
-            flushTimer = setInterval(() => flushTextQueue(false), 40);
+            // 150ms interval reduces React re-renders; prevents mobile scroll freeze
+            flushTimer = setInterval(() => flushTextQueue(false), 150);
         };
 
         while (true) {
@@ -150,7 +157,12 @@ async function sendMessageWithStreaming(message, chatId, setMessages, setActiveC
                         };
                         return newMessages;
                     });
-                    scrollToBottom();
+                    
+                    // Throttle thought scrolls too
+                    flushCount++;
+                    if (flushCount % 3 === 0) {
+                        scrollToBottom();
+                    }
                     continue;
                 }
 

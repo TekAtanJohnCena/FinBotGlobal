@@ -11,8 +11,9 @@ import heroImage from "../images/finbot-auth-hero.png";
 import logo from "../images/logo1.png";
 
 const Login = () => {
-  const [identifier, setIdentifier] = useState("");
+  const [identifier, setIdentifier] = useState(() => localStorage.getItem('finbot-remember-email') || "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('finbot-remember-email'));
 
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +43,12 @@ const Login = () => {
 
     setLoading(true);
     try {
+      // Beni Hatırla: e-postayı kaydet veya sil
+      if (rememberMe) {
+        localStorage.setItem('finbot-remember-email', identifier.trim());
+      } else {
+        localStorage.removeItem('finbot-remember-email');
+      }
       await login(identifier.trim(), password);
       toast.success('Giriş başarılı! Yönlendiriliyorsunuz...');
       window.location.href = getRedirectUrl();
@@ -421,6 +428,20 @@ const Login = () => {
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
+              </div>
+
+              {/* Beni Hatırla */}
+              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: '#3b82f6', cursor: 'pointer' }}
+                />
+                <label htmlFor="rememberMe" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
+                  Beni Hatırla
+                </label>
               </div>
 
               {/* Submit Button */}

@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../styles/landing.css";
 import logo from "../images/logo1.png";
+import nvidiaLogo from "../images/nvidia-logo.svg";
 import Footer from "../components/Footer";
 import Pricing from "./Pricing";
 
@@ -473,6 +474,18 @@ export default function Landing() {
               <li>
                 <LanguageSelector />
               </li>
+              {!user && (
+                <li>
+                  <Link
+                    to="/login"
+                    className="btn btn-outline-light btn-sm rounded-pill px-3 ms-2 fw-bold"
+                    style={{ borderColor: 'rgba(255,255,255,0.3)', fontSize: '0.85rem' }}
+                  >
+                    <i className="bi bi-box-arrow-in-right me-1"></i>
+                    Giriş Yap
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -528,6 +541,18 @@ export default function Landing() {
               <li className="mt-3">
                 <MobileLanguageSelector />
               </li>
+              {!user && (
+                <li className="mt-2">
+                  <Link
+                    to="/login"
+                    className="btn btn-outline-light rounded-pill px-4 w-100 fw-bold"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <i className="bi bi-box-arrow-in-right me-2"></i>
+                    Giriş Yap
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -575,6 +600,15 @@ export default function Landing() {
                       {t('hero.tryFreeButton')}
                     </Link>
 
+                    <Link
+                      to="/login"
+                      className="btn btn-outline-light btn-lg rounded-pill px-4 btn-hover-white"
+                      style={{ borderColor: 'rgba(16,185,129,0.6)', color: '#34d399' }}
+                    >
+                      <i className="bi bi-box-arrow-in-right me-2"></i>
+                      Giriş Yap
+                    </Link>
+
                     <a
                       href="#pricing"
                       className="btn btn-outline-light btn-lg rounded-pill px-4 btn-hover-white"
@@ -603,13 +637,13 @@ export default function Landing() {
                 <div className="p-4 h-100">
                   {/* Title & Logo Area */}
                   <div className="d-flex align-items-center mb-4">
-                    <div className="rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: 50, height: 50, backgroundColor: '#1DB954', boxShadow: '0 4px 12px rgba(29, 185, 84, 0.3)' }}>
-                      <i className="bi bi-spotify fs-3 text-white"></i>
+                    <div className="rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: 50, height: 50, backgroundColor: '#76b900', boxShadow: '0 4px 12px rgba(118, 185, 0, 0.3)', overflow: 'hidden' }}>
+                      <img src={nvidiaLogo} alt="NVIDIA" style={{ width: '32px', height: 'auto' }} />
                     </div>
                     <div>
-                      <h4 className="text-white mb-0 fw-bold">Spotify Technology S.A.</h4>
+                      <h4 className="text-white mb-0 fw-bold">NVIDIA Corporation</h4>
                       <div className="d-flex align-items-center gap-2 mt-1">
-                        <span className="badge bg-dark-subtle text-secondary small">NYSE-SPOT</span>
+                        <span className="badge bg-dark-subtle text-secondary small">NASDAQ-NVDA</span>
                         <span className="text-success small fw-bold"><i className="bi bi-arrow-up-right"></i> %2.4</span>
                       </div>
                     </div>

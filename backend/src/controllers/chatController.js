@@ -17,7 +17,7 @@ import { SYSTEM_PROMPT } from "../prompts/systemPrompt.js";
 import { classifyUserIntent } from "../services/ai/RouterService.js";
 import { buildDynamicPrompt } from "../services/ai/PromptBuilder.js";
 import { sanitizeUserPrompt } from "../utils/promptSanitizer.js";
-import { getPrice, getBatchPrices } from "../services/tiingo/stockService.js";
+import { getPrice, getBatchPrices, getDailyFundamentals, getCompanyMeta } from "../services/tiingo/stockService.js";
 
 // OpenAI Client - Switched to Bedrock (Claude Sonnet 4.5 v1)
 const openai = {
@@ -925,7 +925,9 @@ export const sendMessageStream = async (req, res) => {
       const dataPromise = Promise.all([
         Promise.all(tickers.map(t => fetchTiingoFundamentals(t))),
         fetchTiingoNews(tickers),
-        Promise.all(tickers.map(t => fetchTiingoPrice(t)))
+        Promise.all(tickers.map(t => fetchTiingoPrice(t))),
+        Promise.all(tickers.map(t => getDailyFundamentals(t))),
+        Promise.all(tickers.map(t => getCompanyMeta(t)))
       ]);
 
       // 2. O sirada kullaniciya aninda yapay zeka girisi yazdir (Claude Haiku 500ms TTFB)
@@ -957,11 +959,13 @@ export const sendMessageStream = async (req, res) => {
       if (res.flush) res.flush();
 
       // 3. Giris bittikten sonra veriler getirilene kadar bekle (Muhtemelen giris yazilirken veriler coktan inmistir)
-      const [fundamentalsResults, newsPayload, priceResults] = await dataPromise;
+      const [fundamentalsResults, newsPayload, priceResults, dailyFundResults, metaResults] = await dataPromise;
       const newsResults = newsPayload?.articles || [];
 
       const fundamentalsMap = new Map(fundamentalsResults.map(item => [cleanTicker(item?.ticker || ""), item]));
       const priceMap = new Map(priceResults.map(item => [cleanTicker(item?.ticker || ""), item]));
+      const dailyFundMap = new Map((dailyFundResults || []).filter(Boolean).map(item => [cleanTicker(item?.ticker || ""), item]));
+      const metaMap = new Map((metaResults || []).filter(Boolean).map(item => [cleanTicker(item?.ticker || ""), item]));
 
       for (const rawTicker of tickers) {
         const ticker = cleanTicker(rawTicker);
@@ -987,7 +991,27 @@ export const sendMessageStream = async (req, res) => {
         }
 
         if (!financialData && (contextMetrics || livePrice?.dataStatus === "fresh")) {
+          const dailyFundForFrontend = dailyFundMap.get(ticker);
+          const metaForFrontend = metaMap.get(ticker);
           financialData = createFinancialDataForFrontend(ticker, contextMetrics, livePrice);
+          // Enrich with daily fundamentals
+          if (dailyFundForFrontend) {
+            financialData.marketCap = dailyFundForFrontend.marketCap;
+            financialData.marketCapFormatted = formatNumberDisplay(dailyFundForFrontend.marketCap);
+            financialData.enterpriseVal = dailyFundForFrontend.enterpriseVal;
+            financialData.enterpriseValFormatted = formatNumberDisplay(dailyFundForFrontend.enterpriseVal);
+            financialData.peRatio = dailyFundForFrontend.peRatio;
+            financialData.pbRatio = dailyFundForFrontend.pbRatio;
+            financialData.trailingPEG1Y = dailyFundForFrontend.trailingPEG1Y;
+          }
+          // Enrich with company meta
+          if (metaForFrontend) {
+            financialData.companyName = metaForFrontend.name;
+            financialData.sector = metaForFrontend.sector;
+            financialData.industry = metaForFrontend.industry;
+            financialData.location = metaForFrontend.location;
+            financialData.companyWebsite = metaForFrontend.companyWebsite;
+          }
           res.write(`data: ${JSON.stringify({ type: "financialData", data: financialData })}\n\n`);
         }
 
@@ -1043,6 +1067,39 @@ export const sendMessageStream = async (req, res) => {
     <free_cash_flow>${contextMetrics ? `${formatNumberDisplay(contextMetrics?.freeCashFlow)} USD` : "Veri mevcut degil"}</free_cash_flow>
   </cash_flow>
 </financial_context>\n\n`;
+
+        // YENİ: Company Meta (sektör, endüstri) — AMPG hatasını düzeltir
+        const metaData = metaMap.get(ticker);
+        if (metaData) {
+          financialBlock += `<company_meta>
+  <ticker>${escapeXml(ticker)}</ticker>
+  <name>${escapeXml(metaData.name || ticker)}</name>
+  <sector>${escapeXml(metaData.sector || "Bilinmiyor")}</sector>
+  <industry>${escapeXml(metaData.industry || "Bilinmiyor")}</industry>
+  <sic_sector>${escapeXml(metaData.sicSector || "N/A")}</sic_sector>
+  <sic_industry>${escapeXml(metaData.sicIndustry || "N/A")}</sic_industry>
+  <location>${escapeXml(metaData.location || "N/A")}</location>
+  <company_website>${escapeXml(metaData.companyWebsite || "N/A")}</company_website>
+  <is_adr>${metaData.isADR ? "true" : "false"}</is_adr>
+  <reporting_currency>${escapeXml(metaData.reportingCurrency || "USD")}</reporting_currency>
+</company_meta>\n\n`;
+          log.info("META", `${ticker} sektör: ${metaData.sector}, endüstri: ${metaData.industry}`);
+        }
+
+        // YENİ: Daily Fundamentals (P/E, P/B, Market Cap)
+        const dailyFund = dailyFundMap.get(ticker);
+        if (dailyFund) {
+          financialBlock += `<daily_fundamentals>
+  <ticker>${escapeXml(ticker)}</ticker>
+  <date>${escapeXml(dailyFund.date || "N/A")}</date>
+  <market_cap>${dailyFund.marketCap ? formatNumberDisplay(dailyFund.marketCap) + " USD" : "N/A"}</market_cap>
+  <enterprise_value>${dailyFund.enterpriseVal ? formatNumberDisplay(dailyFund.enterpriseVal) + " USD" : "N/A"}</enterprise_value>
+  <pe_ratio>${dailyFund.peRatio ? Number(dailyFund.peRatio).toFixed(2) + "x" : "N/A"}</pe_ratio>
+  <pb_ratio>${dailyFund.pbRatio ? Number(dailyFund.pbRatio).toFixed(2) + "x" : "N/A"}</pb_ratio>
+  <trailing_peg_1y>${dailyFund.trailingPEG1Y ? Number(dailyFund.trailingPEG1Y).toFixed(2) + "x" : "N/A"}</trailing_peg_1y>
+</daily_fundamentals>\n\n`;
+          log.info("DAILY_FUND", `${ticker} P/E: ${dailyFund.peRatio}, P/B: ${dailyFund.pbRatio}, MCap: ${formatNumberDisplay(dailyFund.marketCap)}`);
+        }
       }
 
       if (newsPayload?.availabilityNote) {

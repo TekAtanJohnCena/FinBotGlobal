@@ -8,6 +8,8 @@ import logger from '../../utils/logger.js';
 const PRICE_TTL = 15; // 15 seconds for prices
 const PROFILE_TTL = 24 * 60 * 60; // 24 hours for profiles
 const SEARCH_TTL = 5 * 60; // 5 minutes for search
+const DAILY_FUND_TTL = 60 * 60; // 1 hour for daily fundamentals
+const META_TTL = 24 * 60 * 60; // 24 hours for company meta
 
 /**
  * Get current stock price
@@ -200,10 +202,110 @@ export async function getBatchPrices(tickers) {
     }
 }
 
+/**
+ * Get daily fundamental metrics (P/E, P/B, Market Cap, Enterprise Value)
+ * Uses Tiingo Fundamentals Daily endpoint
+ * @param {string} ticker - Stock ticker symbol
+ * @returns {Promise<Object|null>} - Daily fundamental data
+ */
+export async function getDailyFundamentals(ticker) {
+    const normalizedTicker = formatTicker(ticker);
+    if (!normalizedTicker) return null;
+
+    const cacheKey = `dailyfund:${normalizedTicker}`;
+    const cached = cache.get(cacheKey);
+    if (cached) {
+        logger.info(`📦 Cache hit: ${cacheKey}`);
+        return cached;
+    }
+
+    try {
+        const client = tiingoClient.getClient();
+        const response = await client.get(`/tiingo/fundamentals/${normalizedTicker}/daily`, {
+            params: { sort: '-date' }
+        });
+
+        const data = Array.isArray(response.data) ? response.data[0] : response.data;
+        if (!data) return null;
+
+        const result = {
+            ticker: normalizedTicker,
+            date: data.date,
+            marketCap: data.marketCap || null,
+            enterpriseVal: data.enterpriseVal || null,
+            peRatio: data.peRatio || null,
+            pbRatio: data.pbRatio || null,
+            trailingPEG1Y: data.trailingPEG1Y || null,
+            source: 'tiingo-fundamentals-daily'
+        };
+
+        cache.set(cacheKey, result, DAILY_FUND_TTL);
+        return result;
+    } catch (error) {
+        logger.error(`❌ Tiingo daily fundamentals error for ${normalizedTicker}: ${error.message}`);
+        return null;
+    }
+}
+
+/**
+ * Get company meta data (sector, industry, SIC codes, website)
+ * Uses Tiingo Fundamentals Meta endpoint
+ * @param {string} ticker - Stock ticker symbol
+ * @returns {Promise<Object|null>} - Company meta data
+ */
+export async function getCompanyMeta(ticker) {
+    const normalizedTicker = formatTicker(ticker);
+    if (!normalizedTicker) return null;
+
+    const cacheKey = `meta:${normalizedTicker}`;
+    const cached = cache.get(cacheKey);
+    if (cached) {
+        logger.info(`📦 Cache hit: ${cacheKey}`);
+        return cached;
+    }
+
+    try {
+        const client = tiingoClient.getClient();
+        const response = await client.get('/tiingo/fundamentals/meta', {
+            params: { tickers: normalizedTicker }
+        });
+
+        const data = Array.isArray(response.data) ? response.data[0] : response.data;
+        if (!data) return null;
+
+        const result = {
+            ticker: data.ticker || normalizedTicker,
+            name: data.name || null,
+            isActive: data.isActive ?? true,
+            isADR: data.isADR ?? false,
+            sector: data.sector || null,
+            industry: data.industry || null,
+            sicCode: data.sicCode || null,
+            sicSector: data.sicSector || null,
+            sicIndustry: data.sicIndustry || null,
+            reportingCurrency: data.reportingCurrency || 'USD',
+            location: data.location || null,
+            companyWebsite: data.companyWebsite || null,
+            secFilingWebsite: data.secFilingWebsite || null,
+            statementLastUpdated: data.statementLastUpdated || null,
+            dailyLastUpdated: data.dailyLastUpdated || null,
+            source: 'tiingo-fundamentals-meta'
+        };
+
+        cache.set(cacheKey, result, META_TTL);
+        return result;
+    } catch (error) {
+        logger.error(`❌ Tiingo company meta error for ${normalizedTicker}: ${error.message}`);
+        return null;
+    }
+}
+
 export default {
     getPrice,
     getProfile,
     searchTicker,
     getHistoricalPrices,
-    getBatchPrices
+    getBatchPrices,
+    getDailyFundamentals,
+    getCompanyMeta
 };
