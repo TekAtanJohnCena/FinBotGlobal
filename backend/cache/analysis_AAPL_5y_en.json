@@ -2,418 +2,8 @@
   "data": {
     "symbol": "AAPL",
     "name": "Apple Inc",
-    "price": 263.75,
+    "price": 280.14,
     "history": [
-      {
-        "date": "2021-03-04T00:00:00.000Z",
-        "open": 121.75,
-        "high": 123.6,
-        "low": 118.62,
-        "close": 120.13,
-        "adjClose": 117.0176471803,
-        "price": 120.13,
-        "volume": 178154975
-      },
-      {
-        "date": "2021-03-05T00:00:00.000Z",
-        "open": 120.98,
-        "high": 121.935,
-        "low": 117.57,
-        "close": 121.42,
-        "adjClose": 118.2742255942,
-        "price": 121.42,
-        "volume": 153766601
-      },
-      {
-        "date": "2021-03-08T00:00:00.000Z",
-        "open": 120.93,
-        "high": 121,
-        "low": 116.21,
-        "close": 116.36,
-        "adjClose": 113.345321118,
-        "price": 116.36,
-        "volume": 154376610
-      },
-      {
-        "date": "2021-03-09T00:00:00.000Z",
-        "open": 119.03,
-        "high": 122.06,
-        "low": 118.79,
-        "close": 121.085,
-        "adjClose": 117.9479048433,
-        "price": 121.085,
-        "volume": 129525780
-      },
-      {
-        "date": "2021-03-10T00:00:00.000Z",
-        "open": 121.69,
-        "high": 122.17,
-        "low": 119.45,
-        "close": 119.98,
-        "adjClose": 116.8715334113,
-        "price": 119.98,
-        "volume": 111943326
-      },
-      {
-        "date": "2021-03-11T00:00:00.000Z",
-        "open": 122.54,
-        "high": 123.21,
-        "low": 121.26,
-        "close": 121.96,
-        "adjClose": 118.8002351628,
-        "price": 121.96,
-        "volume": 103026514
-      },
-      {
-        "date": "2021-03-12T00:00:00.000Z",
-        "open": 120.4,
-        "high": 121.17,
-        "low": 119.16,
-        "close": 121.03,
-        "adjClose": 117.8943297947,
-        "price": 121.03,
-        "volume": 88105050
-      },
-      {
-        "date": "2021-03-15T00:00:00.000Z",
-        "open": 121.41,
-        "high": 124,
-        "low": 120.42,
-        "close": 123.99,
-        "adjClose": 120.7776415041,
-        "price": 123.99,
-        "volume": 92590555
-      },
-      {
-        "date": "2021-03-16T00:00:00.000Z",
-        "open": 125.7,
-        "high": 127.22,
-        "low": 124.715,
-        "close": 125.57,
-        "adjClose": 122.3167065382,
-        "price": 125.57,
-        "volume": 115227936
-      },
-      {
-        "date": "2021-03-17T00:00:00.000Z",
-        "open": 124.05,
-        "high": 125.8599,
-        "low": 122.336,
-        "close": 124.76,
-        "adjClose": 121.5276921853,
-        "price": 124.76,
-        "volume": 111932636
-      },
-      {
-        "date": "2021-03-18T00:00:00.000Z",
-        "open": 122.88,
-        "high": 123.18,
-        "low": 120.32,
-        "close": 120.53,
-        "adjClose": 117.4072838978,
-        "price": 120.53,
-        "volume": 121469755
-      },
-      {
-        "date": "2021-03-19T00:00:00.000Z",
-        "open": 119.9,
-        "high": 121.43,
-        "low": 119.675,
-        "close": 119.99,
-        "adjClose": 116.8812743292,
-        "price": 119.99,
-        "volume": 185549522
-      },
-      {
-        "date": "2021-03-22T00:00:00.000Z",
-        "open": 120.33,
-        "high": 123.87,
-        "low": 120.26,
-        "close": 123.39,
-        "adjClose": 120.1931864279,
-        "price": 123.39,
-        "volume": 111912284
-      },
-      {
-        "date": "2021-03-23T00:00:00.000Z",
-        "open": 123.33,
-        "high": 124.24,
-        "low": 122.14,
-        "close": 122.54,
-        "adjClose": 119.3652084032,
-        "price": 122.54,
-        "volume": 95467142
-      },
-      {
-        "date": "2021-03-24T00:00:00.000Z",
-        "open": 122.82,
-        "high": 122.9,
-        "low": 120.065,
-        "close": 120.09,
-        "adjClose": 116.9786835086,
-        "price": 120.09,
-        "volume": 88530485
-      },
-      {
-        "date": "2021-03-25T00:00:00.000Z",
-        "open": 119.54,
-        "high": 121.66,
-        "low": 119,
-        "close": 120.59,
-        "adjClose": 117.4657294054,
-        "price": 120.59,
-        "volume": 98844681
-      },
-      {
-        "date": "2021-03-26T00:00:00.000Z",
-        "open": 120.35,
-        "high": 121.48,
-        "low": 118.92,
-        "close": 121.21,
-        "adjClose": 118.0696663175,
-        "price": 121.21,
-        "volume": 94071234
-      },
-      {
-        "date": "2021-03-29T00:00:00.000Z",
-        "open": 121.65,
-        "high": 122.58,
-        "low": 120.7299,
-        "close": 121.39,
-        "adjClose": 118.2450028404,
-        "price": 121.39,
-        "volume": 80819203
-      },
-      {
-        "date": "2021-03-30T00:00:00.000Z",
-        "open": 120.11,
-        "high": 120.4031,
-        "low": 118.86,
-        "close": 119.9,
-        "adjClose": 116.7936060678,
-        "price": 119.9,
-        "volume": 85671919
-      },
-      {
-        "date": "2021-03-31T00:00:00.000Z",
-        "open": 121.65,
-        "high": 123.52,
-        "low": 121.15,
-        "close": 122.15,
-        "adjClose": 118.9853126036,
-        "price": 122.15,
-        "volume": 118323826
-      },
-      {
-        "date": "2021-04-01T00:00:00.000Z",
-        "open": 123.66,
-        "high": 124.18,
-        "low": 122.49,
-        "close": 123,
-        "adjClose": 119.8132906283,
-        "price": 123,
-        "volume": 75089134
-      },
-      {
-        "date": "2021-04-05T00:00:00.000Z",
-        "open": 123.87,
-        "high": 126.1601,
-        "low": 123.07,
-        "close": 125.9,
-        "adjClose": 122.6381568301,
-        "price": 125.9,
-        "volume": 88651175
-      },
-      {
-        "date": "2021-04-06T00:00:00.000Z",
-        "open": 126.5,
-        "high": 127.13,
-        "low": 125.65,
-        "close": 126.21,
-        "adjClose": 122.9401252862,
-        "price": 126.21,
-        "volume": 80171253
-      },
-      {
-        "date": "2021-04-07T00:00:00.000Z",
-        "open": 125.83,
-        "high": 127.92,
-        "low": 125.14,
-        "close": 127.9,
-        "adjClose": 124.5863404176,
-        "price": 127.9,
-        "volume": 83466716
-      },
-      {
-        "date": "2021-04-08T00:00:00.000Z",
-        "open": 128.95,
-        "high": 130.39,
-        "low": 128.52,
-        "close": 130.36,
-        "adjClose": 126.9826062301,
-        "price": 130.36,
-        "volume": 88844591
-      },
-      {
-        "date": "2021-04-09T00:00:00.000Z",
-        "open": 129.8,
-        "high": 133.04,
-        "low": 129.47,
-        "close": 132.995,
-        "adjClose": 129.5493381066,
-        "price": 132.995,
-        "volume": 106686703
-      },
-      {
-        "date": "2021-04-12T00:00:00.000Z",
-        "open": 132.52,
-        "high": 132.85,
-        "low": 130.63,
-        "close": 131.24,
-        "adjClose": 127.8398070086,
-        "price": 131.24,
-        "volume": 91419983
-      },
-      {
-        "date": "2021-04-13T00:00:00.000Z",
-        "open": 132.44,
-        "high": 134.66,
-        "low": 131.93,
-        "close": 134.43,
-        "adjClose": 130.9471598306,
-        "price": 134.43,
-        "volume": 91266545
-      },
-      {
-        "date": "2021-04-14T00:00:00.000Z",
-        "open": 134.94,
-        "high": 135,
-        "low": 131.655,
-        "close": 132.03,
-        "adjClose": 128.6093395257,
-        "price": 132.03,
-        "volume": 87222782
-      },
-      {
-        "date": "2021-04-15T00:00:00.000Z",
-        "open": 133.82,
-        "high": 135,
-        "low": 133.64,
-        "close": 134.5,
-        "adjClose": 131.0153462562,
-        "price": 134.5,
-        "volume": 89347102
-      },
-      {
-        "date": "2021-04-16T00:00:00.000Z",
-        "open": 134.3,
-        "high": 134.67,
-        "low": 133.28,
-        "close": 134.16,
-        "adjClose": 130.6841550463,
-        "price": 134.16,
-        "volume": 84922386
-      },
-      {
-        "date": "2021-04-19T00:00:00.000Z",
-        "open": 133.51,
-        "high": 135.47,
-        "low": 133.34,
-        "close": 134.84,
-        "adjClose": 131.346537466,
-        "price": 134.84,
-        "volume": 94264215
-      },
-      {
-        "date": "2021-04-20T00:00:00.000Z",
-        "open": 135.02,
-        "high": 135.53,
-        "low": 131.81,
-        "close": 133.11,
-        "adjClose": 129.6613586629,
-        "price": 133.11,
-        "volume": 94812349
-      },
-      {
-        "date": "2021-04-21T00:00:00.000Z",
-        "open": 132.36,
-        "high": 133.75,
-        "low": 131.3001,
-        "close": 133.5,
-        "adjClose": 130.0412544624,
-        "price": 133.5,
-        "volume": 68847136
-      },
-      {
-        "date": "2021-04-22T00:00:00.000Z",
-        "open": 133.04,
-        "high": 134.15,
-        "low": 131.41,
-        "close": 131.94,
-        "adjClose": 128.5216712642,
-        "price": 131.94,
-        "volume": 84566456
-      },
-      {
-        "date": "2021-04-23T00:00:00.000Z",
-        "open": 132.16,
-        "high": 135.12,
-        "low": 132.16,
-        "close": 134.32,
-        "adjClose": 130.8400097333,
-        "price": 134.32,
-        "volume": 78756779
-      },
-      {
-        "date": "2021-04-26T00:00:00.000Z",
-        "open": 134.83,
-        "high": 135.06,
-        "low": 133.56,
-        "close": 134.72,
-        "adjClose": 131.2296464508,
-        "price": 134.72,
-        "volume": 66905069
-      },
-      {
-        "date": "2021-04-27T00:00:00.000Z",
-        "open": 135.01,
-        "high": 135.41,
-        "low": 134.11,
-        "close": 134.39,
-        "adjClose": 130.9081961589,
-        "price": 134.39,
-        "volume": 66015804
-      },
-      {
-        "date": "2021-04-28T00:00:00.000Z",
-        "open": 134.31,
-        "high": 135.02,
-        "low": 133.08,
-        "close": 133.58,
-        "adjClose": 130.1191818059,
-        "price": 133.58,
-        "volume": 107760097
-      },
-      {
-        "date": "2021-04-29T00:00:00.000Z",
-        "open": 136.47,
-        "high": 137.07,
-        "low": 132.45,
-        "close": 133.48,
-        "adjClose": 130.0217726266,
-        "price": 133.48,
-        "volume": 151100953
-      },
-      {
-        "date": "2021-04-30T00:00:00.000Z",
-        "open": 131.78,
-        "high": 133.56,
-        "low": 131.065,
-        "close": 131.46,
-        "adjClose": 128.0541072032,
-        "price": 131.46,
-        "volume": 109839466
-      },
       {
         "date": "2021-05-03T00:00:00.000Z",
         "open": 132.04,
@@ -12553,11 +12143,431 @@
         "adjClose": 263.75,
         "price": 263.75,
         "volume": 38568921
+      },
+      {
+        "date": "2026-03-04T00:00:00.000Z",
+        "open": 264.65,
+        "high": 266.15,
+        "low": 261.42,
+        "close": 262.52,
+        "adjClose": 262.52,
+        "price": 262.52,
+        "volume": 39803119
+      },
+      {
+        "date": "2026-03-05T00:00:00.000Z",
+        "open": 260.79,
+        "high": 261.555,
+        "low": 257.25,
+        "close": 260.29,
+        "adjClose": 260.29,
+        "price": 260.29,
+        "volume": 49658626
+      },
+      {
+        "date": "2026-03-06T00:00:00.000Z",
+        "open": 258.63,
+        "high": 258.77,
+        "low": 254.37,
+        "close": 257.46,
+        "adjClose": 257.46,
+        "price": 257.46,
+        "volume": 41120042
+      },
+      {
+        "date": "2026-03-09T00:00:00.000Z",
+        "open": 255.69,
+        "high": 261.15,
+        "low": 253.6805,
+        "close": 259.88,
+        "adjClose": 259.88,
+        "price": 259.88,
+        "volume": 38218533
+      },
+      {
+        "date": "2026-03-10T00:00:00.000Z",
+        "open": 257.645,
+        "high": 262.48,
+        "low": 256.95,
+        "close": 260.83,
+        "adjClose": 260.83,
+        "price": 260.83,
+        "volume": 30590765
+      },
+      {
+        "date": "2026-03-11T00:00:00.000Z",
+        "open": 261.09,
+        "high": 262.13,
+        "low": 259.55,
+        "close": 260.81,
+        "adjClose": 260.81,
+        "price": 260.81,
+        "volume": 26218927
+      },
+      {
+        "date": "2026-03-12T00:00:00.000Z",
+        "open": 258.66,
+        "high": 258.95,
+        "low": 254.18,
+        "close": 255.76,
+        "adjClose": 255.76,
+        "price": 255.76,
+        "volume": 40794020
+      },
+      {
+        "date": "2026-03-13T00:00:00.000Z",
+        "open": 255.48,
+        "high": 256.33,
+        "low": 249.52,
+        "close": 250.12,
+        "adjClose": 250.12,
+        "price": 250.12,
+        "volume": 36929988
+      },
+      {
+        "date": "2026-03-16T00:00:00.000Z",
+        "open": 252.105,
+        "high": 253.885,
+        "low": 249.88,
+        "close": 252.82,
+        "adjClose": 252.82,
+        "price": 252.82,
+        "volume": 32074209
+      },
+      {
+        "date": "2026-03-17T00:00:00.000Z",
+        "open": 252.955,
+        "high": 255.13,
+        "low": 252.18,
+        "close": 254.23,
+        "adjClose": 254.23,
+        "price": 254.23,
+        "volume": 32361607
+      },
+      {
+        "date": "2026-03-18T00:00:00.000Z",
+        "open": 252.625,
+        "high": 254.94,
+        "low": 249,
+        "close": 249.94,
+        "adjClose": 249.94,
+        "price": 249.94,
+        "volume": 35757874
+      },
+      {
+        "date": "2026-03-19T00:00:00.000Z",
+        "open": 249.4,
+        "high": 251.83,
+        "low": 247.3,
+        "close": 248.96,
+        "adjClose": 248.96,
+        "price": 248.96,
+        "volume": 34864082
+      },
+      {
+        "date": "2026-03-20T00:00:00.000Z",
+        "open": 247.975,
+        "high": 249.1999,
+        "low": 246,
+        "close": 247.99,
+        "adjClose": 247.99,
+        "price": 247.99,
+        "volume": 88331081
+      },
+      {
+        "date": "2026-03-23T00:00:00.000Z",
+        "open": 253.97,
+        "high": 254.6,
+        "low": 250.28,
+        "close": 251.49,
+        "adjClose": 251.49,
+        "price": 251.49,
+        "volume": 40546109
+      },
+      {
+        "date": "2026-03-24T00:00:00.000Z",
+        "open": 250.35,
+        "high": 254.825,
+        "low": 249.55,
+        "close": 251.64,
+        "adjClose": 251.64,
+        "price": 251.64,
+        "volume": 45152288
+      },
+      {
+        "date": "2026-03-25T00:00:00.000Z",
+        "open": 254.095,
+        "high": 255,
+        "low": 251.6,
+        "close": 252.62,
+        "adjClose": 252.62,
+        "price": 252.62,
+        "volume": 28476668
+      },
+      {
+        "date": "2026-03-26T00:00:00.000Z",
+        "open": 252.115,
+        "high": 257,
+        "low": 250.77,
+        "close": 252.89,
+        "adjClose": 252.89,
+        "price": 252.89,
+        "volume": 41796650
+      },
+      {
+        "date": "2026-03-27T00:00:00.000Z",
+        "open": 253.9,
+        "high": 255.493,
+        "low": 248.07,
+        "close": 248.8,
+        "adjClose": 248.8,
+        "price": 248.8,
+        "volume": 47899998
+      },
+      {
+        "date": "2026-03-30T00:00:00.000Z",
+        "open": 250.07,
+        "high": 250.87,
+        "low": 245.51,
+        "close": 246.63,
+        "adjClose": 246.63,
+        "price": 246.63,
+        "volume": 39446213
+      },
+      {
+        "date": "2026-03-31T00:00:00.000Z",
+        "open": 247.91,
+        "high": 255.48,
+        "low": 247.101,
+        "close": 253.79,
+        "adjClose": 253.79,
+        "price": 253.79,
+        "volume": 49598091
+      },
+      {
+        "date": "2026-04-01T00:00:00.000Z",
+        "open": 254.08,
+        "high": 256.18,
+        "low": 253.33,
+        "close": 255.63,
+        "adjClose": 255.63,
+        "price": 255.63,
+        "volume": 40059432
+      },
+      {
+        "date": "2026-04-02T00:00:00.000Z",
+        "open": 254.2,
+        "high": 256.13,
+        "low": 250.65,
+        "close": 255.92,
+        "adjClose": 255.92,
+        "price": 255.92,
+        "volume": 31289369
+      },
+      {
+        "date": "2026-04-06T00:00:00.000Z",
+        "open": 256.51,
+        "high": 262.16,
+        "low": 256.46,
+        "close": 258.86,
+        "adjClose": 258.86,
+        "price": 258.86,
+        "volume": 29329911
+      },
+      {
+        "date": "2026-04-07T00:00:00.000Z",
+        "open": 256.155,
+        "high": 256.2,
+        "low": 245.7,
+        "close": 253.5,
+        "adjClose": 253.5,
+        "price": 253.5,
+        "volume": 62148008
+      },
+      {
+        "date": "2026-04-08T00:00:00.000Z",
+        "open": 258.45,
+        "high": 259.7499,
+        "low": 256.53,
+        "close": 258.9,
+        "adjClose": 258.9,
+        "price": 258.9,
+        "volume": 41032772
+      },
+      {
+        "date": "2026-04-09T00:00:00.000Z",
+        "open": 259,
+        "high": 261.12,
+        "low": 256.07,
+        "close": 260.49,
+        "adjClose": 260.49,
+        "price": 260.49,
+        "volume": 28121574
+      },
+      {
+        "date": "2026-04-10T00:00:00.000Z",
+        "open": 259.98,
+        "high": 262.19,
+        "low": 259.023123,
+        "close": 260.48,
+        "adjClose": 260.48,
+        "price": 260.48,
+        "volume": 31291473
+      },
+      {
+        "date": "2026-04-13T00:00:00.000Z",
+        "open": 259.73,
+        "high": 260.18,
+        "low": 256.66,
+        "close": 259.2,
+        "adjClose": 259.2,
+        "price": 259.2,
+        "volume": 36234698
+      },
+      {
+        "date": "2026-04-14T00:00:00.000Z",
+        "open": 259.245,
+        "high": 261.93,
+        "low": 257.19,
+        "close": 258.83,
+        "adjClose": 258.83,
+        "price": 258.83,
+        "volume": 48370710
+      },
+      {
+        "date": "2026-04-15T00:00:00.000Z",
+        "open": 258.16,
+        "high": 266.56,
+        "low": 257.81,
+        "close": 266.43,
+        "adjClose": 266.43,
+        "price": 266.43,
+        "volume": 49913510
+      },
+      {
+        "date": "2026-04-16T00:00:00.000Z",
+        "open": 266.8,
+        "high": 267.16,
+        "low": 261.27,
+        "close": 263.4,
+        "adjClose": 263.4,
+        "price": 263.4,
+        "volume": 43323112
+      },
+      {
+        "date": "2026-04-17T00:00:00.000Z",
+        "open": 266.96,
+        "high": 272.3,
+        "low": 266.72,
+        "close": 270.23,
+        "adjClose": 270.23,
+        "price": 270.23,
+        "volume": 61436228
+      },
+      {
+        "date": "2026-04-20T00:00:00.000Z",
+        "open": 270.33,
+        "high": 274.275,
+        "low": 270.29,
+        "close": 273.05,
+        "adjClose": 273.05,
+        "price": 273.05,
+        "volume": 36590169
+      },
+      {
+        "date": "2026-04-21T00:00:00.000Z",
+        "open": 271.5,
+        "high": 272.8,
+        "low": 265.4,
+        "close": 266.17,
+        "adjClose": 266.17,
+        "price": 266.17,
+        "volume": 50209755
+      },
+      {
+        "date": "2026-04-22T00:00:00.000Z",
+        "open": 267.82,
+        "high": 273.74,
+        "low": 266.87,
+        "close": 273.17,
+        "adjClose": 273.17,
+        "price": 273.17,
+        "volume": 43249204
+      },
+      {
+        "date": "2026-04-23T00:00:00.000Z",
+        "open": 275.045,
+        "high": 275.77,
+        "low": 271.65,
+        "close": 273.43,
+        "adjClose": 273.43,
+        "price": 273.43,
+        "volume": 33399639
+      },
+      {
+        "date": "2026-04-24T00:00:00.000Z",
+        "open": 272.755,
+        "high": 273.06,
+        "low": 269.65,
+        "close": 271.06,
+        "adjClose": 271.06,
+        "price": 271.06,
+        "volume": 38157110
+      },
+      {
+        "date": "2026-04-27T00:00:00.000Z",
+        "open": 266.09,
+        "high": 268.36,
+        "low": 265.07,
+        "close": 267.61,
+        "adjClose": 267.61,
+        "price": 267.61,
+        "volume": 41466762
+      },
+      {
+        "date": "2026-04-28T00:00:00.000Z",
+        "open": 272.335,
+        "high": 273.23,
+        "low": 268.66,
+        "close": 270.71,
+        "adjClose": 270.71,
+        "price": 270.71,
+        "volume": 40018940
+      },
+      {
+        "date": "2026-04-29T00:00:00.000Z",
+        "open": 267.55,
+        "high": 271.04,
+        "low": 267.04,
+        "close": 270.17,
+        "adjClose": 270.17,
+        "price": 270.17,
+        "volume": 30047869
+      },
+      {
+        "date": "2026-04-30T00:00:00.000Z",
+        "open": 270.5,
+        "high": 276,
+        "low": 268.14,
+        "close": 271.35,
+        "adjClose": 271.35,
+        "price": 271.35,
+        "volume": 91848230
+      },
+      {
+        "date": "2026-05-01T00:00:00.000Z",
+        "open": 278.855,
+        "high": 287.22,
+        "low": 278.37,
+        "close": 280.14,
+        "adjClose": 280.14,
+        "price": 280.14,
+        "volume": 77938859
       }
     ],
     "fundamentals": {
-      "marketCap": 3897263103750,
-      "peRatio": 33.0901882689,
+      "marketCap": 4112774559600,
+      "peRatio": 33.5531271434,
       "description": "Apple Inc. (Apple) designs, manufactures and markets mobile communication and media devices, personal computers, and portable digital music players, and a variety of related software, services, peripherals, networking solutions, and third-party digital content and applications. The Company's products and services include iPhone, iPad, Mac, iPod, Apple TV, a portfolio of consumer and professional software applications, the iOS and OS X operating systems, iCloud, and a variety of accessory, service and support offerings. The Company also delivers digital content and applications through the iTunes Store, App StoreSM, iBookstoreSM, and Mac App Store. The Company distributes its products worldwide through its retail stores, online stores, and direct sales force, as well as through third-party cellular network carriers, wholesalers, retailers, and value-added resellers. In February 2012, the Company acquired app-search engine Chomp."
     },
     "financials": {
@@ -12566,5 +12576,5 @@
     },
     "news": []
   },
-  "timestamp": 1772633927385
+  "timestamp": 1777824853101
 }

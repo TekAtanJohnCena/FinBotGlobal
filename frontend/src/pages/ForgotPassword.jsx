@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { Link } from 'react-router-dom';
 
 const ForgotPassword = () => {
@@ -15,9 +15,7 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      // Backend URL (App Runner)
-      const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
-      await axios.post(`${API_URL}/api/auth/forgotpassword`, { email });
+      await api.post('/auth/forgotpassword', { email });
 
       setMessage('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen mail kutunuzu kontrol edin.');
       setEmail('');

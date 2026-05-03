@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 /**
@@ -37,9 +37,8 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            // Backend URL (App Runner)
-            const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
-            await axios.put(`${API_URL}/api/auth/resetpassword/${token}`, { password });
+            // Use shared api instance (routes through dev proxy / production URL automatically)
+            await api.put(`/auth/resetpassword/${token}`, { password });
 
             setMessage('Şifreniz başarıyla güncellendi! Giriş sayfasına yönlendiriliyorsunuz...');
 

@@ -142,6 +142,31 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });
 
+// DB health check — diagnoses MongoDB connectivity on deployed instances
+app.get("/api/health/db", async (req, res) => {
+  const mongoState = mongoose.connection.readyState;
+  // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+  const states = { 0: "disconnected", 1: "connected", 2: "connecting", 3: "disconnecting" };
+  const isConnected = mongoState === 1;
+
+  if (!isConnected) {
+    return res.status(503).json({
+      ok: false,
+      db: states[mongoState] || "unknown",
+      hint: "MongoDB is not connected. Check MONGO_URI env var and MongoDB Atlas IP whitelist (add 0.0.0.0/0).",
+    });
+  }
+
+  try {
+    // Quick ping to verify actual connection
+    await mongoose.connection.db.admin().ping();
+    res.json({ ok: true, db: "connected", timestamp: new Date().toISOString() });
+  } catch (pingErr) {
+    res.status(503).json({ ok: false, db: "ping_failed", error: pingErr.message });
+  }
+});
+
+
 // POST /api/contact — Contact form email
 
 app.post("/api/contact", async (req, res) => {

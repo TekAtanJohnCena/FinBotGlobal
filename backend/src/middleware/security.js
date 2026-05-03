@@ -25,7 +25,7 @@ export const securityHeaders = helmet({
   noSniff: true,
   xssFilter: true,
   referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }, // Allow Google OAuth popup postMessage
+  crossOriginOpenerPolicy: { policy: "unsafe-none" }, // Allow Google OAuth iframe/popup postMessage
   crossOriginEmbedderPolicy: false,
 });
 

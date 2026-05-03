@@ -16,6 +16,7 @@ import '../styles/phone-input-dark.css';
 // GÖRSELLER
 import heroImage from "../images/finbot-auth-hero.png";
 import logo from "../images/logo1.png";
+import api from "../lib/api";
 
 // Plan bilgileri
 const PLANS = {
@@ -419,29 +420,21 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'https://kabc8j4wap.us-east-1.awsapprunner.com';
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/api/subscription/upgrade`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          planName: selectedPlan.nameKey.toUpperCase(),
-          interval: 'monthly',
-          paymentDetails: {
-            cardToken: 'stripe_token_placeholder', // TODO: Integrate Stripe.js for real tokenization
-            last4: cardNumber.slice(-4),
-            brand: 'visa'
-          }
-        })
+      const response = await api.post('/subscription/upgrade', {
+        planName: selectedPlan.nameKey.toUpperCase(),
+        interval: 'monthly',
+        paymentDetails: {
+          cardToken: 'stripe_token_placeholder', // TODO: Integrate Stripe.js for real tokenization
+          last4: cardNumber.slice(-4),
+          brand: 'visa'
+        }
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (!data.ok) {
+      if (!data.ok && !data.success) {
         throw new Error(data.error || 'Ödeme işlemi başarısız');
       }
 

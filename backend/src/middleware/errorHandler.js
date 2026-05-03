@@ -57,11 +57,28 @@ export const errorHandler = (err, req, res, next) => {
     } else if (err.name === 'CastError' && err.kind === 'ObjectId') {
         statusCode = 400;
         err.message = 'Invalid ID format';
-    } else if (err.code === 11000) {
-        // MongoDB duplicate key error
-        statusCode = 400;
-        err.message = 'Duplicate entry found';
-    }
+    } else  if (err.code === 11000) {
+    // Duplicate key error (MongoDB)
+    return res.status(409).json({
+      message: "Bu kayıt zaten mevcut",
+    });
+  }
+
+  // Mongoose buffering timeout — DB unreachable
+  if (err.name === "MongooseError" && err.message?.includes("buffering timed out")) {
+    return res.status(503).json({
+      message: "Veritabanına bağlanılamıyor. Lütfen daha sonra tekrar deneyin.",
+      code: "DB_UNAVAILABLE",
+    });
+  }
+
+  // MongoDB network/topology errors
+  if (err.name === "MongoNetworkError" || err.name === "MongoServerSelectionError") {
+    return res.status(503).json({
+      message: "Veritabanı bağlantı hatası. Lütfen daha sonra tekrar deneyin.",
+      code: "DB_CONNECTION_ERROR",
+    });
+  }
 
     // Format response based on environment
     const response = {

@@ -1,11 +1,19 @@
 // Streaming helper function
 async function sendMessageWithStreaming(message, chatId, setMessages, setActiveChatId, fetchHistory, scrollToBottom, botMessageIndex) {
     try {
-        let baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-        if (baseUrl.endsWith('/api')) baseUrl = baseUrl.slice(0, -4);
+        // In development (no REACT_APP_API_URL set), use relative path so CRA proxy
+        // forwards to localhost:5000. In production, use the full URL.
+        let streamUrl;
+        if (process.env.REACT_APP_API_URL) {
+            let baseUrl = process.env.REACT_APP_API_URL;
+            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            if (baseUrl.endsWith('/api')) baseUrl = baseUrl.slice(0, -4);
+            streamUrl = `${baseUrl}/api/chat/stream`;
+        } else {
+            streamUrl = '/api/chat/stream';
+        }
 
-        const response = await fetch(`${baseUrl}/api/chat/stream`, {
+        const response = await fetch(streamUrl, {
             method: 'POST',
             credentials: 'include',
             headers: {
